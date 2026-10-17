@@ -180,6 +180,8 @@ class Executor:
                                          f'docker/docker-compose.{job["environment"]}.yml']:
                             if not safe_path(directory / filename).is_file():
                                 raise ValueError('invalid_request')
+                    job['log'] += f'\n{label}: started.'
+                    self.save(job)
                     result = run_step(arguments, directory, int(self.config.get('stepTimeoutSeconds', 300)))
                     job['log'] += f'\n{label}: exit code {result}.'
                     self.save(job)

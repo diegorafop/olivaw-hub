@@ -91,9 +91,21 @@ try:
         sys.exit(0)
     deadline = time.monotonic() + 1800
     previous = None
+    previous_log = ""
+    started = time.monotonic()
+    heartbeat = started
     while time.monotonic() < deadline:
         status = request(f"/implantacoes/{job_id}", token=token)
         state = status.get("status")
+        log = status.get("log", "")
+        if isinstance(log, str) and log != previous_log:
+            addition = log[len(previous_log):] if log.startswith(previous_log) else log
+            for line in addition.strip().splitlines():
+                print(line, flush=True)
+            previous_log = log
+        if time.monotonic() - heartbeat >= 15:
+            print(f"Acompanhando job {job_id}: {int(time.monotonic() - started)}s decorridos.", flush=True)
+            heartbeat = time.monotonic()
         if state != previous:
             print(f"Status: {state}", flush=True)
             previous = state
