@@ -38,11 +38,11 @@ Depois de preparar o schema:
 dotnet run --project ms-devops-api/src/Mps.Devops.Api/Mps.Devops.Api.csproj -c Release --no-launch-profile
 ```
 
-Nenhuma migration ou banco foi criado na geração. Aplicação de migrations e bootstrap de root vêm desabilitados. O [guia de identidade](../olivaw-identity/README.md) explica como preparar o usuário inicial com senha externa; não há senha padrão.
+O projeto `Mps.Devops.Dados.PostgreSql` contém a migration inicial `DbCreate`, com as tabelas `usuario`, `perfilacesso`, `autorizacao`, `usuarioperfilacesso` e `perfilacessoautorizacao` (nomes em minúsculas das classes de domínio), além da tabela `example`. A conexão define o `SearchPath` para `ms_devops`; a migration não fixa o schema nas operações das tabelas. A database precisa existir antes: em produção, crie `olivaw_prd` no PostgreSQL da VM. A API aplica migrations em todo startup e o `.env.prd` habilita o bootstrap idempotente do usuário `root`; a senha inicial está configurada nesse arquivo.
 
 ## Configuração de nuvem e Docker
 
-O ambiente segue a infraestrutura do FinTalk: PostgreSQL em `ms-postgres-db`, RabbitMQ em `ms-rabbit-mq` e roteamento Traefik na rede `traefik-net`. Produção usa banco `olivaw_prd`, schema `ms_devops` e URL `https://api.devops.olivaw-hub.duckdns.org`.
+O ambiente segue a infraestrutura do FinTalk: PostgreSQL em `ms-postgres-db`, RabbitMQ em `ms-rabbit-mq` e roteamento Traefik na rede `traefik-net`. Produção usa database `olivaw_prd`, schema `ms_devops` e URL `https://api.devops.olivaw-hub.duckdns.org`.
 
 Os cinco ambientes possuem appsettings e overrides próprios. Senhas temporárias e chaves JWT ficam nos dotenv locais ignorados pelo Git. `.env.example` não contém credenciais reais. Redis tem conexão preparada, mas continua sem integração ativa no código.
 

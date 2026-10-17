@@ -9,8 +9,7 @@ builder.AddSetups();
 var app = builder.Build();
 
 app.UseSetups();
-if (builder.Configuration.GetValue<bool>("Database:ApplyMigrations"))
-    app.UseMigrations();
+app.UseMigrations();
 
 await app.InitializeOlivawIdentityAsync();
 
