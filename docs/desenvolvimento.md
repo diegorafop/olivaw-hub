@@ -131,3 +131,9 @@ Arquivos já rastreados continuam no índice mesmo quando passam a corresponder 
 Leia o `AGENTS.md` da raiz e os guias aplicáveis ao diretório alterado. Os arquivos locais detalham responsabilidades, convenções e validação. Não é necessário criar um guia em toda pasta: use-os quando houver regras próprias, como segurança, persistência, testes ou geração de projetos.
 
 O guia da raiz ainda descreve a fase inicial de planejamento; os caminhos e fluxos implementados estão documentados aqui e nos READMEs dos módulos. Os `AGENTS.md` existentes foram preservados nesta atualização.
+
+## Inglês como padrão para novas features de APIs
+
+A partir desta decisão, novas features das APIs e dos projetos gerados pelo template usam inglês nos nomes de entidades, propriedades, contratos, casos de uso, testes e recursos HTTP. Para CRUD, use `Create`, `Get`, `Update` e `Delete`, por exemplo `CreateCustomerCommand`, `GetCustomerByIdQuery` e `GetCustomersByFilterQuery`. Preserve CQS: escrita em Commands, leitura em Queries; operações específicas do domínio também devem ter nomes em inglês.
+
+O código existente em português será refatorado em uma tarefa futura, com revisão de compatibilidade dos contratos e rotas. Não renomeie esse legado automaticamente ao desenvolver funcionalidades. Nesta alteração, `CriarImplantacao`, `/implantacoes` e `devops.implantar` permanecem; o payload solicitado passa a usar `folder`, `branch` e `environment`. Documentação e mensagens de erro podem continuar em português.

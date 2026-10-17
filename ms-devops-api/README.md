@@ -57,3 +57,40 @@ O contexto Docker é a raiz do monorepo. A API recebe HTTP/8080 sem PFX e execut
 Consulte o [guia de nuvem](../docs/cloud.md) para usar os dotenv, preparar bancos/schemas e escolher os comandos de subida. Nenhum recurso foi provisionado e nenhuma implantação foi realizada nesta preparação.
 
 O [fluxo de desenvolvimento](../docs/desenvolvimento.md), o [padrão Git Flow](../docs/gitflow.md) e os `AGENTS.md` locais continuam válidos.
+
+## Implantações
+
+`POST /implantacoes` recebe um comando CQS:
+
+```json
+{ "folder": "olivaw-hub/ms-devops-api", "branch": "develop", "environment": "dev" }
+```
+
+Configure `Deployment__RootDirectory` com uma raiz absoluta e confiável no servidor (na VM informada: `/home/ec2-user`) e, opcionalmente, `Deployment__TimeoutSeconds` (padrão 300, máximo 3600, por comando). `folder` aponta para a raiz do microserviço e é relativo à raiz permitida; aceita segmentos com letras, números, `_` e `-`, separados por `/`. Caminhos absolutos, `..`, metacaracteres e links simbólicos são rejeitados. Deve existir um repositório Git na pasta ou em um ancestral dentro da raiz autorizada.
+
+O JWT deve pertencer a um usuário root ou ter a autorização `devops.implantar`, vinculada ao perfil do usuário. O serviço executa `git checkout <branch>`, `git pull --ff-only` e o Compose do ambiente solicitado, nessa ordem, usando `WorkingDirectory` e argumentos separados, sem shell. `environment` é obrigatório e aceita somente `dev`, `qas`, `stg`, `rls` ou `prd`. O comando executado na raiz do microserviço é:
+
+```bash
+docker compose --env-file docker/.env.dev -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d
+```
+
+O sufixo `dev` é substituído pelo ambiente validado, inclusive no dotenv. Os arquivos existentes usam `.yml` e `docker-compose.<ambiente>.yml`. O `--env-file` garante a interpolação das variáveis do ambiente correto. O branch precisa existir localmente para checkout ou ser resolvido pelo Git; o pull usa seu upstream configurado.
+
+Sucesso retorna HTTP 200 com `log` das etapas/códigos de saída. Entrada inválida, pasta indisponível, Git/Docker ausente, saída não zero ou timeout passam pelo filtro centralizado do core, com HTTP 400 e `ValidationProblemDetails` (`title`, `status`, `errors`). A saída bruta dos processos é descartada para evitar expor credenciais; falhas interrompem a sequência, sem rollback automático. O cancelamento da requisição encerra o processo e seus descendentes. Implantações são serializadas por instância; execute uma única réplica enquanto não houver coordenação distribuída.
+
+A execução ocorre na máquina/container da API; não há SSH para a AWS nesta feature. O ambiente executor precisa de Git, Docker Compose, credenciais Git não interativas, acesso aos projetos e permissão para usar o daemon Docker. O Dockerfile atual não fornece essa infraestrutura. Não foi montado socket Docker nem habilitado acesso ao host automaticamente. A raiz e os repositórios devem ser administrados somente por operadores confiáveis, sem alterações concorrentes de filesystem durante a implantação.
+
+Os testes cobrem validator, handler, controller, argumentos dos processos, proteção de caminhos e HTTP real em TestServer com JWT e `IIdentityStore`/`IProcessExecutionService` mockados. Não executam Git/Docker nem dependem da VM.
+
+### Caminhos na VM AWS
+
+Na estrutura informada, configure `Deployment__RootDirectory=/home/ec2-user`. O payload com `folder=olivaw-hub/ms-devops-api` executa os comandos em `/home/ec2-user/olivaw-hub/ms-devops-api`. Exemplo equivalente no host, para `dev`:
+
+```bash
+cd /home/ec2-user/olivaw-hub/ms-devops-api
+git checkout develop
+git pull --ff-only
+docker compose --env-file docker/.env.dev -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d
+```
+
+A raiz é configuração do executor, não um campo do payload. Se a API estiver em container, caminhos, ferramentas e acesso ao daemon precisam ser disponibilizados explicitamente ao executor; a presença desses recursos no host não os torna disponíveis dentro do container. O acesso Git também precisa funcionar com o usuário efetivo do executor, sem prompts. Não há conexão SSH automática nem alteração da VM nesta feature.
