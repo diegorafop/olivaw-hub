@@ -21,11 +21,32 @@ services:
       Identity__Bootstrap__Enabled: ${Identity__Bootstrap__Enabled:-false}
       Identity__Bootstrap__Email: ${Identity__Bootstrap__Email:-}
       Identity__Bootstrap__Password: ${Identity__Bootstrap__Password:-}
+      Deployment__Host: ${Deployment__Host:-host.docker.internal}
+      Deployment__Port: ${Deployment__Port:-22}
+      Deployment__User: ${Deployment__User:-ec2-user}
+      Deployment__KeyFile: ${Deployment__KeyFile:-/run/secrets/deployment_key}
+      Deployment__KnownHostsFile: ${Deployment__KnownHostsFile:-/run/secrets/deployment_known_hosts}
+      Deployment__TimeoutSeconds: ${Deployment__TimeoutSeconds:-30}
       masstransit__configured: ${masstransit__configured:-false}
       masstransit__server: ${masstransit__server:-ms-rabbit-mq}
       masstransit__user: ${masstransit__user:-}
       masstransit__password: ${masstransit__password:-}
       masstransit__prefix: ${masstransit__prefix:-ms-devops-api-prd}
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    volumes:
+    - type: bind
+      source: ${DEPLOYMENT_KEY_SOURCE:-/etc/olivaw/ssh/deployment_key}
+      target: /run/secrets/deployment_key
+      read_only: true
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${DEPLOYMENT_KNOWN_HOSTS_SOURCE:-/etc/olivaw/ssh/known_hosts}
+      target: /run/secrets/deployment_known_hosts
+      read_only: true
+      bind:
+        create_host_path: false
     networks:
     - rabbit-net
     - postgres-net

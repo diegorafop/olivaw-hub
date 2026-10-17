@@ -74,18 +74,17 @@ A API usa `StrictHostKeyChecking=yes`; não aceite automaticamente o resultado d
 
 ## Container e comandos executados
 
-O Dockerfile da API instala somente o cliente OpenSSH na imagem final e mantém execução como `app`. O override opcional `docker-compose.ssh.yml` monta chave e `known_hosts` em leitura, configura SSH e resolve `host.docker.internal` para o gateway do host. Não monta projetos ou `/var/run/docker.sock`. Confira acesso do bridge Docker ao SSH da VM; não é necessário abrir uma nova porta pública para o executor.
+O Dockerfile da API instala somente o cliente OpenSSH na imagem final e mantém execução como `app`. O Compose base monta a chave e o `known_hosts` em leitura e configura o acesso SSH a `host.docker.internal`; os caminhos do host ficam em `DEPLOYMENT_KEY_SOURCE` e `DEPLOYMENT_KNOWN_HOSTS_SOURCE` no dotenv. Os arquivos precisam existir na VM antes de subir, e o Compose falha se algum estiver ausente. Não monta projetos ou `/var/run/docker.sock`. Confira acesso do bridge Docker ao SSH da VM; não é necessário abrir uma nova porta pública para o executor. `docker-compose.ssh.yml` permanece como override de compatibilidade para o worker já instalado.
 
 Para conferir a composição, na raiz do monorepo:
 
 ```bash
 docker compose --env-file ms-devops-api/docker/.env.dev \
   -f ms-devops-api/docker/docker-compose.yml \
-  -f ms-devops-api/docker/docker-compose.dev.yml \
-  -f ms-devops-api/docker/docker-compose.ssh.yml config --quiet
+  -f ms-devops-api/docker/docker-compose.dev.yml config --quiet
 ```
 
-Antes de subir, provisione os arquivos; o override recusa criar diretórios vazios no lugar deles. Inclua esse mesmo override nos deploys futuros do próprio DevOps: `COMPOSE_FILE` não é suficiente, pois o executor usa `-f` explícito. A lista `sshOverrideFolders` do exemplo faz o executor incluir o override SSH para `olivaw-hub/ms-devops-api`, mantendo seus mounts/configuração ao atualizar a API.
+Antes de subir, provisione os arquivos; o Compose base recusa criar diretórios vazios no lugar deles. Os deploys futuros do próprio DevOps mantêm SSH porque os mounts e variáveis agora fazem parte do Compose base.
 
 Na raiz do serviço selecionado, o worker roda checkout, pull `--ff-only` e:
 
@@ -96,7 +95,7 @@ docker compose --env-file docker/.env.dev \
 
 O ambiente validado seleciona os arquivos `dev/qas/stg/rls/prd`. Para o primeiro projeto externo na VM, use `folder=lisierp` (nome exibido no console); não use o nome local `lisifin` sem conferir a pasta remota.
 
-`--build` é necessário para publicar as alterações de código obtidas pelo Git; o override SSH também é acrescentado para o próprio DevOps. A fila usa um lock único **na VM**, incluindo serviços do mesmo monorepo, evitando checkout concorrente. A API não mantém mais `DeploymentGate` local.
+`--build` é necessário para publicar as alterações de código obtidas pelo Git. A fila usa um lock único **na VM**, incluindo serviços do mesmo monorepo, evitando checkout concorrente. A API não mantém mais `DeploymentGate` local.
 
 Cada etapa tem timeout (300s padrão); o worker inteiro expira após 1800s, incluindo espera pelo lock. O timeout encerra o grupo de processos da etapa; o systemd controla o restante do serviço. Falhas interrompem as próximas etapas, sem rollback. Preserve e monitore a pasta de estado; retenção/limpeza de jobs finalizados, health checks pós-deploy e rollback ficam para evoluções futuras.
 
