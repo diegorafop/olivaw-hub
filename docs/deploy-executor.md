@@ -9,7 +9,7 @@ POST /implantacoes → CQS → SshDeploymentService → ProcessExecutionService
                            /opt/olivaw/deploy.py (comando fixo da chave)
                                                      │ systemd-run --user
                                                      ▼
-                           worker independente: Git + Docker Compose
+                           worker independente: Git na raiz do repo + Compose no serviço
 ```
 
 SSH é o canal autenticado entre o container e a VM. A API usa o executável `ssh` e envia JSON pela entrada padrão, sem concatenar campos em um comando remoto. A chave autoriza somente o script instalado. Não é um terminal aberto nem um novo microservice HTTP.
@@ -86,7 +86,7 @@ docker compose --env-file ms-devops-api/docker/.env.dev \
 
 Antes de subir, provisione os arquivos; o Compose base recusa criar diretórios vazios no lugar deles. Os deploys futuros do próprio DevOps mantêm SSH porque os mounts e variáveis agora fazem parte do Compose base.
 
-Na raiz do serviço selecionado, o worker roda checkout, pull `--ff-only` e:
+O worker encontra a raiz Git existente acima da pasta autorizada e executa `git fetch origin`, checkout e `git pull --ff-only origin <branch>` nessa raiz. Só depois verifica a pasta do serviço e seus arquivos de ambiente/Compose, e executa nela:
 
 ```bash
 docker compose --env-file docker/.env.dev \
@@ -131,12 +131,28 @@ Exemplos:
 bash scripts/deployment/deploy.sh ms-olivaw-hub-ng prd master
 bash scripts/deployment/deploy.sh ms-devops-api prd master
 bash scripts/deployment/deploy.sh ms-novo-servico-api stg develop
+bash scripts/deployment/deploy.sh lisierp prd master
 ```
 
-O nome do serviço é a pasta em kebab-case, com prefixo `ms-`. O cliente monta `folder=olivaw-hub/<servico>`, usa o ambiente `dev/qas/rls/stg/prd` e envia a branch informada. Exibe o destino antes de autenticar; não há serviço, ambiente ou branch implícitos. Novos serviços não exigem editar esse script.
+Para serviços com prefixo `ms-`, o cliente monta `folder=olivaw-hub/<servico>`. Para repositórios independentes, como `lisierp`, usa `folder=<servico>`. Em ambos os casos, usa o ambiente `dev/qas/rls/stg/prd` e envia a branch informada. Exibe o destino antes de autenticar; não há serviço, ambiente ou branch implícitos. Novos serviços não exigem editar esse script.
 
 Cada serviço deve ter `docker/.env.<ambiente>`, `docker/docker-compose.yml` e `docker/docker-compose.<ambiente>.yml` na branch publicada. Seu caminho completo precisa estar em `allowedFolders` de `/etc/olivaw/deployment.json` na VM. O exemplo versionado inclui o frontend institucional e DevOps; não modifica a configuração já instalada. Não adicione frontends a `sshOverrideFolders`; essa opção preserva a integração SSH específica do DevOps.
 
 Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. `DEVOPS_API_URL` e `DEVOPS_ROOT_PASSWORD` substituem os valores fixos sem editar o arquivo.
 
 A branch deve estar publicada com todos os arquivos de implantação. Se a senha root já tiver sido alterada no banco, atualize a credencial do script; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente porque o logout atual revoga todas as sessões root. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
+
+## Primeiro deploy de um serviço e compatibilidade com lisierp
+
+`folder` identifica onde executar o Compose, não obriga essa pasta a existir antes da atualização Git. No monorepo, `olivaw-hub/ms-olivaw-hub-ng` usa Git em `/home/ec2-user/olivaw-hub` e Compose em sua subpasta após atualizar a branch. O clone raiz precisa existir, e o serviço precisa estar na allowlist. Se a branch não contiver a pasta ou os arquivos de implantação, o job falha sem executar Docker.
+
+Para `folder=lisierp`, Git e Compose continuam em `/home/ec2-user/lisierp`, seu repositório independente. Não há redirecionamento desse projeto para o monorepo. O lock único da VM, a allowlist, a recusa de links simbólicos e o override SSH específico do DevOps são preservados.
+
+Após publicar esta correção e atualizar o clone na VM, instale a nova versão do executor:
+
+```bash
+cd /home/ec2-user/olivaw-hub
+sudo install -o root -g root -m 0644 scripts/deployment/deploy.py /opt/olivaw/deploy.py
+```
+
+Não é necessário reconstruir a API DevOps para essa alteração de script. A cópia em `/opt/olivaw` é usada pelos novos workers; o pull do monorepo sozinho não substitui o executor instalado. Atualize quando não houver implantação em andamento.

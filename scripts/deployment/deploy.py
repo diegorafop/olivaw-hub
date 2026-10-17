@@ -51,22 +51,32 @@ def safe_path(path):
     return path.resolve(strict=True)
 
 
-def resolve_folder(config, request):
+def resolve_repository(config, request):
     request = validate_request(request)
     if request['folder'] not in config['allowedFolders']:
         raise ValueError('invalid_request')
     root = safe_path(config['rootDirectory'])
-    directory = safe_path(root / request['folder'])
-    if root not in directory.parents:
-        raise ValueError('invalid_request')
-    for parent in [directory, *directory.parents]:
+    target = root / request['folder']
+    # A pasta do serviço pode ainda não existir; seus ancestrais não podem ser links.
+    for parent in [target, *target.parents]:
+        if parent.is_symlink():
+            raise ValueError('invalid_request')
+    for parent in [target, *target.parents]:
+        if parent == root:
+            break
         git = parent / '.git'
         if git.is_dir():
             safe_path(git)
-            return directory
-        if parent == root:
-            break
+            return safe_path(parent)
     raise ValueError('invalid_request')
+
+
+def resolve_folder(config, request):
+    resolve_repository(config, request)
+    directory = safe_path(Path(config['rootDirectory']) / request['folder'])
+    if not directory.is_dir():
+        raise ValueError('invalid_request')
+    return directory
 
 
 def systemd_environment():
@@ -112,7 +122,7 @@ class Executor:
 
     def submit(self, request):
         request = validate_request(request)
-        resolve_folder(self.config, request)
+        resolve_repository(self.config, request)
         with (self.state / 'submit.lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             pending = sum(self.status(path.stem)['status'] in ('queued', 'running')
@@ -157,8 +167,19 @@ class Executor:
             job.update(status='running', log='Deployment started.')
             self.save(job)
             try:
-                directory = resolve_folder(self.config, job)
+                repository = resolve_repository(self.config, job)
                 for label, arguments in commands(job['branch'], job['environment'], job['folder'] in self.config.get('sshOverrideFolders', [])):
+                    directory = repository
+                    if label == 'Compose':
+                        job['log'] += '\nCompose: validating service directory after Git update.'
+                        self.save(job)
+                        directory = resolve_folder(self.config, job)
+                        if resolve_repository(self.config, job) != repository:
+                            raise ValueError('invalid_request')
+                        for filename in [f'docker/.env.{job["environment"]}', 'docker/docker-compose.yml',
+                                         f'docker/docker-compose.{job["environment"]}.yml']:
+                            if not safe_path(directory / filename).is_file():
+                                raise ValueError('invalid_request')
                     result = run_step(arguments, directory, int(self.config.get('stepTimeoutSeconds', 300)))
                     job['log'] += f'\n{label}: exit code {result}.'
                     self.save(job)
@@ -177,8 +198,9 @@ def commands(branch, environment, include_ssh=False):
         compose.extend(['-f', 'docker/docker-compose.ssh.yml'])
     compose.extend(['up', '-d', '--build'])
     return [
+        ('Fetch', ['/usr/bin/git', 'fetch', 'origin']),
         ('Checkout', ['/usr/bin/git', 'checkout', branch]),
-        ('Pull', ['/usr/bin/git', 'pull', '--ff-only']),
+        ('Pull', ['/usr/bin/git', 'pull', '--ff-only', 'origin', branch]),
         ('Compose', compose)
     ]
 

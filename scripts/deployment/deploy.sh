@@ -18,14 +18,14 @@ import urllib.request
 from urllib.parse import urlsplit
 
 parser = argparse.ArgumentParser(description="Implanta um serviço do Olivaw Hub pelo ms-devops-api.")
-parser.add_argument("service", help="Nome da pasta do serviço, como ms-olivaw-hub-ng ou ms-devops-api")
+parser.add_argument("service", help="Nome do serviço ms-* no monorepo ou repositório independente como lisierp")
 parser.add_argument("environment", choices=["dev", "qas", "rls", "stg", "prd"])
 parser.add_argument("branch", help="Branch já publicada no GitHub")
 parser.add_argument("--no-wait", action="store_true", help="Retorna após obter o ID do job")
 args = parser.parse_args()
-if not re.fullmatch(r"ms-[a-z0-9]+(?:-[a-z0-9]+)*", args.service):
-    parser.error("Informe somente o nome do serviço em kebab-case, como ms-novo-servico-api.")
-folder = f"olivaw-hub/{args.service}"
+if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.service):
+    parser.error("Informe somente o nome da pasta, como ms-novo-servico-api ou lisierp.")
+folder = f"olivaw-hub/{args.service}" if args.service.startswith("ms-") else args.service
 if (len(args.branch) > 200 or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._/-]*", args.branch)
         or ".." in args.branch or args.branch == "HEAD"
         or any(not part or part.startswith(".") or part.endswith(".lock") for part in args.branch.split("/"))):
@@ -50,7 +50,29 @@ def request(path, payload=None, token=None):
         with urllib.request.urlopen(call, timeout=30) as response:
             return json.load(response)
     except urllib.error.HTTPError as error:
-        raise RuntimeError(f"HTTP {error.code} em {path}. Confira autenticação, permissão e allowlist da VM.") from None
+        messages = []
+        try:
+            problem = json.loads(error.read(65536))
+            if isinstance(problem, dict):
+                errors = problem.get("errors")
+                if isinstance(errors, dict):
+                    for field, values in errors.items():
+                        if isinstance(values, str):
+                            values = [values]
+                        if isinstance(values, list):
+                            messages.extend(f"{field}: {value}" for value in values if isinstance(value, str))
+                if not messages:
+                    for key in ("detail", "title"):
+                        if isinstance(problem.get(key), str):
+                            messages.append(problem[key])
+        except (ValueError, OSError):
+            pass
+        detail = " | ".join(messages) or "A API não retornou detalhes JSON."
+        for secret in (token, (payload or {}).get("senha")):
+            if secret:
+                detail = detail.replace(secret, "[oculto]")
+        detail = "".join(character for character in detail if character.isprintable())[:2000]
+        raise RuntimeError(f"HTTP {error.code} em {path}: {detail}") from None
     except (urllib.error.URLError, TimeoutError, ValueError):
         raise RuntimeError(f"Falha de comunicação ou resposta inválida em {path}. Se o POST já foi enviado, confira o job antes de repetir.") from None
 
