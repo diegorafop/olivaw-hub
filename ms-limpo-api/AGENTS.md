@@ -149,3 +149,7 @@ Quando este template receber um cliente REST completo, siga também `src/Mps.Lim
 - O módulo registra o esquema JWT local e controllers por application part. Não reintroduza o cliente externo de autenticação como requisito de inicialização.
 - Senhas não podem passar pelo pipeline que aplica `Trim()`. Preserve a delegação de `TemplateValidationBehavior`.
 - Bootstrap cria somente root, com segredo externo, depois de preparar o schema. Não transporte migrations ou seeds corporativos.
+
+## Configuração versionada nesta etapa
+
+Por decisão explícita do mantenedor, os dotenv de todos os projetos acompanham o Git privado até a futura migração para Key Vault. Essa exceção às diretrizes gerais de credenciais aplica-se aos arquivos de configuração de serviço; não autoriza registrar seus valores em logs, documentação ou respostas, nem versionar chaves SSH, credenciais AWS, tokens pessoais ou dados de clientes.

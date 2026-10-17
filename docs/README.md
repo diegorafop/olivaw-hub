@@ -6,6 +6,8 @@
 - [Organização e desenvolvimento do monorepo](desenvolvimento.md): pastas, projetos, soluções, referências, geração de clientes, testes e publicação independente.
 - [Extração da identidade](identidade.md): decisão arquitetural, funcionalidades implementadas, verificações e limites da validação.
 - [Guia de Olivaw Identity](../olivaw-identity/README.md): configuração, rotas, policies, persistência e bootstrap de root.
+- [Site institucional](../ms-olivaw-hub-ng/README.md): frontend derivado, domínios e pendências de contato.
+- [Template Angular](../ms-limpo-ng/README.md): site público prerenderizado, administração, autenticação, tema, testes e Docker.
 - [Template de APIs](../ms-limpo-api/README.md): composição do host, desenvolvimento e Docker.
 - [Gerar um cliente](../ms-limpo-api/TEMPLATE.md): uso do gerador e preparação do novo projeto.
 - [Core compartilhado](../ms-olivaw-core-api/README.md): bibliotecas genéricas e seus contratos.

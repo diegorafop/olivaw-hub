@@ -1,0 +1,9 @@
+node_modules
+dist
+.angular
+coverage
+playwright-report
+test-results
+package-lock.json
+
+docs/prot_tipo_da_landing_page.html

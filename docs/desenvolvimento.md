@@ -10,6 +10,8 @@ olivaw-hub/
   ms-olivaw-core-api/        # Bibliotecas genéricas e solução OlivawCore.sln
   olivaw-identity/           # Bibliotecas de identidade e seus testes
   ms-limpo-api/              # Template e solução Limpo.sln
+  ms-limpo-ng/               # Template Angular e collection Schematics
+  ms-olivaw-hub-ng/          # Site institucional derivado do template
   docs/                     # Arquitetura, decisões e fluxo de trabalho
   ms-pastelaria-joao-api/    # Exemplo futuro; gerado quando necessário
 ```
@@ -109,7 +111,7 @@ Se precisarmos manter linhas de versões diferentes por cliente ou consumir as b
 
 ## Git e configuração do editor
 
-O `.gitignore` da raiz contém as regras comuns do monorepo: `bin`, `obj`, `dist`, artefatos, relatórios, logs, estado local das IDEs, `.env` e certificados privados. Os padrões genéricos alcançam qualquer profundidade, incluindo futuros clientes. Arquivos `.env.example` e `.env.<ambiente>.example` permanecem disponíveis para versionamento.
+O `.gitignore` da raiz contém as regras comuns do monorepo: `bin`, `obj`, `dist`, artefatos, relatórios, logs, estado local das IDEs e certificados privados. Os arquivos `.env` de todos os projetos são versionados no Git privado nesta etapa; Key Vault fica planejado para o futuro. Os padrões genéricos alcançam qualquer profundidade, incluindo futuros clientes. Arquivos `.env.example` e `.env.<ambiente>.example` permanecem disponíveis para versionamento.
 
 O core e a identidade usam esse ignore central. O template mantém também seu próprio `.gitignore`, com as mesmas categorias e sem nomes de projetos, para que os clientes gerados recebam regras úteis mesmo se forem extraídos depois. Ao mudar as regras comuns, mantenha a cópia do template alinhada. Dentro deste monorepo, não é necessário criar outro ignore por cliente sem uma necessidade específica.
 
@@ -121,7 +123,7 @@ Confira uma regra sem criar arquivos de teste:
 
 ```bash
 git check-ignore -v --no-index olivaw-identity/src/Olivaw.Identity/bin/Release/exemplo.dll
-git check-ignore -v --no-index ms-limpo-api/docker/.env
+git check-ignore -v --no-index ms-limpo-api/src/Mps.Limpo.Api/bin/Release/exemplo.dll
 ```
 
 Arquivos já rastreados continuam no índice mesmo quando passam a corresponder ao ignore. O ignore não remove arquivos do histórico nem deixa de rastreá-los automaticamente; trate essa limpeza separadamente e preserve os arquivos locais necessários. Consulte a [documentação do Git](https://git-scm.com/docs/gitignore).
@@ -137,3 +139,9 @@ O guia da raiz ainda descreve a fase inicial de planejamento; os caminhos e flux
 A partir desta decisão, novas features das APIs e dos projetos gerados pelo template usam inglês nos nomes de entidades, propriedades, contratos, casos de uso, testes e recursos HTTP. Para CRUD, use `Create`, `Get`, `Update` e `Delete`, por exemplo `CreateCustomerCommand`, `GetCustomerByIdQuery` e `GetCustomersByFilterQuery`. Preserve CQS: escrita em Commands, leitura em Queries; operações específicas do domínio também devem ter nomes em inglês.
 
 O código existente em português será refatorado em uma tarefa futura, com revisão de compatibilidade dos contratos e rotas. Não renomeie esse legado automaticamente ao desenvolver funcionalidades. Nesta alteração, `CriarImplantacao`, `/implantacoes` e `devops.implantar` permanecem; o payload solicitado passa a usar `folder`, `branch` e `environment`. Documentação e mensagens de erro podem continuar em português.
+
+## Frontend e backend do cliente
+
+`ms-limpo-ng` e `ms-limpo-api` formam o par de templates. O frontend tem ciclo de instalação, testes e build próprio com npm e não pertence à solução .NET. Frontend e API são serviços separados, com builds, imagens e publicações independentes. A configuração pública `ms-limpo-ng/public/config.json` aponta diretamente para `http://localhost:5137` no desenvolvimento e deve receber a URL pública HTTPS da API em produção. O navegador chama essa URL, sem proxy Angular/Nginx e sem rede Docker compartilhada obrigatória. A API deve permitir a origem do frontend via CORS. Outra URL pode ser fornecida em runtime sem novo build do frontend.
+
+A página pública inicial é prerenderizada; login e administração são renderizados no navegador. O estado `autenticacao` usa NgRx SignalStore e os contratos existentes de login, acesso e logout. Não há refresh token nem persistência de sessão nesta etapa. Funcionalidades de eventos, fotos e agenda serão adicionadas nos projetos consumidores; A geração do frontend usa a collection local do template; o comando está no README de `ms-limpo-ng`. Consulte o [guia do frontend](../ms-limpo-ng/README.md) para comandos, tema, testes e limites da publicação de conteúdo com prerenderização.
