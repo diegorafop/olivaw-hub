@@ -1,4 +1,16 @@
 services:
   ms-limpo-api:
+    container_name: ms-limpo-api
+    image: ms-limpo-api:prd
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-limpo-api-prd.rule: Host(`${PUBLIC_HOST:-api.limpo.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-limpo-api-prd.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-limpo-api-prd.tls: 'true'
+      traefik.http.routers.ms-limpo-api-prd.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-limpo-api-prd.service: ms-limpo-api-prd
+      traefik.http.services.ms-limpo-api-prd.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-limpo-api-prd.loadbalancer.server.scheme: http

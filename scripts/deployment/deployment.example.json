@@ -1,0 +1,12 @@
+{
+  "rootDirectory": "/home/ec2-user",
+  "stateDirectory": "/home/ec2-user/.local/state/olivaw-deploy",
+  "allowedFolders": [
+    "olivaw-hub/ms-devops-api",
+    "lisierp"
+  ],
+  "stepTimeoutSeconds": 300,
+  "sshOverrideFolders": [
+    "olivaw-hub/ms-devops-api"
+  ]
+}

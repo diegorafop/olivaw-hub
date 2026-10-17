@@ -116,7 +116,7 @@ Antes de concluir:
 
 ## Versionamento e revisão
 
-- Use o GitFlow documentado: `master`, `develop`, `feature/MH-0001_descricao_branch`, `hotfix/MH-0002_descricao_branch`, releases e tags.
+- Siga o Git Flow clássico do [monorepo](../docs/gitflow.md): `feature/issue001-descricao`, releases versionadas e hotfixes versionadas com issue associada. Preserve o uso de `finish`; PRs são opcionais.
 - Commits devem ser pequenos, coerentes e descrever a intenção.
 - PRs devem explicar motivação, solução, contratos/schema/configuração afetados, testes e riscos.
 - Prefira PRs com até 500 linhas adicionadas de lógica de produção e não ultrapasse 700. Testes não entram nessa contagem. Divida mudanças maiores ou justifique na descrição por que isso não é seguro.

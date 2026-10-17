@@ -44,3 +44,7 @@ logs/
 *.tmp
 .DS_Store
 Thumbs.db
+
+# Cache dos scripts Python
+__pycache__/
+*.py[cod]
