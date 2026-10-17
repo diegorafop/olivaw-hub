@@ -51,3 +51,11 @@ docker compose --env-file ms-ltmj-api/docker/.env.prd -f ms-ltmj-api/docker/dock
 O último comando apenas valida. A subida exige bancos/schemas preparados e a infraestrutura disponível; consulte o guia antes de executar `up`. A API recebe HTTP/8080, sem PFX; HTTPS é terminado pelo Traefik com `websecure` e `myresolver`. Não há porta pública da API no Compose de nuvem. O override local expõe apenas `127.0.0.1:8081` e desabilita Traefik.
 
 O Dockerfile executa as suítes de identidade, core e template e roda a aplicação sem root. Não publique dotenv reais pelo Git nem os copie no build Docker; eles precisam ser fornecidos no ambiente da VM.
+
+## Cliente LTMJ Eventos
+
+Gerado por `bash ms-limpo-api/scripts/new-microservice.sh ltmj ./ms-ltmj-api ltmj` para ser o backend independente de `ms-ltmj-ng`. Nesta entrega há a fundação do template e identidade; não há endpoints de eventos, galeria, comentários ou orçamento implementados. O protótipo público funciona sem API e não persiste pedidos.
+
+Banco por ambiente: `ltmj_dev/qas/rls/stg/prd`; schema `ms_ltmj`. Os dotenv reais estão versionados conforme o padrão atual do Olivaw Hub. As chaves JWT foram geradas exclusivamente para este cliente e ambiente. Migrations, criação de banco e bootstrap estão desabilitados, e RabbitMQ está desabilitado por enquanto. As credenciais de infraestrutura do template são mantidas para o servidor compartilhado; bancos, permissões e usuário exclusivo precisam ser preparados antes da publicação.
+
+O gerador não cria banco nem migrations. Não foi aplicada alteração em dados. O plano de evolução está em [briefing e MVP](../ms-ltmj-ng/docs/briefing-e-mvp.md); a preparação da API está em [infraestrutura](docs/preparacao.md).

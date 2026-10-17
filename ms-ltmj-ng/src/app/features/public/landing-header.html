@@ -1,0 +1,30 @@
+<header class="border-b border-outline/25">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5 lg:px-12">
+    <a href="#inicio" aria-label="LTMJ Eventos — início" class="brand"><app-ltmj-brand /></a>
+    <nav aria-label="Navegação principal" class="hidden items-center gap-7 text-sm md:flex">
+      <a href="#servicos">Nossos serviços</a><a href="#eventos">Eventos realizados</a
+      ><a href="#como-funciona">Como funciona</a
+      ><a href="#orcamento" class="header-cta">Solicitar orçamento ↗</a>
+    </nav>
+    <button
+      type="button"
+      class="mobile-toggle md:hidden"
+      aria-controls="menu-mobile"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="menuOpen.set(!menuOpen())"
+    >
+      {{ menuOpen() ? 'Fechar' : 'Menu' }}
+    </button>
+  </div>
+  @if (menuOpen()) {
+    <nav
+      id="menu-mobile"
+      aria-label="Navegação mobile"
+      class="flex flex-col gap-5 border-t border-outline/25 px-6 py-6 md:hidden"
+    >
+      <a href="#servicos" (click)="menuOpen.set(false)">Nossos serviços</a
+      ><a href="#eventos" (click)="menuOpen.set(false)">Eventos realizados</a
+      ><a href="#orcamento" (click)="menuOpen.set(false)">Solicitar orçamento</a>
+    </nav>
+  }
+</header>

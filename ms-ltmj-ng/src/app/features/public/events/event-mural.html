@@ -1,0 +1,86 @@
+<section id="eventos" class="mural-section" aria-labelledby="event-mural-title">
+  <div class="mx-auto max-w-7xl px-6 lg:px-12">
+    <div class="grid gap-6 md:grid-cols-2">
+      <div>
+        <p class="eyebrow">O cuidado aparece nos detalhes</p>
+        <h2 id="event-mural-title">Histórias servidas.<br /><em>Momentos compartilhados.</em></h2>
+      </div>
+      <p class="intro">
+        Um lugar para revisitar as celebrações, conhecer os sabores e ver de perto a participação da
+        LTMJ em cada ocasião.
+      </p>
+    </div>
+    @if (isPreview) {
+      <p class="preview-notice">
+        <strong>Prévia do mural de eventos.</strong> Os cartões abaixo são modelos de apresentação.
+        Fotos e histórias de eventos reais serão incluídas após a seleção do acervo pela LTMJ.
+      </p>
+    }
+    <div class="my-8 flex flex-wrap gap-2" role="group" aria-label="Filtrar eventos por ocasião">
+      @for (category of categories; track category) {
+        <button
+          mat-stroked-button
+          type="button"
+          [attr.aria-pressed]="selected() === category"
+          (click)="selected.set(category)"
+        >
+          {{ category }}
+        </button>
+      }
+    </div>
+    <div class="event-grid">
+      @for (event of visibleEvents(); track event.id) {
+        <article class="event-card">
+          <button
+            class="cover-button"
+            type="button"
+            (click)="open(event)"
+            [attr.aria-label]="'Abrir ' + (event.preview ? 'modelo: ' : 'evento: ') + event.title"
+          >
+            @if (event.photos[0]; as cover) {
+              <img [src]="cover.src" [alt]="cover.alt" width="800" height="600" loading="lazy" />
+            } @else {
+              <span class="cover-placeholder" [attr.data-category]="event.category"
+                ><span class="cover-ornament" aria-hidden="true">✦</span
+                ><span class="cover-title">{{ event.category }}</span
+                ><span class="cover-caption">Acervo em seleção</span></span
+              >
+            }
+            @if (event.preview) {
+              <span class="preview-badge">Modelo de apresentação</span>
+            }
+            <span class="cover-arrow" aria-hidden="true">↗</span>
+          </button>
+          <div class="event-info">
+            <p class="eyebrow">{{ event.category }}</p>
+            <h3>{{ event.title }}</h3>
+            <p class="event-summary">
+              {{
+                event.preview
+                  ? 'Veja como as fotos, os serviços e a história de cada evento poderão aparecer aqui.'
+                  : event.description
+              }}
+            </p>
+            <button mat-button type="button" (click)="open(event)">
+              {{ event.preview ? 'Explorar modelo' : 'Ver fotos e detalhes' }}
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <p class="empty-state" role="status">
+          Ainda não há eventos publicados nesta categoria. Explore as outras ocasiões ou acompanhe
+          as redes da LTMJ.
+        </p>
+      }
+    </div>
+    <div class="social-note">
+      <p>
+        Enquanto o acervo do site é organizado, acompanhe os registros reais publicados pela equipe.
+      </p>
+      <a [href]="contact.instagram" target="_blank" rel="noopener noreferrer"
+        >Ver eventos no Instagram ↗</a
+      ><a [href]="contact.facebook" target="_blank" rel="noopener noreferrer">Ver Facebook ↗</a>
+    </div>
+  </div>
+</section>

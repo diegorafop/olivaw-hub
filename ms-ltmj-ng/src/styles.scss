@@ -11,7 +11,18 @@ html {
       density: 0,
     )
   );
-  color-scheme: light;
+  @include mat.theme-overrides(
+    (
+      primary: brand.$gold,
+      on-primary: brand.$ink,
+      surface: brand.$ink,
+      on-surface: brand.$cream,
+      surface-container: brand.$panel,
+      outline: #837a65,
+      on-surface-variant: #c5c1b6,
+    )
+  );
+  color-scheme: dark;
 }
 body {
   margin: 0;
@@ -22,4 +33,23 @@ body {
 :focus-visible {
   outline: 2px solid var(--mat-sys-primary);
   outline-offset: 4px;
+}
+
+:root {
+  --brand-gold: #{brand.$gold};
+  --brand-ink: #{brand.$ink};
+  --brand-cream: #{brand.$cream};
+  --brand-panel: #{brand.$panel};
+}
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+button[aria-pressed='true'] {
+  background: var(--brand-gold);
+  color: var(--brand-ink);
 }

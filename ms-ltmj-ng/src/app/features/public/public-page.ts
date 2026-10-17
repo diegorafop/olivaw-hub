@@ -1,18 +1,16 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { LandingHeader } from './landing-header';
+import { LtmjBrand } from './ltmj-brand';
+import { EventMural } from './events/event-mural';
+import { QuoteBuilder } from './quote-builder';
+import { LTMJ_CONTACT } from './ltmj-content';
 @Component({
   selector: 'app-public-page',
-  imports: [RouterLink, MatButtonModule],
-  template: `<section
-    class="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-6 p-6 md:p-12"
-  >
-    <p class="text-sm font-bold text-primary">Olivaw Hub</p>
-    <h1 class="text-4xl font-bold md:text-6xl">Seu próximo projeto começa aqui.</h1>
-    <p class="max-w-2xl text-lg">
-      Base pública pronta para receber a identidade, os conteúdos e os serviços da sua empresa.
-    </p>
-    <div><a mat-flat-button routerLink="/login">Acessar administração</a></div>
-  </section>`,
+  imports: [QuoteBuilder, LandingHeader, LtmjBrand, EventMural],
+  templateUrl: './public-page.html',
+  styleUrl: './public-page.scss',
 })
-export class PublicPage {}
+export class PublicPage {
+  readonly contact = LTMJ_CONTACT;
+  readonly year = new Date().getFullYear();
+}

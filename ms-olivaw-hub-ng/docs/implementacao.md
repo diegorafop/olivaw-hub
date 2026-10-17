@@ -19,3 +19,7 @@ O menu mobile é funcional, formulários usam Material com labels e validação 
 Telefone, e-mail e redes sociais serão confirmados pelo responsável. Enquanto isso, o formulário cria um resumo copiável localmente. Não envia, armazena ou registra dados, e informa esse comportamento ao visitante. Antes de lançar a captação comercial, substituir esse fluxo pelo canal real e definir o tratamento do contato com base na implementação escolhida.
 
 DNS, TLS, API e implantação não são criados pela geração. O HTML público é atualizado por novo build. Não há CMS nem publicação de conteúdo por painel nesta etapa.
+
+## Avatar do Hub
+
+O cabeçalho e o ícone do navegador passam a usar `public/assets/brand/olivaw-avatar-v1.png`, proposta de guardião robótico que mantém o “O” e o ponto luminoso. O arquivo para o grupo de WhatsApp está em `docs/identidade` na raiz do monorepo. Não altera a identidade própria da LTMJ.

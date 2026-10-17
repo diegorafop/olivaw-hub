@@ -1,10 +1,10 @@
-# Diretrizes — Template Angular
+# Diretrizes — Frontend LTMJ
 
 ## Arquitetura
 
-Preserve componentes standalone, TypeScript/templates estritos e carregamento por funcionalidade. `core` contém infraestrutura, `shared` contém blocos sem regras de negócio e `features` contém funcionalidades. Não acrescente menu obrigatório nem CRUD de um cliente ao template.
+Preserve componentes standalone, TypeScript/templates estritos e carregamento por funcionalidade. `core` contém infraestrutura, `shared` contém blocos sem regras de negócio e `features` contém funcionalidades. Conteúdo e composição da LTMJ ficam nas funcionalidades deste cliente.
 
-O par padrão é `ms-ltmj-ng` / `ms-limpo-api`, com serviços, imagens, builds e publicações independentes. A URL absoluta da API fica em `public/config.json`; o navegador chama a API diretamente. Não adicione proxy Angular/Nginx nem prefixo `/api` para juntar os serviços. Use os contratos existentes de identidade; mantenha o estado compartilhado `autenticacao` em SignalStore. Refresh token e persistência de sessão não fazem parte da etapa inicial. Guards e apresentação por permissão não substituem autorização na API.
+O par padrão é `ms-ltmj-ng` / `ms-ltmj-api`, com serviços, imagens, builds e publicações independentes. A URL absoluta da API fica em `public/config.json`; o navegador chama a API diretamente. Não adicione proxy Angular/Nginx nem prefixo `/api` para juntar os serviços. Use os contratos existentes de identidade; mantenha o estado compartilhado `autenticacao` em SignalStore. Refresh token e persistência de sessão não fazem parte da etapa inicial. Guards e apresentação por permissão não substituem autorização na API.
 
 A raiz pública é prerenderizada; administração e login usam CSR. Não use APIs do navegador no prerender sem verificar a plataforma. Nginx serve o resultado estático; alterar isso para SSR requer revisar Docker e publicação.
 
@@ -19,3 +19,7 @@ Use dois espaços, Prettier, ESLint e mensagens/documentação em português. No
 Os comandos estão no README. Testes unitários ficam em `*.spec.ts` próximos ao código; E2E usam Playwright em `e2e/`. Simule contratos HTTP nos testes sem credenciais reais. Alterações de infraestrutura devem preservar fallback CSR, HTML público prerenderizado, 404 para assets ausentes e configuração sem cache persistente.
 
 Não publique imagens, implante, faça finish ou push como efeito da validação local.
+
+## Conversas e decisões do cliente
+
+A cada nova informação relevante fornecida sobre a LTMJ, acrescente uma entrada datada em `docs/historico.md`, indicando origem, estado de confirmação, impacto e pendências. Preserve `docs/briefing-inicial.md` como registro inicial e atualize `docs/briefing-e-mvp.md` quando houver mudança de plano. Não apresente propostas do Olivaw como aprovação do cliente. A API usa esse mesmo histórico como referência. Não registre dados pessoais desnecessários, senhas ou dados de convidados nesses documentos.

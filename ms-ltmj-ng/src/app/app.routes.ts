@@ -4,12 +4,12 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    title: 'Olivaw Hub',
+    title: 'LTMJ Eventos',
     loadComponent: () => import('./features/public/public-page').then((m) => m.PublicPage),
   },
   {
     path: 'login',
-    title: 'Entrar | Olivaw Hub',
+    title: 'Entrar | LTMJ Eventos',
     loadComponent: () => import('./features/login/login-page').then((m) => m.LoginPage),
   },
   {
@@ -18,7 +18,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        title: 'Administração | Olivaw Hub',
+        title: 'Administração | LTMJ Eventos',
         loadComponent: () => import('./features/admin/admin-page').then((m) => m.AdminPage),
       },
     ],

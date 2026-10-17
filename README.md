@@ -11,6 +11,8 @@ Este monorepo reúne bibliotecas compartilhadas e os templates de APIs .NET e fr
 | [ms-limpo-api](ms-limpo-api/README.md) | Template de API que integra os módulos por `ProjectReference` |
 | [ms-limpo-ng](ms-limpo-ng/README.md) | Template Angular e gerador local por Schematics |
 | [ms-olivaw-hub-ng](ms-olivaw-hub-ng/README.md) | Landing page institucional derivada do template |
+| [ms-ltmj-ng](ms-ltmj-ng/README.md) | Protótipo público da LTMJ Eventos |
+| [ms-ltmj-api](ms-ltmj-api/README.md) | Fundação de backend independente da LTMJ |
 | [ms-devops-api](ms-devops-api/README.md) | Nova API DevOps, com estrutura inicial gerada |
 | [docs/desenvolvimento.md](docs/desenvolvimento.md) | Organização do monorepo, soluções e fluxo de desenvolvimento |
 | [docs/identidade.md](docs/identidade.md) | Decisões e validação da extração do módulo |
