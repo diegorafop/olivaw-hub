@@ -23,7 +23,7 @@ Docker: `docker compose -f docker/docker-compose.yml up --build -d`. Configure C
 
 ## Landing page institucional
 
-A landing page foi implementada como componentes Angular em `src/app/features/public`, a partir do template. `docs/prot_tipo_da_landing_page.html` é apenas referência preservada; `docs/briefing.md` estava vazio na geração.
+A landing page foi implementada como componentes Angular em `src/app/features/public`, a partir do template. `docs/prot_tipo_da_landing_page.html` é apenas referência visual. As decisões atuais estão em [Implementação](docs/implementacao.md).
 
 - Site: `https://olivaw-hub.duckdns.org`.
 - API futura e independente: `https://api.olivaw-hub.duckdns.org` em `public/config.json`.
