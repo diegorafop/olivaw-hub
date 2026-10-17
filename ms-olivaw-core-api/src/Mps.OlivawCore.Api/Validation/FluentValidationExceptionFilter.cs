@@ -2,11 +2,12 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Mps.OlivawCore.Api.Validation;
 
-public class FluentValidationExceptionFilter
+public class FluentValidationExceptionFilter(ILogger<FluentValidationExceptionFilter> logger)
     : IActionFilter, IOrderedFilter
 {
     public int Order { get; set; } = -10;
@@ -21,6 +22,10 @@ public class FluentValidationExceptionFilter
     {
         if (context.Exception is ValidationException exception)
         {
+            logger.LogWarning(exception,
+                "Handled API validation/business error for {Method} {Path}",
+                context.HttpContext.Request.Method,
+                context.HttpContext.Request.Path);
             var details = GetDetails(exception);
             context.Result = GetResult(details);
             context.ExceptionHandled = true;

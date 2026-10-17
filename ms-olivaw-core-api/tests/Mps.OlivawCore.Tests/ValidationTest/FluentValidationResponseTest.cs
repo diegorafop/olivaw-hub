@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging.Abstractions;
 using Mps.OlivawCore.Api.Validation;
 using Xunit;
 
@@ -34,7 +35,7 @@ public class FluentValidationResponseTest
     {
         var context = CreateContext(new ValidationException(message,
             [new ValidationFailure("Name", "required"), new ValidationFailure("Name", "invalid")]));
-        var filter = new FluentValidationExceptionFilter();
+        var filter = new FluentValidationExceptionFilter(NullLogger<FluentValidationExceptionFilter>.Instance);
         filter.OnActionExecuted(context);
         var result = Assert.IsAssignableFrom<ObjectResult>(context.Result);
         var problem = Assert.IsType<ValidationProblemDetails>(result.Value);
@@ -50,7 +51,7 @@ public class FluentValidationResponseTest
     {
         var exception = new InvalidOperationException("unexpected");
         var context = CreateContext(exception);
-        new FluentValidationExceptionFilter().OnActionExecuted(context);
+        new FluentValidationExceptionFilter(NullLogger<FluentValidationExceptionFilter>.Instance).OnActionExecuted(context);
         Assert.False(context.ExceptionHandled);
         Assert.Same(exception, context.Exception);
         Assert.Null(context.Result);

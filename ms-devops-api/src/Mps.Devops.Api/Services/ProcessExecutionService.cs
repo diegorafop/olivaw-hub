@@ -10,7 +10,9 @@ using Mps.Devops.Services;
 
 namespace Mps.Devops.Api.Services;
 
-public sealed class ProcessExecutionService(IOptions<DeploymentSettings> settings) : IProcessExecutionService
+public sealed class ProcessExecutionService(
+    IOptions<DeploymentSettings> settings,
+    ILogger<ProcessExecutionService> logger) : IProcessExecutionService
 {
     public async Task<ProcessExecutionResult> ExecuteAsync(string payload, CancellationToken cancellationToken)
     {
@@ -22,14 +24,19 @@ public sealed class ProcessExecutionService(IOptions<DeploymentSettings> setting
         {
             process.Start();
             var output = ReadOutputAsync(process.StandardOutput, timeout.Token);
-            var error = DrainAsync(process.StandardError, timeout.Token);
+            var error = ReadOutputAsync(process.StandardError, timeout.Token);
             try
             {
                 await process.StandardInput.WriteLineAsync(payload.AsMemory(), timeout.Token);
                 process.StandardInput.Close();
                 await process.WaitForExitAsync(timeout.Token);
-                await error;
-                return new ProcessExecutionResult { Success = process.ExitCode == 0, Output = await output };
+                var standardError = await error;
+                var standardOutput = await output;
+                if (process.ExitCode != 0)
+                    logger.LogError("SSH deployment executor exited with code {ExitCode}. stderr: {StandardError}", process.ExitCode, standardError);
+                else if (!string.IsNullOrWhiteSpace(standardError))
+                    logger.LogWarning("SSH deployment executor wrote to stderr: {StandardError}", standardError);
+                return new ProcessExecutionResult { Success = process.ExitCode == 0, Output = standardOutput };
             }
             finally
             {
@@ -44,11 +51,12 @@ public sealed class ProcessExecutionService(IOptions<DeploymentSettings> setting
         catch (OperationCanceledException)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            logger.LogError("SSH deployment executor timed out after {TimeoutSeconds} seconds.", settings.Value.TimeoutSeconds);
             return new ProcessExecutionResult();
         }
-        catch (IOException) { return new ProcessExecutionResult(); }
-        catch (Win32Exception) { return new ProcessExecutionResult(); }
-        catch (UnauthorizedAccessException) { return new ProcessExecutionResult(); }
+        catch (IOException exception) { logger.LogError(exception, "SSH deployment executor failed with an I/O error."); return new ProcessExecutionResult(); }
+        catch (Win32Exception exception) { logger.LogError(exception, "Could not start the SSH deployment executor."); return new ProcessExecutionResult(); }
+        catch (UnauthorizedAccessException exception) { logger.LogError(exception, "Access to the SSH deployment executor was denied."); return new ProcessExecutionResult(); }
     }
 
     public static ProcessStartInfo CreateStartInfo(DeploymentSettings settings)
@@ -95,9 +103,4 @@ public sealed class ProcessExecutionService(IOptions<DeploymentSettings> setting
         return text.ToString();
     }
 
-    private static async Task DrainAsync(StreamReader reader, CancellationToken token)
-    {
-        var buffer = new char[2048];
-        while (await reader.ReadAsync(buffer.AsMemory(), token) != 0) { }
-    }
 }

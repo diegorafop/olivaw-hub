@@ -54,7 +54,8 @@ public class ServiceCollectionExtensionsTest
         services.AddControllersDefault();
         using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<MvcOptions>>().Value;
-        Assert.Contains(options.Filters, item => item is FluentValidationExceptionFilter);
+        Assert.Contains(options.Filters, item => item is ServiceFilterAttribute filter && filter.ServiceType == typeof(FluentValidationExceptionFilter));
+        Assert.IsType<FluentValidationExceptionFilter>(provider.GetRequiredService<FluentValidationExceptionFilter>());
         Assert.DoesNotContain(options.OutputFormatters, item => item is StringOutputFormatter);
         var json = provider.GetRequiredService<IOptions<MvcNewtonsoftJsonOptions>>().Value.SerializerSettings;
         var result = JsonConvert.SerializeObject(new { DisplayName = "OlivawCore" }, json);

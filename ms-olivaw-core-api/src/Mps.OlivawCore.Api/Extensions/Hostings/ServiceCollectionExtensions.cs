@@ -119,11 +119,12 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services
     )
     {
+        services.AddScoped<FluentValidationExceptionFilter>();
         services.AddControllers(options =>
         {
             options
                 .Filters
-                .Add(new FluentValidationExceptionFilter());
+                .AddService<FluentValidationExceptionFilter>();
 
             options
                 .Filters
