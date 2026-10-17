@@ -1,4 +1,16 @@
 services:
   ms-devops-api:
+    container_name: ms-devops-api-rls
+    image: ms-devops-api:rls
     environment:
       ASPNETCORE_ENVIRONMENT: Release
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-devops-api-rls.rule: Host(`${PUBLIC_HOST:-ms-devops-api-rls.fintalk-server.duckdns.org}`)
+      traefik.http.routers.ms-devops-api-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-devops-api-rls.tls: 'true'
+      traefik.http.routers.ms-devops-api-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-devops-api-rls.service: ms-devops-api-rls
+      traefik.http.services.ms-devops-api-rls.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-devops-api-rls.loadbalancer.server.scheme: http

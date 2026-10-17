@@ -27,7 +27,7 @@ dotnet test ms-limpo-api/tests/Mps.Limpo.Tests/Mps.Limpo.Tests.csproj -c Release
 
 Depois de configurar banco e identidade, execute `dotnet run --project ms-limpo-api/src/Mps.Limpo.Api`. Variáveis de ambiente ou user secrets fornecem `ConnectionStrings__DbContext`, `Identity__Issuer`, `Identity__Audience` e `Identity__SigningKey`. Os arquivos `appsettings` não contêm senha de banco ou chave JWT. O `.env` corporativo antigo foi retirado; use o exemplo sem credenciais reais. Configure `DatabaseProvider` como `PostgreSql` ou `SqlServer`; `Database:Schema` pode especificar o schema do histórico de migrations.
 
-Cada cliente recebe seu próprio banco. O `WriteDbContext` aplica os mapeamentos de identidade junto dos locais; o módulo não tem conexão própria. As rotas compartilhadas são importadas por MVC application parts, sem copiar features para o cliente. Consulte [Olivaw Identity](../olivaw-identity/README.md) para contratos, policies e bootstrap de root.
+Cada organização/cliente recebe seu banco por ambiente; cada serviço usa um schema próprio. O `WriteDbContext` aplica os mapeamentos de identidade junto dos locais; o módulo não tem conexão própria. As rotas compartilhadas são importadas por MVC application parts, sem copiar features para o cliente. Consulte [Olivaw Identity](../olivaw-identity/README.md) para contratos, policies e bootstrap de root.
 
 ## Schema e root
 
@@ -35,19 +35,19 @@ Não há migrations herdadas de autenticação. Gere e revise a migration inicia
 
 Com o schema pronto, habilite temporariamente `Identity__Bootstrap__Enabled=true`, informe `Identity__Bootstrap__Email` e `Identity__Bootstrap__Password` e inicialize uma instância da API. Somente root será criado; depois, retire essa configuração. A senha não é redefinida quando o bootstrap encontra root existente.
 
-## Docker
+## Configuração de nuvem e Docker
 
-O contexto de build é a raiz do monorepo para incluir todos os `ProjectReference`:
+Os appsettings por ambiente e overrides Compose seguem os endereços de infraestrutura usados pelo FinTalk. O template usa banco `olivaw_prd`, schema `ms_limpo` e domínio de produção `https://ms-limpo-api.fintalk-server.duckdns.org`. Outros ambientes têm nomes próprios, documentados no [guia de nuvem](../docs/cloud.md).
+
+Credenciais de teste estão nos dotenv locais ignorados pelo Git; o arquivo versionado `.env.example` contém placeholders. As variáveis do Compose substituem as connection strings sem senha dos appsettings. Redis tem connection string preparada, mas não possui integração ativa no código. RabbitMQ é habilitado nos dotenv de nuvem, com prefixo exclusivo por serviço/ambiente.
+
+O contexto de build continua sendo a raiz do monorepo:
 
 ```bash
 docker build -f ms-limpo-api/src/Mps.Limpo.Api/Dockerfile -t olivaw-limpo .
-cp ms-limpo-api/docker/.env.example ms-limpo-api/docker/.env
+docker compose --env-file ms-limpo-api/docker/.env.prd -f ms-limpo-api/docker/docker-compose.yml -f ms-limpo-api/docker/docker-compose.prd.yml config --quiet
 ```
 
-Substitua os valores de exemplo antes de executar:
+O último comando apenas valida. A subida exige bancos/schemas preparados e a infraestrutura disponível; consulte o guia antes de executar `up`. A API recebe HTTP/8080, sem PFX; HTTPS é terminado pelo Traefik com `websecure` e `myresolver`. Não há porta pública da API no Compose de nuvem. O override local expõe apenas `127.0.0.1:8081` e desabilita Traefik.
 
-```bash
-docker compose --env-file ms-limpo-api/docker/.env -f ms-limpo-api/docker/docker-compose.yml up --build
-```
-
-O Dockerfile executa as suítes de identidade, core e template, publica o host e roda sem root na porta 8080. O container recebe HTTP; quando HTTPS for configurado, TLS pertence ao ingress/reverse proxy. Não há PFX distribuído com o template. O perfil HTTPS de desenvolvimento local usa o certificado de desenvolvimento do .NET, independente do certificado removido. Em Docker, use um endereço de banco alcançável pelo container, não `localhost` para um banco externo. Broker e logging externo vêm desabilitados.
+O Dockerfile executa as suítes de identidade, core e template e roda a aplicação sem root. Não publique dotenv reais pelo Git nem os copie no build Docker; eles precisam ser fornecidos no ambiente da VM.

@@ -1,4 +1,16 @@
 services:
   ms-limpo-api:
+    container_name: ms-limpo-api-qas
+    image: ms-limpo-api:qas
     environment:
       ASPNETCORE_ENVIRONMENT: Quality
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-limpo-api-qas.rule: Host(`${PUBLIC_HOST:-ms-limpo-api-qas.fintalk-server.duckdns.org}`)
+      traefik.http.routers.ms-limpo-api-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-limpo-api-qas.tls: 'true'
+      traefik.http.routers.ms-limpo-api-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-limpo-api-qas.service: ms-limpo-api-qas
+      traefik.http.services.ms-limpo-api-qas.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-limpo-api-qas.loadbalancer.server.scheme: http

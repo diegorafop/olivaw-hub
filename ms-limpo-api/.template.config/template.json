@@ -32,6 +32,36 @@
       "description": "Nome em caixa alta com sublinhados, por exemplo PRECATORIO_CALCULO.",
       "replaces": "LIMPO",
       "fileRename": "LIMPO"
+    },
+    "databaseSchema": {
+      "type": "generated",
+      "generator": "regex",
+      "parameters": {
+        "source": "serviceSlug",
+        "steps": [
+          {
+            "regex": "-",
+            "replacement": "_"
+          },
+          {
+            "regex": "^",
+            "replacement": "ms_"
+          }
+        ]
+      },
+      "replaces": "ms_limpo"
+    },
+    "databaseOwner": {
+      "type": "derived",
+      "valueSource": "databaseOwnerInput",
+      "valueTransform": "databasePrefix",
+      "replaces": "Database=olivaw"
+    },
+    "databaseOwnerInput": {
+      "type": "parameter",
+      "dataType": "text",
+      "defaultValue": "olivaw",
+      "description": "Dono do banco em snake_case, por exemplo olivaw ou pastelaria."
     }
   },
   "sources": [
@@ -50,12 +80,22 @@
         "data/**",
         "**/TestResults/**",
         "**/results/**",
-        "docker/.env",
         "TEMPLATE.md",
         "scripts/new-microservice.sh",
         "certificates/**",
-        "**/*.pfx"
+        "**/*.pfx",
+        "**/.env",
+        "**/.env.*"
       ]
+    },
+    {
+      "source": "./",
+      "target": "./",
+      "include": [
+        "docker/.env.example",
+        "docker/.env.*.example"
+      ],
+      "exclude": []
     }
   ],
   "guids": [
@@ -75,5 +115,12 @@
     {
       "path": "Limpo.sln"
     }
-  ]
+  ],
+  "forms": {
+    "databasePrefix": {
+      "identifier": "replace",
+      "pattern": "^",
+      "replacement": "Database="
+    }
+  }
 }

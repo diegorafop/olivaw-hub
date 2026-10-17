@@ -56,5 +56,6 @@
     "**/coverage": true,
     "**/artifacts": true,
     "**/BenchmarkDotNet.Artifacts": true
-  }
+  },
+  "python.terminal.useEnvFile": true
 }

@@ -1,4 +1,16 @@
 services:
   ms-limpo-api:
+    container_name: ms-limpo-api-stg
+    image: ms-limpo-api:stg
     environment:
       ASPNETCORE_ENVIRONMENT: Staging
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-limpo-api-stg.rule: Host(`${PUBLIC_HOST:-ms-limpo-api-stg.fintalk-server.duckdns.org}`)
+      traefik.http.routers.ms-limpo-api-stg.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-limpo-api-stg.tls: 'true'
+      traefik.http.routers.ms-limpo-api-stg.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-limpo-api-stg.service: ms-limpo-api-stg
+      traefik.http.services.ms-limpo-api-stg.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-limpo-api-stg.loadbalancer.server.scheme: http

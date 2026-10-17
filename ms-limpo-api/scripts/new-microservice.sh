@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ! $1 =~ ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ ]]; then
-    echo "Uso: $0 nome-do-servico [diretorio-de-saida]" >&2
+if [[ $# -lt 1 || $# -gt 3 || ! $1 =~ ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ ]]; then
+    echo "Uso: $0 nome-do-servico [diretorio-de-saida] [dono-do-banco]" >&2
+    exit 2
+fi
+
+database_owner=${3:-olivaw}
+if [[ ! $database_owner =~ ^[a-z][a-z0-9]*(_[a-z0-9]+)*$ ]]; then
+    echo "O dono do banco deve usar minusculas, numeros e sublinhados, por exemplo pastelaria_joao." >&2
     exit 2
 fi
 
@@ -30,6 +36,7 @@ dotnet new mps-microservice \
     --name "$service_name" \
     --serviceSlug "$service_slug" \
     --serviceToken "$service_token" \
+    --databaseOwnerInput "$database_owner" \
     --output "$output_dir"
 
 echo "Microservice criado em: $output_dir"
