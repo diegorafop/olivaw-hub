@@ -2,17 +2,22 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Olivaw.Identity.Api.Services;
 
 namespace Olivaw.Identity.Api.Security;
 
-public sealed class IdentityExceptionFilter : IExceptionFilter
+public sealed class IdentityExceptionFilter(ILogger<IdentityExceptionFilter> logger) : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
         var displayName = context.ActionDescriptor.DisplayName;
         if (displayName is null) return;
         if (!displayName.StartsWith("Olivaw.Identity.", StringComparison.Ordinal)) return;
+        logger.LogWarning(context.Exception,
+            "Identity API exception for {Method} {Path}",
+            context.HttpContext.Request.Method,
+            context.HttpContext.Request.Path);
         if (context.Exception is IdentityFailure failure)
         {
             context.Result = new ObjectResult(new ProblemDetails { Status = failure.Status, Title = failure.Message }) { StatusCode = failure.Status };

@@ -1,6 +1,6 @@
 services:
   ms-devops-api:
-    container_name: ms-devops-api
+    container_name: ms-devops-api-prd
     image: ms-devops-api:prd
     environment:
       ASPNETCORE_ENVIRONMENT: Production

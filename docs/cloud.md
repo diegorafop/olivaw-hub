@@ -44,7 +44,7 @@ Backups automatizados e restauração serão implementados posteriormente. O pla
 - `docker/.env.example`: exemplo versionado, sem credenciais reais.
 - `docker/.env` e `.env.dev`, `.env.qas`, `.env.rls`, `.env.stg`, `.env.prd`: configurações locais preparadas para os testes, ignoradas pelo Git e pelo contexto Docker. `.env` equivale à configuração de produção.
 
-As senhas atuais de banco, RabbitMQ e Redis foram reaproveitadas do FinTalk somente nesses arquivos locais. Os hosts atuais receberam chaves JWT aleatórias por ambiente. Para futuros serviços agregados de um cliente, o emissor principal será único e a configuração de validação deverá ser compatível com seus tokens. Não reutilizamos a chave de autenticação do FinTalk. O bootstrap de root e a aplicação automática de migrations permanecem desligados.
+As senhas atuais de banco, RabbitMQ e Redis foram reaproveitadas do FinTalk somente nesses arquivos locais. Os hosts atuais receberam chaves JWT aleatórias por ambiente. Para futuros serviços agregados de um cliente, o emissor principal será único e a configuração de validação deverá ser compatível com seus tokens. Não reutilizamos a chave de autenticação do FinTalk. O DevOps aplica suas migrations a cada startup; o bootstrap de root é controlado separadamente por ambiente.
 
 Os arquivos reais não acompanham um clone/pull: transfira o arquivo do ambiente necessário para a VM por um meio apropriado ou recrie-o a partir do exemplo. Não é necessário copiar os cinco ambientes se usar somente produção. O gerador exclui os dotenv reais e inclui apenas os exemplos; cada novo serviço precisa receber suas próprias credenciais e chaves.
 
