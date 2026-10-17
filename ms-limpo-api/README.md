@@ -50,4 +50,4 @@ Substitua os valores de exemplo antes de executar:
 docker compose --env-file ms-limpo-api/docker/.env -f ms-limpo-api/docker/docker-compose.yml up --build
 ```
 
-O Dockerfile executa as suítes de identidade, core e template, publica o host e roda sem root na porta 8080. TLS pertence ao ingress/reverse proxy; certificados privados não são copiados. Em Docker, use um endereço de banco alcançável pelo container, não `localhost` para um banco externo. Broker e logging externo vêm desabilitados.
+O Dockerfile executa as suítes de identidade, core e template, publica o host e roda sem root na porta 8080. O container recebe HTTP; quando HTTPS for configurado, TLS pertence ao ingress/reverse proxy. Não há PFX distribuído com o template. O perfil HTTPS de desenvolvimento local usa o certificado de desenvolvimento do .NET, independente do certificado removido. Em Docker, use um endereço de banco alcançável pelo container, não `localhost` para um banco externo. Broker e logging externo vêm desabilitados.
