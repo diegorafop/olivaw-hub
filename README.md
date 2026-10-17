@@ -23,3 +23,5 @@ bash ms-limpo-api/scripts/new-microservice.sh pastelaria-joao
 A geração cria o projeto do cliente ao lado das bibliotecas compartilhadas. Consulte [TEMPLATE.md](ms-limpo-api/TEMPLATE.md) e a documentação de identidade antes de preparar o banco e o root inicial. Credenciais são configuradas por ambiente; não há senha root padrão.
 
 O [briefing inicial](BRIEFING.md) preserva a proposta de negócio e as decisões ainda em aberto.
+
+O padrão de branches e rastreabilidade está em [Git Flow](docs/gitflow.md). Para ativar os hooks neste clone, execute `python3 scripts/gitflow/setup.py`.

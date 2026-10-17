@@ -1,5 +1,6 @@
 # Documentação do Olivaw Hub
 
+- [Git Flow e rastreabilidade](gitflow.md): features, releases, hotfixes, referências automáticas e conclusão das issues.
 - [Organização e desenvolvimento do monorepo](desenvolvimento.md): pastas, projetos, soluções, referências, geração de clientes, testes e publicação independente.
 - [Extração da identidade](identidade.md): decisão arquitetural, funcionalidades implementadas, verificações e limites da validação.
 - [Guia de Olivaw Identity](../olivaw-identity/README.md): configuração, rotas, policies, persistência e bootstrap de root.

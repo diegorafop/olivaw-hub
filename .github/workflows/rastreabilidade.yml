@@ -1,0 +1,30 @@
+name: Rastreabilidade de issues e Git Flow
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+      - 'release/**'
+      - master
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: rastreabilidade-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Rastrear branches e concluir issues entregues em master
+        run: python3 scripts/gitflow/github_tracking.py
+        env:
+          GH_TOKEN: ${{ github.token }}

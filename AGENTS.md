@@ -25,11 +25,13 @@ No programming-language style, indentation standard, formatter, or linter has be
 
 There is no test framework or coverage requirement yet. Review documentation for factual consistency and clearly distinguish confirmed decisions from proposals. For future executable components, introduce relevant tests and document the framework, test naming convention, and execution command in the same change.
 
-## Commit & Pull Request Guidelines
+## Git Flow e rastreabilidade
 
-Git history is unavailable in this checkout, so no existing commit convention can be verified. Use short, descriptive, imperative commit subjects, such as `docs: clarify initial service offering`.
+Siga [docs/gitflow.md](docs/gitflow.md): master/develop e Git Flow clássico, usando `git flow feature start issue001-descricao`. `feature finish` integra em develop; `release finish` e `hotfix finish` integram a entrega conforme Git Flow e criam tags. PRs são opcionais.
 
-Pull requests should explain the change, its purpose, and how it was checked. Link relevant issues when available. Update `BRIEFING.md` when business or technical decisions change; include screenshots for future visible interface changes.
+Commits descrevem a alteração com `feat:`, `fix:`, `docs:`, `test:` ou `chore:`. Os hooks versionados acrescentam `Refs #N` com base na issue do branch; hotfixes versionadas usam a associação local descrita no guia. Ative-os por `python3 scripts/gitflow/setup.py` em cada clone. Não reescreva commits antigos para adicionar referências sem pedido explícito.
+
+A Action registra branches nas issues e fecha as issues referenciadas apenas ao chegar código em master, após publicação. Não feche ao integrar em develop nem imponha PR para usar finish. Quando uma tarefa mencionar issue, confira o branch e preserve a rastreabilidade; finish, push, alterações remotas e implantação exigem autorização na tarefa.
 
 ## Security & Configuration
 
