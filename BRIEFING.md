@@ -60,3 +60,7 @@ Nome e direção inicial escolhidos. Implementação ainda não iniciada. Este d
 ## Evolução técnica — 17 de outubro de 2026
 
 O repositório passa a organizar o core compartilhado, as bibliotecas Olivaw Identity e o template .NET `ms-limpo-api`. Novas APIs de clientes consomem esses módulos por `ProjectReference`, mantendo contexto, migrations, banco e implantação próprios. Perfil de acesso representa a role; autorizações representam permissões. O único usuário inicial é root, criado por bootstrap configurável após preparar o schema. Não há serviço central de identidade nesta etapa.
+
+## Template frontend — 17 de outubro de 2026
+
+O template `ms-limpo-ng` complementa `ms-limpo-api` para produtos com site público e área administrativa. Usa Angular standalone, NgRx SignalStore para `autenticacao`, Angular Material, Tailwind, testes unitários e Playwright. A landing page inicial é prerenderizada, a administração executa no navegador e o runtime é Nginx. Integração à identidade usa login, acesso e logout, sem refresh token nesta etapa. Conteúdo de negócio e geração por Schematics permanecem para projetos e etapas posteriores. Veja o [guia do frontend](ms-limpo-ng/README.md).

@@ -1,0 +1,11 @@
+services:
+  ms-limpo-ng:
+    image: ${FRONTEND_IMAGE:-ms-limpo-ng:local}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - '${FRONTEND_PORT:-8081}:8080'
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true

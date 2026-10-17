@@ -1,0 +1,10 @@
+node_modules
+dist
+.angular
+.git
+.env
+.env.*
+!docker/.env.example
+coverage
+playwright-report
+test-results
