@@ -29,11 +29,7 @@ coverage.opencover.xml
 *.userosscache
 *.sln.docstates
 
-# Configuração local e certificados privados
-.env
-.env.*
-!.env.example
-!.env.*.example
+# Configuração de ambiente e certificados privados
 appsettings.*.local.json
 *.pfx
 *.p12
