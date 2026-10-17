@@ -1,0 +1,19 @@
+services:
+  ms-devops-api:
+    build:
+      context: ../..
+      dockerfile: ms-devops-api/src/Mps.Devops.Api/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      DatabaseProvider: ${DatabaseProvider:-PostgreSql}
+      ConnectionStrings__DbContext: ${ConnectionStrings__DbContext:?Configure a conexão do cliente}
+      Identity__Issuer: ${Identity__Issuer:?Configure o emissor do cliente}
+      Identity__Audience: ${Identity__Audience:?Configure o destinatário do cliente}
+      Identity__SigningKey: ${Identity__SigningKey:?Configure a chave do cliente}
+      Identity__Bootstrap__Enabled: ${Identity__Bootstrap__Enabled:-false}
+      Identity__Bootstrap__Email: ${Identity__Bootstrap__Email:-}
+      Identity__Bootstrap__Password: ${Identity__Bootstrap__Password:-}
+      Database__ApplyMigrations: ${Database__ApplyMigrations:-false}
+    restart: unless-stopped

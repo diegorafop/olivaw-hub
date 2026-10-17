@@ -1,0 +1,4 @@
+services:
+  ms-devops-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Quality
