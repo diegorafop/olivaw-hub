@@ -35,4 +35,4 @@ A Action registra branches nas issues e fecha as issues referenciadas apenas ao 
 
 ## Security & Configuration
 
-Never commit AWS credentials, access tokens, customer data, or local secrets. When infrastructure is introduced, document required configuration using examples with placeholder values.
+Por decisão explícita do mantenedor, os arquivos `.env` de todos os projetos são versionados no repositório privado nesta etapa, incluindo as configurações de serviço já presentes nas APIs. Não ignore esses arquivos nem introduza scripts para reconstruí-los em cada clone. A migração para Key Vault está planejada para o futuro. Essa decisão não autoriza incluir credenciais AWS, tokens pessoais, chaves SSH privadas ou dados de clientes no Git. Não imprima senhas ou chaves nos logs, na documentação ou nas respostas.

@@ -43,18 +43,23 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e
-      - name: Validar Compose
-        run: docker compose -f docker/docker-compose.yml config --quiet
+      - name: Validar Compose dos cinco ambientes
+        run: |
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml config --quiet
+          for environment in dev qas rls stg prd; do
+            docker compose --env-file "docker/.env.$environment" -f docker/docker-compose.yml -f "docker/docker-compose.$environment.yml" config --quiet
+          done
       - name: Construir imagem sem publicar
         run: docker build -f docker/Dockerfile -t ms-limpo-ng:ci .
       - name: Validar runtime Nginx
         run: |
-          docker run -d --name frontend-ci -p 8081:8080 ms-limpo-ng:ci
+          docker run -d --name frontend-ci -e API_URL=https://api.ci.example.com -p 8081:8080 ms-limpo-ng:ci
           trap 'docker logs frontend-ci; docker rm -f frontend-ci' EXIT
           for attempt in $(seq 1 20); do
             if curl -fsS http://localhost:8081/health; then break; fi
             sleep 1
           done
+          curl -fsS http://localhost:8081/config.json | grep -q 'https://api.ci.example.com'
           curl -fsS http://localhost:8081/ | grep -q 'Olivaw'
           curl -fsS http://localhost:8081/admin | grep -q '<app-root'
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/ausente.js)" = 404

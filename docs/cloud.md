@@ -42,11 +42,11 @@ Backups automatizados e restauração serão implementados posteriormente. O pla
 - `docker/docker-compose.yml`: build a partir da raiz do monorepo, porta interna e redes comuns.
 - `docker/docker-compose.<dev|qas|rls|stg|prd>.yml`: ambiente, imagem, nome do container e roteamento Traefik.
 - `docker/.env.example`: exemplo versionado, sem credenciais reais.
-- `docker/.env` e `.env.dev`, `.env.qas`, `.env.rls`, `.env.stg`, `.env.prd`: configurações locais preparadas para os testes, ignoradas pelo Git e pelo contexto Docker. `.env` equivale à configuração de produção.
+- `docker/.env` e `.env.dev`, `.env.qas`, `.env.rls`, `.env.stg`, `.env.prd`: configurações dos ambientes versionadas no repositório privado e excluídas do contexto Docker. `.env` equivale à configuração de produção.
 
 As senhas atuais de banco, RabbitMQ e Redis foram reaproveitadas do FinTalk somente nesses arquivos locais. Os hosts atuais receberam chaves JWT aleatórias por ambiente. Para futuros serviços agregados de um cliente, o emissor principal será único e a configuração de validação deverá ser compatível com seus tokens. Não reutilizamos a chave de autenticação do FinTalk. O DevOps aplica suas migrations a cada startup; o bootstrap de root é controlado separadamente por ambiente.
 
-Os arquivos reais não acompanham um clone/pull: transfira o arquivo do ambiente necessário para a VM por um meio apropriado ou recrie-o a partir do exemplo. Não é necessário copiar os cinco ambientes se usar somente produção. O gerador exclui os dotenv reais e inclui apenas os exemplos; cada novo serviço precisa receber suas próprias credenciais e chaves.
+Os dotenv dos ambientes de todos os projetos acompanham o Git privado por decisão do mantenedor. Novos clones recebem a configuração sem transferência manual ou scripts de preparação. Key Vault será adotado futuramente. O gerador de API ainda evita propagar as credenciais do template para um cliente novo: configure as credenciais exclusivas desse cliente e versione seus dotenv antes de publicar o projeto.
 
 ## Traefik e redes Docker
 
@@ -111,3 +111,13 @@ A validação local resolve as combinações dos dois serviços nos cinco ambien
 Configuração validada não comprova disponibilidade da VM, bancos preparados, permissões, regras do Security Group ou emissão de certificado. Antes da primeira implantação, confirme a resolução DNS, o acesso público ao Traefik nas portas usadas e a existência dos bancos/schemas previstos. O bootstrap de root só pode ser executado depois de preparar o schema; consulte [Olivaw Identity](../olivaw-identity/README.md).
 
 Referências: [roteamento Docker no Traefik](https://doc.traefik.io/traefik/reference/routing-configuration/other-providers/docker/) e [configuração de proxy no ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-10.0). Headers encaminhados por proxies devem ser tratados com uma configuração explícita de proxies confiáveis quando incorporarmos essa integração; não foi habilitada confiança irrestrita em headers recebidos.
+
+## Frontends Angular
+
+`ms-limpo-ng` e `ms-olivaw-hub-ng` seguem o mesmo padrão de cinco ambientes das APIs: Compose base sem portas públicas, override local em loopback e `docker-compose.<dev|qas|rls|stg|prd>.yml` para Traefik. Os dotenv públicos preenchidos são versionados e acompanham o clone, sem script de preparação. O Schematics personaliza os seis arquivos conhecidos (local e cinco de nuvem); os arquivos de ambiente acompanham o repositório privado até a futura migração para Key Vault. Cada ambiente tem projeto Compose, imagem, container e routers próprios.
+
+O site institucional de produção usa `olivaw-hub.duckdns.org`; a API futura usa `api.olivaw-hub.duckdns.org`. Os ambientes adicionais usam `<ambiente>.olivaw-hub.duckdns.org` e `api.<ambiente>.olivaw-hub.duckdns.org`. Para frontends de cliente com subdomínio, o gerador usa `<cliente>-<ambiente>.olivaw-hub.duckdns.org`, alinhado aos hosts das APIs. DNS e certificados desses hosts precisam ser conferidos na VM.
+
+No container, `API_URL` do dotenv gera os settings públicos em runtime. O Nginx entrega arquivos do frontend e não faz proxy para a API. Não há configurações de banco, JWT secreto ou RabbitMQ no frontend. O contexto de build é somente a pasta do frontend. Consulte os comandos em [Docker do site](../ms-olivaw-hub-ng/docker/README.md) e [Docker do template](../ms-limpo-ng/docker/README.md).
+
+A estrutura de arquivos passa a ser compatível com o comando do executor DevOps; o serviço ainda precisa ser autorizado na allowlist da VM. Não houve implantação nem alteração remota nesta preparação.

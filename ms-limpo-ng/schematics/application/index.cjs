@@ -23,11 +23,22 @@ const rootFiles = [
 ];
 function collect(directory, prefix = '') {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const publicEnvs = ['.env', '.env.dev', '.env.qas', '.env.rls', '.env.stg', '.env.prd'];
+    if (entry.name.startsWith('.env') && !(prefix === 'docker' && publicEnvs.includes(entry.name)))
+      return [];
+    if (entry.name === '__pycache__' || entry.name.endsWith('.pyc')) return [];
     const relative = path.posix.join(prefix, entry.name);
     if (entry.isSymbolicLink())
       throw new SchematicsException(`Link simbólico não permitido: ${relative}`);
     return entry.isDirectory() ? collect(path.join(directory, entry.name), relative) : [relative];
   });
+}
+function environmentHost(host, environment) {
+  if (environment === 'prd') return host;
+  if (host === 'olivaw-hub.duckdns.org' || host.split('.').length === 2)
+    return `${environment}.${host}`;
+  const [label, ...base] = host.split('.');
+  return `${label}-${environment}.${base.join('.')}`;
 }
 function application(options) {
   return (tree, context) => {
@@ -57,6 +68,8 @@ function application(options) {
     if (siteDomain && !/^(?=.{1,253}$)[a-z0-9]+(?:[.-][a-z0-9]+)*\.[a-z]{2,}$/.test(siteDomain)) {
       throw new SchematicsException('siteDomain deve ser um DNS sem protocolo.');
     }
+    const publicHost = siteDomain ?? `${name.slice(3, -3)}.olivaw-hub.duckdns.org`;
+    const cloudApi = api.hostname === 'localhost' ? new URL(`https://api.${publicHost}`) : api;
     const target = path.resolve(process.cwd(), name);
     if (fs.existsSync(target) && fs.lstatSync(target).isSymbolicLink())
       throw new SchematicsException('Destino não pode ser link simbólico.');
@@ -74,6 +87,25 @@ function application(options) {
         continue;
       }
       let content = decoded.replaceAll('ms-limpo-ng', name);
+      if (relative.startsWith('docker/')) {
+        for (const environment of ['dev', 'qas', 'rls', 'stg', 'prd']) {
+          const oldHost =
+            environment === 'prd'
+              ? 'limpo.olivaw-hub.duckdns.org'
+              : `limpo-${environment}.olivaw-hub.duckdns.org`;
+          const newHost = environmentHost(publicHost, environment);
+          const apiForEnvironment = new URL(cloudApi.href);
+          if (environment !== 'prd')
+            apiForEnvironment.hostname = cloudApi.hostname.startsWith('api.')
+              ? `api.${environmentHost(cloudApi.hostname.slice(4), environment)}`
+              : environmentHost(cloudApi.hostname, environment);
+          content = content.replaceAll(
+            `https://api.${oldHost}`,
+            apiForEnvironment.href.replace(/\/$/, ''),
+          );
+          content = content.replaceAll(oldHost, newHost);
+        }
+      }
       if (relative.startsWith('e2e/'))
         content = content.replaceAll('http://localhost:5137', api.href.replace(/\/$/, ''));
       if (relative === 'package.json' || relative === 'package-lock.json') {
@@ -114,7 +146,7 @@ function application(options) {
     }
     output.set(
       `${name}/README.md`,
-      `# ${name}\n\nFrontend gerado do template **Olivaw Hub**, com build e publicação independentes da API.\n\n## Desenvolvimento\n\nNode 24 e npm 11.\n\n\`\`\`bash\nnpm ci\nnpm start\nnpm run build\nnpm test\nnpm run lint\nnpm run format:check\nnpx playwright install chromium\nnpm run e2e\n\`\`\`\n\nSettings públicos: \`public/config.json\`. Tema: \`src/theme/_brand.scss\`. ${siteDomain ? `Site: https://${siteDomain}. ` : ''}API: ${api.href.replace(/\/$/, '')}.\n\nDocker: \`docker compose -f docker/docker-compose.yml up --build -d\`. Configure CORS na API para a origem do frontend. Não há proxy de API, refresh token nem persistência da sessão. Consulte o [template](../ms-limpo-ng/README.md) para os padrões compartilhados. Arquivos existentes no destino são preservados; a geração recusa conflitos e não atualiza projetos já gerados.\n`,
+      `# ${name}\n\nFrontend gerado do template **Olivaw Hub**, com build e publicação independentes da API.\n\n## Desenvolvimento\n\nNode 24 e npm 11.\n\n\`\`\`bash\nnpm ci\nnpm start\nnpm run build\nnpm test\nnpm run lint\nnpm run format:check\nnpx playwright install chromium\nnpm run e2e\n\`\`\`\n\nSettings públicos: \`public/config.json\`. Tema: \`src/theme/_brand.scss\`. ${siteDomain ? `Site: https://${siteDomain}. ` : ''}API: ${api.href.replace(/\/$/, '')}.\n\nDocker: \`docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up --build -d\`. Configure CORS na API para a origem do frontend. Não há proxy de API, refresh token nem persistência da sessão. Consulte o [template](../ms-limpo-ng/README.md) para os padrões compartilhados. Arquivos existentes no destino são preservados; a geração recusa conflitos e não atualiza projetos já gerados.\n`,
     );
     // Valida todos os conflitos antes de registrar qualquer criação. Nunca usa overwrite/delete.
     const conflicts = [...output.keys()].filter((file) => tree.exists(file));
@@ -129,4 +161,4 @@ function application(options) {
     return tree;
   };
 }
-module.exports = { application };
+module.exports = { application, collect };

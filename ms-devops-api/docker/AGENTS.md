@@ -9,7 +9,7 @@ Os arquivos Compose desta pasta apontam para o Dockerfile em `../src/Mps.Devops.
 ## Configuração
 
 - Mantenha valores comuns no Compose base e diferenças de ambiente nos overrides.
-- `.env.example` contém somente exemplos; segredos reais vêm de arquivo local ignorado ou secret store.
+- Os dotenv dos ambientes são versionados no repositório privado por decisão do mantenedor; Key Vault será adotado futuramente. Não imprima seus valores. `.env.example` permanece como referência.
 - Preserve conexão, emissor, destinatário e chave JWT exclusivos por cliente. Não reintroduza dependência de autenticação corporativa.
 - Migrations e bootstrap são opções explícitas, desabilitadas por padrão; não habilite alterações de banco como efeito de uma mudança de container.
 - Preserve execução sem root, porta documentada e exclusão de certificados e segredos do contexto de build.

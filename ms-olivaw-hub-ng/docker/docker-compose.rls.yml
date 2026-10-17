@@ -1,0 +1,17 @@
+name: ms-olivaw-hub-ng-rls
+services:
+  ms-olivaw-hub-ng:
+    container_name: ms-olivaw-hub-ng-rls
+    image: ${FRONTEND_IMAGE:-ms-olivaw-hub-ng:rls}
+    environment:
+      API_URL: ${API_URL:-https://api.rls.olivaw-hub.duckdns.org}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-hub-ng-rls.rule: Host(`${PUBLIC_HOST:-rls.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-hub-ng-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-hub-ng-rls.tls: 'true'
+      traefik.http.routers.ms-olivaw-hub-ng-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-hub-ng-rls.service: ms-olivaw-hub-ng-rls
+      traefik.http.services.ms-olivaw-hub-ng-rls.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-hub-ng-rls.loadbalancer.server.scheme: http

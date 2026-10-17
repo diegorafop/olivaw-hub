@@ -1,49 +1,59 @@
-# Docker do frontend
+# Docker e ambientes do frontend
 
-Execute os comandos da [documentação do template](../README.md#docker) a partir da raiz do monorepo. Docker Compose v2 é necessário.
+O padrão acompanha as APIs do Olivaw Hub: Compose base, override local e cinco overrides de nuvem. Cada frontend mantém imagem, build e publicação independentes da API.
 
-- `Dockerfile`: build do Angular e runtime Nginx sem root.
-- `nginx.conf`: arquivos públicos e fallback para o shell CSR; não contém proxy de API.
-- `docker-compose.yml`: serviço exclusivo do frontend, porta padrão 8081.
-- `.env.example`: variáveis públicas de exemplo, sem segredos.
+## Arquivos
 
-Frontend e API têm containers, builds e publicações independentes. Não precisam compartilhar redes Docker. As chamadas HTTP são feitas pelo navegador à URL absoluta configurada em `public/config.json`. Nunca use hostname interno de container como endereço público da API.
+- `docker-compose.yml`: build, porta interna 8080, configuração pública e rede Traefik.
+- `docker-compose.override.yml`: execução local em `127.0.0.1:8081`, sem rede externa obrigatória e sem descoberta Traefik.
+- `docker-compose.dev.yml`, `.qas.yml`, `.rls.yml`, `.stg.yml`, `.prd.yml`: imagem, container, projeto Compose e routers próprios por ambiente.
+- `.env`: configuração local preenchida.
+- `.env.dev`, `.env.qas`, `.env.rls`, `.env.stg`, `.env.prd`: configurações preenchidas dos cinco ambientes.
+- `30-runtime-config.sh`: prepara o JSON público antes de iniciar o Nginx, usando `API_URL`.
 
-```bash
-docker compose -f ms-limpo-ng/docker/docker-compose.yml up --build -d
-```
+Os overrides de nuvem usam `traefik-net`, `websecure` e o resolver `myresolver`, ajustáveis no dotenv. Não publicam portas no host. A produção usa `https://limpo.olivaw-hub.duckdns.org`. Consulte cada `.env.<ambiente>` para os hosts adicionais; eles precisam resolver para a VM e receber certificados por hostname.
 
-Para alterar a porta sem criar arquivo local:
+## Produção na AWS
 
-```bash
-FRONTEND_PORT=8082 docker compose -f ms-limpo-ng/docker/docker-compose.yml up --build -d
-```
+Os arquivos `.env` acompanham o repositório. Na raiz do clone do monorepo na VM, execute o Compose diretamente.
 
-Para produção, crie um JSON público próprio com a URL HTTPS da API:
-
-```json
-{
-  "apiUrl": "https://api.cliente.example.com"
-}
-```
-
-Monte esse arquivo em `/usr/share/nginx/html/config.json:ro` por um override local de Compose:
-
-```yaml
-services:
-  ms-limpo-ng:
-    volumes:
-      - /caminho/absoluto/settings-publicos.json:/usr/share/nginx/html/config.json:ro
-```
-
-O padrão `http://localhost:5137` atende somente desenvolvimento no próprio computador. `localhost` no navegador de um visitante aponta para a máquina desse visitante. A API deve ser publicada separadamente e permitir a origem do frontend via CORS. TLS do frontend fica no proxy de entrada da infraestrutura. Não inclua segredos no JSON público.
-
-Valide a configuração sem subir serviços:
+Revise `PUBLIC_HOST`, `API_URL`, `TRAEFIK_NETWORK`, `TRAEFIK_ENTRYPOINT` e `TRAEFIK_CERTRESOLVER`. Depois:
 
 ```bash
-docker compose -f ms-limpo-ng/docker/docker-compose.yml config --quiet
+docker compose --env-file ms-limpo-ng/docker/.env.prd \
+  -f ms-limpo-ng/docker/docker-compose.yml \
+  -f ms-limpo-ng/docker/docker-compose.prd.yml up -d --build
 ```
 
-`GET /health` deve retornar 200. A raiz deve conter o HTML público prerenderizado; uma rota interna deve receber `index.csr.html`; um arquivo `.js` inexistente deve retornar 404. HTML e configuração não têm cache persistente; assets usam cache de uma hora.
+Para outro ambiente, troque `prd` por `dev`, `qas`, `rls` ou `stg` nos três caminhos. Não combine dotenv de um ambiente com override de outro. Os nomes dos projetos Compose são distintos, permitindo coexistência sem substituir os containers de outro ambiente.
 
-As imagens base usam tags de manutenção (`node:24-alpine` e `nginxinc/nginx-unprivileged:stable-alpine`). Fixe digests revisados na esteira de produção se precisar reproduzir também as camadas do sistema operacional. Nenhuma imagem é publicada por este template.
+O executor DevOps usa a mesma combinação a partir da pasta do serviço: `--env-file docker/.env.<ambiente> -f docker/docker-compose.yml -f docker/docker-compose.<ambiente>.yml up -d --build`. Antes de usá-lo, autorize `ms-limpo-ng` no caminho relativo completo da allowlist da VM, conforme o [guia do executor](../../docs/deploy-executor.md). A alteração local não atualiza essa allowlist automaticamente.
+
+## Desenvolvimento local em Docker
+
+```bash
+docker compose -f ms-limpo-ng/docker/docker-compose.yml \
+  -f ms-limpo-ng/docker/docker-compose.override.yml up -d --build
+```
+
+A porta padrão é 8081, ajustável por `FRONTEND_PORT`. O endereço da API padrão local é `http://localhost:5137`. O navegador chama a API diretamente; hostname interno Docker não é endereço público. Não há proxy para API no Angular ou Nginx.
+
+## Settings em runtime
+
+Em `npm start`, os settings continuam em `public/config.json`. No container, `API_URL` do Compose/dotenv gera `/tmp/olivaw/config.json`, servido sem cache em `/config.json`. Alterar essa variável e recriar o container não exige recompilar a imagem. Esse JSON temporário não altera os arquivos do build, que pertencem ao usuário da imagem.
+
+`API_URL` deve ser uma URL absoluta HTTP(S), sem credenciais, query, fragmento ou caracteres de escape. O script admite nomes DNS, IPv4 e caminhos com caracteres ASCII de URL. URLs literais IPv6 não são suportadas por essa validação. Settings são públicos e nunca devem conter segredos. `PUBLIC_HOST` controla o router Traefik; canonical e metadados continuam definidos no build da aplicação.
+
+Frontend e API têm publicações independentes. A API precisa permitir a origem do frontend em CORS. Não é necessário que os dois containers compartilhem rede entre si; a rede Traefik existe para o proxy de entrada. DNS, TLS e infraestrutura precisam estar preparados antes da publicação, conforme o [guia de nuvem](../../docs/cloud.md).
+
+## Validação
+
+```bash
+docker compose --env-file ms-limpo-ng/docker/.env.prd \
+  -f ms-limpo-ng/docker/docker-compose.yml \
+  -f ms-limpo-ng/docker/docker-compose.prd.yml config --quiet
+```
+
+Repita para os demais ambientes. `GET /health` deve retornar 200; a raiz contém HTML público prerenderizado, rotas internas usam `index.csr.html` e assets ausentes retornam 404. O container executa Nginx sem root. As imagens base seguem tags de manutenção; fixe digests revisados se precisar reproduzir as camadas do sistema operacional.
+
+Os dotenv dos seis ambientes (local e cinco de nuvem) são versionados e chegam prontos no clone. O Schematics os personaliza para os novos clientes. Eles contêm somente configuração pública do frontend. Os ambientes de todos os projetos acompanham o Git nesta etapa; a migração para Key Vault fica planejada para o futuro.

@@ -44,7 +44,7 @@ O projeto `Mps.Devops.Dados.PostgreSql` contém a migration inicial `DbCreate`, 
 
 O ambiente segue a infraestrutura do FinTalk: PostgreSQL em `ms-postgres-db`, RabbitMQ em `ms-rabbit-mq` e roteamento Traefik na rede `traefik-net`. Produção usa database `olivaw_prd`, schema `ms_devops` e URL `https://api.devops.olivaw-hub.duckdns.org`.
 
-Os cinco ambientes possuem appsettings e overrides próprios. Senhas temporárias e chaves JWT ficam nos dotenv locais ignorados pelo Git. `.env.example` não contém credenciais reais. Redis tem conexão preparada, mas continua sem integração ativa no código.
+Os cinco ambientes possuem appsettings e overrides próprios. Senhas temporárias e chaves JWT ficam nos dotenv versionados no repositório privado, conforme decisão do mantenedor. A migração para Key Vault fica planejada para o futuro. `.env.example` não contém credenciais reais. Redis tem conexão preparada, mas continua sem integração ativa no código.
 
 Valide antes da subida:
 

@@ -39,7 +39,7 @@ Com o schema pronto, habilite temporariamente `Identity__Bootstrap__Enabled=true
 
 Os appsettings por ambiente e overrides Compose seguem os endereços de infraestrutura usados pelo FinTalk. O template usa banco `olivaw_prd`, schema `ms_limpo` e domínio de produção `https://api.limpo.olivaw-hub.duckdns.org`. Outros ambientes têm nomes próprios, documentados no [guia de nuvem](../docs/cloud.md).
 
-Credenciais de teste estão nos dotenv locais ignorados pelo Git; o arquivo versionado `.env.example` contém placeholders. As variáveis do Compose substituem as connection strings sem senha dos appsettings. Redis tem connection string preparada, mas não possui integração ativa no código. RabbitMQ é habilitado nos dotenv de nuvem, com prefixo exclusivo por serviço/ambiente.
+As configurações dos ambientes estão nos dotenv versionados no repositório privado até a futura migração para Key Vault; o arquivo versionado `.env.example` contém placeholders. As variáveis do Compose substituem as connection strings sem senha dos appsettings. Redis tem connection string preparada, mas não possui integração ativa no código. RabbitMQ é habilitado nos dotenv de nuvem, com prefixo exclusivo por serviço/ambiente.
 
 O contexto de build continua sendo a raiz do monorepo:
 

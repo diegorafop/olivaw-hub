@@ -111,7 +111,7 @@ Se precisarmos manter linhas de versões diferentes por cliente ou consumir as b
 
 ## Git e configuração do editor
 
-O `.gitignore` da raiz contém as regras comuns do monorepo: `bin`, `obj`, `dist`, artefatos, relatórios, logs, estado local das IDEs, `.env` e certificados privados. Os padrões genéricos alcançam qualquer profundidade, incluindo futuros clientes. Arquivos `.env.example` e `.env.<ambiente>.example` permanecem disponíveis para versionamento.
+O `.gitignore` da raiz contém as regras comuns do monorepo: `bin`, `obj`, `dist`, artefatos, relatórios, logs, estado local das IDEs e certificados privados. Os arquivos `.env` de todos os projetos são versionados no Git privado nesta etapa; Key Vault fica planejado para o futuro. Os padrões genéricos alcançam qualquer profundidade, incluindo futuros clientes. Arquivos `.env.example` e `.env.<ambiente>.example` permanecem disponíveis para versionamento.
 
 O core e a identidade usam esse ignore central. O template mantém também seu próprio `.gitignore`, com as mesmas categorias e sem nomes de projetos, para que os clientes gerados recebam regras úteis mesmo se forem extraídos depois. Ao mudar as regras comuns, mantenha a cópia do template alinhada. Dentro deste monorepo, não é necessário criar outro ignore por cliente sem uma necessidade específica.
 
@@ -123,7 +123,7 @@ Confira uma regra sem criar arquivos de teste:
 
 ```bash
 git check-ignore -v --no-index olivaw-identity/src/Olivaw.Identity/bin/Release/exemplo.dll
-git check-ignore -v --no-index ms-limpo-api/docker/.env
+git check-ignore -v --no-index ms-limpo-api/src/Mps.Limpo.Api/bin/Release/exemplo.dll
 ```
 
 Arquivos já rastreados continuam no índice mesmo quando passam a corresponder ao ignore. O ignore não remove arquivos do histórico nem deixa de rastreá-los automaticamente; trate essa limpeza separadamente e preserve os arquivos locais necessários. Consulte a [documentação do Git](https://git-scm.com/docs/gitignore).

@@ -47,7 +47,7 @@ O navegador chama essa URL diretamente, por exemplo `http://localhost:5137/ident
 
 A configuração é carregada antes das rotas, sem cache e sem passar pelos interceptors. A URL deve ser absoluta e usar HTTP(S), sem credenciais, query ou fragmento. Arquivo ausente ou inválido impede a inicialização. A API precisa permitir a origem pública do frontend via CORS, incluindo métodos utilizados e os headers `Authorization` e `Content-Type`. Não é necessário compartilhar rede Docker entre frontend e API, pois a chamada parte do navegador. A configuração CORS do backend deve ser revisada na implantação; este template não altera a API.
 
-Na imagem Docker, substitua `/usr/share/nginx/html/config.json` com um volume somente de leitura para mudar a API sem recompilar. Variáveis de ambiente do container não alteram automaticamente o JavaScript nem esse JSON. Nunca inclua chaves JWT, senhas, tokens ou qualquer segredo nessa configuração pública.
+No Docker, `API_URL` no dotenv do ambiente é transformada em settings públicos na inicialização do container, sem recompilar a imagem. `public/config.json` continua sendo a configuração de `npm start`. Nunca inclua chaves JWT, senhas, tokens ou qualquer segredo nesses settings. Veja [Docker e ambientes](docker/README.md).
 
 Para personalizar um cliente, altere as paletas e tipografia em `src/theme/_brand.scss`, a marca e textos em `features/public`, o título/descrição em `src/index.html` e os títulos de rotas. Adicione seus assets em `public/`. Material atende componentes e acessibilidade; Tailwind atende layout e espaçamento. As cores utilitárias referenciam os tokens do Material.
 
@@ -97,12 +97,13 @@ A [CI](../.github/workflows/frontend.yml) executa essas verificações, constró
 Da raiz do monorepo:
 
 ```bash
-docker compose -f ms-limpo-ng/docker/docker-compose.yml up --build -d
+docker compose -f ms-limpo-ng/docker/docker-compose.yml \
+  -f ms-limpo-ng/docker/docker-compose.override.yml up --build -d
 ```
 
-O site fica em `http://localhost:8081`; `GET /health` atende o healthcheck. A imagem usa Node somente no build e Nginx sem root na porta 8080. O contexto de build é apenas `ms-limpo-ng`, pois não há referências a projetos .NET.
+No override local, o site fica em `http://localhost:8081`; `GET /health` atende o healthcheck. A imagem usa Node somente no build e Nginx sem root na porta 8080. O contexto de build é apenas `ms-limpo-ng`, pois não há referências a projetos .NET.
 
-O frontend tem imagem, Compose, build, configuração e publicação próprios. O Nginx entrega somente os arquivos do frontend; não encaminha requisições ao backend. Publique o `ms-limpo-api` separadamente, configure sua URL pública no settings e libere a origem do frontend no CORS da API. Consulte [Docker](docker/README.md) para configuração e validação.
+O frontend tem imagem, Compose, build, configuração e publicação próprios. Os cinco ambientes `dev/qas/rls/stg/prd` seguem o padrão das APIs, com dotenv preenchido, rede e routers Traefik isolados por ambiente. Os dotenv públicos são versionados e acompanham cada clone, sem preparação adicional. O Nginx entrega somente os arquivos do frontend; não encaminha requisições ao backend. Publique o `ms-limpo-api` separadamente, configure sua URL pública no settings e libere a origem do frontend no CORS da API. Consulte [Docker](docker/README.md) para configuração e validação.
 
 ## Novos clientes com Angular Schematics
 
@@ -118,6 +119,6 @@ Use `--dry-run` para simular. O nome deve seguir `ms-<cliente>-ng`. `--api-url` 
 
 Uma pasta existente pode conter documentos: eles são preservados. Se algum arquivo a gerar já existir, o processo recusa a operação antes de gravar arquivos; não há exclusão, overwrite ou modo force. O schematic pode ser conferido com `npm --prefix ms-limpo-ng run test:schematics`. Projetos já gerados não são atualizados por esse comando.
 
-O gerador não transporta dependências instaladas, caches, build, segredos, preferência de analytics nem o próprio toolkit de geração. Ele preserva assets binários. Os testes E2E passam a simular a URL configurada da API. Depois de gerar, execute `npm ci` na nova pasta. Cada cliente mantém build e publicação independentes; evoluções do template não são propagadas automaticamente.
+O gerador não transporta dependências instaladas, caches, build, segredos, preferência de analytics nem o próprio toolkit de geração. Ele preserva assets binários e personaliza os dotenv públicos versionados dos cinco ambientes, seguindo o padrão de ambientes versionados no repositório privado. Os testes E2E passam a simular a URL configurada da API. Depois de gerar, execute `npm ci` na nova pasta. Cada cliente mantém build e publicação independentes; evoluções do template não são propagadas automaticamente.
 
 Documentação oficial: [Angular Schematics](https://angular.dev/tools/cli/schematics) e [autoria de schematics](https://angular.dev/tools/cli/schematics-authoring).
