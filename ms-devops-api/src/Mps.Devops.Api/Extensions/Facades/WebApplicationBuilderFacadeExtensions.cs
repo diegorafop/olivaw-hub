@@ -14,12 +14,12 @@ public static class WebApplicationBuilderFacadeExtensions
 {
     public static void AddSetups(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<Mps.Devops.Api.Features.ImplantacaoFeature.Internals.DeploymentGate>();
         builder.Services.Configure<Mps.Devops.Api.Settings.DeploymentSettings>(builder.Configuration.GetSection("Deployment"));
         builder.Services.AddOptions<Mps.Devops.Api.Settings.DeploymentSettings>()
             .Validate(item => item.TimeoutSeconds > 0, "Deployment:TimeoutSeconds deve ser positivo.")
-            .Validate(item => item.TimeoutSeconds <= 3600, "Deployment:TimeoutSeconds deve ser no máximo 3600.")
+            .Validate(item => item.TimeoutSeconds <= 120, "Deployment:TimeoutSeconds deve ser no máximo 120.")
             .ValidateOnStart();
+        builder.Services.AddScoped<Mps.Devops.Services.IDeploymentService, Mps.Devops.Api.Services.SshDeploymentService>();
         builder.Services.AddScoped<Mps.Devops.Services.IProcessExecutionService, Mps.Devops.Api.Services.ProcessExecutionService>();
         builder.Services.AddAuthorization(options => options.AddPolicy("devops.implantar", policy =>
             policy.AddAuthenticationSchemes(Olivaw.Identity.Api.IdentityRegistration.Scheme).RequireAuthenticatedUser()

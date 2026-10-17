@@ -42,7 +42,7 @@ Nenhuma migration ou banco foi criado na geração. Aplicação de migrations e 
 
 ## Configuração de nuvem e Docker
 
-O ambiente segue a infraestrutura do FinTalk: PostgreSQL em `ms-postgres-db`, RabbitMQ em `ms-rabbit-mq` e roteamento Traefik na rede `traefik-net`. Produção usa banco `olivaw_prd`, schema `ms_devops` e URL `https://ms-devops-api.fintalk-server.duckdns.org`.
+O ambiente segue a infraestrutura do FinTalk: PostgreSQL em `ms-postgres-db`, RabbitMQ em `ms-rabbit-mq` e roteamento Traefik na rede `traefik-net`. Produção usa banco `olivaw_prd`, schema `ms_devops` e URL `https://api.devops.olivaw-hub.duckdns.org`.
 
 Os cinco ambientes possuem appsettings e overrides próprios. Senhas temporárias e chaves JWT ficam nos dotenv locais ignorados pelo Git. `.env.example` não contém credenciais reais. Redis tem conexão preparada, mas continua sem integração ativa no código.
 
@@ -58,39 +58,16 @@ Consulte o [guia de nuvem](../docs/cloud.md) para usar os dotenv, preparar banco
 
 O [fluxo de desenvolvimento](../docs/desenvolvimento.md), o [padrão Git Flow](../docs/gitflow.md) e os `AGENTS.md` locais continuam válidos.
 
-## Implantações
+## Implantações via SSH
 
-`POST /implantacoes` recebe um comando CQS:
+A API envia solicitações ao executor instalado na VM; Git e Docker rodam no host. `POST /implantacoes` exige JWT e permissão `devops.implantar`:
 
 ```json
 { "folder": "olivaw-hub/ms-devops-api", "branch": "develop", "environment": "dev" }
 ```
 
-Configure `Deployment__RootDirectory` com uma raiz absoluta e confiável no servidor (na VM informada: `/home/ec2-user`) e, opcionalmente, `Deployment__TimeoutSeconds` (padrão 300, máximo 3600, por comando). `folder` aponta para a raiz do microserviço e é relativo à raiz permitida; aceita segmentos com letras, números, `_` e `-`, separados por `/`. Caminhos absolutos, `..`, metacaracteres e links simbólicos são rejeitados. Deve existir um repositório Git na pasta ou em um ancestral dentro da raiz autorizada.
+O retorno é HTTP **202**, com `id`, `status`, `log` e header `Location`. Consulte `GET /implantacoes/{id}` para acompanhar o job. Os ambientes permitidos são `dev`, `qas`, `stg`, `rls` e `prd`. O worker persiste estado e continua independente do container da API, inclusive durante atualização do próprio DevOps.
 
-O JWT deve pertencer a um usuário root ou ter a autorização `devops.implantar`, vinculada ao perfil do usuário. O serviço executa `git checkout <branch>`, `git pull --ff-only` e o Compose do ambiente solicitado, nessa ordem, usando `WorkingDirectory` e argumentos separados, sem shell. `environment` é obrigatório e aceita somente `dev`, `qas`, `stg`, `rls` ou `prd`. O comando executado na raiz do microserviço é:
+Na VM, `folder` é relativo a `/home/ec2-user` e limitado à allowlist do executor. O script faz checkout, pull `--ff-only` e Compose com dotenv/override do ambiente e `up -d --build`. Erros de entrada/transporte usam a validação centralizada; falhas operacionais ficam registradas no status `failed` do job.
 
-```bash
-docker compose --env-file docker/.env.dev -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d
-```
-
-O sufixo `dev` é substituído pelo ambiente validado, inclusive no dotenv. Os arquivos existentes usam `.yml` e `docker-compose.<ambiente>.yml`. O `--env-file` garante a interpolação das variáveis do ambiente correto. O branch precisa existir localmente para checkout ou ser resolvido pelo Git; o pull usa seu upstream configurado.
-
-Sucesso retorna HTTP 200 com `log` das etapas/códigos de saída. Entrada inválida, pasta indisponível, Git/Docker ausente, saída não zero ou timeout passam pelo filtro centralizado do core, com HTTP 400 e `ValidationProblemDetails` (`title`, `status`, `errors`). A saída bruta dos processos é descartada para evitar expor credenciais; falhas interrompem a sequência, sem rollback automático. O cancelamento da requisição encerra o processo e seus descendentes. Implantações são serializadas por instância; execute uma única réplica enquanto não houver coordenação distribuída.
-
-A execução ocorre na máquina/container da API; não há SSH para a AWS nesta feature. O ambiente executor precisa de Git, Docker Compose, credenciais Git não interativas, acesso aos projetos e permissão para usar o daemon Docker. O Dockerfile atual não fornece essa infraestrutura. Não foi montado socket Docker nem habilitado acesso ao host automaticamente. A raiz e os repositórios devem ser administrados somente por operadores confiáveis, sem alterações concorrentes de filesystem durante a implantação.
-
-Os testes cobrem validator, handler, controller, argumentos dos processos, proteção de caminhos e HTTP real em TestServer com JWT e `IIdentityStore`/`IProcessExecutionService` mockados. Não executam Git/Docker nem dependem da VM.
-
-### Caminhos na VM AWS
-
-Na estrutura informada, configure `Deployment__RootDirectory=/home/ec2-user`. O payload com `folder=olivaw-hub/ms-devops-api` executa os comandos em `/home/ec2-user/olivaw-hub/ms-devops-api`. Exemplo equivalente no host, para `dev`:
-
-```bash
-cd /home/ec2-user/olivaw-hub/ms-devops-api
-git checkout develop
-git pull --ff-only
-docker compose --env-file docker/.env.dev -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d
-```
-
-A raiz é configuração do executor, não um campo do payload. Se a API estiver em container, caminhos, ferramentas e acesso ao daemon precisam ser disponibilizados explicitamente ao executor; a presença desses recursos no host não os torna disponíveis dentro do container. O acesso Git também precisa funcionar com o usuário efetivo do executor, sem prompts. Não há conexão SSH automática nem alteração da VM nesta feature.
+Veja o [guia do executor](../docs/deploy-executor.md) para entender cada arquivo e instalar script, chave restrita, `known_hosts`, systemd e override Docker. A imagem contém cliente SSH; acesso à VM depende desse provisionamento manual. Nenhum acesso ou instalação na AWS foi realizado nesta implementação.

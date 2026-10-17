@@ -7,7 +7,7 @@ services:
     labels:
       traefik.enable: 'true'
       traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
-      traefik.http.routers.ms-devops-api-rls.rule: Host(`${PUBLIC_HOST:-ms-devops-api-rls.fintalk-server.duckdns.org}`)
+      traefik.http.routers.ms-devops-api-rls.rule: Host(`${PUBLIC_HOST:-api.devops-rls.olivaw-hub.duckdns.org}`)
       traefik.http.routers.ms-devops-api-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
       traefik.http.routers.ms-devops-api-rls.tls: 'true'
       traefik.http.routers.ms-devops-api-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}

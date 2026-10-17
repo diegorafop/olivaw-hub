@@ -1,5 +1,6 @@
 # Documentação do Olivaw Hub
 
+- [Executor de deploy via SSH](deploy-executor.md): API assíncrona, script na VM, instalação e testes.
 - [Configuração AWS, DuckDNS e Traefik](cloud.md): ambientes, credenciais locais, redes e comandos de validação/subida.
 - [Git Flow e rastreabilidade](gitflow.md): features, releases, hotfixes, referências automáticas e conclusão das issues.
 - [Organização e desenvolvimento do monorepo](desenvolvimento.md): pastas, projetos, soluções, referências, geração de clientes, testes e publicação independente.

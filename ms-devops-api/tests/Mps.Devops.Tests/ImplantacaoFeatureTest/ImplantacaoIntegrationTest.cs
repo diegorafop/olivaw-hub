@@ -32,8 +32,8 @@ public class ImplantacaoIntegrationTest
 {
     [Theory]
     [InlineData("empty", 400)] [InlineData("injection", 400)] [InlineData("path", 400)]
-    [InlineData("checkout", 400)] [InlineData("pull", 400)] [InlineData("docker", 400)]
-    [InlineData("environment", 400)] [InlineData("directory", 400)] [InlineData("success", 200)]
+    [InlineData("transport", 400)] [InlineData("reply", 400)] [InlineData("rejected", 400)]
+    [InlineData("environment", 400)] [InlineData("success", 202)] [InlineData("failed_job", 202)]
     [InlineData("anonymous", 401)] [InlineData("forbidden", 403)]
     public async Task Post_should_return_standard_response_and_enforce_permission(string scenario, int expectedStatus)
     {
@@ -57,16 +57,24 @@ public class ImplantacaoIntegrationTest
         if (scenario == "forbidden") permissions = Array.Empty<string>();
         store.Setup(item => item.PermissionsAsync(user.Id, It.IsAny<CancellationToken>())).ReturnsAsync(permissions);
         builder.Services.AddScoped(_ => store.Object);
+        var jobId = Guid.NewGuid();
         var processes = new Mock<IProcessExecutionService>(MockBehavior.Strict);
-        processes.Setup(item => item.ExecuteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DeploymentStep>(), It.IsAny<CancellationToken>()))
-            .Returns<string, string, string, DeploymentStep, CancellationToken>((folder, branch, environment, step, token) =>
+        processes.Setup(item => item.ExecuteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<string, CancellationToken>((payload, token) =>
             {
-                if (scenario == "directory") throw new ValidationException(new[] { new FluentValidation.Results.ValidationFailure("Folder", "Folder indisponível.") });
-                var success = true;
-                if (scenario == "checkout") success = step != DeploymentStep.Checkout;
-                if (scenario == "pull") success = step != DeploymentStep.Pull;
-                if (scenario == "docker") success = step != DeploymentStep.Compose;
-                return Task.FromResult(new ProcessExecutionResult { Success = success, Log = step.ToString() });
+                if (scenario == "transport") return Task.FromResult(new ProcessExecutionResult());
+                if (scenario == "reply") return Task.FromResult(new ProcessExecutionResult { Success = true, Output = "not-json" });
+                if (scenario == "rejected") return Task.FromResult(new ProcessExecutionResult { Success = true, Output = "{\"success\":false,\"error\":\"invalid_request\"}" });
+                using var input = JsonDocument.Parse(payload);
+                var status = "queued";
+                if (input.RootElement.GetProperty("action").GetString() == "status")
+                {
+                    Assert.Equal(jobId, input.RootElement.GetProperty("id").GetGuid());
+                    status = "succeeded";
+                    if (scenario == "failed_job") status = "failed";
+                }
+                return Task.FromResult(new ProcessExecutionResult { Success = true,
+                    Output = JsonSerializer.Serialize(new { success = true, deployment = new { id = jobId, status, log = "Safe deployment log." } }) });
             });
         builder.Services.AddScoped(_ => processes.Object);
         await using var app = builder.Build(); app.UseSetups(); await app.StartAsync();
@@ -93,10 +101,18 @@ public class ImplantacaoIntegrationTest
             Assert.NotEmpty(json.RootElement.GetProperty("errors").EnumerateObject());
             Assert.False(json.RootElement.TryGetProperty("stackTrace", out _));
         }
-        if (expectedStatus == 200)
+        if (expectedStatus == 202)
         {
             var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-            Assert.Equal(string.Join(Environment.NewLine, "Checkout", "Pull", "Compose"), json.RootElement.GetProperty("log").GetString());
+            Assert.Equal(jobId, json.RootElement.GetProperty("id").GetGuid());
+            Assert.Equal("queued", json.RootElement.GetProperty("status").GetString());
+            Assert.EndsWith($"/implantacoes/{jobId}", response.Headers.Location!.ToString());
+            var statusResponse = await client.GetAsync(response.Headers.Location);
+            Assert.Equal(HttpStatusCode.OK, statusResponse.StatusCode);
+            var statusJson = JsonDocument.Parse(await statusResponse.Content.ReadAsStringAsync());
+            var expected = "succeeded";
+            if (scenario == "failed_job") expected = "failed";
+            Assert.Equal(expected, statusJson.RootElement.GetProperty("status").GetString());
         }
         if (scenario is "empty" or "injection" or "path" or "environment" or "anonymous" or "forbidden") processes.VerifyNoOtherCalls();
     }

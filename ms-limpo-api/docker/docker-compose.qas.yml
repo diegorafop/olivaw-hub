@@ -7,7 +7,7 @@ services:
     labels:
       traefik.enable: 'true'
       traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
-      traefik.http.routers.ms-limpo-api-qas.rule: Host(`${PUBLIC_HOST:-ms-limpo-api-qas.fintalk-server.duckdns.org}`)
+      traefik.http.routers.ms-limpo-api-qas.rule: Host(`${PUBLIC_HOST:-api.limpo-qas.olivaw-hub.duckdns.org}`)
       traefik.http.routers.ms-limpo-api-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
       traefik.http.routers.ms-limpo-api-qas.tls: 'true'
       traefik.http.routers.ms-limpo-api-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}

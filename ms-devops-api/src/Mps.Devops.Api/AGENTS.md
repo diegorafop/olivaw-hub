@@ -26,7 +26,7 @@ Features/<Nome>Feature/
 `Events` e `Internals` são opcionais. Use `Events` para eventos publicados/consumidos e `Internals` para componentes exclusivos da implementação da feature. Abstrações compartilhadas ou de domínio não pertencem a `Internals`.
 
 - `Commands` e `Queries` contêm somente os casos de uso correspondentes e seus contratos, handlers e validators. Não coloque arquivos de auxiliares técnicos nessas pastas.
-- Componentes internos que não são casos de uso ficam em `Features/<Nome>Feature/Internals`, com nomes que descrevem sua responsabilidade; por exemplo, `ImplantacaoFeature/Internals/DeploymentGate.cs`. Evite pastas vagas como `Extras` e nomes de pasta baseados somente no mecanismo, como `Semaphore`.
+- Componentes internos que não são casos de uso ficam em `Features/<Nome>Feature/Internals`, com nomes que descrevem sua responsabilidade; por exemplo, componentes de coordenação exclusivos daquela feature. Evite pastas vagas como `Extras` e nomes de pasta baseados somente no mecanismo, como `Semaphore`.
 
 - Command altera estado; Query apenas lê e não causa efeito colateral observável.
 - Novas features usam inglês e nomenclatura CRUD: `CreateCustomerCommand`, `GetCustomerByIdQuery`, `UpdateCustomerCommand` e `DeleteCustomerCommand`. Use inglês também em propriedades, contratos, testes e recursos HTTP.
@@ -86,3 +86,7 @@ Features/<Nome>Feature/
 - Se um cliente REST for criado, mantenha payloads públicos planos e independentes de MediatR. A API pode recebê-los por composição em adaptadores internos, mantendo auditoria fora do body HTTP.
 - Migre controllers, handlers, validators, mapeadores e testes junto aos contratos expostos. Preserve rotas, status, JSON e nomes públicos dos erros de validação.
 - Não aplique regras específicas do `Mps.Auth.Client` a este template sem conferir a implementação existente e o escopo solicitado.
+
+## Execução remota de implantações
+
+A API envia somente o protocolo JSON pelo transporte SSH; não execute Git ou Docker localmente no container. O executor instalado na VM controla allowlist, caminhos, lock e jobs persistidos. Não aceite comandos remotos arbitrários nem desabilite a verificação de host SSH. Consulte [o guia do executor](../../../docs/deploy-executor.md). A consulta de status é somente leitura; falhas do job pertencem ao status, enquanto falhas de transporte passam pela validação centralizada.

@@ -12,14 +12,16 @@ Nenhum banco, schema, usuário, fila, certificado ou recurso da AWS foi criado o
 
 | Serviço | URL de produção | Banco de produção | Schema |
 | --- | --- | --- | --- |
-| Template | `https://ms-limpo-api.fintalk-server.duckdns.org` | `olivaw_prd` | `ms_limpo` |
-| DevOps | `https://ms-devops-api.fintalk-server.duckdns.org` | `olivaw_prd` | `ms_devops` |
+| Template | `https://api.limpo.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_limpo` |
+| DevOps | `https://api.devops.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_devops` |
 
-Os bancos usam sempre o sufixo do ambiente: `olivaw_dev`, `olivaw_qas`, `olivaw_rls`, `olivaw_stg` e `olivaw_prd`. O domínio de produção não tem sufixo; os demais usam, por exemplo, `ms-devops-api-stg.fintalk-server.duckdns.org`.
+Os bancos usam sempre o sufixo do ambiente: `olivaw_dev`, `olivaw_qas`, `olivaw_rls`, `olivaw_stg` e `olivaw_prd`. O domínio de produção não tem sufixo; os demais usam, por exemplo, `api.devops-stg.olivaw-hub.duckdns.org`.
+
+Os routers Traefik usam hosts explícitos e solicitam certificados por hostname; não presumem um único certificado wildcard para todos os níveis de subdomínio.
 
 Os nomes de bancos e schemas usam somente minúsculas, números e sublinhados. Ao gerar `cloud-validacao`, o template produz `olivaw_dev` e `ms_cloud_validacao`, preservando os hífens em `ms-cloud-validacao-api` e no domínio.
 
-`fintalk-server.duckdns.org` é a base DNS já usada pelo ambiente de referência. Não foi registrado outro domínio DuckDNS. Se trocar `PUBLIC_HOST`, atualize também `Identity__Issuer` e `Identity__Audience` para a URL correspondente.
+`olivaw-hub.duckdns.org` é a base aprovada para o Olivaw Hub. O cadastro dessa base e o apontamento para a VM devem ser feitos no DuckDNS; a configuração local não registra o domínio. APIs usam `api.<serviço>.olivaw-hub.duckdns.org`; futuros frontends usam `<serviço>.olivaw-hub.duckdns.org`. Se trocar `PUBLIC_HOST`, atualize também `Identity__Issuer` e `Identity__Audience` para a URL correspondente.
 
 ## Governança dos dados e identidade
 

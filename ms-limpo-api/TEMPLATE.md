@@ -22,7 +22,7 @@ O template exclui `.env`, certificados, binários e metadados de ferramentas. O 
 
 ## Infraestrutura e configuração de ambientes
 
-O dono do banco é o terceiro argumento do script e usa snake_case; o padrão é `olivaw` para serviços internos. O exemplo acima configura `pastelaria_dev` até `pastelaria_prd`, com schema `ms_pastelaria_joao`. Sem o terceiro argumento, `cloud-validacao` usa `olivaw_dev` até `olivaw_prd` e schema `ms_cloud_validacao`. A geração apenas configura os nomes: não cria bancos ou schemas. Serviços, imagens, routers e domínios preservam o nome em kebab-case. Produção usa `<nome-do-servico>.fintalk-server.duckdns.org`; ambientes adicionais inserem seu sufixo antes da base DuckDNS.
+O dono do banco é o terceiro argumento do script e usa snake_case; o padrão é `olivaw` para serviços internos. O exemplo acima configura `pastelaria_dev` até `pastelaria_prd`, com schema `ms_pastelaria_joao`. Sem o terceiro argumento, `cloud-validacao` usa `olivaw_dev` até `olivaw_prd` e schema `ms_cloud_validacao`. A geração apenas configura os nomes: não cria bancos ou schemas. Serviços, imagens, routers e domínios preservam o nome em kebab-case. Produção usa `api.<slug>.olivaw-hub.duckdns.org`; ambientes adicionais inserem seu sufixo antes da base DuckDNS.
 
 O gerador exclui todos os dotenv locais com credenciais e inclui apenas `.env.example`. Prepare credenciais por serviço e configure o JWT conforme o emissor principal da organização; o template atual inclui identidade local e serviços agregados precisarão de adaptação antes de usá-lo. Configure os segredos antes de executar o Compose. Veja [configuração de nuvem](../docs/cloud.md).
 

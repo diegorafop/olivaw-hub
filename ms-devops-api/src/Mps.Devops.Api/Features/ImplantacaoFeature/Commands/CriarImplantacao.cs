@@ -1,5 +1,4 @@
-﻿using Mps.Devops.Api.Features.ImplantacaoFeature.Internals;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using Mps.Devops.Services;
 using Mps.OlivawCore.Api.Helpers;
@@ -16,36 +15,22 @@ public sealed class CriarImplantacaoCommand : IRequest<CriarImplantacaoResponse>
 
 public sealed class CriarImplantacaoResponse
 {
+    public Guid Id { get; set; }
+    public string Status { get; set; } = string.Empty;
     public string Log { get; set; } = string.Empty;
 }
 
-public sealed class CriarImplantacaoCommandHandler(IProcessExecutionService processes, DeploymentGate gate)
+public sealed class CriarImplantacaoCommandHandler(IDeploymentService deployments)
     : IRequestHandler<CriarImplantacaoCommand, CriarImplantacaoResponse>
 {
-    private readonly IProcessExecutionService _processes = processes ?? throw new ArgumentNullException(nameof(processes));
-
     public async Task<CriarImplantacaoResponse> Handle(CriarImplantacaoCommand request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        await gate.Semaphore.WaitAsync(cancellationToken);
-        try
+        var status = await deployments.SubmitAsync(new DeploymentRequest
         {
-            return await ExecuteAsync(request, cancellationToken);
-        }
-        finally { gate.Semaphore.Release(); }
-    }
-
-    private async Task<CriarImplantacaoResponse> ExecuteAsync(CriarImplantacaoCommand request, CancellationToken cancellationToken)
-    {
-        var logs = new List<string>();
-        foreach (var step in new[] { DeploymentStep.Checkout, DeploymentStep.Pull, DeploymentStep.Compose })
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var result = await _processes.ExecuteAsync(request.Folder, request.Branch, request.Environment, step, cancellationToken);
-            await new ProcessExecutionResultValidator().ValidateAndThrowAsync(result, cancellationToken);
-            logs.Add(result.Log);
-        }
-        return new CriarImplantacaoResponse { Log = string.Join(Environment.NewLine, logs) };
+            Folder = request.Folder, Branch = request.Branch, Environment = request.Environment
+        }, cancellationToken);
+        return new CriarImplantacaoResponse { Id = status.Id, Status = status.Status, Log = status.Log };
     }
 }
 

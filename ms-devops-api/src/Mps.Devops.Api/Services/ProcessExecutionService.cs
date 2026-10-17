@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.Options;
-using Mps.Devops.Api.Features.ImplantacaoFeature.Commands;
 using Mps.Devops.Api.Settings;
 using Mps.Devops.Services;
 
@@ -10,129 +12,92 @@ namespace Mps.Devops.Api.Services;
 
 public sealed class ProcessExecutionService(IOptions<DeploymentSettings> settings) : IProcessExecutionService
 {
-    private readonly DeploymentSettings _settings = settings.Value;
-
-    public async Task<ProcessExecutionResult> ExecuteAsync(string folder, string branch, string environment, DeploymentStep step, CancellationToken cancellationToken)
+    public async Task<ProcessExecutionResult> ExecuteAsync(string payload, CancellationToken cancellationToken)
     {
-        await new CriarImplantacaoCommandValidator().ValidateAndThrowAsync(
-            new CriarImplantacaoCommand { Folder = folder, Branch = branch, Environment = environment }, cancellationToken);
+        var start = CreateStartInfo(settings.Value);
+        using var process = new Process { StartInfo = start };
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(settings.Value.TimeoutSeconds));
         try
         {
-            var directory = ResolveDirectory(folder);
-            var start = CreateStartInfo(directory, branch, environment, step);
-            using var process = new Process { StartInfo = start };
-            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeout.CancelAfter(TimeSpan.FromSeconds(_settings.TimeoutSeconds));
             process.Start();
-            var output = DrainAsync(process.StandardOutput, timeout.Token);
+            var output = ReadOutputAsync(process.StandardOutput, timeout.Token);
             var error = DrainAsync(process.StandardError, timeout.Token);
             try
             {
+                await process.StandardInput.WriteLineAsync(payload.AsMemory(), timeout.Token);
+                process.StandardInput.Close();
                 await process.WaitForExitAsync(timeout.Token);
-                await Task.WhenAll(output, error);
+                await error;
+                return new ProcessExecutionResult { Success = process.ExitCode == 0, Output = await output };
             }
-            catch (OperationCanceledException)
+            finally
             {
-                if (!process.HasExited) process.Kill(entireProcessTree: true);
+                try { if (!process.HasExited) process.Kill(entireProcessTree: true); }
+                catch (InvalidOperationException) { }
                 await process.WaitForExitAsync(CancellationToken.None);
                 try { await Task.WhenAll(output, error); }
                 catch (OperationCanceledException) { }
-                cancellationToken.ThrowIfCancellationRequested();
-                return Failure();
+                catch (IOException) { }
             }
-            return new ProcessExecutionResult
-            {
-                Success = process.ExitCode == 0,
-                Log = $"{step}: código de saída {process.ExitCode}."
-            };
         }
-        catch (IOException) { return Failure(); }
-        catch (UnauthorizedAccessException) { return Failure(); }
-        catch (Win32Exception) { return Failure(); }
+        catch (OperationCanceledException)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return new ProcessExecutionResult();
+        }
+        catch (IOException) { return new ProcessExecutionResult(); }
+        catch (Win32Exception) { return new ProcessExecutionResult(); }
+        catch (UnauthorizedAccessException) { return new ProcessExecutionResult(); }
     }
 
-    public string ResolveDirectory(string folder)
+    public static ProcessStartInfo CreateStartInfo(DeploymentSettings settings)
     {
-        if (!CriarImplantacaoCommandValidator.IsSafeFolder(folder)) throw InvalidFolder();
-        if (string.IsNullOrWhiteSpace(_settings.RootDirectory)) throw InvalidFolder();
-        if (!Path.IsPathFullyQualified(_settings.RootDirectory)) throw InvalidFolder();
-        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(_settings.RootDirectory));
-        var current = Path.GetPathRoot(root) ?? throw InvalidFolder();
-        foreach (var part in root[current.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
+        if (!Regex.IsMatch(settings.Host, @"\A[a-zA-Z0-9][a-zA-Z0-9.-]*\z")) throw InvalidSettings();
+        if (!Regex.IsMatch(settings.User, @"\A[a-zA-Z_][a-zA-Z0-9_-]*\z")) throw InvalidSettings();
+        if (settings.Port < 1) throw InvalidSettings();
+        if (settings.Port > 65535) throw InvalidSettings();
+        if (settings.TimeoutSeconds < 1) throw InvalidSettings();
+        if (settings.TimeoutSeconds > 120) throw InvalidSettings();
+        if (!SafePath(settings.KeyFile)) throw InvalidSettings();
+        if (!SafePath(settings.KnownHostsFile)) throw InvalidSettings();
+        var start = new ProcessStartInfo("ssh")
         {
-            current = Path.Combine(current, part);
-            RejectLink(current);
-        }
-        foreach (var part in folder.Split('/'))
-        {
-            current = Path.Combine(current, part);
-            RejectLink(current);
-        }
-        if (!Directory.Exists(current)) throw InvalidFolder();
-        var repository = current;
-        while (true)
-        {
-            var git = Path.Combine(repository, ".git");
-            if (Directory.Exists(git))
-            {
-                RejectLink(git);
-                return current;
-            }
-            if (repository == root) throw InvalidFolder();
-            repository = Path.GetDirectoryName(repository) ?? throw InvalidFolder();
-        }
-    }
-
-    public static ProcessStartInfo CreateStartInfo(string directory, string branch, string environment, DeploymentStep step)
-    {
-        if (!CriarImplantacaoCommandValidator.IsSafeBranch(branch)) throw InvalidFolder();
-        if (!CriarImplantacaoCommandValidator.IsSafeEnvironment(environment))
-            throw new ValidationException([new FluentValidation.Results.ValidationFailure("Environment", "Environment inválido.")]);
-        var start = new ProcessStartInfo
-        {
-            WorkingDirectory = directory, UseShellExecute = false,
-            RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true
+            UseShellExecute = false, CreateNoWindow = true,
+            RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true
         };
-        string[] arguments;
-        switch (step)
+        foreach (var argument in new[]
         {
-            case DeploymentStep.Checkout:
-                start.FileName = "git";
-                arguments = ["checkout", branch];
-                break;
-            case DeploymentStep.Pull:
-                start.FileName = "git";
-                arguments = ["pull", "--ff-only"];
-                break;
-            case DeploymentStep.Compose:
-                start.FileName = "docker";
-                arguments = ["compose", "--env-file", $"docker/.env.{environment}",
-                    "-f", "docker/docker-compose.yml", "-f", $"docker/docker-compose.{environment}.yml", "up", "-d"];
-                break;
-            default: throw new ArgumentOutOfRangeException(nameof(step));
-        }
-        foreach (var argument in arguments) start.ArgumentList.Add(argument);
-        start.Environment["GIT_TERMINAL_PROMPT"] = "0";
-        start.Environment["GCM_INTERACTIVE"] = "Never";
+            "-F", "/dev/null", "-T", "-o", "BatchMode=yes", "-o", "IdentitiesOnly=yes",
+            "-o", "StrictHostKeyChecking=yes", "-o", $"UserKnownHostsFile={settings.KnownHostsFile}",
+            "-o", "GlobalKnownHostsFile=/dev/null", "-o", "ConnectTimeout=10",
+            "-o", "ClearAllForwardings=yes", "-o", "IdentityAgent=none", "-o", "ServerAliveInterval=5",
+            "-o", "ServerAliveCountMax=2", "-i", settings.KeyFile, "-p", settings.Port.ToString(),
+            "-l", settings.User, settings.Host, "olivaw-deploy"
+        }) start.ArgumentList.Add(argument);
         return start;
     }
 
-    private static async Task DrainAsync(StreamReader reader, CancellationToken cancellationToken)
+    private static bool SafePath(string path) => Regex.IsMatch(path, @"\A/[a-zA-Z0-9_./-]+\z");
+
+    private static ValidationException InvalidSettings() => new([new ValidationFailure("Deployment", "Configure a conexão SSH de implantação.")]);
+
+    private static async Task<string> ReadOutputAsync(StreamReader reader, CancellationToken token)
     {
-        var buffer = new char[4096];
-        while (await reader.ReadAsync(buffer.AsMemory(), cancellationToken) != 0) { }
+        var text = new StringBuilder();
+        var buffer = new char[2048];
+        int count;
+        while ((count = await reader.ReadAsync(buffer.AsMemory(), token)) != 0)
+        {
+            if (text.Length + count > 32768) throw new IOException("Resposta do executor excedeu o limite.");
+            text.Append(buffer, 0, count);
+        }
+        return text.ToString();
     }
 
-    private static void RejectLink(string path)
+    private static async Task DrainAsync(StreamReader reader, CancellationToken token)
     {
-        if (new DirectoryInfo(path).LinkTarget is not null) throw InvalidFolder();
+        var buffer = new char[2048];
+        while (await reader.ReadAsync(buffer.AsMemory(), token) != 0) { }
     }
-
-    private static ValidationException InvalidFolder()
-    {
-        return new ValidationException([new FluentValidation.Results.ValidationFailure("Folder",
-            "Folder indisponível ou fora da raiz de implantação permitida.")]);
-    }
-
-    private static ProcessExecutionResult Failure() => new() { Success = false };
 }
