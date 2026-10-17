@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olivaw Hub | Sistemas Inteligentes para o seu Negócio</title>
+    <!-- Tailwind CSS (via CDN for single file prototyping) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            indigo: '#4F46E5', // Primary
+                            teal: '#0D9488',   // Accent/Positronic spark
+                            dark: '#1E293B',
+                            light: '#F8FAFC'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos adicionais para detalhes e animações suaves */
+        html { scroll-behavior: smooth; }
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #4F46E5, #0D9488);
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2);
+        }
+        /* Detalhe de "leitura mental" / pulso */
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(13, 148, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+        }
+    </style>
+</head>
+<body class="font-sans text-brand-dark bg-white">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md border-b border-gray-100 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-brand-indigo rounded-lg flex items-center justify-center relative">
+                        <i class="fa-solid fa-brain text-white text-sm relative z-10"></i>
+                        <div class="absolute w-2 h-2 bg-brand-teal rounded-full top-1 right-1 pulse-dot"></div>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight">Olivaw<span class="text-brand-indigo">Hub</span></span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#sobre" class="text-gray-600 hover:text-brand-indigo font-medium transition">Como Pensamos</a>
+                    <a href="#solucoes" class="text-gray-600 hover:text-brand-indigo font-medium transition">Ecossistema</a>
+                    <a href="#clientes" class="text-gray-600 hover:text-brand-indigo font-medium transition">Quem Confia</a>
+                    <a href="#contato" class="bg-brand-indigo hover:bg-brand-teal text-white px-6 py-2.5 rounded-full font-medium transition duration-300 shadow-lg shadow-indigo-200">
+                        Fale com Especialista
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-600 hover:text-brand-indigo focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 bg-brand-light relative overflow-hidden">
+        <!-- Elementos decorativos de fundo (remetendo a conexões/inteligência) -->
+        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-brand-teal rounded-full opacity-5 filter blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-brand-indigo rounded-full opacity-5 filter blur-3xl"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-brand-indigo font-semibold text-sm mb-6 border border-indigo-100">
+                    <i class="fa-solid fa-robot"></i> Tecnologia com empatia
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">
+                    Software que <span class="gradient-text">entende o que sua empresa precisa</span>.
+                </h1>
+                <p class="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
+                    Não somos apenas ferramentas. O Olivaw Hub "lê" a necessidade do seu negócio e entrega a solução certa. Da sua primeira landing page ao controle financeiro completo.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#solucoes" class="bg-brand-indigo hover:bg-brand-indigo/90 text-white px-8 py-4 rounded-full font-semibold text-lg transition shadow-xl shadow-indigo-200">
+                        Conheça o Ecossistema
+                    </a>
+                    <a href="#contato" class="bg-white hover:bg-gray-50 text-brand-indigo border border-gray-200 px-8 py-4 rounded-full font-semibold text-lg transition flex items-center justify-center gap-2">
+                        Agendar Demonstração <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre / Filosofia -->
+    <section id="sobre" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center gap-16">
+                <div class="md:w-1/2 relative">
+                    <div class="aspect-square bg-gradient-to-tr from-brand-indigo to-brand-teal rounded-3xl opacity-10 absolute inset-0 transform -rotate-6"></div>
+                    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Equipe trabalhando" class="rounded-3xl relative z-10 shadow-2xl object-cover aspect-square">
+                    <!-- Badge Flutuante -->
+                    <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl z-20 border border-gray-100 max-w-xs">
+                        <div class="flex gap-4 items-center">
+                            <div class="w-12 h-12 bg-brand-teal/10 rounded-full flex items-center justify-center text-brand-teal text-xl">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800">Inteligência a seu favor</p>
+                                <p class="text-sm text-gray-500">Sistemas que antecipam problemas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <h2 class="text-sm font-bold text-brand-teal tracking-widest uppercase mb-3">Nossa Inspiração</h2>
+                    <h3 class="text-3xl md:text-4xl font-bold mb-6">O Dom de Guiar o Seu Crescimento</h3>
+                    <p class="text-gray-600 mb-6 text-lg leading-relaxed">
+                        Inspirado em um dos maiores ícones da ficção científica — um robô criado para proteger, entender e guiar a humanidade — o <strong>Olivaw Hub</strong> nasceu com um propósito claro: simplificar a tecnologia para quem quer crescer.
+                    </p>
+                    <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+                        Sabemos que donos de negócios não têm tempo para sistemas confusos. Por isso, criamos ferramentas modulares que parecem "ler sua mente". Elas se adaptam à sua rotina, oferecendo exatamente a funcionalidade que você precisa, na hora que você precisa.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <i class="fa-solid fa-check-circle text-brand-teal"></i> Feito para pequenas e médias empresas.
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <i class="fa-solid fa-check-circle text-brand-teal"></i> Interface intuitiva e humanizada.
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <i class="fa-solid fa-check-circle text-brand-teal"></i> Suporte que realmente entende sua dor.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Soluções -->
+    <section id="solucoes" class="py-24 bg-brand-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-sm font-bold text-brand-indigo tracking-widest uppercase mb-3">O Ecossistema</h2>
+                <h3 class="text-3xl md:text-4xl font-bold mb-4">Tudo o que você precisa, em um só lugar</h3>
+                <p class="text-gray-600 text-lg">Módulos inteligentes que se integram perfeitamente. Adicione novas ferramentas conforme sua empresa expande.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 feature-card relative overflow-hidden group">
+                    <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center text-brand-indigo text-2xl mb-6 group-hover:bg-brand-indigo group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Landing Pages</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">Páginas de alta conversão para seus produtos ou serviços. Rápidas, otimizadas e prontas para atrair clientes.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 feature-card relative overflow-hidden group">
+                    <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center text-brand-teal text-2xl mb-6 group-hover:bg-brand-teal group-hover:text-white transition duration-300">
+                        <i class="fa-regular fa-calendar-check"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Agendas</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">Chega de confusão no WhatsApp. Um sistema de agendamento inteligente que sincroniza sua disponibilidade.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 feature-card relative overflow-hidden group">
+                    <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center text-brand-indigo text-2xl mb-6 group-hover:bg-brand-indigo group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Gestão de Eventos</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">Organize workshops, palestras e cursos. Controle de inscrições e lista de presença em poucos cliques.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 feature-card relative overflow-hidden group">
+                    <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center text-brand-teal text-2xl mb-6 group-hover:bg-brand-teal group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Controle Financeiro</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">Entenda para onde vai o seu dinheiro. Fluxo de caixa simples, relatórios claros e cobranças automatizadas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Planos (Placeholder para Futuro E-commerce) -->
+    <section class="py-20 bg-brand-dark text-white relative overflow-hidden">
+        <!-- Detalhes tecnológicos de fundo -->
+        <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Pronto para dar o próximo passo?</h2>
+            <p class="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">
+                No momento, estamos formatando a contratação direta via site (em breve você poderá assinar nossos planos aqui mesmo!). 
+                Mas nossa equipe já está pronta para montar um pacote 100% personalizado para a realidade atual do seu negócio.
+            </p>
+            <div class="bg-white/10 backdrop-blur-sm border border-white/20 p-8 rounded-2xl max-w-md mx-auto">
+                <h3 class="text-2xl font-bold mb-4">Plano Sob Medida</h3>
+                <p class="text-gray-300 mb-6">Módulos escolhidos a dedo para você não pagar pelo que não usa.</p>
+                <a href="#contato" class="block w-full bg-brand-teal hover:bg-teal-400 text-brand-dark font-bold py-4 rounded-xl transition duration-300 text-center">
+                    Solicitar Orçamento Personalizado
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clientes -->
+    <section id="clientes" class="py-20 bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h3 class="text-sm font-bold text-gray-400 tracking-widest uppercase mb-8">Empresas que já confiam na nossa inteligência</h3>
+            <div class="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-60 grayscale hover:grayscale-0 transition duration-500">
+                <!-- Placeholders para Logos -->
+                <h4 class="text-xl font-bold text-gray-600">Empresa Alpha</h4>
+                <h4 class="text-xl font-bold text-gray-600">Studio Beta</h4>
+                <h4 class="text-xl font-bold text-gray-600">Clínica Delta</h4>
+                <h4 class="text-xl font-bold text-gray-600">Agência Omega</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato -->
+    <section id="contato" class="py-24 bg-brand-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+                <!-- Info de Contato -->
+                <div class="bg-brand-indigo p-10 md:w-2/5 text-white flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">Vamos conversar?</h3>
+                        <p class="text-indigo-200 mb-8">Conte-nos sobre o seu negócio. Nós ajudaremos a encontrar a solução perfeita para você.</p>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-envelope text-brand-teal"></i>
+                                </div>
+                                <span>ola@olivawhub.com</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                                    <i class="fa-brands fa-whatsapp text-brand-teal text-xl"></i>
+                                </div>
+                                <span>(00) 00000-0000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulário -->
+                <div class="p-10 md:w-3/5">
+                    <form class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Seu Nome</label>
+                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition bg-gray-50" placeholder="Como podemos te chamar?">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Qual é o seu negócio?</label>
+                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition bg-gray-50" placeholder="Ex: Estúdio de Yoga, Consultoria, etc.">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Como podemos ajudar hoje?</label>
+                            <textarea rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition bg-gray-50" placeholder="Preciso de uma landing page, quero organizar minha agenda..."></textarea>
+                        </div>
+                        <button type="button" class="w-full bg-brand-indigo hover:bg-brand-teal text-white font-bold py-4 rounded-xl transition duration-300 shadow-md">
+                            Enviar Mensagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-brain text-brand-indigo"></i>
+                <span class="font-bold text-lg text-gray-800">Olivaw<span class="text-brand-indigo">Hub</span></span>
+            </div>
+            <p class="text-gray-500 text-sm">© 2024 Olivaw Hub. Todos os direitos reservados. Inteligência a serviço do seu negócio.</p>
+            <div class="flex gap-4 text-gray-400">
+                <a href="#" class="hover:text-brand-indigo transition"><i class="fa-brands fa-instagram text-xl"></i></a>
+                <a href="#" class="hover:text-brand-indigo transition"><i class="fa-brands fa-linkedin text-xl"></i></a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

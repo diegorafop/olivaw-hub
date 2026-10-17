@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "application": {
+      "description": "Cria um frontend Olivaw Hub a partir do template atual, preservando arquivos existentes.",
+      "factory": "./application/index.cjs#application",
+      "schema": "./application/schema.json"
+    }
+  }
+}

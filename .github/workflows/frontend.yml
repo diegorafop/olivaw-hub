@@ -3,10 +3,12 @@ on:
   push:
     paths:
       - "ms-limpo-ng/**"
+      - "ms-olivaw-hub-ng/**"
       - ".github/workflows/frontend.yml"
   pull_request:
     paths:
       - "ms-limpo-ng/**"
+      - "ms-olivaw-hub-ng/**"
       - ".github/workflows/frontend.yml"
   workflow_dispatch:
 permissions:
@@ -16,10 +18,13 @@ concurrency:
   cancel-in-progress: true
 jobs:
   validar:
+    strategy:
+      matrix:
+        project: [ms-limpo-ng, ms-olivaw-hub-ng]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ms-limpo-ng
+        working-directory: ${{ matrix.project }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -28,10 +33,12 @@ jobs:
         with:
           node-version: "24"
           cache: npm
-          cache-dependency-path: ms-limpo-ng/package-lock.json
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
+      - if: matrix.project == 'ms-limpo-ng'
+        run: npm run test:schematics
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
@@ -48,6 +55,6 @@ jobs:
             if curl -fsS http://localhost:8081/health; then break; fi
             sleep 1
           done
-          curl -fsS http://localhost:8081/ | grep -q 'Seu próximo projeto'
+          curl -fsS http://localhost:8081/ | grep -q 'Olivaw'
           curl -fsS http://localhost:8081/admin | grep -q '<app-root'
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/ausente.js)" = 404

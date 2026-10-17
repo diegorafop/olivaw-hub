@@ -10,7 +10,8 @@ olivaw-hub/
   ms-olivaw-core-api/        # Bibliotecas genéricas e solução OlivawCore.sln
   olivaw-identity/           # Bibliotecas de identidade e seus testes
   ms-limpo-api/              # Template e solução Limpo.sln
-  ms-limpo-ng/               # Template Angular público + administrativo
+  ms-limpo-ng/               # Template Angular e collection Schematics
+  ms-olivaw-hub-ng/          # Site institucional derivado do template
   docs/                     # Arquitetura, decisões e fluxo de trabalho
   ms-pastelaria-joao-api/    # Exemplo futuro; gerado quando necessário
 ```
@@ -143,4 +144,4 @@ O código existente em português será refatorado em uma tarefa futura, com rev
 
 `ms-limpo-ng` e `ms-limpo-api` formam o par de templates. O frontend tem ciclo de instalação, testes e build próprio com npm e não pertence à solução .NET. Frontend e API são serviços separados, com builds, imagens e publicações independentes. A configuração pública `ms-limpo-ng/public/config.json` aponta diretamente para `http://localhost:5137` no desenvolvimento e deve receber a URL pública HTTPS da API em produção. O navegador chama essa URL, sem proxy Angular/Nginx e sem rede Docker compartilhada obrigatória. A API deve permitir a origem do frontend via CORS. Outra URL pode ser fornecida em runtime sem novo build do frontend.
 
-A página pública inicial é prerenderizada; login e administração são renderizados no navegador. O estado `autenticacao` usa NgRx SignalStore e os contratos existentes de login, acesso e logout. Não há refresh token nem persistência de sessão nesta etapa. Funcionalidades de eventos, fotos e agenda serão adicionadas nos projetos consumidores; Schematics continua planejado. Consulte o [guia do frontend](../ms-limpo-ng/README.md) para comandos, tema, testes e limites da publicação de conteúdo com prerenderização.
+A página pública inicial é prerenderizada; login e administração são renderizados no navegador. O estado `autenticacao` usa NgRx SignalStore e os contratos existentes de login, acesso e logout. Não há refresh token nem persistência de sessão nesta etapa. Funcionalidades de eventos, fotos e agenda serão adicionadas nos projetos consumidores; A geração do frontend usa a collection local do template; o comando está no README de `ms-limpo-ng`. Consulte o [guia do frontend](../ms-limpo-ng/README.md) para comandos, tema, testes e limites da publicação de conteúdo com prerenderização.

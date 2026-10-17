@@ -9,7 +9,8 @@ Este monorepo reúne bibliotecas compartilhadas e os templates de APIs .NET e fr
 | [ms-olivaw-core-api](ms-olivaw-core-api/README.md) | Contratos e infraestrutura genéricos |
 | [olivaw-identity](olivaw-identity/README.md) | Bibliotecas de usuários, autenticação, perfis e permissões |
 | [ms-limpo-api](ms-limpo-api/README.md) | Template de API que integra os módulos por `ProjectReference` |
-| [ms-limpo-ng](ms-limpo-ng/README.md) | Template Angular com site público, administração e integração à API |
+| [ms-limpo-ng](ms-limpo-ng/README.md) | Template Angular e gerador local por Schematics |
+| [ms-olivaw-hub-ng](ms-olivaw-hub-ng/README.md) | Landing page institucional derivada do template |
 | [ms-devops-api](ms-devops-api/README.md) | Nova API DevOps, com estrutura inicial gerada |
 | [docs/desenvolvimento.md](docs/desenvolvimento.md) | Organização do monorepo, soluções e fluxo de desenvolvimento |
 | [docs/identidade.md](docs/identidade.md) | Decisões e validação da extração do módulo |

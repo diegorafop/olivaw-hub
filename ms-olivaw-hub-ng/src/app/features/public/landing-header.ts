@@ -1,0 +1,83 @@
+import { Component, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+@Component({
+  selector: 'app-landing-header',
+  imports: [RouterLink],
+  template: `<header class="border-b border-outline/20 bg-surface">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5 lg:px-12">
+      <a
+        routerLink="/"
+        aria-label="Olivaw Hub — início"
+        class="flex items-center gap-3 no-underline text-on-surface"
+      >
+        <span class="brand-mark" aria-hidden="true">o<span>·</span></span>
+        <span class="text-xl font-bold tracking-tight"
+          >Olivaw <span class="font-normal">Hub</span></span
+        >
+      </a>
+      <nav aria-label="Navegação principal" class="hidden items-center gap-8 text-sm md:flex">
+        <a href="#solucoes">Soluções</a><a href="#como-funciona">Como funciona</a
+        ><a href="#sobre">Sobre nós</a>
+        <a href="#contato" class="nav-cta">Vamos conversar <span aria-hidden="true">↗</span></a>
+      </nav>
+      <button
+        type="button"
+        class="rounded-lg border border-outline/30 bg-transparent px-4 py-2 text-sm md:hidden"
+        aria-controls="menu-mobile"
+        [attr.aria-expanded]="open()"
+        (click)="open.set(!open())"
+      >
+        {{ open() ? 'Fechar' : 'Menu' }}
+      </button>
+    </div>
+    @if (open()) {
+      <nav
+        id="menu-mobile"
+        aria-label="Navegação mobile"
+        class="flex flex-col gap-5 border-t border-outline/20 px-6 py-6 md:hidden"
+      >
+        <a href="#solucoes" (click)="open.set(false)">Soluções</a
+        ><a href="#como-funciona" (click)="open.set(false)">Como funciona</a>
+        <a href="#sobre" (click)="open.set(false)">Sobre nós</a
+        ><a href="#contato" (click)="open.set(false)">Vamos conversar</a>
+      </nav>
+    }
+  </header>`,
+  styles: `
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    a:hover {
+      color: var(--mat-sys-primary);
+    }
+    .brand-mark {
+      background: var(--brand-ink);
+      color: white;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.8rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .brand-mark span {
+      color: var(--brand-accent);
+    }
+    .nav-cta {
+      background: var(--brand-ink);
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border-radius: 2rem;
+    }
+    .nav-cta:hover {
+      color: white;
+      background: var(--mat-sys-primary);
+    }
+  `,
+})
+export class LandingHeader {
+  readonly open = signal(false);
+}

@@ -104,6 +104,20 @@ O site fica em `http://localhost:8081`; `GET /health` atende o healthcheck. A im
 
 O frontend tem imagem, Compose, build, configuração e publicação próprios. O Nginx entrega somente os arquivos do frontend; não encaminha requisições ao backend. Publique o `ms-limpo-api` separadamente, configure sua URL pública no settings e libere a origem do frontend no CORS da API. Consulte [Docker](docker/README.md) para configuração e validação.
 
-## Novos clientes
+## Novos clientes com Angular Schematics
 
-O template permanece no monorepo. Schematics ainda não foi implementado. Ao derivar um cliente, crie uma pasta irmã, renomeie os identificadores `ms-limpo-ng` em `package.json`, `angular.json`, `Dockerfile` e Compose, e ajuste marca, configurações e funcionalidades. Não copie `node_modules`, `dist`, caches, resultados de testes ou `.env`. Instale com `npm ci` e valide antes de implantar. Evoluções do template não são propagadas automaticamente aos clientes.
+A collection local `schematics/collection.json` oferece o schematic `application`, executado pelo toolkit oficial Angular Schematics. A raiz do template é a fonte dos arquivos; não existe uma segunda cópia para manter. O gerador lê código, tema, configuração, testes e Docker atuais, personaliza os identificadores e cria uma pasta irmã na raiz do monorepo.
+
+Depois de instalar as dependências do template, execute da raiz do monorepo:
+
+```bash
+npm --prefix ms-limpo-ng run new:client -- --name=ms-cliente-ng --api-url=https://api.cliente.example.com --site-domain=cliente.example.com
+```
+
+Use `--dry-run` para simular. O nome deve seguir `ms-<cliente>-ng`. `--api-url` aceita URL absoluta HTTP(S), com padrão local `http://localhost:5137`; `--site-domain` é opcional e recebe DNS sem protocolo. Quando informado, configura canonical, Nginx, robots e sitemap. O domínio não é registrado nem publicado pelo gerador.
+
+Uma pasta existente pode conter documentos: eles são preservados. Se algum arquivo a gerar já existir, o processo recusa a operação antes de gravar arquivos; não há exclusão, overwrite ou modo force. O schematic pode ser conferido com `npm --prefix ms-limpo-ng run test:schematics`. Projetos já gerados não são atualizados por esse comando.
+
+O gerador não transporta dependências instaladas, caches, build, segredos, preferência de analytics nem o próprio toolkit de geração. Ele preserva assets binários. Os testes E2E passam a simular a URL configurada da API. Depois de gerar, execute `npm ci` na nova pasta. Cada cliente mantém build e publicação independentes; evoluções do template não são propagadas automaticamente.
+
+Documentação oficial: [Angular Schematics](https://angular.dev/tools/cli/schematics) e [autoria de schematics](https://angular.dev/tools/cli/schematics-authoring).
