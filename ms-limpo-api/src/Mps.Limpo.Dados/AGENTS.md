@@ -4,7 +4,7 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 
 - Target: `net10.0`.
 - Dados depende somente do núcleo e não referencia a API.
-- Mantenha aqui `Repository<T>`, `IWriteDbContext`, `WriteDbContext`, mapeamentos e DI próprios. `IRepository<T>`, `EntityValidator<T>` e convenções compartilhadas vêm de `Mps.HolosCore` e `Mps.HolosCore.Dados`.
+- Mantenha aqui `Repository<T>`, `IWriteDbContext`, `WriteDbContext`, mapeamentos e DI próprios. `IRepository<T>`, `EntityValidator<T>` e convenções compartilhadas vêm de `Mps.OlivawCore` e `Mps.OlivawCore.Dados`.
 - Código específico de provedor permanece no projeto `Mps.Limpo.Dados.<Provedor>`.
 
 ## Entity Framework e repositórios

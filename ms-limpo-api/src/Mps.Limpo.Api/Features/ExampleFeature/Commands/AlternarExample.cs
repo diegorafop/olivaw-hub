@@ -1,10 +1,10 @@
 using FluentValidation;
 using MediatR;
 using Mps.Limpo.Api.Extensions.Entities;
-using Mps.HolosCore.Api.Extensions.Entities;
-using Mps.HolosCore.Api.Helpers;
-using Mps.HolosCore.Domain;
-using Mps.HolosCore.Repositories;
+using Mps.OlivawCore.Api.Extensions.Entities;
+using Mps.OlivawCore.Api.Helpers;
+using Mps.OlivawCore.Domain;
+using Mps.OlivawCore.Repositories;
 
 namespace Mps.Limpo.Api.Features.ExampleFeature.Commands;
 

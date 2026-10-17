@@ -1,4 +1,4 @@
-﻿using Mps.HolosCore.Api.Extensions.Hostings;
+using Mps.OlivawCore.Api.Extensions.Hostings;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Mps.Limpo.Api.Extensions.Facades;
@@ -15,6 +15,7 @@ public static class WebApplicationFacadeExtensions
         webApplication.UseSwaggerCore();
         webApplication.UseRoutingCore();
         webApplication.UseSecurityCore();
+        webApplication.UseRateLimiter();
         webApplication.UseRequestLocalizationCore();
         webApplication.UseMetrics();
         webApplication.UseHttpLoggingByServiceLoki();

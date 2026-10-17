@@ -1,8 +1,8 @@
-using Mps.HolosCore.Api.Extensions.Collections;
-using Mps.HolosCore.Api.Extensions.Entities;
+using Mps.OlivawCore.Api.Extensions.Collections;
+using Mps.OlivawCore.Api.Extensions.Entities;
 using Mps.Limpo.Api.Features.ExampleFeature.Commands;
 using Mps.Limpo.Api.Features.ExampleFeature.Queries;
-using Mps.HolosCore.Domain;
+using Mps.OlivawCore.Domain;
 using System.Linq.Expressions;
 
 namespace Mps.Limpo.Api.Extensions.Entities;

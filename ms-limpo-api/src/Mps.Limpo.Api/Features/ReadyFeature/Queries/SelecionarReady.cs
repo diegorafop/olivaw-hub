@@ -1,9 +1,9 @@
 using FluentValidation;
 using MediatR;
-using Mps.HolosCore.Api.Helpers;
-using Mps.HolosCore.Domain;
-using Mps.HolosCore.Repositories;
-using Mps.HolosCore.Services;
+using Mps.OlivawCore.Api.Helpers;
+using Mps.OlivawCore.Domain;
+using Mps.OlivawCore.Repositories;
+using Mps.OlivawCore.Services;
 using Mps.Limpo.Api.Extensions.Https;
 
 namespace Mps.Limpo.Api.Features.ReadyFeature.Queries;

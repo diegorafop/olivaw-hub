@@ -3,7 +3,7 @@
 Estas regras complementam o `AGENTS.md` da raiz para arquivos do núcleo `Mps.Limpo`.
 
 - Target: `netstandard2.1`, linguagem C# 10.
-- O núcleo contém apenas regras e contratos específicos do microservice. Os tipos genéricos dessas pastas vêm de `Mps.HolosCore`.
+- O núcleo contém apenas regras e contratos específicos do microservice. Os tipos genéricos dessas pastas vêm de `Mps.OlivawCore`.
 - Não referencie API, ASP.NET Core, EF Core ou implementações de infraestrutura.
 - Interfaces consumidas por camadas externas devem nascer aqui quando representarem abstrações do domínio ou da aplicação.
 
@@ -24,6 +24,6 @@ Estas regras complementam o `AGENTS.md` da raiz para arquivos do núcleo `Mps.Li
 
 ## Tipos compartilhados e identidade
 
-- Use `Entity` e `IRepository<T>` diretamente de `Mps.HolosCore`; não crie cópias ou subclasses vazias.
+- Use `Entity` e `IRepository<T>` diretamente de `Mps.OlivawCore`; não crie cópias ou subclasses vazias.
 - Distinga a chave interna `Id` da identidade pública `IdExterno`. Preserve os campos de auditoria nos contratos e conversões aplicáveis.
 - Expresse regras com decisões simples e métodos nomeados, conforme as diretrizes da raiz.

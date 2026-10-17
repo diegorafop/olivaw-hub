@@ -18,6 +18,13 @@ if [[ -e $output_dir ]]; then
     exit 1
 fi
 
+monorepo_dir=$(cd -- "$repo_dir/.." && pwd)
+output_parent=$(cd -- "$(dirname -- "$output_dir")" && pwd)
+if [[ "$output_parent" != "$monorepo_dir" ]]; then
+    echo "Gere o serviço diretamente na raiz do monorepo para preservar os ProjectReference." >&2
+    exit 1
+fi
+
 dotnet new install "$repo_dir" --force
 dotnet new mps-microservice \
     --name "$service_name" \

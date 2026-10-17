@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MassTransit;
 using MediatR;
-using Mps.HolosCore.Api.Helpers;
+using Mps.OlivawCore.Api.Helpers;
 
 namespace Mps.Limpo.Api.Features.VersaoFeature.Queries;
 

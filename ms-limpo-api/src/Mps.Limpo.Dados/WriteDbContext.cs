@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Olivaw.Identity.Dados;
 using Microsoft.Extensions.Configuration;
-using Mps.HolosCore.Dados.Extensions;
+using Mps.OlivawCore.Dados.Extensions;
 using Mps.Limpo.Dados.Extensions.Facades;
 using System.Data.Common;
 
@@ -21,6 +22,7 @@ public class WriteDbContext
         ModelBuilder modelBuilder
     )
     {
+        modelBuilder.AddOlivawIdentity();
         modelBuilder.SetupTables();
         modelBuilder.SetupConstraints();
     }

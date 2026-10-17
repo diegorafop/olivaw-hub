@@ -1,9 +1,9 @@
-using Mps.HolosCore.Services;
-using Mps.HolosCore.Api.Helpers;
-using Mps.HolosCore.Api.Extensions.Entities;
+using Mps.OlivawCore.Services;
+using Mps.OlivawCore.Api.Helpers;
+using Mps.OlivawCore.Api.Extensions.Entities;
 using Mps.Limpo.Api.Features.ReadyFeature.Queries;
-using Mps.HolosCore.Domain.Enum;
-using Mps.HolosCore.Dados.Extensions;
+using Mps.OlivawCore.Domain.Enum;
+using Mps.OlivawCore.Dados.Extensions;
 
 namespace Mps.Limpo.Api.Extensions.Https;
 
@@ -188,8 +188,8 @@ public static class ReadyExtensions
                 or HealthCheckResourceEnum.GedApi
                 or HealthCheckResourceEnum.GraphvizApi
                 or HealthCheckResourceEnum.HistoricoApi
-                or HealthCheckResourceEnum.HolosPepApi
-                or HealthCheckResourceEnum.HolosPortalPrecatorioApi
+                or HealthCheckResourceEnum.OlivawCorePepApi
+                or HealthCheckResourceEnum.OlivawCorePortalPrecatorioApi
                 or HealthCheckResourceEnum.IntegracaoBanrisulApi
                 or HealthCheckResourceEnum.IntegracaoBancoBrasilApi
                 or HealthCheckResourceEnum.IntegracaoErpMpsApp
@@ -214,11 +214,11 @@ public static class ReadyExtensions
                 or HealthCheckResourceEnum.TesseractApi
                 or HealthCheckResourceEnum.UsuarioApi => "restful",
 
-            HealthCheckResourceEnum.HolosAssinadorWpf
+            HealthCheckResourceEnum.OlivawCoreAssinadorWpf
                 or HealthCheckResourceEnum.IntegracaoOfficeDesktopApp => "microsoft-store-app",
-            HealthCheckResourceEnum.HolosNg
-                or HealthCheckResourceEnum.HolosPepNg
-                or HealthCheckResourceEnum.HolosPortalPrecatorioNg => "frontend-angular",
+            HealthCheckResourceEnum.OlivawCoreNg
+                or HealthCheckResourceEnum.OlivawCorePepNg
+                or HealthCheckResourceEnum.OlivawCorePortalPrecatorioNg => "frontend-angular",
             HealthCheckResourceEnum.ParametroTextoOfficeApp => "frontend-office-plugin",
             _ => "unknown",
         };

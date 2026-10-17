@@ -2,9 +2,9 @@
 using FluentValidation.TestHelper;
 using Moq;
 using Mps.Limpo.Api.Features.ExampleFeature.Commands;
-using Mps.HolosCore.Api.Helpers;
-using Mps.HolosCore.Domain;
-using Mps.HolosCore.Repositories;
+using Mps.OlivawCore.Api.Helpers;
+using Mps.OlivawCore.Domain;
+using Mps.OlivawCore.Repositories;
 using Mps.Limpo.Tests.Mocks;
 using System;
 using System.Linq.Expressions;

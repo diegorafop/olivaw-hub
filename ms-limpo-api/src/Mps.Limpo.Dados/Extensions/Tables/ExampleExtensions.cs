@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Mps.HolosCore.Domain;
+using Mps.OlivawCore.Domain;
 
 namespace Mps.Limpo.Dados.Extensions.Tables
 {

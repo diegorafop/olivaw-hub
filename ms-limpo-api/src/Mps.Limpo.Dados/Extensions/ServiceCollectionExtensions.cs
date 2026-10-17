@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mps.Limpo.Dados.Repositories;
-using Mps.HolosCore.Repositories;
-using Mps.HolosCore.Dados.Extensions;
+using Mps.OlivawCore.Repositories;
+using Mps.OlivawCore.Dados.Extensions;
 
 namespace Mps.Limpo.Dados.Extensions;
 
@@ -29,15 +30,19 @@ public static class ServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString("DbContext");
         var databaseProvider = configuration["DatabaseProvider"];
 
-        var connectionStringDictionary = configuration.GetConnectionStringToDictionary();
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException("Configure ConnectionStrings:DbContext para o cliente.");
 
-        var schema = connectionStringDictionary["searchpath"];
+        var schema = configuration["Database:Schema"];
+        if (databaseProvider == "PostgreSql")
+        {
+            var connection = new NpgsqlConnectionStringBuilder(connectionString);
+            if (string.IsNullOrWhiteSpace(schema)) schema = connection.SearchPath;
+        }
         var migrationsProjectAssemblyName = $"Mps.Limpo.Dados.{databaseProvider}";
 
         services.AddDbContext<WriteDbContext>(options =>
         {
-            if (!isProduction)
-                options.EnableSensitiveDataLogging();
 
             _ = databaseProvider switch
             {

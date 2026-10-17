@@ -1,55 +1,46 @@
-src/Mps.Limpo.Api/bin/
-src/Mps.Limpo.Api/obj/
-src/Mps.Limpo/obj/
-src/Mps.Limpo/bin/
-tests/Mps.Limpo.Tests/bin/
-tests/Mps.Limpo.Tests/obj/
+# Mantido no template para acompanhar os projetos gerados.
+# Use padrões genéricos, sem nomes de projetos ou caminhos de clientes.
 
-# User-specific files
+# Compilação .NET em qualquer projeto ou cliente
+[Bb]in/
+[Oo]bj/
+[Dd]ist/
+artifacts/
+BenchmarkDotNet.Artifacts/
+
+# Resultados de testes e cobertura
+[Tt]est[Rr]esults/
+results/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+coverage.cobertura.xml
+coverage.opencover.xml
+*.nupkg
+*.snupkg
+
+# Estado local das IDEs
 .vs/
+.idea/
 *.rsuser
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
 
-# Files built by Visual Studio
-*_i.c
-*_p.c
-*_h.h
-*.ilk
-*.meta
-*.obj
-*.iobj
-*.pch
-*.pdb
-*.ipdb
-*.pgc
-*.pgd
-*.rsp
-*.sbr
-*.tlb
-*.tli
-*.tlh
-*.tmp
-*.tmp_proj
-*_wpftmp.csproj
-*.log
-*.vspscc
-*.vssscc
-.builds
-*.pidb
-*.svclog
-*.scc
-src/Mps.Limpo.Dados/bin/
-src/Mps.Limpo.Dados/obj/
-src/Mps.Limpo.Dados.PostgreSql/bin/
-src/Mps.Limpo.Dados.PostgreSql/obj/
-src/Mps.Limpo.Dados.SqlServer/bin/
-src/Mps.Limpo.Dados.SqlServer/obj/
-src/Mps.Limpo.Dados.Oracle/bin/
-src/Mps.Limpo.Dados.Oracle/obj/
-obj/
-bin/
+# Configuração local e certificados privados
+.env
+.env.*
+!.env.example
+!.env.*.example
+appsettings.*.local.json
+*.pfx
+*.p12
 
+# Logs e arquivos temporários
 logs/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

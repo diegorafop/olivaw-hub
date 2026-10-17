@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Mps.HolosCore.Api.Extensions.Https;
+using Mps.OlivawCore.Api.Extensions.Https;
 using Mps.Limpo.Api.Features.ExampleFeature.Commands;
 using Mps.Limpo.Api.Features.ExampleFeature.Queries;
 

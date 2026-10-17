@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Mps.HolosCore.Domain;
-using Mps.HolosCore.Repositories;
-using Mps.HolosCore.Dados.Repositories;
+using Mps.OlivawCore.Domain;
+using Mps.OlivawCore.Repositories;
+using Mps.OlivawCore.Dados.Repositories;
 using System.Linq.Expressions;
 
 namespace Mps.Limpo.Dados.Repositories;

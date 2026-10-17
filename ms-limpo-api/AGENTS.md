@@ -16,7 +16,7 @@ Mps.Limpo.Api ───────> Mps.Limpo.Dados.<Provedor>
 Mps.Limpo.Tests ─────> Mps.Limpo.Api
 ```
 
-Os projetos consomem `Mps.HolosCore` (núcleo), `Mps.HolosCore.Dados` (EF Core) e `Mps.HolosCore.Api` (infraestrutura ASP.NET Core) diretamente por NuGet. Não recrie tipos compartilhados, helpers ou extensões locais que apenas dupliquem esses pacotes. O `Mps.Limpo` fica disponível para regras próprias do novo microservice.
+Os projetos consomem `Mps.OlivawCore` (núcleo), `Mps.OlivawCore.Dados` (EF Core) e `Mps.OlivawCore.Api` (infraestrutura ASP.NET Core) por `ProjectReference` no monorepo. Não recrie tipos compartilhados, helpers ou extensões locais que apenas dupliquem esses pacotes. O `Mps.Limpo` fica disponível para regras próprias do novo microservice.
 
 - O núcleo não referencia infraestrutura nem apresentação.
 - Dados não referencia a API.
@@ -129,7 +129,7 @@ Antes de concluir:
 
 ## Guia para um futuro cliente NuGet
 
-O `ms-auth-api` mantém um cliente REST separado. Quando este template receber um cliente equivalente, siga também `src/Mps.Limpo.Client/AGENTS.md` e confira os contratos reais da API antes de implementá-lo. A presença dessas diretrizes não cria o projeto nem autoriza migração de contratos existentes.
+Quando este template receber um cliente REST completo, siga também `src/Mps.Limpo.Client/AGENTS.md` e confira os contratos reais da API antes de implementá-lo. A presença dessas diretrizes não cria o projeto nem autoriza migração de contratos existentes.
 
 1. Inventarie operações, controllers, requests, responses, validators, handlers, mapeadores e testes. Preserve verbos, rotas, status, JSON, enums e significado dos IDs.
 2. Defina cada contrato público uma única vez no projeto cliente, em `Features/<Recurso>Feature/Commands` ou `Queries`. Payloads e responses são classes simples, sem MediatR, ASP.NET Core, herança de entidades ou auditoria interna.
@@ -141,3 +141,11 @@ O `ms-auth-api` mantém um cliente REST separado. Quando este template receber u
 8. Mantenha as rotas base em um catálogo JSON interno embutido, com caminhos relativos. O cliente constrói IDs e filtros, omite nulos, preserva `false` e listas, escapa valores e usa cultura invariável.
 9. Exponha operações tipadas e reutilize o transporte e a autenticação existentes. Não implemente obtenção ou armazenamento de JWT no pacote.
 10. Teste HTTP em memória, autenticação, serialização, cancelamento, compatibilidade de payloads e correspondência das rotas com os controllers. Execute build, testes e `dotnet pack`; não publique sem pedido explícito.
+
+## Identidade compartilhada
+
+- Usuários, autenticação, perfis e permissões vêm de `../olivaw-identity`, por `ProjectReference`; não copie essas features para cada cliente.
+- O contexto local aplica `AddOlivawIdentity()`. Banco e migrations continuam no consumidor.
+- O módulo registra o esquema JWT local e controllers por application part. Não reintroduza o cliente externo de autenticação como requisito de inicialização.
+- Senhas não podem passar pelo pipeline que aplica `Trim()`. Preserve a delegação de `TemplateValidationBehavior`.
+- Bootstrap cria somente root, com segredo externo, depois de preparar o schema. Não transporte migrations ou seeds corporativos.

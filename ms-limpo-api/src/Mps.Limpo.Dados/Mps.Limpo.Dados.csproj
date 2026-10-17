@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -7,8 +7,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Mps.HolosCore.Dados" Version="1.1.0" />
-		<PackageReference Include="Dapper" Version="2.1.89" />
+		<ProjectReference Include="../../../ms-olivaw-core-api/src/Mps.OlivawCore.Dados/Mps.OlivawCore.Dados.csproj" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
+        <PackageReference Include="Dapper" Version="2.1.89" />
 		<PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
 		<PackageReference Include="FluentValidation" Version="12.1.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
@@ -31,4 +32,5 @@
 		<ProjectReference Include="..\Mps.Limpo\Mps.Limpo.csproj" />
 	</ItemGroup>
 
+<ItemGroup><ProjectReference Include="../../../olivaw-identity/src/Olivaw.Identity.Dados/Olivaw.Identity.Dados.csproj" /></ItemGroup>
 </Project>

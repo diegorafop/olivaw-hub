@@ -1,5 +1,5 @@
 ﻿using Bogus;
-using Mps.HolosCore.Domain;
+using Mps.OlivawCore.Domain;
 using System;
 
 namespace Mps.Limpo.Tests.Mocks;

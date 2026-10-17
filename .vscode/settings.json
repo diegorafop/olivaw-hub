@@ -39,7 +39,11 @@
     "**/.vs": true,
     "**/dist": true,
     "**/TestResults": true,
-    "**/*.csproj.user": true
+    "**/*.csproj.user": true,
+    "**/results": true,
+    "**/coverage": true,
+    "**/artifacts": true,
+    "**/BenchmarkDotNet.Artifacts": true
   },
   "search.exclude": {
     "**/bin": true,
@@ -47,6 +51,10 @@
     "**/.vs": true,
     "**/dist": true,
     "**/TestResults": true,
-    "**/*.csproj.user": true
+    "**/*.csproj.user": true,
+    "**/results": true,
+    "**/coverage": true,
+    "**/artifacts": true,
+    "**/BenchmarkDotNet.Artifacts": true
   }
 }

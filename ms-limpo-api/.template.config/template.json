@@ -52,7 +52,9 @@
         "**/results/**",
         "docker/.env",
         "TEMPLATE.md",
-        "scripts/new-microservice.sh"
+        "scripts/new-microservice.sh",
+        "certificates/**",
+        "**/*.pfx"
       ]
     }
   ],

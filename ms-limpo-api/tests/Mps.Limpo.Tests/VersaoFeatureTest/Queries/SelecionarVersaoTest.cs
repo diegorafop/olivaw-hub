@@ -2,7 +2,7 @@
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Mps.Limpo.Api.Features.VersaoFeature.Queries;
-using Mps.HolosCore.Api.Helpers;
+using Mps.OlivawCore.Api.Helpers;
 using Mps.Limpo.Tests.Mocks;
 using System;
 using System.Threading;

@@ -56,3 +56,7 @@ Conforme a relação com os clientes evoluir, ampliar a oferta para integraçõe
 ## Estado atual
 
 Nome e direção inicial escolhidos. Implementação ainda não iniciada. Este documento preserva o contexto da conversa e deve ser atualizado conforme novas decisões forem tomadas.
+
+## Evolução técnica — 17 de outubro de 2026
+
+O repositório passa a organizar o core compartilhado, as bibliotecas Olivaw Identity e o template .NET `ms-limpo-api`. Novas APIs de clientes consomem esses módulos por `ProjectReference`, mantendo contexto, migrations, banco e implantação próprios. Perfil de acesso representa a role; autorizações representam permissões. O único usuário inicial é root, criado por bootstrap configurável após preparar o schema. Não há serviço central de identidade nesta etapa.

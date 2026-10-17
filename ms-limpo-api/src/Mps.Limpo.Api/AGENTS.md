@@ -5,7 +5,7 @@ Estas regras complementam o `AGENTS.md` da raiz para apresentação, CQS e integ
 - Target: `net10.0`, ASP.NET Core.
 - A API é o composition root e pode depender do núcleo, Dados e provedores suportados.
 - `Program.cs` deve permanecer mínimo; configuração transversal pertence às extensions/facades existentes.
-- Use extensões compartilhadas de `Mps.HolosCore.Api` diretamente. Configuração própria do host fica em `Extensions/Hostings`; não recrie uma pasta `Extensions/Generics`.
+- Use extensões compartilhadas de `Mps.OlivawCore.Api` diretamente. Configuração própria do host fica em `Extensions/Hostings`; não recrie uma pasta `Extensions/Generics`.
 - Organize endpoints por feature em `Features/<Nome>Feature`.
 
 ## Features e CQS
