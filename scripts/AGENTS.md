@@ -15,3 +15,7 @@ Os scripts da raiz automatizam o fluxo comum do Olivaw Hub. O gerador de cliente
 ## Validação
 
 Teste os scripts com `python3 -m unittest discover -s scripts/gitflow/tests -v`. Use repositórios temporários para testar hooks, configuração local e ciclos de finish; nunca use o branch de trabalho como ambiente de teste. Simule chamadas GitHub e não feche issues reais para testar o código. Documente separadamente ativação local, publicação e limites do ambiente.
+
+## Cliente de deploy autorizado
+
+O mantenedor autorizou explicitamente salvar a senha root do DevOps em `deployment/deploy.sh` nesta etapa, até a migração para Key Vault. Essa exceção ao uso geral de credenciais aplica-se a esse cliente; nunca imprima senha/token em saídas, logs ou documentação. Criar ou validar o cliente não autoriza executar implantações remotas.

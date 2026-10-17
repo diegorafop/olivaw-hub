@@ -114,3 +114,29 @@ dotnet test ms-devops-api/tests/Mps.Devops.Tests/Mps.Devops.Tests.csproj
 Os testes simulam SSH, systemd, Git e Docker; usam apenas arquivos temporários locais. A instalação real, conectividade, permissões, imagem e sobrevivência a reinício precisam de validação posterior na VM.
 
 Referências: [restrições de chaves SSH](https://man.openbsd.org/sshd.8), [verificação de host](https://man.openbsd.org/ssh_config.5), [systemd-run](https://www.freedesktop.org/software/systemd/man/latest/systemd-run.html) e [privilégios Docker](https://docs.docker.com/engine/security/).
+
+## Deploy de serviços pelo DevOps
+
+O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.devops.olivaw-hub.duckdns.org` com o login `root`, solicita a implantação do serviço informado e acompanha o job até sucesso ou falha. A senha fica no script por autorização explícita do mantenedor, até Key Vault; nunca imprima senha ou token.
+
+Na raiz do clone, os três argumentos são obrigatórios:
+
+```bash
+bash scripts/deployment/deploy.sh <servico> <ambiente> <branch>
+```
+
+Exemplos:
+
+```bash
+bash scripts/deployment/deploy.sh ms-olivaw-hub-ng prd master
+bash scripts/deployment/deploy.sh ms-devops-api prd master
+bash scripts/deployment/deploy.sh ms-novo-servico-api stg develop
+```
+
+O nome do serviço é a pasta em kebab-case, com prefixo `ms-`. O cliente monta `folder=olivaw-hub/<servico>`, usa o ambiente `dev/qas/rls/stg/prd` e envia a branch informada. Exibe o destino antes de autenticar; não há serviço, ambiente ou branch implícitos. Novos serviços não exigem editar esse script.
+
+Cada serviço deve ter `docker/.env.<ambiente>`, `docker/docker-compose.yml` e `docker/docker-compose.<ambiente>.yml` na branch publicada. Seu caminho completo precisa estar em `allowedFolders` de `/etc/olivaw/deployment.json` na VM. O exemplo versionado inclui o frontend institucional e DevOps; não modifica a configuração já instalada. Não adicione frontends a `sshOverrideFolders`; essa opção preserva a integração SSH específica do DevOps.
+
+Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. `DEVOPS_API_URL` e `DEVOPS_ROOT_PASSWORD` substituem os valores fixos sem editar o arquivo.
+
+A branch deve estar publicada com todos os arquivos de implantação. Se a senha root já tiver sido alterada no banco, atualize a credencial do script; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente porque o logout atual revoga todas as sessões root. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.

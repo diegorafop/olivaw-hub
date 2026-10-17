@@ -57,3 +57,13 @@ docker compose --env-file ms-olivaw-hub-ng/docker/.env.prd \
 Repita para os demais ambientes. `GET /health` deve retornar 200; a raiz contém HTML público prerenderizado, rotas internas usam `index.csr.html` e assets ausentes retornam 404. O container executa Nginx sem root. As imagens base seguem tags de manutenção; fixe digests revisados se precisar reproduzir as camadas do sistema operacional.
 
 Os dotenv dos seis ambientes (local e cinco de nuvem) são versionados e chegam prontos no clone. O Schematics os personaliza para os novos clientes. Eles contêm somente configuração pública do frontend. Os ambientes de todos os projetos acompanham o Git nesta etapa; a migração para Key Vault fica planejada para o futuro.
+
+## Comando pelo ms-devops-api
+
+Da raiz do monorepo, com a branch já publicada e o frontend autorizado no executor da VM:
+
+```bash
+bash scripts/deployment/deploy.sh ms-olivaw-hub-ng prd master
+```
+
+O script autentica com o root configurado e acompanha o job. O serviço, o ambiente e a branch são argumentos obrigatórios. Veja [executor DevOps](../../docs/deploy-executor.md#deploy-de-servicos-pelo-devops).
