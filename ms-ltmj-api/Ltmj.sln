@@ -1,0 +1,88 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11513.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{9E17B86C-AA81-4443-A4FB-E7C8B028E572}"
+	ProjectSection(SolutionItems) = preProject
+		src\.editorconfig = src\.editorconfig
+		.gitignore = .gitignore
+		AGENTS.md = AGENTS.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Ltmj.Api", "src\Mps.Ltmj.Api\Mps.Ltmj.Api.csproj", "{2B9A8A6D-BA86-4855-85C8-56625E5E37F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Ltmj", "src\Mps.Ltmj\Mps.Ltmj.csproj", "{7468E6CA-5E59-4DB6-A051-30F6A5D22878}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Ltmj.Tests", "tests\Mps.Ltmj.Tests\Mps.Ltmj.Tests.csproj", "{8F7FEA03-3EC0-4431-92F0-AF8E73211F3F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{862A1FB8-85B7-44A8-A0B5-3331AC10DF59}"
+	ProjectSection(SolutionItems) = preProject
+		docker\.dockerignore = docker\.dockerignore
+		docker\.env.example = docker\.env.example
+		docker\docker-compose.dev.yml = docker\docker-compose.dev.yml
+		docker\docker-compose.override.yml = docker\docker-compose.override.yml
+		docker\docker-compose.prd.yml = docker\docker-compose.prd.yml
+		docker\docker-compose.qas.yml = docker\docker-compose.qas.yml
+		docker\docker-compose.rls.yml = docker\docker-compose.rls.yml
+		docker\docker-compose.stg.yml = docker\docker-compose.stg.yml
+		docker\docker-compose.yml = docker\docker-compose.yml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Ltmj.Dados", "src\Mps.Ltmj.Dados\Mps.Ltmj.Dados.csproj", "{247D761F-2F64-412C-BFEB-190EC10D735A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Ltmj.Dados.PostgreSql", "src\Mps.Ltmj.Dados.PostgreSql\Mps.Ltmj.Dados.PostgreSql.csproj", "{5AFB55A5-7678-4109-B4E0-A1910D185444}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Ltmj.Dados.SqlServer", "src\Mps.Ltmj.Dados.SqlServer\Mps.Ltmj.Dados.SqlServer.csproj", "{11F177C0-CADC-4F59-AE58-41B48197D04F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mps.Ltmj.Dados.Oracle", "src\Mps.Ltmj.Dados.Oracle\Mps.Ltmj.Dados.Oracle.csproj", "{5FB11FCA-D75D-4AA8-9F28-4E212350224F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Ltmj.Client", "src\Mps.Ltmj.Client\Mps.Ltmj.Client.csproj", "{F722C710-2302-4169-8E8E-DCA60FAB2421}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B9A8A6D-BA86-4855-85C8-56625E5E37F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B9A8A6D-BA86-4855-85C8-56625E5E37F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B9A8A6D-BA86-4855-85C8-56625E5E37F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B9A8A6D-BA86-4855-85C8-56625E5E37F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7468E6CA-5E59-4DB6-A051-30F6A5D22878}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7468E6CA-5E59-4DB6-A051-30F6A5D22878}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7468E6CA-5E59-4DB6-A051-30F6A5D22878}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7468E6CA-5E59-4DB6-A051-30F6A5D22878}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F7FEA03-3EC0-4431-92F0-AF8E73211F3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F7FEA03-3EC0-4431-92F0-AF8E73211F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F7FEA03-3EC0-4431-92F0-AF8E73211F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F7FEA03-3EC0-4431-92F0-AF8E73211F3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{247D761F-2F64-412C-BFEB-190EC10D735A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{247D761F-2F64-412C-BFEB-190EC10D735A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{247D761F-2F64-412C-BFEB-190EC10D735A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{247D761F-2F64-412C-BFEB-190EC10D735A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AFB55A5-7678-4109-B4E0-A1910D185444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AFB55A5-7678-4109-B4E0-A1910D185444}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AFB55A5-7678-4109-B4E0-A1910D185444}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AFB55A5-7678-4109-B4E0-A1910D185444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11F177C0-CADC-4F59-AE58-41B48197D04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11F177C0-CADC-4F59-AE58-41B48197D04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11F177C0-CADC-4F59-AE58-41B48197D04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11F177C0-CADC-4F59-AE58-41B48197D04F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FB11FCA-D75D-4AA8-9F28-4E212350224F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FB11FCA-D75D-4AA8-9F28-4E212350224F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FB11FCA-D75D-4AA8-9F28-4E212350224F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FB11FCA-D75D-4AA8-9F28-4E212350224F}.Release|Any CPU.Build.0 = Release|Any CPU
+	{F722C710-2302-4169-8E8E-DCA60FAB2421}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+	{F722C710-2302-4169-8E8E-DCA60FAB2421}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	{F722C710-2302-4169-8E8E-DCA60FAB2421}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	{F722C710-2302-4169-8E8E-DCA60FAB2421}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {762F6976-83B9-4FD5-84AA-D5F83BF9C9C6}
+	EndGlobalSection
+EndGlobal

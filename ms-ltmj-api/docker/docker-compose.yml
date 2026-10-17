@@ -1,0 +1,44 @@
+services:
+  ms-ltmj-api:
+    build:
+      context: ../..
+      dockerfile: ms-ltmj-api/src/Mps.Ltmj.Api/Dockerfile
+      args:
+        BUILD_CONFIG: Release
+    env_file:
+    - ${OLIVAW_ENV_FILE:-.env}
+    expose:
+    - '8080'
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_HTTP_PORTS: '8080'
+      DatabaseProvider: PostgreSql
+      ConnectionStrings__DbContext: ${ConnectionStrings__DbContext:?Configure a conexão do banco deste serviço}
+      ConnectionStrings__RedisContext: ${ConnectionStrings__RedisContext:-}
+      Identity__Issuer: ${Identity__Issuer:?Configure o emissor deste serviço}
+      Identity__Audience: ${Identity__Audience:?Configure o destinatário deste serviço}
+      Identity__SigningKey: ${Identity__SigningKey:?Configure a chave exclusiva deste serviço}
+      Identity__Bootstrap__Enabled: ${Identity__Bootstrap__Enabled:-false}
+      Identity__Bootstrap__Email: ${Identity__Bootstrap__Email:-}
+      Identity__Bootstrap__Password: ${Identity__Bootstrap__Password:-}
+      Database__ApplyMigrations: ${Database__ApplyMigrations:-false}
+      masstransit__configured: ${masstransit__configured:-false}
+      masstransit__server: ${masstransit__server:-ms-rabbit-mq}
+      masstransit__user: ${masstransit__user:-}
+      masstransit__password: ${masstransit__password:-}
+      masstransit__prefix: ${masstransit__prefix:-ms-ltmj-api-prd}
+    networks:
+    - rabbit-net
+    - postgres-net
+    - traefik-net
+    restart: unless-stopped
+networks:
+  rabbit-net:
+    external: true
+    name: ${RABBIT_NETWORK:-rabbit-net}
+  postgres-net:
+    external: true
+    name: ${POSTGRES_NETWORK:-postgres-net}
+  traefik-net:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik-net}
