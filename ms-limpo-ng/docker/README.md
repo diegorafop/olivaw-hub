@@ -57,3 +57,5 @@ docker compose --env-file ms-limpo-ng/docker/.env.prd \
 Repita para os demais ambientes. `GET /health` deve retornar 200; a raiz contém HTML público prerenderizado, rotas internas usam `index.csr.html` e assets ausentes retornam 404. O container executa Nginx sem root. As imagens base seguem tags de manutenção; fixe digests revisados se precisar reproduzir as camadas do sistema operacional.
 
 Os dotenv dos seis ambientes (local e cinco de nuvem) são versionados e chegam prontos no clone. O Schematics os personaliza para os novos clientes. Eles contêm somente configuração pública do frontend. Os ambientes de todos os projetos acompanham o Git nesta etapa; a migração para Key Vault fica planejada para o futuro.
+
+O build define explicitamente a configuração Nginx como `0644` e torna os arquivos estáticos legíveis e seus diretórios acessíveis. Assim a imagem funciona com Nginx sem root mesmo quando o executor usa `umask 077` no host.

@@ -67,3 +67,5 @@ bash scripts/deployment/deploy.sh ms-olivaw-hub-ng prd master
 ```
 
 O script autentica com o root configurado e acompanha o job. O serviço, o ambiente e a branch são argumentos obrigatórios. Veja [executor DevOps](../../docs/deploy-executor.md#deploy-de-servicos-pelo-devops).
+
+O build define explicitamente a configuração Nginx como `0644` e torna os arquivos estáticos legíveis e seus diretórios acessíveis. Assim a imagem funciona com Nginx sem root mesmo quando o executor usa `umask 077` no host.
