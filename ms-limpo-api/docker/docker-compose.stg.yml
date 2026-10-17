@@ -1,0 +1,19 @@
+services:
+    ms-limpo-api:
+        container_name: ms-limpo-api-stg
+        image: registry.mps.com.br/holos/ms-limpo-api:stg
+        build:
+            args:
+                - BUILD_CONFIG=Release
+                - SKIP_UNITARY_TESTS=true
+                - SKIP_EF_SCHEMA_SCRIPT=false
+                - HTTP_PORT=80
+                - HTTPS_PORT=443
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Staging
+        labels:
+            - traefik.http.routers.limpo-api-stg.rule=Host(`limpo-api.stg.holos.mps.com.br`)
+            - traefik.http.routers.limpo-api-stg.entrypoints=ms-holos-web-secure
+            - traefik.http.routers.limpo-api-stg.tls=true
+            - traefik.http.routers.limpo-api-stg.tls.certresolver=lets-encrypt
+            - traefik.docker.network=holos-net

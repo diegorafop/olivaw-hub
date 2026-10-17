@@ -1,0 +1,22 @@
+﻿services:
+    ms-auth-api:
+        container_name: ms-auth-api-${{AUTH_API_TAG}}
+        image: registry.mps.com.br/holos/ms-auth-api:${{AUTH_API_TAG}}
+        build:
+            args:
+                - BUILD_CONFIG=Release
+                - SKIP_UNITARY_TESTS=true
+                - SKIP_EF_SCHEMA_SCRIPT=true
+                - HTTP_PORT=${{AUTH_API_HTTP_PORT}}
+                - HTTPS_PORT=${{AUTH_API_HTTPS_PORT}}
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Production
+            - ASPNETCORE_URLS=https://+:${{AUTH_API_HTTPS_PORT}};http://+:${{AUTH_API_HTTP_PORT}}
+            - ASPNETCORE_HTTPS_PORT=${{AUTH_API_HTTPS_PORT}}
+            - ASPNETCORE_HTTP_PORT=${{AUTH_API_HTTP_PORT}}
+        labels:
+            - traefik.http.routers.auth-api-${{AUTH_API_TAG}}.rule=Host(`${{AUTH_API_ADDRESS}}`)
+            - traefik.http.routers.auth-api-${{AUTH_API_TAG}}.entrypoints=ms-holos-web-secure
+            - traefik.http.routers.auth-api-${{AUTH_API_TAG}}.tls=true
+            - traefik.http.routers.auth-api-${{AUTH_API_TAG}}.tls.certresolver=lets-encrypt
+            - traefik.docker.network=holos-net

@@ -1,0 +1,22 @@
+﻿services:
+    ms-limpo-api:
+        container_name: ms-limpo-api-${{LIMPO_API_TAG}}
+        image: registry.mps.com.br/holos/ms-limpo-api:${{LIMPO_API_TAG}}
+        build:
+            args:
+                - BUILD_CONFIG=Release
+                - SKIP_UNITARY_TESTS=true
+                - SKIP_EF_SCHEMA_SCRIPT=true
+                - HTTP_PORT=${{LIMPO_API_HTTP_PORT}}
+                - HTTPS_PORT=${{LIMPO_API_HTTPS_PORT}}
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Production
+            - ASPNETCORE_URLS=https://+:${{LIMPO_API_HTTPS_PORT}};http://+:${{LIMPO_API_HTTP_PORT}}
+            - ASPNETCORE_HTTPS_PORT=${{LIMPO_API_HTTPS_PORT}}
+            - ASPNETCORE_HTTP_PORT=${{LIMPO_API_HTTP_PORT}}
+        labels:
+            - traefik.http.routers.limpo-api-${{LIMPO_API_TAG}}.rule=Host(`${{LIMPO_API_ADDRESS}}`)
+            - traefik.http.routers.limpo-api-${{LIMPO_API_TAG}}.entrypoints=ms-holos-web-secure
+            - traefik.http.routers.limpo-api-${{LIMPO_API_TAG}}.tls=true
+            - traefik.http.routers.limpo-api-${{LIMPO_API_TAG}}.tls.certresolver=lets-encrypt
+            - traefik.docker.network=holos-net

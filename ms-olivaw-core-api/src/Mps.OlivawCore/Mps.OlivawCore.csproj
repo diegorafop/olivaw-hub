@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+
+		<PackageId>Mps.OlivawCore</PackageId>
+		<Version>1.1.0</Version>
+		<Authors>MPS Informatica</Authors>
+		<Company>MPS Informatica</Company>
+		<Product>OlivawCore Domain Framework</Product>
+		<Description>Biblioteca core com abstrações, contratos, interfaces e extensões genéricas do ecossistema OlivawCore.</Description>
+		<Copyright>Copyright © MPS Informática</Copyright>
+		<RepositoryUrl>https://git.mps.com.br/XJP/ms-olivaw-core-api</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+
+		<IsPackable>true</IsPackable>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+</Project>

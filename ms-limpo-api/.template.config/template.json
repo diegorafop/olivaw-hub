@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json.schemastore.org/template",
+  "author": "MPS",
+  "classifications": [
+    "Web",
+    "API",
+    "Microservice"
+  ],
+  "identity": "Mps.Templates.Microservice",
+  "name": "MPS Microservice",
+  "shortName": "mps-microservice",
+  "description": "Cria um microservice ASP.NET Core a partir do template Mps.Limpo.",
+  "sourceName": "Limpo",
+  "preferNameDirectory": false,
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "symbols": {
+    "serviceSlug": {
+      "type": "parameter",
+      "dataType": "text",
+      "isRequired": true,
+      "description": "Nome em kebab-case, por exemplo precatorio-calculo.",
+      "replaces": "limpo",
+      "fileRename": "limpo"
+    },
+    "serviceToken": {
+      "type": "parameter",
+      "dataType": "text",
+      "isRequired": true,
+      "description": "Nome em caixa alta com sublinhados, por exemplo PRECATORIO_CALCULO.",
+      "replaces": "LIMPO",
+      "fileRename": "LIMPO"
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        "**/[Bb]in/**",
+        "**/[Oo]bj/**",
+        ".template.config/**",
+        ".git/**",
+        ".agents/**",
+        ".aws/**",
+        ".codex/**",
+        ".vscode/**",
+        "data/**",
+        "**/TestResults/**",
+        "**/results/**",
+        "docker/.env",
+        "TEMPLATE.md",
+        "scripts/new-microservice.sh"
+      ]
+    }
+  ],
+  "guids": [
+    "7E0D699C-DF5A-4C7E-9AFC-A4A14D4C0307",
+    "37B20C49-A02C-4A3A-906E-287E432DDEDD",
+    "EFD08747-D687-45ED-B6AD-63439507C6FE",
+    "1BB99E41-8A7F-4AD7-8CEA-EBDC42683A4E",
+    "18FA643D-A533-49CA-9BB8-8BCB5BDDCA10",
+    "4E7BDB1B-CBA9-4FFE-A08D-335F9189CBE2",
+    "30B9F873-186B-4B60-817B-C567C29E9D10",
+    "3D477C0D-91C8-4FD6-A76E-C9DE15977C18",
+    "7AE1C79C-ACBE-45AE-B3E6-CE17A3F42CC5",
+    "2632a5cc-6fa7-4445-92b6-8221184c7e70",
+    "04F2E373-A2DE-4C13-8827-81E0A9A8BE2E"
+  ],
+  "primaryOutputs": [
+    {
+      "path": "Limpo.sln"
+    }
+  ]
+}
