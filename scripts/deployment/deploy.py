@@ -123,13 +123,24 @@ class Executor:
     def submit(self, request):
         request = validate_request(request)
         resolve_repository(self.config, request)
+        return self.enqueue(request)
+
+    def submit_cleanup(self, request):
+        if set(request) != {'action'}:
+            raise ValueError('invalid_request')
+        return self.enqueue({'kind': 'disk-cleanup'})
+
+    def enqueue(self, request):
         with (self.state / 'submit.lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             pending = sum(self.status(path.stem)['status'] in ('queued', 'running')
                           for path in self.state.glob('*.json'))
             if pending >= 20:
                 raise RuntimeError('executor_busy')
-            job = dict(request, id=str(uuid.uuid4()), status='queued', log='Deployment queued.')
+            initial_log = 'Deployment queued.'
+            if request.get('kind') == 'disk-cleanup':
+                initial_log = 'Disk cleanup queued.'
+            job = dict(request, id=str(uuid.uuid4()), status='queued', log=initial_log)
             self.save(job)
             try:
                 subprocess.run([
@@ -164,9 +175,15 @@ class Executor:
             job = self.load(job_id)
             if job['status'] != 'queued':
                 return
-            job.update(status='running', log='Deployment started.')
+            initial_log = 'Deployment started.'
+            if job.get('kind') == 'disk-cleanup':
+                initial_log = 'Disk cleanup worker started.'
+            job.update(status='running', log=initial_log)
             self.save(job)
             try:
+                if job.get('kind') == 'disk-cleanup':
+                    self.run_cleanup(job)
+                    return
                 repository = resolve_repository(self.config, job)
                 for label, arguments in commands(job['branch'], job['environment'], job['folder'] in self.config.get('sshOverrideFolders', [])):
                     directory = repository
@@ -191,6 +208,35 @@ class Executor:
             except (ValueError, OSError, RuntimeError, subprocess.SubprocessError):
                 job.update(status='failed', log=job['log'] + '\nDeployment failed; subsequent steps were skipped.')
             self.save(job)
+
+
+    def run_cleanup(self, job):
+        try:
+            before = os.statvfs('/')
+            job['log'] += f"\nDisk cleanup started. Free bytes before: {before.f_bavail * before.f_frsize}."
+            self.save(job)
+            for label, arguments in cleanup_commands():
+                job['log'] += f'\n{label}: started.'
+                self.save(job)
+                result = run_step(arguments, Path('/'), int(self.config.get('stepTimeoutSeconds', 300)))
+                job['log'] += f'\n{label}: exit code {result}.'
+                self.save(job)
+                if result != 0:
+                    raise RuntimeError('step_failed')
+            after = os.statvfs('/')
+            job['log'] += f"\nFree bytes after: {after.f_bavail * after.f_frsize}."
+            job['status'] = 'succeeded'
+        except (ValueError, OSError, RuntimeError, subprocess.SubprocessError):
+            job.update(status='failed', log=job['log'] + '\nDisk cleanup failed; subsequent steps were skipped.')
+        self.save(job)
+
+
+def cleanup_commands():
+    # Fixed argv only. Never prune volumes, containers, or accept shell/user commands.
+    return [
+        ('Build cache cleanup', ['/usr/bin/docker', 'builder', 'prune', '--all', '--force']),
+        ('Dangling image cleanup', ['/usr/bin/docker', 'image', 'prune', '--force'])
+    ]
 
 
 def commands(branch, environment, include_ssh=False):
@@ -230,6 +276,8 @@ def gateway(executor, raw):
             raise ValueError('invalid_request')
         if request.get('action') == 'submit':
             status = executor.submit(request)
+        elif request.get('action') == 'cleanup':
+            status = executor.submit_cleanup(request)
         elif request.get('action') == 'status':
             status = executor.status(request.get('id'))
         else:

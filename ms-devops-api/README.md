@@ -71,3 +71,8 @@ O retorno é HTTP **202**, com `id`, `status`, `log` e header `Location`. Consul
 Na VM, `folder` é relativo a `/home/ec2-user` e limitado à allowlist do executor. O script faz checkout, pull `--ff-only` e Compose com dotenv/override do ambiente e `up -d --build`. Erros de entrada/transporte usam a validação centralizada; falhas operacionais ficam registradas no status `failed` do job.
 
 Veja o [guia do executor](../docs/deploy-executor.md) para entender cada arquivo e instalar script, chave restrita, `known_hosts`, systemd e override Docker. A imagem contém cliente SSH; acesso à VM depende desse provisionamento manual. Nenhum acesso ou instalação na AWS foi realizado nesta implementação.
+
+
+## Limpeza de disco da VM
+
+`POST /disk-cleanups` agenda limpeza de cache de build e imagens dangling por SSH. `GET /disk-cleanups/{id}` acompanha o job. Acesso exclusivo do root DevOps, sem comandos arbitrários; containers e volumes são preservados. Instalação do executor atualizado e exemplos de curl em [limpeza de disco](../docs/deploy-executor.md#limpeza-de-disco-pela-api-devops).

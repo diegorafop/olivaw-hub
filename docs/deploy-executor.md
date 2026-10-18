@@ -160,3 +160,55 @@ Não é necessário reconstruir a API DevOps para essa alteração de script. A 
 ## Permissões dos arquivos da API
 
 Os Dockerfiles do DevOps, template e API LTMJ copiam o publish com `--chown=app:app` e executam como `USER app`. Isso permite ler appsettings e assemblies mesmo quando o checkout do executor herda `umask 077`. O usuário Linux do container é `app`; ele não é o usuário root da aplicação nem o usuário SSH da VM. Se a API estiver fora do ar, reconstruir seu container diretamente pelo Compose na VM; o cliente HTTP de deploy depende de a API responder.
+
+
+## Limpeza de disco pela API DevOps
+
+`POST /disk-cleanups` cria um job assíncrono, sem body, e retorna HTTP 202 com `id`, `status`, `log` e `Location: /disk-cleanups/{id}`. `GET /disk-cleanups/{id}` acompanha o resultado. As duas rotas exigem root ativo da própria identidade DevOps e versão de sessão vigente; uma conta comum com permissão de deploy não recebe acesso à limpeza.
+
+O container da API usa o mesmo executor SSH restrito dos deploys. O Docker CLI e a limpeza rodam na VM, sob `ec2-user`, que já possui acesso ao Docker. Não há montagem do socket Docker, execução privilegiada nem comandos shell enviados pelo cliente HTTP. O protocolo SSH aceita apenas a ação fixa `cleanup`; campos adicionais são rejeitados no executor.
+
+Comandos fixos, nesta ordem:
+
+```bash
+docker builder prune --all --force
+docker image prune --force
+```
+
+O primeiro remove cache de build sem uso, podendo exigir recompilação/download em builds futuros. O segundo remove apenas imagens dangling (sem tag e sem referência de container). Imagens antigas com tag são preservadas nesta versão, mesmo se o Docker as contabilizar como recuperáveis. Nenhum container, volume, banco, upload ou imagem usada por container é removido.
+
+Limpeza e deploy usam o mesmo lock na VM: a limpeza aguarda o deploy terminar e impede novo build enquanto executa. O job registra bytes livres na partição `/` antes/depois e o código de saída de cada etapa. Uma etapa com erro interrompe as seguintes. O timeout por etapa usa `stepTimeoutSeconds`; o limite global do worker continua em 30 minutos, incluindo espera pelo lock. Cancelar o curl não cancela o job agendado.
+
+### Instalar a nova capacidade
+
+Após commit/push, atualizar o clone na VM para a branch da entrega. Quando não houver job em execução, atualizar o executor instalado:
+
+```bash
+cd /home/ec2-user/olivaw-hub
+sudo install -o root -g root -m 0644 scripts/deployment/deploy.py /opt/olivaw/deploy.py
+```
+
+Depois, publicar `ms-devops-api`. Esta funcionalidade requer tanto o executor novo quanto a API nova; o pull sozinho não atualiza `/opt/olivaw/deploy.py`. Não precisa alterar a allowlist de pastas nem instalar novas chaves SSH. A implementação não cria migrations ou tabelas; reutiliza os registros privados de jobs existentes.
+
+### Solicitar e acompanhar
+
+Usar token root emitido pela API DevOps, diferente do token da API LTMJ:
+
+```bash
+read -r -s -p 'Token root DevOps: ' DEVOPS_ROOT_TOKEN
+printf '\n'
+curl --fail-with-body --request POST \
+  'https://api.devops.olivaw-hub.duckdns.org/disk-cleanups' \
+  --header "Authorization: Bearer $DEVOPS_ROOT_TOKEN"
+```
+
+Para consultar, preencher `CLEANUP_ID` com o `id` retornado:
+
+```bash
+curl --fail-with-body \
+  "https://api.devops.olivaw-hub.duckdns.org/disk-cleanups/$CLEANUP_ID" \
+  --header "Authorization: Bearer $DEVOPS_ROOT_TOKEN"
+unset DEVOPS_ROOT_TOKEN
+```
+
+Se o disco já estiver completamente cheio, pode faltar espaço até para gravar o registro do job. Nessa situação, a primeira liberação de espaço continua sendo manual na VM. A rota limpa somente os recursos listados; não substitui diagnóstico de consumo fora do Docker nem garante recuperar todos os bytes que `docker system df` aponta como recuperáveis.

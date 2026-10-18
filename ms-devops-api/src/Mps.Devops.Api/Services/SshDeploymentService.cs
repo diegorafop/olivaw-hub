@@ -6,7 +6,7 @@ using Mps.Devops.Services;
 
 namespace Mps.Devops.Api.Services;
 
-public sealed class SshDeploymentService(IProcessExecutionService processes) : IDeploymentService
+public sealed class SshDeploymentService(IProcessExecutionService processes) : IDeploymentService, IDiskCleanupService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -22,6 +22,11 @@ public sealed class SshDeploymentService(IProcessExecutionService processes) : I
     public Task<DeploymentStatus> GetAsync(Guid id, CancellationToken cancellationToken)
     {
         return SendAsync(new { action = "status", id }, cancellationToken);
+    }
+
+    public Task<DeploymentStatus> CreateAsync(CancellationToken cancellationToken)
+    {
+        return SendAsync(new { action = "cleanup" }, cancellationToken);
     }
 
     private async Task<DeploymentStatus> SendAsync(object payload, CancellationToken cancellationToken)

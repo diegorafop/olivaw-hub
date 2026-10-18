@@ -78,6 +78,13 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Permissões:** somente gestão de portfólio; root continua reservado ao Olivaw Hub. Chaves JWT não foram alteradas.
 - **Estado:** código e curl atualizados; usuário não criado remotamente.
 
+## 17/10/2026 — Somente fotos e descarte dos vídeos recebidos
+
+- **Origem:** responsável confirmou que a versão atual da LTMJ deve usar somente fotos e autorizou apagar os vídeos de Downloads.
+- **Conferido:** não havia vídeos no código, assets públicos ou arquivos versionados da LTMJ; nenhuma referência a player de vídeo no site.
+- **Executado:** 33 arquivos MP4 da pasta LTMJ em Downloads removidos conforme solicitado. Os 91 arquivos de fotos recebidos continuam preservados no projeto.
+- **Escopo:** API e upload continuam aceitando somente JPEG, PNG e WebP. Não foram removidos arquivos de outros projetos.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:
