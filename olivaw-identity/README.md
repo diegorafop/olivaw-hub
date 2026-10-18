@@ -118,3 +118,5 @@ dotnet run --project olivaw-identity/tests/Olivaw.Identity.Tests/Olivaw.Identity
 Testes relacionais usam SQLite; isso não comprova integração específica com PostgreSQL ou SQL Server. Consulte o [registro da implementação](../docs/identidade.md).
 
 A senha é obrigatória, com limite de 128 caracteres e sem tamanho mínimo adicional, tanto no cadastro quanto na troca e no bootstrap. Os caracteres são preservados integralmente. O e-mail tem validação de formato; não há envio ou confirmação por e-mail como requisito para login.
+
+`RootBootstrap.EnsureAsync` sempre garante o root e preserva o cadastro existente. LTMJ e template limpo o executam obrigatoriamente após as migrations no startup. O wrapper `InitializeOlivawIdentityAsync` mantém a chave `Identity:Bootstrap:Enabled` somente para compatibilidade com consumidores que já utilizavam a inicialização opcional.

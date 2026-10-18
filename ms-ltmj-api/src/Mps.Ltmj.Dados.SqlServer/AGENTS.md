@@ -11,6 +11,6 @@ Estas regras complementam o [guia do template](../../AGENTS.md). Este projeto pe
 
 ## Mudanças e validação
 
-Gere ou aplique migrations somente mediante pedido explícito. Revise alterações destrutivas, constraints, dados existentes e o provedor de destino antes da execução. Compile o projeto e o host consumidor quando modificar integração ou dependências.
+Gere ou altere arquivos de migrations mediante solicitação do mantenedor. As migrations existentes são aplicadas automaticamente em todo startup, sem flag de habilitação. Revise alterações destrutivas, constraints, dados existentes e o provedor de destino antes da execução. Compile o projeto e o host consumidor quando modificar integração ou dependências.
 
 Testes SQLite não comprovam compatibilidade específica com SqlServer. Não conecte a bancos reais para validar documentação ou como efeito colateral de uma feature. Registre os testes e limitações observados.

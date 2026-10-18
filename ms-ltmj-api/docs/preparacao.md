@@ -11,9 +11,9 @@ CRUD de eventos, consulta pública, visibilidade e upload multipart estão imple
 - Preparar o banco `ltmj_<ambiente>`, schema `ms_ltmj` e permissões do usuário de conexão.
 - Revisar e aplicar a migration inicial no ambiente autorizado; não presumir que o deploy já aplicou SQL.
 - Confirmar endereço da API e origem do frontend no CORS. O template atual permite origens amplamente; restringir às origens aprovadas antes de produção.
-- Confirmar e-mail do root e habilitar seu bootstrap somente depois do schema preparado. Não há conta root já criada nem senha de cliente divulgada no protótipo.
+- O startup prepara as tabelas pelas migrations existentes e executa o bootstrap obrigatório usando o e-mail root confirmado. Não há conta root já criada nem senha de cliente divulgada no protótipo.
 - Manter chaves JWT exclusivas desta organização/ambiente; não usar chave do Hub ou DevOps.
-- Manter migração automática e broker desabilitados até haver necessidade e autorização.
+- Migrations pendentes e bootstrap sempre rodam no startup; manter broker desabilitado enquanto não houver necessidade.
 - Validar health e logs sem imprimir dotenv ou segredos.
 
 ## Rodar o projeto

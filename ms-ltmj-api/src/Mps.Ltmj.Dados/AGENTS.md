@@ -26,7 +26,7 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 - Migrations pertencem exclusivamente ao projeto do provedor correspondente e nunca devem ser misturadas.
 - O comando Codex `new feature` não cria, altera nem executa migrations. Aguarde pedido explícito do mantenedor.
 - Mudanças de schema devem ser validadas contra todos os provedores declarados como suportados.
-- Considere que `UseMigrations()` aplica migrations no startup e avalie compatibilidade retroativa antes de mudanças destrutivas.
+- Considere que `InitializeDatabaseAsync()` sempre aplica migrations no startup, antes de atender requisições e avalie compatibilidade retroativa antes de mudanças destrutivas.
 - Respeite a convenção de nomes do provedor: minúsculas no PostgreSQL e maiúsculas no Oracle.
 - `SetupConstraints` do Core usa sufixos minúsculos `_pk`, `_fk`, `_ix` e limite de 63 caracteres. Avalie o efeito em migrations existentes antes de alterar schema.
 

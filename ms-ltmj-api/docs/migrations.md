@@ -30,11 +30,11 @@ dotnet ef migrations add NomeDaMigration \
 
 ## Aplicação no startup
 
-Esta alteração gera arquivos; não aplica SQL, não habilita migrations automaticamente e não cria root na VM.
+O startup sempre aplica as migrations pendentes e garante root antes de atender requisições. Não há flags de habilitação. As alterações locais não executaram SQL nem criaram root na VM; isso acontece ao publicar a nova imagem e inicializar a API.
 
-Para a aplicação no startup, a configuração do ambiente precisa de `Database__ApplyMigrations=true`. O runtime usa a conexão real e executa `Database.Migrate()` antes do bootstrap. O usuário PostgreSQL precisa de permissão para criar schema e tabelas. A conexão usa `SearchPath=ms_ltmj`; não executar SQL avulso com search path diferente.
+O runtime usa a conexão real e executa `Database.MigrateAsync()` antes do bootstrap, com cancelamento propagado. O usuário PostgreSQL precisa de permissão para criar schema e tabelas. A conexão usa `SearchPath=ms_ltmj`; não executar SQL avulso com search path diferente.
 
-Para criar root depois, configurar `Identity__Bootstrap__Enabled=true` e e-mail do root Olivaw, preservando o segredo configurado; a conta da equipe não é root. Após isso, cadastrar a equipe e conceder somente `portfolio.manage`. A criação do banco vazio, sozinha, não executa esses passos.
+O bootstrap obrigatório usa o e-mail root Olivaw configurado e o segredo existente; se root já existir, preserva senha e cadastro. A conta da equipe não é root. Após isso, cadastrar a equipe e conceder somente `portfolio.manage`. A criação do banco vazio, sozinha, não executa esses passos.
 
 ## Conferências executadas
 

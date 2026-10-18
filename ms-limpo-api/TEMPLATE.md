@@ -27,3 +27,8 @@ O dono do banco é o terceiro argumento do script e usa snake_case; o padrão é
 O gerador exclui todos os dotenv locais com credenciais e inclui apenas `.env.example`. Prepare credenciais por serviço e configure o JWT conforme o emissor principal da organização; o template atual inclui identidade local e serviços agregados precisarão de adaptação antes de usá-lo. Configure os segredos antes de executar o Compose. Veja [configuração de nuvem](../docs/cloud.md).
 
 A identidade é mantida somente no serviço principal do cliente. Serviços agregados compartilharão o emissor e validarão seus tokens, sem duplicar usuários. Veja as limitações atuais e a governança dos schemas no [guia de nuvem](../docs/cloud.md).
+
+
+## Inicialização obrigatória
+
+Projetos gerados sempre aplicam as migrations pendentes e garantem o root antes de atender requisições. Não há flags para habilitar essa preparação. O bootstrap preserva root existente. Gerar a migration inicial do cliente antes do primeiro deploy; arquivos de migrations não são gerados durante o startup. Para PostgreSQL, usar o projeto do provedor também como startup project no CLI EF: a factory de design time evita iniciar serviços ou acessar o banco durante a geração.

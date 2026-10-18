@@ -155,3 +155,8 @@ Root de cada cliente permanece exclusivo da operação Olivaw Hub. Contas entreg
 ### Nomes de tabelas de domínio
 
 Tabelas usam somente letras minúsculas, sem hífens ou underscores. Exemplos: `portfolioevent`, `portfoliophoto`, `perfilacesso`. Não usar snake_case nem kebab-case em tabelas novas. Mudanças em tabelas já implantadas exigem migration que preserve os dados.
+
+
+### Inicialização de banco dos clientes
+
+Na LTMJ e no template limpo, migrations pendentes e bootstrap do root são obrigatórios no startup, antes de atender requisições. Não adicionar flags para habilitar essa etapa. O bootstrap é idempotente e preserva cadastro e senha do root existente. Arquivos de migrations são gerados no desenvolvimento; a API apenas aplica os que acompanham a versão publicada.

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Olivaw.Identity.Api.Services;
 using Mps.Ltmj.Dados;
 using Mps.Ltmj.Dados.Extensions.Facades;
 using System.Diagnostics.CodeAnalysis;
@@ -17,10 +18,12 @@ public static class WebApplicationBuilderExtensions
         );
     }
 
-    public static void UseMigrations(this WebApplication webApplication)
+    public static async Task InitializeDatabaseAsync(this WebApplication webApplication, CancellationToken cancellationToken)
     {
-        using var scope = webApplication.Services.CreateScope();
+        await using var scope = webApplication.Services.CreateAsyncScope();
         var database = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
-        database.Database.Migrate();
+        await database.Database.MigrateAsync(cancellationToken);
+        await scope.ServiceProvider.GetRequiredService<RootBootstrap>()
+            .EnsureAsync(webApplication.Configuration, cancellationToken);
     }
 }

@@ -11,6 +11,6 @@ Estas regras complementam o [guia do template](../../AGENTS.md). Este projeto pe
 
 ## Mudanças e validação
 
-Gere ou aplique migrations somente mediante pedido explícito. Revise alterações destrutivas, constraints, dados existentes e o provedor de destino antes da execução. Compile o projeto e o host consumidor quando modificar integração ou dependências.
+Gere ou altere arquivos de migrations mediante solicitação do mantenedor. A aplicação das migrations existentes é automática em todo startup e não exige nova habilitação. Revise alterações destrutivas, constraints, dados existentes e o provedor de destino antes da execução. Compile o projeto e o host consumidor quando modificar integração ou dependências.
 
 Testes SQLite não comprovam compatibilidade específica com PostgreSql. Não conecte a bancos reais para validar documentação ou como efeito colateral de uma feature. Registre os testes e limitações observados.

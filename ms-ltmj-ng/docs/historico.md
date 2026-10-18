@@ -100,6 +100,14 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Configurado:** e-mail do root nos dotenv da API LTMJ; a conta da equipe continua separada, com login `ltmj` e sem root.
 - **Estado:** segredo e chaves JWT preservados; aplicação de migrations e bootstrap continuam desabilitados enquanto a autorização solicitada está pendente. Cadastro e vínculo ainda não concluídos devido ao HTTP 500 no login.
 
+## 17/10/2026 — Startup obrigatório de banco e root
+
+- **Origem:** responsável determinou que migrations e bootstrap sempre rodem no startup, sem flags de habilitação.
+- **Implementado:** API LTMJ e template limpo sempre aplicam migrations pendentes e garantem root antes de atender requisições; falhas impedem a inicialização com banco incompleto.
+- **Configuração:** removidas opções de habilitação de migrations e bootstrap dos dois projetos. E-mail root confirmado e segredo existente preservados; bootstrap não redefine root existente.
+- **Compatibilidade:** consumidores anteriores da biblioteca de identidade mantêm o comportamento do wrapper de inicialização já usado por eles. A LTMJ e o template usam diretamente o bootstrap obrigatório após as migrations.
+- **Pendência operacional:** publicar a nova imagem; o deploy anterior não contém esse comportamento. Cadastro e vínculo da equipe aguardam o login root funcionar.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:

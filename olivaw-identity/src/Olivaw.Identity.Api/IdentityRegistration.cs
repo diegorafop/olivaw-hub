@@ -111,6 +111,7 @@ public static class IdentityRegistration
 
     public static async Task InitializeOlivawIdentityAsync(this WebApplication application, CancellationToken cancellationToken = default)
     {
+        if (!application.Configuration.GetValue<bool>("Identity:Bootstrap:Enabled")) return;
         await using var scope = application.Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<RootBootstrap>().EnsureAsync(application.Configuration, cancellationToken);
     }

@@ -10,7 +10,6 @@ public sealed class RootBootstrap(IIdentityStore store, IPasswordHasher<Usuario>
 {
     public async Task EnsureAsync(IConfiguration configuration, CancellationToken cancellationToken)
     {
-        if (!configuration.GetValue<bool>("Identity:Bootstrap:Enabled")) return;
         var existing = await store.FindIncludingRemovedAsync<Usuario>(item => item.LoginNormalizado == "ROOT", cancellationToken);
         if (existing is not null)
         {
