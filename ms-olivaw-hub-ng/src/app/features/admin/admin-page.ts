@@ -10,7 +10,7 @@ import { HttpState } from '../../core/http/http-state';
   imports: [MatButtonModule],
   template: `<section class="mx-auto flex max-w-5xl flex-col gap-6 p-6 md:p-12">
     <h1 class="text-3xl font-bold">Administração</h1>
-    <p>Olá, {{ store.usuario()?.nome }}.</p>
+    <p>Olá, {{ store.usuario()?.name }}.</p>
     <p>Adicione aqui as funcionalidades administrativas do cliente.</p>
     <div>
       <button mat-button type="button" [disabled]="pending()" (click)="logout()">Sair</button>

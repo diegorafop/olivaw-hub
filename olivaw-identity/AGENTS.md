@@ -8,10 +8,11 @@ Este diretório agrupa bibliotecas compartilhadas, não um microservice. `Olivaw
 
 - Perfil representa role; autorização representa uma chave de permissão. Concessões passam pelos dois vínculos existentes, sem autorização direta ao usuário.
 - Preserve GUIDs públicos nas rotas e payloads; chaves numéricas permanecem internas.
-- Senhas preservam todos os caracteres e usam `IPasswordHasher<Usuario>`. Não aplique `Trim()` em senha nem exponha hashes, stamps ou campos internos nas respostas.
+- Senhas preservam todos os caracteres e usam `IPasswordHasher<UserProfile>`. Não aplique `Trim()` em senha nem exponha hashes, stamps ou campos internos nas respostas.
 - Auditoria vem de `CurrentActor`, nunca do body HTTP. Root só pode nascer pelo bootstrap; não exponha sua atribuição pelo CRUD.
-- JWT é validado pelo esquema do módulo e pelo estado atual no banco. Preserve revogação por stamp, perfis ativos e remoção lógica.
-- Mudanças de autorização devem valer para tokens existentes. Não substitua a verificação por claims antigas sem definir e testar a revogação.
+- Na autoridade local, JWT é validado pelo esquema do módulo e pelo estado atual no banco. Preserve validação por stamp, perfis ativos e remoção lógica.
+- Nos serviços consumidores internos, valide JWT localmente com o mesmo secret, emissor e audiência do Hub. Use os claims de root, conta técnica e permissões até a expiração. Não consulte o Hub nem seu banco por requisição; mudanças de acesso exigem novo token.
+- Contas técnicas de clientes vivem no Hub e são independentes das contas humanas dos clientes. Consumidores não registram CRUD, banco de identidade ou bootstrap.
 
 ## Desenvolvimento e validação
 

@@ -33,7 +33,7 @@ public sealed class IdentityExceptionFilter(ILogger<IdentityExceptionFilter> log
         }
         if (context.Exception is DbUpdateConcurrencyException)
         {
-            context.Result = new ConflictObjectResult(new ProblemDetails { Status = 409, Title = "Registro alterado por outra operação. Tente novamente." });
+            context.Result = new ConflictObjectResult(new ProblemDetails { Status = 409, Title = "Item alterado por outra operação. Tente novamente." });
             context.ExceptionHandled = true;
             return;
         }

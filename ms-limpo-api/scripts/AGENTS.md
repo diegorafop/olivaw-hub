@@ -9,7 +9,7 @@ Estas regras complementam o [guia do template](../AGENTS.md).
 ## Alterações
 
 - Mantenha consistência com `../.template.config/template.json`: nomes, parâmetros, renomeação de arquivos e exclusões.
-- Não copie segredos, certificados privados, binários ou metadados de ferramentas para novos clientes.
+- Não copie secrets JWT ou senhas root do template. O gerador cria segredos de identidade independentes para cada serviço/ambiente e grava os dotenv iniciais versionados. Preserve a configuração da infraestrutura compartilhada autorizada; nunca copie credenciais AWS, certificados privados ou metadados de ferramentas.
 - A geração não deve criar banco, executar migrations, publicar aplicações ou alterar clientes existentes.
 - Não duplique core ou identidade no destino: os projetos gerados usam `ProjectReference` para as bibliotecas compartilhadas.
 - Atualize `../TEMPLATE.md` quando mudar uso ou estrutura de saída.

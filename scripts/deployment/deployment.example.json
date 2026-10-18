@@ -6,9 +6,10 @@
     "lisierp",
     "olivaw-hub/ms-olivaw-hub-ng",
     "olivaw-hub/ms-ltmj-ng",
-    "olivaw-hub/ms-ltmj-api"
+    "olivaw-hub/ms-ltmj-api",
+    "olivaw-hub/ms-olivaw-hub-api"
   ],
-  "stepTimeoutSeconds": 300,
+  "stepTimeoutSeconds": 1200,
   "sshOverrideFolders": [
     "olivaw-hub/ms-devops-api"
   ]

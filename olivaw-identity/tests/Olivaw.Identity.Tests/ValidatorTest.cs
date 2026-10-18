@@ -1,7 +1,7 @@
 using FluentValidation.TestHelper;
-using Olivaw.Identity.Api.Features.AutenticacaoFeature.Commands;
-using Olivaw.Identity.Api.Features.UsuarioFeature.Commands;
-using Olivaw.Identity.Api.Features.AutorizacaoFeature.Commands;
+using Olivaw.Identity.Api.Features.AuthenticationFeature.Commands;
+using Olivaw.Identity.Api.Features.UserProfileFeature.Commands;
+using Olivaw.Identity.Api.Features.AuthorizationFeature.Commands;
 using Xunit;
 
 namespace Olivaw.Identity.Tests;
@@ -11,16 +11,16 @@ public class ValidatorTest
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void InserirUsuario_should_reject_empty_password(string password)
+    public void CreateUserProfile_should_reject_empty_password(string password)
     {
-        var result = new InserirUsuarioValidator().TestValidate(new InserirUsuarioCommand
+        var result = new CreateUserProfileValidator().TestValidate(new CreateUserProfileCommand
         {
             Login = "joao",
-            Nome = "João",
+            Name = "João",
             Email = "joao@example.test",
-            Senha = password
+            Password = password
         });
-        result.ShouldHaveValidationErrorFor(item => item.Senha);
+        result.ShouldHaveValidationErrorFor(item => item.Password);
     }
 
     [Theory]
@@ -28,13 +28,13 @@ public class ValidatorTest
     [InlineData("demo7* ")]
     public void Passwords_should_accept_nonempty_short_values(string password)
     {
-        new InserirUsuarioValidator().TestValidate(new InserirUsuarioCommand
+        new CreateUserProfileValidator().TestValidate(new CreateUserProfileCommand
         {
-            Login = "cliente", Nome = "Cliente", Email = "cliente@example.test", Senha = password
+            Login = "cliente", Name = "Cliente", Email = "cliente@example.test", Password = password
         }).ShouldNotHaveAnyValidationErrors();
-        new AlterarSenhaValidator().TestValidate(new AlterarSenhaCommand
+        new ChangePasswordValidator().TestValidate(new ChangePasswordCommand
         {
-            SenhaAtual = "anterior", NovaSenha = password
+            CurrentPassword = "anterior", NewPassword = password
         }).ShouldNotHaveAnyValidationErrors();
     }
 
@@ -42,25 +42,25 @@ public class ValidatorTest
     public void Passwords_should_keep_maximum_length()
     {
         var password = new string('x', 129);
-        new InserirUsuarioValidator().TestValidate(new InserirUsuarioCommand
+        new CreateUserProfileValidator().TestValidate(new CreateUserProfileCommand
         {
-            Login = "cliente", Nome = "Cliente", Email = "cliente@example.test", Senha = password
-        }).ShouldHaveValidationErrorFor(item => item.Senha);
-        new AlterarSenhaValidator().TestValidate(new AlterarSenhaCommand
+            Login = "cliente", Name = "Cliente", Email = "cliente@example.test", Password = password
+        }).ShouldHaveValidationErrorFor(item => item.Password);
+        new ChangePasswordValidator().TestValidate(new ChangePasswordCommand
         {
-            SenhaAtual = "anterior", NovaSenha = password
-        }).ShouldHaveValidationErrorFor(item => item.NovaSenha);
+            CurrentPassword = "anterior", NewPassword = password
+        }).ShouldHaveValidationErrorFor(item => item.NewPassword);
     }
 
     [Fact]
-    public void InserirUsuario_should_reject_invalid_email()
+    public void CreateUserProfile_should_reject_invalid_email()
     {
-        new InserirUsuarioValidator().TestValidate(new InserirUsuarioCommand
+        new CreateUserProfileValidator().TestValidate(new CreateUserProfileCommand
         {
             Login = "joao",
-            Nome = "João",
+            Name = "João",
             Email = "invalid",
-            Senha = IdentityHost.Password
+            Password = IdentityHost.Password
         }).ShouldHaveValidationErrorFor(item => item.Email);
     }
 
@@ -68,20 +68,20 @@ public class ValidatorTest
     [InlineData("PEDIDOS.LER")]
     [InlineData("pedidos ler")]
     [InlineData("pedidos..ler")]
-    public void Autorizacao_should_reject_unstable_permission_keys(string key)
+    public void Authorization_should_reject_unstable_permission_keys(string key)
     {
-        new InserirAutorizacaoValidator().TestValidate(new InserirAutorizacaoCommand
+        new CreateAuthorizationValidator().TestValidate(new CreateAuthorizationCommand
         {
-            Chave = key,
-            Nome = "Ler pedidos"
-        }).ShouldHaveValidationErrorFor(item => item.Chave);
+            Key = key,
+            Name = "Ler pedidos"
+        }).ShouldHaveValidationErrorFor(item => item.Key);
     }
 
     [Fact]
-    public void AlterarSenha_should_require_current_and_new_password()
+    public void ChangePassword_should_require_current_and_new_password()
     {
-        var result = new AlterarSenhaValidator().TestValidate(new AlterarSenhaCommand());
-        result.ShouldHaveValidationErrorFor(item => item.SenhaAtual);
-        result.ShouldHaveValidationErrorFor(item => item.NovaSenha);
+        var result = new ChangePasswordValidator().TestValidate(new ChangePasswordCommand());
+        result.ShouldHaveValidationErrorFor(item => item.CurrentPassword);
+        result.ShouldHaveValidationErrorFor(item => item.NewPassword);
     }
 }

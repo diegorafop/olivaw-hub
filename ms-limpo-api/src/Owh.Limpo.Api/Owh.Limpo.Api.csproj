@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+		<UserSecretsId>2632a5cc-6fa7-4445-92b6-8221184c7e70</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..</DockerfileContext>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="../../../ms-olivaw-core-api/src/Owh.OlivawCore.Api/Owh.OlivawCore.Api.csproj" />
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+		<PackageReference Include="MassTransit" Version="8.5.11" />
+		<PackageReference Include="MassTransit.ActiveMQ" Version="8.5.11" />
+		<PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.5.11" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.5.11" />
+		<PackageReference Include="MediatR" Version="12.5.0" />
+		<PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="7.2.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.12" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.3.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Owh.Limpo.Client\Owh.Limpo.Client.csproj" />
+		<ProjectReference Include="..\Owh.Limpo.Dados.PostgreSql\Owh.Limpo.Dados.PostgreSql.csproj" />
+		<ProjectReference Include="..\Owh.Limpo.Dados.SqlServer\Owh.Limpo.Dados.SqlServer.csproj" />
+		<ProjectReference Include="..\Owh.Limpo.Dados\Owh.Limpo.Dados.csproj" />
+		<ProjectReference Include="..\Owh.Limpo\Owh.Limpo.csproj" />
+	</ItemGroup>
+
+<ItemGroup><ProjectReference Include="../../../olivaw-identity/src/Olivaw.Identity.Api/Olivaw.Identity.Api.csproj" /></ItemGroup>
+</Project>

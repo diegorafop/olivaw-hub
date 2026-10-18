@@ -80,21 +80,21 @@ Mudanças no core ou na identidade exigem validar também o template e os client
 bash ms-limpo-api/scripts/new-microservice.sh pastelaria-joao
 ```
 
-O resultado será `ms-pastelaria-joao-api`, com `PastelariaJoao.sln` e projetos `Mps.PastelariaJoao.*`. O destino não pode existir. O script gera arquivos; não cria banco, migrations, segredos ou implantação.
+O resultado será `ms-pastelaria-joao-api`, com `PastelariaJoao.sln` e projetos `Owh.PastelariaJoao.*`. O destino não pode existir. O script gera arquivos; não cria banco, migrations, segredos ou implantação.
 
 Se desejar incluir a API na solução principal, adicione seu `.csproj` explicitamente. Isso não adiciona automaticamente o projeto de testes à solução:
 
 ```bash
-dotnet sln OlivawHub.sln add ms-pastelaria-joao-api/src/Mps.PastelariaJoao.Api/Mps.PastelariaJoao.Api.csproj
-dotnet sln OlivawHub.sln add ms-pastelaria-joao-api/tests/Mps.PastelariaJoao.Tests/Mps.PastelariaJoao.Tests.csproj
+dotnet sln OlivawHub.sln add ms-pastelaria-joao-api/src/Owh.PastelariaJoao.Api/Owh.PastelariaJoao.Api.csproj
+dotnet sln OlivawHub.sln add ms-pastelaria-joao-api/tests/Owh.PastelariaJoao.Tests/Owh.PastelariaJoao.Tests.csproj
 ```
 
 Configure a conexão e os segredos exclusivos, prepare o schema no projeto do provedor e execute o bootstrap de root conforme o [guia de identidade](../olivaw-identity/README.md#configuração-e-usuário-inicial). Depois:
 
 ```bash
 dotnet build ms-pastelaria-joao-api/PastelariaJoao.sln -c Release
-dotnet test ms-pastelaria-joao-api/tests/Mps.PastelariaJoao.Tests/Mps.PastelariaJoao.Tests.csproj -c Release --no-build
-dotnet run --project ms-pastelaria-joao-api/src/Mps.PastelariaJoao.Api/Mps.PastelariaJoao.Api.csproj -c Release --no-launch-profile
+dotnet test ms-pastelaria-joao-api/tests/Owh.PastelariaJoao.Tests/Owh.PastelariaJoao.Tests.csproj -c Release --no-build
+dotnet run --project ms-pastelaria-joao-api/src/Owh.PastelariaJoao.Api/Owh.PastelariaJoao.Api.csproj -c Release --no-launch-profile
 ```
 
 Esses caminhos são exemplos válidos após a geração. A documentação do [gerador](../ms-limpo-api/TEMPLATE.md) complementa esse fluxo.
@@ -123,7 +123,7 @@ Confira uma regra sem criar arquivos de teste:
 
 ```bash
 git check-ignore -v --no-index olivaw-identity/src/Olivaw.Identity/bin/Release/exemplo.dll
-git check-ignore -v --no-index ms-limpo-api/src/Mps.Limpo.Api/bin/Release/exemplo.dll
+git check-ignore -v --no-index ms-limpo-api/src/Owh.Limpo.Api/bin/Release/exemplo.dll
 ```
 
 Arquivos já rastreados continuam no índice mesmo quando passam a corresponder ao ignore. O ignore não remove arquivos do histórico nem deixa de rastreá-los automaticamente; trate essa limpeza separadamente e preserve os arquivos locais necessários. Consulte a [documentação do Git](https://git-scm.com/docs/gitignore).
@@ -138,7 +138,7 @@ O guia da raiz ainda descreve a fase inicial de planejamento; os caminhos e flux
 
 A partir desta decisão, novas features das APIs e dos projetos gerados pelo template usam inglês nos nomes de entidades, propriedades, contratos, casos de uso, testes e recursos HTTP. Para CRUD, use `Create`, `Read`, `Update` e `Delete`, por exemplo `CreateCustomerCommand`, `ReadCustomerByIdQuery` e `ReadCustomersByFilterQuery`. Preserve CQS: escrita em Commands, leitura em Queries; operações específicas do domínio também devem ter nomes em inglês.
 
-O código existente em português será refatorado em uma tarefa futura, com revisão de compatibilidade dos contratos e rotas. Não renomeie esse legado automaticamente ao desenvolver funcionalidades. Nesta alteração, `CriarImplantacao`, `/implantacoes` e `devops.implantar` permanecem; o payload solicitado passa a usar `folder`, `branch` e `environment`. Documentação e mensagens de erro podem continuar em português.
+O código existente em português será refatorado em uma tarefa futura, com revisão de compatibilidade dos contratos e rotas. Não renomeie esse legado automaticamente ao desenvolver funcionalidades. Nesta alteração, `CreateDeployment`, `/deployments` e `devops.deploy` permanecem; o payload solicitado passa a usar `folder`, `branch` e `environment`. Documentação e mensagens de erro podem continuar em português.
 
 ## Frontend e backend do cliente
 
@@ -154,7 +154,7 @@ Root de cada cliente permanece exclusivo da operação Olivaw Hub. Contas entreg
 
 ### Nomes de tabelas de domínio
 
-Tabelas usam somente letras minúsculas, sem hífens ou underscores. Exemplos: `portfolioevent`, `portfoliophoto`, `perfilacesso`. Não usar snake_case nem kebab-case em tabelas novas. Mudanças em tabelas já implantadas exigem migration que preserve os dados.
+Tabelas usam somente letras minúsculas, sem hífens ou underscores. Exemplos: `portfolioevent`, `portfoliophoto`, `accessprofile`. Não usar snake_case nem kebab-case em tabelas novas. Mudanças em tabelas já implantadas exigem migration que preserve os dados.
 
 
 ### Inicialização de banco dos clientes

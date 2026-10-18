@@ -10,11 +10,11 @@ test('rota pública e acesso direto protegido', async ({ page }) => {
 
 test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
   let logout = false;
-  await page.route('http://localhost:5137/identity/autenticacao/**', async (route) => {
+  await page.route('http://localhost:5137/identity/authentication/**', async (route) => {
     expect(new URL(route.request().url()).origin).toBe('http://localhost:5137');
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/login')) {
-      expect(route.request().postDataJSON()).toEqual({ login: 'operador', senha: 'senha-exemplo' });
+      expect(route.request().postDataJSON()).toEqual({ login: 'operador', password: 'password-exemplo' });
       await route.fulfill({
         json: {
           accessToken: 'token-de-teste',
@@ -24,7 +24,7 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
     } else if (path.endsWith('/acesso')) {
       expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
       await route.fulfill({
-        json: { usuarioId: 'exemplo', nome: 'Operador', root: false, autorizacoes: [] },
+        json: { userProfileId: 'exemplo', name: 'Operador', isRoot: false, permissions: [] },
       });
     } else if (path.endsWith('/logout')) {
       expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
@@ -34,7 +34,7 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
   });
   await page.goto('/login');
   await page.getByLabel('Login', { exact: true }).fill('operador');
-  await page.getByLabel('Senha', { exact: true }).fill('senha-exemplo');
+  await page.getByLabel('Senha', { exact: true }).fill('password-exemplo');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page).toHaveURL(/\/admin$/);
   await expect(page.getByText('Olá, Operador.')).toBeVisible();
@@ -44,7 +44,7 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
 });
 
 test('erro de credenciais aparece uma única vez', async ({ page }) => {
-  await page.route('http://localhost:5137/identity/autenticacao/login', (route) =>
+  await page.route('http://localhost:5137/identity/authentication/login', (route) =>
     route.fulfill({ status: 401, json: { title: 'Credenciais inválidas.' } }),
   );
   await page.goto('/login');

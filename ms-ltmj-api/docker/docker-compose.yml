@@ -3,7 +3,7 @@ services:
   ms-ltmj-api:
     build:
       context: ../..
-      dockerfile: ms-ltmj-api/src/Mps.Ltmj.Api/Dockerfile
+      dockerfile: ms-ltmj-api/src/Owh.Ltmj.Api/Dockerfile
       args:
         BUILD_CONFIG: Release
     env_file:

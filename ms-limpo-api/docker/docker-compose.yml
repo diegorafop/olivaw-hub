@@ -3,7 +3,7 @@ services:
   ms-limpo-api:
     build:
       context: ../..
-      dockerfile: ms-limpo-api/src/Mps.Limpo.Api/Dockerfile
+      dockerfile: ms-limpo-api/src/Owh.Limpo.Api/Dockerfile
       args:
         BUILD_CONFIG: Release
     env_file:

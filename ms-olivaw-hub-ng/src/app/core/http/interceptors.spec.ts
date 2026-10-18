@@ -23,7 +23,7 @@ describe('Interceptors', () => {
     TestBed.inject(AutenticacaoStore).iniciar({
       accessToken: 'token',
       expiresAt: new Date(Date.now() + 60000).toISOString(),
-      usuario: { usuarioId: '1', nome: 'Teste', root: false, autorizacoes: [] },
+      usuario: { userProfileId: '1', name: 'Teste', isRoot: false, permissions: [] },
     });
   });
   afterEach(() => requests.verify());

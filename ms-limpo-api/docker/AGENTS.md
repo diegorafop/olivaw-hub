@@ -4,7 +4,7 @@ Estas regras complementam o [guia do template](../AGENTS.md).
 
 ## Estrutura
 
-Os arquivos Compose desta pasta apontam para o Dockerfile em `../src/Mps.Limpo.Api/Dockerfile`. O contexto de build é a raiz do monorepo, necessária para resolver os `ProjectReference` do core e da identidade. Preserve essa relação ao alterar caminhos ou gerar novos clientes.
+Os arquivos Compose desta pasta apontam para o Dockerfile em `../src/Owh.Limpo.Api/Dockerfile`. O contexto de build é a raiz do monorepo, necessária para resolver os `ProjectReference` do core e da identidade. Preserve essa relação ao alterar caminhos ou gerar novos clientes.
 
 ## Configuração
 

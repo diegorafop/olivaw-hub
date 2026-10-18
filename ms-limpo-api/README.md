@@ -4,12 +4,12 @@ Template ASP.NET Core/.NET 10 para novos clientes do Olivaw Hub. O host mantém 
 
 ## Estrutura
 
-- `src/Mps.Limpo.Api`: host HTTP, composição, readiness e feature de exemplo.
-- `src/Mps.Limpo`: regras e contratos específicos do futuro cliente, com as pastas permanentes `Repositories`, `Services` e `Requests`.
-- `src/Mps.Limpo.Dados`: contexto, repositório genérico e mapeamentos locais.
-- `src/Mps.Limpo.Dados.PostgreSql` e `.SqlServer`: projetos para migrations do cliente.
-- `src/Mps.Limpo.Client`: biblioteca base para um futuro cliente REST.
-- `tests/Mps.Limpo.Tests`: testes das funcionalidades do template.
+- `src/Owh.Limpo.Api`: host HTTP, composição, readiness e feature de exemplo.
+- `src/Owh.Limpo`: regras e contratos específicos do futuro cliente, com as pastas permanentes `Repositories`, `Services` e `Requests`.
+- `src/Owh.Limpo.Dados`: contexto, repositório genérico e mapeamentos locais.
+- `src/Owh.Limpo.Dados.PostgreSql` e `.SqlServer`: projetos para migrations do cliente.
+- `src/Owh.Limpo.Client`: biblioteca base para um futuro cliente REST.
+- `tests/Owh.Limpo.Tests`: testes das funcionalidades do template.
 - `../olivaw-identity`: usuários, perfis, permissões, vínculos e autenticação compartilhados.
 - `../ms-olivaw-core-api`: contratos e infraestrutura genéricos.
 
@@ -19,7 +19,7 @@ Use `IRepository<T>` para CRUD e consultas comuns com filtros por expressão. N�
 
 ## Serviços e requests externos
 
-`Mps.Limpo/Services` guarda interfaces pequenas para capacidades externas que não são persistência, como armazenamento de arquivos, APIs de terceiros e mensageria; suas implementações ficam nas camadas concretas. `Mps.Limpo/Requests` guarda contratos de Commands/Queries enviados a outros microservices, organizados por serviço e feature. Requests e handlers MediatR das próprias features continuam em `Mps.Limpo.Api`.
+`Owh.Limpo/Services` guarda interfaces pequenas para capacidades externas que não são persistência, como armazenamento de arquivos, APIs de terceiros e mensageria; suas implementações ficam nas camadas concretas. `Owh.Limpo/Requests` guarda contratos de Commands/Queries enviados a outros microservices, organizados por serviço e feature. Requests e handlers MediatR das próprias features continuam em `Owh.Limpo.Api`.
 
 Oracle permanece reservado; não há integração Oracle validada. Os componentes compartilhados ficam fora da pasta do cliente e devem acompanhar o monorepo no build.
 
@@ -30,10 +30,10 @@ Veja [TEMPLATE.md](TEMPLATE.md). A partir da raiz do monorepo:
 ```bash
 bash ms-limpo-api/scripts/new-microservice.sh pastelaria-joao
 dotnet build OlivawHub.sln -c Release
-dotnet test ms-limpo-api/tests/Mps.Limpo.Tests/Mps.Limpo.Tests.csproj -c Release
+dotnet test ms-limpo-api/tests/Owh.Limpo.Tests/Owh.Limpo.Tests.csproj -c Release
 ```
 
-Depois de configurar banco e identidade, execute `dotnet run --project ms-limpo-api/src/Mps.Limpo.Api`. Variáveis de ambiente ou user secrets fornecem `ConnectionStrings__DbContext`, `Identity__Issuer`, `Identity__Audience` e `Identity__SigningKey`. Os arquivos `appsettings` não contêm senha de banco ou chave JWT. Os dotenv de serviço são versionados no repositório privado conforme a decisão atual do mantenedor. Configure `DatabaseProvider` como `PostgreSql` ou `SqlServer`; `Database:Schema` pode especificar o schema do histórico de migrations.
+Depois de configurar banco e identidade, execute `dotnet run --project ms-limpo-api/src/Owh.Limpo.Api`. Variáveis de ambiente ou user secrets fornecem `ConnectionStrings__DbContext`, `Identity__Issuer`, `Identity__Audience` e `Identity__SigningKey`. Os arquivos `appsettings` não contêm senha de banco ou chave JWT. Os dotenv de serviço são versionados no repositório privado conforme a decisão atual do mantenedor. Configure `DatabaseProvider` como `PostgreSql` ou `SqlServer`; `Database:Schema` pode especificar o schema do histórico de migrations.
 
 Cada organização/cliente recebe seu banco por ambiente; cada serviço usa um schema próprio. O `WriteDbContext` aplica os mapeamentos de identidade junto dos locais; o módulo não tem conexão própria. As rotas compartilhadas são importadas por MVC application parts, sem copiar features para o cliente. Consulte [Olivaw Identity](../olivaw-identity/README.md) para contratos, policies e bootstrap de root.
 
@@ -54,10 +54,12 @@ As configurações dos ambientes estão nos dotenv versionados no repositório p
 O contexto de build continua sendo a raiz do monorepo:
 
 ```bash
-docker build -f ms-limpo-api/src/Mps.Limpo.Api/Dockerfile -t olivaw-limpo .
+docker build -f ms-limpo-api/src/Owh.Limpo.Api/Dockerfile -t olivaw-limpo .
 docker compose --env-file ms-limpo-api/docker/.env.prd -f ms-limpo-api/docker/docker-compose.yml -f ms-limpo-api/docker/docker-compose.prd.yml config --quiet
 ```
 
 O último comando apenas valida. A subida exige bancos/schemas preparados e a infraestrutura disponível; consulte o guia antes de executar `up`. A API recebe HTTP/8080, sem PFX; HTTPS é terminado pelo Traefik com `websecure` e `myresolver`. Não há porta pública da API no Compose de nuvem. O override local expõe apenas `127.0.0.1:8081` e desabilita Traefik.
 
-O Dockerfile executa as suítes de identidade, core e template e roda a aplicação sem root. Não publique dotenv reais pelo Git nem os copie no build Docker; eles precisam ser fornecidos no ambiente da VM.
+O Dockerfile executa as suítes de identidade, core e template e roda a aplicação sem root. Os dotenv são versionados no Git privado nesta etapa e ficam excluídos do contexto do build Docker; o Compose os injeta no runtime.
+
+O template inclui a migration inicial de identidade em inglês, sem entidades demonstrativas. Os serviços gerados usam o prefixo `Owh`, pastas `Domain` com instruções e configurações de identidade independentes. Veja [geração de serviços](TEMPLATE.md).

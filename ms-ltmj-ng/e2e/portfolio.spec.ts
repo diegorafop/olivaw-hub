@@ -13,7 +13,7 @@ test('equipe cadastra fotos, edita, publica e exclui pelo celular', async ({ pag
   };
   let exists = false;
   let uploaded = false;
-  await page.route('**/identity/autenticacao/**', (route) => {
+  await page.route('**/identity/authentication/**', (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/login'))
       return route.fulfill({
@@ -21,10 +21,10 @@ test('equipe cadastra fotos, edita, publica e exclui pelo celular', async ({ pag
       });
     return route.fulfill({
       json: {
-        usuarioId: 'equipe',
-        nome: 'Equipe LTMJ',
-        root: false,
-        autorizacoes: ['portfolio.manage'],
+        userProfileId: 'equipe',
+        name: 'Equipe LTMJ',
+        isRoot: false,
+        permissions: ['portfolio.manage'],
       },
     });
   });

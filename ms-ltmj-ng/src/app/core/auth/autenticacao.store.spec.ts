@@ -6,7 +6,7 @@ describe('Estado autenticacao', () => {
     const sessao = {
       accessToken: 'token',
       expiresAt: new Date(Date.now() + 60000).toISOString(),
-      usuario: { usuarioId: '1', nome: 'Teste', root: false, autorizacoes: ['eventos.editar'] },
+      usuario: { userProfileId: '1', name: 'Teste', isRoot: false, permissions: ['eventos.editar'] },
     };
     store.iniciar(sessao);
     expect(store.permite('eventos.editar')).toBe(true);

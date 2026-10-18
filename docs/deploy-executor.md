@@ -3,7 +3,7 @@
 ## Quem faz o quê
 
 ```text
-POST /implantacoes → CQS → SshDeploymentService → ProcessExecutionService
+POST /deployments → CQS → SshDeploymentService → ProcessExecutionService
                                                      │ JSON via SSH
                                                      ▼
                            /opt/olivaw/deploy.py (comando fixo da chave)
@@ -18,16 +18,16 @@ O script usa apenas a biblioteca padrão Python 3, já comum em Linux. O systemd
 
 ## Contrato HTTP
 
-Autenticação JWT e permissão `devops.implantar` continuam obrigatórias para ambas as rotas.
+Autenticação JWT e permissão `devops.deploy` continuam obrigatórias para ambas as rotas.
 
 ```http
-POST /implantacoes
+POST /deployments
 Content-Type: application/json
 
 {"folder":"olivaw-hub/ms-devops-api","branch":"develop","environment":"dev"}
 ```
 
-Retorna **202 Accepted**, `Location: /implantacoes/<id>` e corpo `{"id":"<uuid>","status":"queued","log":"Deployment queued."}`. Consulte `GET /implantacoes/<id>` para acompanhar `queued`, `running`, `succeeded` ou `failed`.
+Retorna **202 Accepted**, `Location: /deployments/<id>` e corpo `{"id":"<uuid>","status":"queued","log":"Deployment queued."}`. Consulte `GET /deployments/<id>` para acompanhar `queued`, `running`, `succeeded` ou `failed`.
 
 Erro de entrada/conexão/protocolo/aceite é `ValidationProblemDetails` HTTP 400; job inexistente retorna 404. Falha de checkout, pull, build ou Compose é um **job `failed`**, consultável com HTTP 200 e log seguro. A saída bruta dos comandos é descartada; nenhum segredo ou stack trace é enviado ao cliente.
 
@@ -97,7 +97,7 @@ O worker define o projeto Compose como `<nome-da-pasta-do-servico>-<ambiente>` p
 
 `--build` é necessário para publicar as alterações de código obtidas pelo Git. A fila usa um lock único **na VM**, incluindo serviços do mesmo monorepo, evitando checkout concorrente. A API não mantém mais `DeploymentGate` local.
 
-Cada etapa tem timeout (300s padrão); o worker inteiro expira após 1800s, incluindo espera pelo lock. O timeout encerra o grupo de processos da etapa; o systemd controla o restante do serviço. Falhas interrompem as próximas etapas, sem rollback. Preserve e monitore a pasta de estado; retenção/limpeza de jobs finalizados, health checks pós-deploy e rollback ficam para evoluções futuras.
+Cada etapa tem timeout configurável (1200s no arquivo de referência); o worker inteiro expira após 1800s, incluindo espera pelo lock. O timeout encerra o grupo de processos da etapa; o systemd controla o restante do serviço. Falhas interrompem as próximas etapas, sem rollback. Preserve e monitore a pasta de estado; retenção/limpeza de jobs finalizados, health checks pós-deploy e rollback ficam para evoluções futuras.
 
 ## Arquivos e testes
 
@@ -108,7 +108,7 @@ Cada etapa tem timeout (300s padrão); o worker inteiro expira após 1800s, incl
 
 ```bash
 python3 -m unittest discover -s scripts/deployment/tests -v
-dotnet test ms-devops-api/tests/Mps.Devops.Tests/Mps.Devops.Tests.csproj
+dotnet test ms-devops-api/tests/Owh.Devops.Tests/Owh.Devops.Tests.csproj
 ```
 
 Os testes simulam SSH, systemd, Git e Docker; usam apenas arquivos temporários locais. A instalação real, conectividade, permissões, imagem e sobrevivência a reinício precisam de validação posterior na VM.
@@ -117,7 +117,7 @@ Referências: [restrições de chaves SSH](https://man.openbsd.org/sshd.8), [ver
 
 ## Deploy de serviços pelo DevOps
 
-O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.devops.olivaw-hub.duckdns.org` com o login `root`, solicita a implantação do serviço informado e acompanha o job até sucesso ou falha. A senha fica no script por autorização explícita do mantenedor, até Key Vault; nunca imprima senha ou token.
+O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw-hub.duckdns.org` com o login `root`, solicita a implantação do serviço informado e acompanha o job até sucesso ou falha. A senha fica no script por autorização explícita do mantenedor, até Key Vault; nunca imprima senha ou token.
 
 Na raiz do clone, os três argumentos são obrigatórios:
 
@@ -162,53 +162,31 @@ Não é necessário reconstruir a API DevOps para essa alteração de script. A 
 Os Dockerfiles do DevOps, template e API LTMJ copiam o publish com `--chown=app:app` e executam como `USER app`. Isso permite ler appsettings e assemblies mesmo quando o checkout do executor herda `umask 077`. O usuário Linux do container é `app`; ele não é o usuário root da aplicação nem o usuário SSH da VM. Se a API estiver fora do ar, reconstruir seu container diretamente pelo Compose na VM; o cliente HTTP de deploy depende de a API responder.
 
 
-## Limpeza de disco pela API DevOps
 
-`POST /disk-cleanups` cria um job assíncrono, sem body, e retorna HTTP 202 com `id`, `status`, `log` e `Location: /disk-cleanups/{id}`. `GET /disk-cleanups/{id}` acompanha o resultado. As duas rotas exigem root ativo da própria identidade DevOps e versão de sessão vigente; uma conta comum com permissão de deploy não recebe acesso à limpeza.
-
-O container da API usa o mesmo executor SSH restrito dos deploys. O Docker CLI e a limpeza rodam na VM, sob `ec2-user`, que já possui acesso ao Docker. Não há montagem do socket Docker, execução privilegiada nem comandos shell enviados pelo cliente HTTP. O protocolo SSH aceita apenas a ação fixa `cleanup`; campos adicionais são rejeitados no executor.
-
-Comandos fixos, nesta ordem:
+## Limpeza do EC2 pelo Hub
 
 ```bash
-docker builder prune --all --force
-docker image prune --force
+bash scripts/deployment/cleanup.sh
+bash scripts/deployment/cleanup.sh --no-wait
 ```
 
-O primeiro remove cache de build sem uso, podendo exigir recompilação/download em builds futuros. O segundo remove apenas imagens dangling (sem tag e sem referência de container). Imagens antigas com tag são preservadas nesta versão, mesmo se o Docker as contabilizar como recuperáveis. Nenhum container, volume, banco, upload ou imagem usada por container é removido.
+O script autentica no Hub e solicita `POST /disk-cleanups` na DevOps. O acompanhamento usa `GET /disk-cleanups/{id}`. As duas rotas exigem o claim root no JWT interno. Não há autenticação local nem consulta ao Hub durante a validação de requisições na DevOps.
 
-Limpeza e deploy usam o mesmo lock na VM: a limpeza aguarda o deploy terminar e impede novo build enquanto executa. O job registra bytes livres na partição `/` antes/depois e o código de saída de cada etapa. Uma etapa com erro interrompe as seguintes. O timeout por etapa usa `stepTimeoutSeconds`; o limite global do worker continua em 30 minutos, incluindo espera pelo lock. Cancelar o curl não cancela o job agendado.
+O executor roda na VM via SSH, com argv fixo e sem aceitar comandos do cliente:
 
-### Instalar a nova capacidade
+- `docker builder prune --all --force`: cache de build sem uso.
+- `docker image prune --all --force`: imagens sem containers associados.
+- `sudo -n systemd-tmpfiles --clean --prefix=/tmp --prefix=/var/tmp`: temporários vencidos pelas regras do Linux.
+- `sudo -n journalctl --vacuum-time=7d --vacuum-size=100M`: journal arquivado.
 
-Após commit/push, atualizar o clone na VM para a branch da entrega. Quando não houver job em execução, atualizar o executor instalado:
+Volumes, containers, redes e arquivos de logs ativos são preservados. Limpeza e deploy usam o mesmo lock. O job registra bytes livres antes e depois, bytes recuperados e os códigos de saída. Falha em uma etapa interrompe as seguintes.
+
+Na VM, atualize o executor e, se necessário para o usuário SSH, instale a permissão sudo restrita. Os comandos abaixo não iniciam a limpeza:
 
 ```bash
-cd /home/ec2-user/olivaw-hub
 sudo install -o root -g root -m 0644 scripts/deployment/deploy.py /opt/olivaw/deploy.py
+sudo visudo -cf scripts/deployment/olivaw-cleanup.sudoers
+sudo install -o root -g root -m 0440 scripts/deployment/olivaw-cleanup.sudoers /etc/sudoers.d/olivaw-cleanup
 ```
 
-Depois, publicar `ms-devops-api`. Esta funcionalidade requer tanto o executor novo quanto a API nova; o pull sozinho não atualiza `/opt/olivaw/deploy.py`. Não precisa alterar a allowlist de pastas nem instalar novas chaves SSH. A implementação não cria migrations ou tabelas; reutiliza os registros privados de jobs existentes.
-
-### Solicitar e acompanhar
-
-Usar token root emitido pela API DevOps, diferente do token da API LTMJ:
-
-```bash
-read -r -s -p 'Token root DevOps: ' DEVOPS_ROOT_TOKEN
-printf '\n'
-curl --fail-with-body --request POST \
-  'https://api.devops.olivaw-hub.duckdns.org/disk-cleanups' \
-  --header "Authorization: Bearer $DEVOPS_ROOT_TOKEN"
-```
-
-Para consultar, preencher `CLEANUP_ID` com o `id` retornado:
-
-```bash
-curl --fail-with-body \
-  "https://api.devops.olivaw-hub.duckdns.org/disk-cleanups/$CLEANUP_ID" \
-  --header "Authorization: Bearer $DEVOPS_ROOT_TOKEN"
-unset DEVOPS_ROOT_TOKEN
-```
-
-Se o disco já estiver completamente cheio, pode faltar espaço até para gravar o registro do job. Nessa situação, a primeira liberação de espaço continua sendo manual na VM. A rota limpa somente os recursos listados; não substitui diagnóstico de consumo fora do Docker nem garante recuperar todos os bytes que `docker system df` aponta como recuperáveis.
+A primeira publicação da nova autoridade e da DevOps está no [roteiro de identidade](identity-architecture.md). Cada usuário técnico precisa de permissão de deploy por pasta; o JWT root da operação mantém acesso administrativo.

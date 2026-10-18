@@ -2,28 +2,36 @@
 
 ## Project Structure & Module Organization
 
-Olivaw Hub is currently a planning repository for technology services aimed at small businesses. Implementation has not started.
+Olivaw Hub is a monorepo containing Angular frontends, ASP.NET Core microservices and shared libraries.
 
-- `README.md` introduces the project and links to its initial context.
-- `BRIEFING.md` records the business proposal, intended technical direction, and unresolved decisions.
-
-There are no source, test, or asset directories yet. Angular templates, an API template, schematics, and AWS deployment are proposed directions, not implemented components. Document agreed architecture before introducing a module layout or infrastructure.
+- `ms-limpo-api` and `ms-limpo-ng` are the templates.
+- `ms-olivaw-hub-api` owns internal administrative identity; `ms-devops-api` consumes its JWTs locally.
+- Customer services such as `ms-ltmj-api` own separate databases, identities and JWT secrets. Their technical service accounts in the Hub are independent.
+- `olivaw-identity` contains reusable local-authority and JWT-consumer libraries; `ms-olivaw-core-api` contains shared infrastructure.
+- API projects, namespaces and assemblies use prefix `Owh`. Entities belong in the core project's `Domain`; interfaces belong in `Repositories`, `Services` and `Requests` as documented locally.
+- Commands and queries use English CRUD names: Create, Read, Update, Delete. Identity tables use lowercase English names and internal int PK/FK; GUIDs are public ExternalId values.
+- Migrations belong to providers and apply automatically at startup. Only identity authorities bootstrap root. Consumers never query the Hub to validate a token.
 
 ## Build, Test, and Development Commands
 
-No build system, dependency manifest, development server, or automated test commands exist yet. Do not assume commands such as `npm install`, `npm test`, or `ng serve` are available.
+```bash
+dotnet build OlivawHub.sln -c Release -m:1
+dotnet test OlivawHub.sln -c Release --no-build
+npm --prefix ms-ltmj-ng run build
+python3 -m unittest discover -s scripts/deployment/tests -v
+```
 
-For documentation changes, inspect the rendered Markdown and check that relative links resolve, especially the link from `README.md` to `BRIEFING.md`. When adding executable code, document its installation, local development, build, and test commands alongside the implementation.
+Read each module's `AGENTS.md` before modifying it. Generate API services through `bash ms-limpo-api/scripts/new-microservice.sh`; generated clients must have independent identity secrets. Document commands alongside changes and keep relative links valid.
 
 ## Coding Style & Naming Conventions
 
 Keep existing project documentation in Portuguese and preserve the **Olivaw Hub** brand name. Use concise Markdown headings, short paragraphs, and hyphenated bullet lists. Wrap commands and paths in backticks, and use relative links for repository documents.
 
-No programming-language style, indentation standard, formatter, or linter has been established. Choose and document these when introducing the first implementation; follow the resulting configuration consistently.
+Follow the closest `.editorconfig`, language configuration and module instructions. Keep C# source in English and documentation in Portuguese.
 
 ## Testing Guidelines
 
-There is no test framework or coverage requirement yet. Review documentation for factual consistency and clearly distinguish confirmed decisions from proposals. For future executable components, introduce relevant tests and document the framework, test naming convention, and execution command in the same change.
+Use the existing .NET, Angular and Python test frameworks. Cover security boundaries, schema contracts and changed behavior with meaningful tests. Avoid live customer databases or remote deployments during verification.
 
 ## Git Flow e rastreabilidade
 

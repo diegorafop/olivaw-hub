@@ -20,13 +20,13 @@ public class RootBootstrapTest
     public async Task EnsureAsync_should_accept_short_password_and_hash_without_trimming(string password)
     {
         var store = new Mock<IIdentityStore>();
-        var hasher = new PasswordHasher<Usuario>();
-        Usuario? created = null;
-        store.Setup(item => item.Add(It.IsAny<Usuario>())).Callback<Usuario>(item => created = item);
+        var hasher = new PasswordHasher<UserProfile>();
+        UserProfile? created = null;
+        store.Setup(item => item.Add(It.IsAny<UserProfile>())).Callback<UserProfile>(item => created = item);
         await new RootBootstrap(store.Object, hasher).EnsureAsync(Config(password), Xunit.TestContext.Current.CancellationToken);
         Assert.NotNull(created);
-        Assert.True(created.Root);
-        Assert.Equal(PasswordVerificationResult.Success, hasher.VerifyHashedPassword(created, created.SenhaHash, password));
+        Assert.True(created.IsRoot);
+        Assert.Equal(PasswordVerificationResult.Success, hasher.VerifyHashedPassword(created, created.PasswordHash, password));
         store.Verify(item => item.SaveAsync(Xunit.TestContext.Current.CancellationToken), Times.Once);
     }
 
@@ -36,9 +36,9 @@ public class RootBootstrapTest
     public async Task EnsureAsync_should_reject_empty_or_oversized_password(int length)
     {
         var store = new Mock<IIdentityStore>();
-        await Assert.ThrowsAsync<ValidationException>(() => new RootBootstrap(store.Object, new PasswordHasher<Usuario>())
+        await Assert.ThrowsAsync<ValidationException>(() => new RootBootstrap(store.Object, new PasswordHasher<UserProfile>())
             .EnsureAsync(Config(new string('x', length)), Xunit.TestContext.Current.CancellationToken));
-        store.Verify(item => item.Add(It.IsAny<Usuario>()), Times.Never);
+        store.Verify(item => item.Add(It.IsAny<UserProfile>()), Times.Never);
         store.Verify(item => item.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

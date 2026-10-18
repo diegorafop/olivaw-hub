@@ -48,7 +48,7 @@ describe('Gestão do portfólio', () => {
     TestBed.inject(AutenticacaoStore).iniciar({
       accessToken: 'token',
       expiresAt: new Date(Date.now() + 60000).toISOString(),
-      usuario: { usuarioId: '1', nome: 'Equipe', root: true, autorizacoes: [] },
+      usuario: { userProfileId: '1', name: 'Equipe', isRoot: true, permissions: [] },
     });
     vi.stubGlobal(
       'URL',

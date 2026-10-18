@@ -11,11 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{87
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Devops.Api", "src\Mps.Devops.Api\Mps.Devops.Api.csproj", "{759375D1-E9BF-43B0-AFCD-1E5912425380}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Devops.Api", "src\Owh.Devops.Api\Owh.Devops.Api.csproj", "{759375D1-E9BF-43B0-AFCD-1E5912425380}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Devops", "src\Mps.Devops\Mps.Devops.csproj", "{2C71F33E-D63D-4502-8CAB-8C53588611E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Devops", "src\Owh.Devops\Owh.Devops.csproj", "{2C71F33E-D63D-4502-8CAB-8C53588611E1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Devops.Tests", "tests\Mps.Devops.Tests\Mps.Devops.Tests.csproj", "{707730CC-427A-4650-A716-4DC7B5F3774F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Devops.Tests", "tests\Owh.Devops.Tests\Owh.Devops.Tests.csproj", "{707730CC-427A-4650-A716-4DC7B5F3774F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{3DBCA1B3-ED19-4684-AF8A-3358528B5D86}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,15 +30,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{3DBCA1
 		docker\docker-compose.yml = docker\docker-compose.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Devops.Dados", "src\Mps.Devops.Dados\Mps.Devops.Dados.csproj", "{61C8CEAE-6BA3-4E5E-B15C-45085C2FD389}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Devops.Dados", "src\Owh.Devops.Dados\Owh.Devops.Dados.csproj", "{61C8CEAE-6BA3-4E5E-B15C-45085C2FD389}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Devops.Dados.PostgreSql", "src\Mps.Devops.Dados.PostgreSql\Mps.Devops.Dados.PostgreSql.csproj", "{BAFC5E7C-DEAB-4C8E-97D4-5E40387CDBF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Devops.Dados.PostgreSql", "src\Owh.Devops.Dados.PostgreSql\Owh.Devops.Dados.PostgreSql.csproj", "{BAFC5E7C-DEAB-4C8E-97D4-5E40387CDBF8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Devops.Dados.SqlServer", "src\Mps.Devops.Dados.SqlServer\Mps.Devops.Dados.SqlServer.csproj", "{B3930900-6308-4019-A82A-1FC0C5C8D22A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Devops.Dados.SqlServer", "src\Owh.Devops.Dados.SqlServer\Owh.Devops.Dados.SqlServer.csproj", "{B3930900-6308-4019-A82A-1FC0C5C8D22A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mps.Devops.Dados.Oracle", "src\Mps.Devops.Dados.Oracle\Mps.Devops.Dados.Oracle.csproj", "{3FC3F7D1-49E5-412F-85CE-574255B45832}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owh.Devops.Dados.Oracle", "src\Owh.Devops.Dados.Oracle\Owh.Devops.Dados.Oracle.csproj", "{3FC3F7D1-49E5-412F-85CE-574255B45832}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Devops.Client", "src\Mps.Devops.Client\Mps.Devops.Client.csproj", "{2D4476D4-B936-400A-9BAE-6CE4DDA7796A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Devops.Client", "src\Owh.Devops.Client\Owh.Devops.Client.csproj", "{2D4476D4-B936-400A-9BAE-6CE4DDA7796A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

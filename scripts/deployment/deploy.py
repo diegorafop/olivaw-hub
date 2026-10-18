@@ -118,7 +118,7 @@ class Executor:
 
     @staticmethod
     def public(job):
-        return {key: job[key] for key in ('id', 'status', 'log')}
+        return {key: job.get(key, '') for key in ('id', 'status', 'log', 'folder')}
 
     def submit(self, request):
         request = validate_request(request)
@@ -252,6 +252,8 @@ class Executor:
                     raise RuntimeError('step_failed')
             after = os.statvfs('/')
             job['log'] += f"\nFree bytes after: {after.f_bavail * after.f_frsize}."
+            reclaimed = max(0, after.f_bavail * after.f_frsize - before.f_bavail * before.f_frsize)
+            job['log'] += f"\nReclaimed bytes: {reclaimed}."
             job['status'] = 'succeeded'
         except (ValueError, OSError, RuntimeError, subprocess.SubprocessError):
             job.update(status='failed', log=job['log'] + '\nDisk cleanup failed; subsequent steps were skipped.')
@@ -259,10 +261,12 @@ class Executor:
 
 
 def cleanup_commands():
-    # Fixed argv only. Never prune volumes, containers, or accept shell/user commands.
+    # Fixed argv only. Preserve volumes, containers, networks and active log files.
     return [
         ('Build cache cleanup', ['/usr/bin/docker', 'builder', 'prune', '--all', '--force']),
-        ('Dangling image cleanup', ['/usr/bin/docker', 'image', 'prune', '--force'])
+        ('Unused image cleanup', ['/usr/bin/docker', 'image', 'prune', '--all', '--force']),
+        ('Aged temporary files cleanup', ['/usr/bin/sudo', '-n', '/usr/bin/systemd-tmpfiles', '--clean', '--prefix=/tmp', '--prefix=/var/tmp']),
+        ('Archived journal cleanup', ['/usr/bin/sudo', '-n', '/usr/bin/journalctl', '--vacuum-time=7d', '--vacuum-size=100M'])
     ]
 
 

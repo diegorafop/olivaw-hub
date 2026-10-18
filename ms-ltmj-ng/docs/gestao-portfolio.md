@@ -12,7 +12,7 @@
 
 ## Fotos
 
-Selecionar várias imagens no celular, revisar as prévias e remover seleções antes de salvar. A primeira foto cadastrada é a capa. Upload em `multipart/form-data`, campo repetido `files`; o navegador define o boundary. JWT e loading global passam pelos interceptors existentes.
+Read várias imagens no celular, revisar as prévias e remover seleções antes de salvar. A primeira foto cadastrada é a capa. Upload em `multipart/form-data`, campo repetido `files`; o navegador define o boundary. JWT e loading global passam pelos interceptors existentes.
 
 Limites: JPEG, PNG ou WebP, 10 MB por foto, 20 fotos e 100 MB por requisição, 100 fotos por evento. O frontend divide o envio em lotes de até 10 fotos. A API valida tamanhos e assinatura inicial dos formatos, gera nomes próprios e não utiliza o nome enviado como caminho. Não faz recodificação, redimensionamento ou remoção de metadados nesta versão.
 
@@ -65,7 +65,7 @@ npm --prefix ms-ltmj-ng test
 npm --prefix ms-ltmj-ng run build
 npm --prefix ms-ltmj-ng run e2e
 dotnet build ms-ltmj-api/Ltmj.sln -c Release
-dotnet test ms-ltmj-api/tests/Mps.Ltmj.Tests/Mps.Ltmj.Tests.csproj -c Release
+dotnet test ms-ltmj-api/tests/Owh.Ltmj.Tests/Owh.Ltmj.Tests.csproj -c Release
 ```
 
 Testes de UI usam API simulada, sem credenciais reais. O Playwright compila e serve o build estático em `127.0.0.1:4317`, com fallback CSR e 404 para arquivos ausentes; não reutiliza o servidor de desenvolvimento. Testes de mapeamento validam os modelos dos provedores PostgreSQL e SQL Server sem conectar ao banco; isso não substitui aplicação da migration e teste integrado no ambiente de destino.

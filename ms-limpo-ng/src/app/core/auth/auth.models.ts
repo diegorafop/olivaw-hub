@@ -1,16 +1,16 @@
 export interface LoginRequest {
   login: string;
-  senha: string;
+  password: string;
 }
 export interface LoginResponse {
   accessToken: string;
   expiresAt: string;
 }
 export interface AcessoAtual {
-  usuarioId: string;
-  nome: string;
-  root: boolean;
-  autorizacoes: string[];
+  userProfileId: string;
+  name: string;
+  isRoot: boolean;
+  permissions: string[];
 }
 export interface Sessao extends LoginResponse {
   usuario: AcessoAtual;

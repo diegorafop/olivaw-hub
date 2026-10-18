@@ -16,7 +16,7 @@ export class AuthService {
   async login(request: LoginRequest): Promise<void> {
     this.clear();
     const result = await firstValueFrom(
-      this.http.post<LoginResponse>(this.config.endpoint('identity/autenticacao/login'), request, {
+      this.http.post<LoginResponse>(this.config.endpoint('identity/authentication/login'), request, {
         context: new HttpContext().set(SKIP_AUTH, true).set(LOCAL_ERROR, true),
       }),
     );
@@ -24,7 +24,7 @@ export class AuthService {
     if (!result.accessToken || !Number.isFinite(remaining) || remaining <= 0)
       throw new Error('Sessão inválida.');
     const usuario = await firstValueFrom(
-      this.http.get<AcessoAtual>(this.config.endpoint('identity/autenticacao/acesso'), {
+      this.http.get<AcessoAtual>(this.config.endpoint('identity/authentication/access'), {
         headers: { Authorization: `Bearer ${result.accessToken}` },
         context: new HttpContext().set(SKIP_AUTH, true).set(LOCAL_ERROR, true),
       }),
@@ -42,7 +42,7 @@ export class AuthService {
       if (this.store.tokenValido())
         await firstValueFrom(
           this.http.post(
-            this.config.endpoint('identity/autenticacao/logout'),
+            this.config.endpoint('identity/authentication/logout'),
             {},
             { context: new HttpContext().set(LOCAL_ERROR, true) },
           ),

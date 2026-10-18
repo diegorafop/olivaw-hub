@@ -1,41 +1,16 @@
-# Migration inicial PostgreSQL — LTMJ
+# Migration inicial — LTMJ
 
-Gerada a pedido do mantenedor: `InitialIdentityAndPortfolio`, em `src/Mps.Ltmj.Dados.PostgreSql/Migrations`, com arquivo de operações, designer e snapshot.
+O histórico foi recriado para uma base vazia, conforme autorização do mantenedor. A migration `InitialSchema` contém `authorization`, `accessprofile`, `accessprofileauthorization`, `userprofile`, `userprofileaccessprofile`, `portfolioevent` e `portfoliophoto`. Nenhuma tabela demonstrativa é criada.
 
-## Modelo e nomes
+`PortfolioPhoto` deriva de `Entity`, possui PK `int`, `ExternalId` GUID público, auditoria e FK `PortfolioEventId` `int` para `PortfolioEvent`. O mapping usa uma relação normal 1:N, com navegação de classes e exclusão em cascata. Tabelas e colunas usam lowercase sem underscores; constraints e histórico técnico do EF mantêm as convenções próprias.
 
-Tabelas de domínio em lowercase, sem hífens ou underscores: `autorizacao`, `perfilacesso`, `portfolioevent`, `usuario`, `perfilacessoautorizacao`, `portfoliophoto` e `usuarioperfilacesso`. Índices, constraints e a tabela técnica de histórico do EF mantêm as convenções de infraestrutura existentes.
-
-Os mapeamentos incorretos `portfolio_events` e `portfolio_photos` foram corrigidos antes da geração desta migration. O `Up` cria tabelas e índices; não contém exclusão ou transformação de dados. O `Down` reverte a criação e deve ser tratado como destrutivo.
-
-## Configuração atual
-
-- Banco de produção: `ltmj_prd`, criado pelo mantenedor conforme relato.
-- Usuário configurado na conexão: `postgres`; não foi criado usuário PostgreSQL exclusivo da LTMJ.
-- Search path e histórico de migrations: `ms_ltmj`.
-- A migration não inclui contas ou senhas; root é criado pelo bootstrap de identidade após o schema estar pronto.
-
-Geração e revisão não conectaram ao banco remoto. Se tabelas antigas já tiverem sido criadas na AWS, conferir o histórico e os dados antes de aplicar: esta é uma migration inicial, não uma migration de renomeação de uma versão anterior.
-
-## Gerar próximas migrations
-
-O projeto do provedor contém `WriteDbContextFactory` para design time, evitando inicializar API, broker, bootstrap ou serviços HTTP. Sua conexão local de design não contém senha nem aponta à AWS; a factory não abre conexão ao gerar arquivos.
+O banco de produção é `ltmj_prd`, com schema `ms_ltmj`. O mantenedor deve recriar o banco vazio antes de publicar a imagem desta entrega. O startup sempre aplica migrations e executa bootstrap de root; usuários, eventos e fotos não são recriados a partir dos dados antigos.
 
 ```bash
 dotnet ef migrations add NomeDaMigration \
-  --project ms-ltmj-api/src/Mps.Ltmj.Dados.PostgreSql \
-  --startup-project ms-ltmj-api/src/Mps.Ltmj.Dados.PostgreSql \
+  --project ms-ltmj-api/src/Owh.Ltmj.Dados.PostgreSql \
+  --startup-project ms-ltmj-api/src/Owh.Ltmj.Dados.PostgreSql \
   --context WriteDbContext --configuration Release --output-dir Migrations
 ```
 
-## Aplicação no startup
-
-O startup sempre aplica as migrations pendentes e garante root antes de atender requisições. Não há flags de habilitação. As alterações locais não executaram SQL nem criaram root na VM; isso acontece ao publicar a nova imagem e inicializar a API.
-
-O runtime usa a conexão real e executa `Database.MigrateAsync()` antes do bootstrap, com cancelamento propagado. O usuário PostgreSQL precisa de permissão para criar schema e tabelas. A conexão usa `SearchPath=ms_ltmj`; não executar SQL avulso com search path diferente.
-
-O bootstrap obrigatório usa o e-mail root Olivaw configurado e o segredo existente; se root já existir, preserva senha e cadastro. A conta da equipe não é root. Após isso, cadastrar a equipe e conceder somente `portfolio.manage`. A criação do banco vazio, sozinha, não executa esses passos.
-
-## Conferências executadas
-
-Build da API com zero erros e avisos. Script SQL idempotente gerado para revisão local, sem execução no banco. Nenhum teste automatizado foi adicionado ou executado nesta alteração.
+A factory é de design time e não abre conexão ao gerar arquivos. Nenhum banco remoto foi alterado durante esta tarefa. O root fica com a operação Olivaw Hub; a equipe do cliente usa conta local sem root e permissão `portfolio.manage`. A conta técnica `ltmj` no Hub é outra identidade e não compartilha o banco ou o secret desta API.

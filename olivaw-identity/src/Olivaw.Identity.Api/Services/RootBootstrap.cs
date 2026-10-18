@@ -6,14 +6,14 @@ using Olivaw.Identity.Repositories;
 
 namespace Olivaw.Identity.Api.Services;
 
-public sealed class RootBootstrap(IIdentityStore store, IPasswordHasher<Usuario> hasher)
+public sealed class RootBootstrap(IIdentityStore store, IPasswordHasher<UserProfile> hasher)
 {
     public async Task EnsureAsync(IConfiguration configuration, CancellationToken cancellationToken)
     {
-        var existing = await store.FindIncludingRemovedAsync<Usuario>(item => item.LoginNormalizado == "ROOT", cancellationToken);
+        var existing = await store.FindIncludingRemovedAsync<UserProfile>(item => item.NormalizedLogin == "ROOT", cancellationToken);
         if (existing is not null)
         {
-            if (!existing.Root) throw new InvalidOperationException("O login root já está ocupado por um usuário comum.");
+            if (!existing.IsRoot) throw new InvalidOperationException("O login root já está ocupado por um usuário comum.");
             return;
         }
         var password = configuration["Identity:Bootstrap:Password"] ?? string.Empty;
@@ -23,18 +23,18 @@ public sealed class RootBootstrap(IIdentityStore store, IPasswordHasher<Usuario>
         validator.RuleFor(item => item.Email).NotEmpty().EmailAddress().MaximumLength(254);
         await validator.ValidateAndThrowAsync(new BootstrapInput(password, email), cancellationToken);
         var id = Guid.NewGuid();
-        var usuario = new Usuario
+        var usuario = new UserProfile
         {
             ExternalId = id,
-            UsuarioLogadoId = id,
+            ActorUserId = id,
             CreatedAt = DateTime.UtcNow,
             Login = "root",
-            LoginNormalizado = "ROOT",
-            Nome = "Root",
+            NormalizedLogin = "ROOT",
+            Name = "Olivaw Hub Root",
             Email = email,
-            Root = true
+            IsRoot = true
         };
-        usuario.SenhaHash = hasher.HashPassword(usuario, password);
+        usuario.PasswordHash = hasher.HashPassword(usuario, password);
         store.Add(usuario);
         await store.SaveAsync(cancellationToken);
     }

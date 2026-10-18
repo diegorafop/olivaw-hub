@@ -22,8 +22,8 @@ Da raiz do monorepo:
 
 ```bash
 dotnet build ms-ltmj-api/Ltmj.sln -c Release
-dotnet test ms-ltmj-api/tests/Mps.Ltmj.Tests/Mps.Ltmj.Tests.csproj -c Release
-dotnet run --project ms-ltmj-api/src/Mps.Ltmj.Api --no-launch-profile
+dotnet test ms-ltmj-api/tests/Owh.Ltmj.Tests/Owh.Ltmj.Tests.csproj -c Release
+dotnet run --project ms-ltmj-api/src/Owh.Ltmj.Api --no-launch-profile
 ```
 
 `dotnet run` não carrega dotenv automaticamente. Forneça as configurações de infraestrutura pelo ambiente ou use o Compose, que seleciona o dotenv. Rodar sem preparar a conexão não comprova disponibilidade das dependências.

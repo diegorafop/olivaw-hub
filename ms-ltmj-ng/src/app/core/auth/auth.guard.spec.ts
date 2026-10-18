@@ -15,7 +15,7 @@ describe('Proteção da gestão', () => {
     TestBed.inject(AutenticacaoStore).iniciar({
       accessToken: 'token',
       expiresAt: new Date(Date.now() + (expired ? -1000 : 60000)).toISOString(),
-      usuario: { usuarioId: '1', nome: 'Equipe', root: false, autorizacoes: permissions },
+      usuario: { userProfileId: '1', name: 'Equipe', isRoot: false, permissions: permissions },
     });
   }
   function match() {

@@ -50,7 +50,6 @@ public sealed class IdentityHost : IAsyncDisposable
             ["Identity:Issuer"] = "identity-tests",
             ["Identity:Audience"] = "identity-tests",
             ["Identity:SigningKey"] = "test-only-signing-key-with-at-least-32-bytes",
-            ["Identity:Bootstrap:Enabled"] = "true",
             ["Identity:Bootstrap:Password"] = Password,
             ["Identity:Bootstrap:Email"] = "root@example.test"
         });
@@ -75,7 +74,7 @@ public sealed class IdentityHost : IAsyncDisposable
 
     public async Task<string> LoginAsync(string login, string password)
     {
-        var response = await Client.PostAsJsonAsync("/identity/autenticacao/login", new { login, senha = password }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+        var response = await Client.PostAsJsonAsync("/identity/authentication/login", new { login, password = password }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken));
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
         var token = json.GetProperty("accessToken").GetString() ?? throw new InvalidOperationException();
@@ -88,7 +87,7 @@ public sealed class IdentityHost : IAsyncDisposable
         var response = await Client.PostAsJsonAsync("/identity/" + resource, payload, cancellationToken: Xunit.TestContext.Current.CancellationToken);
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken));
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
-        return json.GetProperty("registro").GetProperty("id").GetGuid();
+        return json.GetProperty("item").GetProperty("id").GetGuid();
     }
 
     public async ValueTask DisposeAsync()

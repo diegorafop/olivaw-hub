@@ -24,7 +24,7 @@ export const AutenticacaoStore = signalStore(
       return (
         !!sessao &&
         Date.parse(sessao.expiresAt) > Date.now() &&
-        (sessao.usuario.root || sessao.usuario.autorizacoes.includes(permissao))
+        (sessao.usuario.isRoot || sessao.usuario.permissions.includes(permissao))
       );
     },
   })),
