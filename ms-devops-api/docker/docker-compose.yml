@@ -1,8 +1,9 @@
+name: ms-devops-api-local
 services:
   ms-devops-api:
     build:
       context: ../..
-      dockerfile: ms-devops-api/src/Mps.Devops.Api/Dockerfile
+      dockerfile: ms-devops-api/src/Owh.Devops.Api/Dockerfile
       args:
         BUILD_CONFIG: Release
     env_file:
@@ -18,9 +19,6 @@ services:
       Identity__Issuer: ${Identity__Issuer:?Configure o emissor deste serviço}
       Identity__Audience: ${Identity__Audience:?Configure o destinatário deste serviço}
       Identity__SigningKey: ${Identity__SigningKey:?Configure a chave exclusiva deste serviço}
-      Identity__Bootstrap__Enabled: ${Identity__Bootstrap__Enabled:-false}
-      Identity__Bootstrap__Email: ${Identity__Bootstrap__Email:-}
-      Identity__Bootstrap__Password: ${Identity__Bootstrap__Password:-}
       Deployment__Host: ${Deployment__Host:-host.docker.internal}
       Deployment__Port: ${Deployment__Port:-22}
       Deployment__User: ${Deployment__User:-ec2-user}

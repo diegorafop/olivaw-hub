@@ -51,6 +51,80 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Pendências:** data, local e contexto adicional do evento não informados; não foram deduzidos dos nomes dos arquivos.
 - **Estado:** conteúdo incluído a pedido do responsável; implantação não executada nesta alteração.
 
+## 17/10/2026 — Backoffice de portfólio, issue 009
+
+- **Origem:** história de usuário enviada pelo responsável pelo projeto.
+- **Escopo solicitado:** gestão restrita e mobile, título/descrição/categoria, várias fotos, edição, visibilidade pública e exclusão confirmada.
+- **Implementado:** `/gestao/entrar` e `/gestao`, autorização `portfolio.manage`, API CQS em inglês com leituras `Read`, multipart, persistência EF e armazenamento em volume. Nenhuma conta individual da equipe foi criada.
+- **Decisão técnica desta entrega:** armazenamento local persistente atrás de `IPhotoStorage`; integração S3 continua como evolução. O volume deve ser copiado ao trocar o servidor.
+- **Mural:** passa a ler a API, sem fallback fixo que possa republicar eventos ocultos. Importação manual do churrasco disponível no painel.
+- **Pendência operacional:** migration autorizada, preparação do banco/identidade, backup e implantação. Nenhum desses passos foi executado nesta tarefa.
+- **Referência:** [gestão de portfólio](gestao-portfolio.md).
+
+## 17/10/2026 — Novas seleções de acervo e acesso da equipe
+
+- **Origem:** responsável enviou dois JPEGs e três ZIPs em Downloads e pediu três ou quatro exemplos adicionais.
+- **Recebido:** 91 fotos e 33 vídeos. Fotos preservadas e conferidas em `docs/acervo-recebido/2026-10-17`; vídeos mantidos fora do Git em Downloads. Origens de fotos removidas após a conferência, conforme autorizado.
+- **Preparado:** quatro conjuntos demonstrativos com 14 fotos, além do churrasco inicial. Prévia em `/previa-portfolio#eventos` e carregamento individual no cadastro. Agrupamento/categoria pendentes de confirmação; não representam quatro eventos reais distintos comprovados.
+- **Acesso solicitado:** usuário `ltmj` na identidade da própria API LTMJ, com `portfolio.manage`, sem root. Root de cada cliente é reservado à gestão Olivaw Hub.
+- **Conferido:** chaves de assinatura JWT da LTMJ não são compartilhadas com outros serviços; os cinco ambientes têm chaves distintas. Nenhum valor foi registrado neste histórico.
+- **Pendências do usuário:** e-mail obrigatório e definição de senha compatível com a política atual de 12 caracteres, ou autorização de ajuste específico da LTMJ. Nenhum usuário foi criado no servidor.
+
+## 17/10/2026 — Política de senha e e-mail da equipe confirmados
+
+- **Origem:** instrução explícita do responsável.
+- **Decisão:** remover o mínimo de 12 caracteres na identidade compartilhada, incluindo cadastro, troca de senha e bootstrap, mantendo senha obrigatória, limite de 128 e preservação integral dos caracteres. A alteração também atende ao template limpo por referência ao mesmo módulo.
+- **Conta planejada:** login `ltmj`, e-mail `ltmj@teste.com.br`, sem confirmação por e-mail. A senha fornecida não é reproduzida nos documentos.
+- **Permissões:** somente gestão de portfólio; root continua reservado ao Olivaw Hub. Chaves JWT não foram alteradas.
+- **Estado:** código e curl atualizados; usuário não criado remotamente.
+
+## 17/10/2026 — Somente fotos e descarte dos vídeos recebidos
+
+- **Origem:** responsável confirmou que a versão atual da LTMJ deve usar somente fotos e autorizou apagar os vídeos de Downloads.
+- **Conferido:** não havia vídeos no código, assets públicos ou arquivos versionados da LTMJ; nenhuma referência a player de vídeo no site.
+- **Executado:** 33 arquivos MP4 da pasta LTMJ em Downloads removidos conforme solicitado. Os 91 arquivos de fotos recebidos continuam preservados no projeto.
+- **Escopo:** API e upload continuam aceitando somente JPEG, PNG e WebP. Não foram removidos arquivos de outros projetos.
+
+## 17/10/2026 — Migration inicial e nomes de tabelas
+
+- **Origem:** responsável solicitou gerar a migration e reafirmou lowercase sem hífens ou underscores nas tabelas.
+- **Corrigido:** nomes de domínio `portfolioevent` e `portfoliophoto` no mapeamento; regra documentada no cliente e template limpo.
+- **Gerado:** migration PostgreSQL `20261018014627_InitialIdentityAndPortfolio`, designer e snapshot. Contexto de design time permite gerar sem inicializar a API ou acessar a AWS.
+- **Conferido:** build sem erros/avisos e geração de SQL idempotente para revisão. Nenhuma migration aplicada remotamente.
+- **Conexão:** usuário PostgreSQL atual `postgres`, banco `ltmj_prd`, search path `ms_ltmj`. Não confundir o usuário PostgreSQL com as contas root e `ltmj` da aplicação.
+- **Pendência:** confirmar se já há tabelas antigas no banco antes de aplicar a migration inicial, configurar aplicação no startup e bootstrap do root, então concluir cadastro e vínculos da equipe.
+
+## 17/10/2026 — E-mail do root Olivaw confirmado
+
+- **Origem:** responsável confirmou o e-mail da gestão Olivaw para root.
+- **Configurado:** e-mail do root nos dotenv da API LTMJ; a conta da equipe continua separada, com login `ltmj` e sem root.
+- **Estado:** segredo e chaves JWT preservados; aplicação de migrations e bootstrap continuam desabilitados enquanto a autorização solicitada está pendente. Cadastro e vínculo ainda não concluídos devido ao HTTP 500 no login.
+
+## 17/10/2026 — Startup obrigatório de banco e root
+
+- **Origem:** responsável determinou que migrations e bootstrap sempre rodem no startup, sem flags de habilitação.
+- **Implementado:** API LTMJ e template limpo sempre aplicam migrations pendentes e garantem root antes de atender requisições; falhas impedem a inicialização com banco incompleto.
+- **Configuração:** removidas opções de habilitação de migrations e bootstrap dos dois projetos. E-mail root confirmado e segredo existente preservados; bootstrap não redefine root existente.
+- **Compatibilidade:** consumidores anteriores da biblioteca de identidade mantêm o comportamento do wrapper de inicialização já usado por eles. A LTMJ e o template usam diretamente o bootstrap obrigatório após as migrations.
+- **Pendência operacional:** publicar a nova imagem; o deploy anterior não contém esse comportamento. Cadastro e vínculo da equipe aguardam o login root funcionar.
+
+## 18/10/2026 — Conta da equipe criada e acesso conferido
+
+- **Origem:** responsável confirmou que a nova versão da API subiu e autorizou concluir o cadastro e o vínculo.
+- **Provisionado:** login `ltmj`, e-mail `ltmj@teste.com.br` e perfil dedicado `Gestão de portfólio LTMJ`.
+- **Acesso:** conta não root, com somente `portfolio.manage`; sem permissão de administrar usuários, perfis ou autorizações.
+- **Verificado:** login válido, consulta de permissões com o escopo esperado e resposta HTTP 200 na rota protegida de gestão do portfólio.
+- **Segredos:** senha, tokens e chaves não foram registrados neste histórico.
+- **Referência:** [acesso da equipe](acesso-gestao.md).
+
+## 18/10/2026 — Correção ao salvar fotos do portfólio
+
+- **Origem:** erro de concorrência relatado durante o cadastro de evento na produção.
+- **Causa:** o repositório marcava o agregado inteiro como alterado; o EF tentava atualizar fotos recém-adicionadas com GUIDs já preenchidos, em vez de inseri-las.
+- **Corrigido no código:** os handlers agora salvam as mudanças rastreadas pelo contexto sem remarcar o agregado completo. A correção também abrange edição, visibilidade e exclusão de eventos com fotos.
+- **Validação:** build Release concluído sem erros ou avisos; testes não executados.
+- **Estado:** aguardando publicação da nova imagem da API.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:

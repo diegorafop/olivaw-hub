@@ -1,3 +1,4 @@
+name: ms-ltmj-api-rls
 services:
   ms-ltmj-api:
     container_name: ms-ltmj-api-rls

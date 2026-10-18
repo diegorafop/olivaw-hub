@@ -1,7 +1,7 @@
 name: ms-ltmj-ng-prd
 services:
   ms-ltmj-ng:
-    container_name: ms-ltmj-ng
+    container_name: ms-ltmj-ng-prd
     image: ${FRONTEND_IMAGE:-ms-ltmj-ng:prd}
     environment:
       API_URL: ${API_URL:-https://api.ltmj.olivaw-hub.duckdns.org}

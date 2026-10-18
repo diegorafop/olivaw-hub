@@ -1,22 +1,22 @@
-# Diretrizes de desenvolvimento — Mps.Devops
+# Diretrizes de desenvolvimento — Owh.Devops
 
 Este arquivo contém as regras globais do repositório. Os arquivos `AGENTS.md` das camadas complementam estas regras no respectivo diretório. Em caso de conflito, siga a instrução mais específica, preserve o comportamento existente e registre no PR decisões arquiteturais que extrapolem as diretrizes.
 
 ## Objetivo e arquitetura
 
-O `Mps.Devops` é uma API ASP.NET Core organizada por Command–Query Separation (CQS), MediatR, FluentValidation, Repository Pattern e Entity Framework Core. PostgreSQL e SQL Server são suportados; Oracle permanece reservado e não deve ser presumido funcional sem implementação e testes equivalentes.
+O `Owh.Devops` é uma API ASP.NET Core organizada por Command–Query Separation (CQS), MediatR, FluentValidation, Repository Pattern e Entity Framework Core. PostgreSQL e SQL Server são suportados; Oracle permanece reservado e não deve ser presumido funcional sem implementação e testes equivalentes.
 
 ```text
-Mps.Devops.Api ───────> Mps.Devops.Dados.<Provedor>
+Owh.Devops.Api ───────> Owh.Devops.Dados.<Provedor>
        │                         │
-       ├─────────────> Mps.Devops.Dados
+       ├─────────────> Owh.Devops.Dados
        │                         │
-       └─────────────────────────┴──> Mps.Devops
+       └─────────────────────────┴──> Owh.Devops
 
-Mps.Devops.Tests ─────> Mps.Devops.Api
+Owh.Devops.Tests ─────> Owh.Devops.Api
 ```
 
-Os projetos consomem `Mps.OlivawCore` (núcleo), `Mps.OlivawCore.Dados` (EF Core) e `Mps.OlivawCore.Api` (infraestrutura ASP.NET Core) por `ProjectReference` no monorepo. Não recrie tipos compartilhados, helpers ou extensões locais que apenas dupliquem esses pacotes. O `Mps.Devops` fica disponível para regras próprias do novo microservice.
+Os projetos consomem `Owh.OlivawCore` (núcleo), `Owh.OlivawCore.Dados` (EF Core) e `Owh.OlivawCore.Api` (infraestrutura ASP.NET Core) por `ProjectReference` no monorepo. Não recrie tipos compartilhados, helpers ou extensões locais que apenas dupliquem esses pacotes. O `Owh.Devops` fica disponível para regras próprias do novo microservice.
 
 - O núcleo não referencia infraestrutura nem apresentação.
 - Dados não referencia a API.
@@ -35,11 +35,11 @@ Os projetos consomem `Mps.OlivawCore` (núcleo), `Mps.OlivawCore.Dados` (EF Core
 
 ## Comando Codex `new feature`
 
-Quando o usuário escrever `new feature <nome-do-objeto-de-dominio>` ou `codex new feature <nome-do-objeto-de-dominio>`, trate isso como solicitação para implementar uma feature CQS completa para o objeto informado. Exemplo: `codex new feature usuario` cria a feature `Usuario`.
+Quando o usuário escrever `new feature <nome-do-objeto-de-dominio>` ou `codex new feature <nome-do-objeto-de-dominio>`, trate isso como solicitação para implementar uma feature CQS completa para o objeto informado. Exemplo: `codex new feature usuario` cria a feature `UserProfile`.
 
-O comando pode conter um bloco opcional de propriedades no formato `{ campo: tipo, modificadores }`, por exemplo `codex new feature usuario { nome: string, obrigatório, max: 150; email: string, obrigatório, único, email, max: 254 }`. Interprete `obrigatório`, `opcional`, `único`, `email`, `max`, `min`, `filtro`, `sensível`, valores default e relacionamentos como requisitos do domínio, validator, mapping, queries, responses e testes, conforme aplicável. O bloco descreve apenas propriedades específicas do objeto; não duplique `Id`, `IdExterno`, `UsuarioLogadoId`, `DataCadastro`, `DataAtualizacao` ou `DataRemocao`, pois são herdados de `Entity`.
+O comando pode conter um bloco opcional de propriedades no formato `{ campo: tipo, modificadores }`, por exemplo `codex new feature usuario { nome: string, obrigatório, max: 150; email: string, obrigatório, único, email, max: 254 }`. Interprete `obrigatório`, `opcional`, `único`, `email`, `max`, `min`, `filtro`, `sensível`, valores default e relacionamentos como requisitos do domínio, validator, mapping, queries, responses e testes, conforme aplicável. O bloco descreve apenas propriedades específicas do objeto; não duplique `Id`, `ExternalId`, `ActorUserId`, `CreatedAt`, `UpdatedAt` ou `DeletedAt`, pois são herdados de `Entity`.
 
-Antes de implementar, inspecione a entidade e a feature completa mais próxima — atualmente `ExampleFeature` — e preserve os padrões atuais. Se o objeto ainda não existir e suas propriedades não forem informadas, procure contratos e linguagem já presentes no repositório; faça somente suposições conservadoras, informe-as durante o trabalho e peça definição quando a escolha alterar materialmente o contrato ou o schema.
+Antes de implementar, inspecione a entidade e a feature completa mais próxima e preserve os padrões atuais. Se o objeto ainda não existir e suas propriedades não forem informadas, procure contratos e linguagem já presentes no repositório; faça somente suposições conservadoras, informe-as durante o trabalho e peça definição quando a escolha alterar materialmente o contrato ou o schema.
 
 Por padrão, o comando inclui:
 
@@ -47,8 +47,8 @@ Por padrão, o comando inclui:
 2. Mapeamento Fluent API e inclusão na facade de tabelas.
 3. Extensions/mapeadores específicos da entidade.
 4. Controller com rotas de recurso.
-5. Commands `Inserir`, `Atualizar`, `Remover` e `Alternar`, com requests, responses, handlers e validators próprios.
-6. Queries `Selecionar<Nome>ById` e `Selecionar<Nome>ByFilter`, com requests, responses, handlers e validators próprios.
+5. Commands `Create`, `Update`, `Delete` e `UpdateVisibility`, com requests, responses, handlers e validators próprios.
+6. Queries `Read<Nome>ById` e `Read<Nome>ByFilter`, com requests, responses, handlers e validators próprios.
 7. Propagação de `CancellationToken`, auditoria e remoção lógica conforme `Entity`.
 8. Faker Builders e testes unitários de controller, handlers, validators, predicados e ramificações relevantes.
 9. Build, testes proporcionais ao escopo e revisão final do diff.
@@ -100,8 +100,8 @@ Execute conforme o escopo:
 ```bash
 dotnet restore Devops.sln
 dotnet build Devops.sln --no-restore
-dotnet test tests/Mps.Devops.Tests/Mps.Devops.Tests.csproj --no-build
-dotnet test tests/Mps.Devops.Tests/Mps.Devops.Tests.csproj --collect:"XPlat Code Coverage"
+dotnet test tests/Owh.Devops.Tests/Owh.Devops.Tests.csproj --no-build
+dotnet test tests/Owh.Devops.Tests/Owh.Devops.Tests.csproj --collect:"XPlat Code Coverage"
 ```
 
 Mantenha a capitalização dos caminhos dos projetos na solução igual à dos diretórios reais; em sistemas case-sensitive, uma divergência impede o restore e o build. Não renomeie diretórios nem regrave a solução como efeito colateral de outras tarefas.
@@ -129,7 +129,7 @@ Antes de concluir:
 
 ## Guia para um futuro cliente NuGet
 
-Quando este template receber um cliente REST completo, siga também `src/Mps.Devops.Client/AGENTS.md` e confira os contratos reais da API antes de implementá-lo. A presença dessas diretrizes não cria o projeto nem autoriza migração de contratos existentes.
+Quando este template receber um cliente REST completo, siga também `src/Owh.Devops.Client/AGENTS.md` e confira os contratos reais da API antes de implementá-lo. A presença dessas diretrizes não cria o projeto nem autoriza migração de contratos existentes.
 
 1. Inventarie operações, controllers, requests, responses, validators, handlers, mapeadores e testes. Preserve verbos, rotas, status, JSON, enums e significado dos IDs.
 2. Defina cada contrato público uma única vez no projeto cliente, em `Features/<Recurso>Feature/Commands` ou `Queries`. Payloads e responses são classes simples, sem MediatR, ASP.NET Core, herança de entidades ou auditoria interna.
@@ -142,13 +142,12 @@ Quando este template receber um cliente REST completo, siga também `src/Mps.Dev
 9. Exponha operações tipadas e reutilize o transporte e a autenticação existentes. Não implemente obtenção ou armazenamento de JWT no pacote.
 10. Teste HTTP em memória, autenticação, serialização, cancelamento, compatibilidade de payloads e correspondência das rotas com os controllers. Execute build, testes e `dotnet pack`; não publique sem pedido explícito.
 
-## Identidade compartilhada
+## Identidade interna do Hub
 
-- Usuários, autenticação, perfis e permissões vêm de `../olivaw-identity`, por `ProjectReference`; não copie essas features para cada cliente.
-- O contexto local aplica `AddOlivawIdentity()`. Banco e migrations continuam no consumidor.
-- O módulo registra o esquema JWT local e controllers por application part. Não reintroduza o cliente externo de autenticação como requisito de inicialização.
-- Senhas não podem passar pelo pipeline que aplica `Trim()`. Preserve a delegação de `TemplateValidationBehavior`.
-- Bootstrap cria somente root, com segredo externo, depois de preparar o schema. Não transporte migrations ou seeds corporativos.
+- DevOps é consumidor de JWT do Hub e usa `AddOlivawIdentityConsumer`. Não possui usuários, tabelas de identidade, bootstrap ou endpoints de login.
+- Valide assinatura, emissor, audiência e expiração localmente, sem consultas ao Hub. Permissões e root vêm dos claims assinados.
+- Contas técnicas precisam de `devops.deploy` e de `devops.deploy:<folder>` para criar e consultar jobs. Limpeza exige root da operação.
+- O banco DevOps é exclusivo das funcionalidades deste serviço. Suas migrations não devem incluir identidade.
 
 ## Configuração versionada nesta etapa
 

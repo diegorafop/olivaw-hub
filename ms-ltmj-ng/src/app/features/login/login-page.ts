@@ -11,7 +11,15 @@ import { apiErrorMessage } from '../../core/http/api-error';
   imports: [ReactiveFormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule],
   template: `<section class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 p-6">
     <a routerLink="/">Voltar ao site</a>
-    <h1 class="text-3xl font-bold">Entrar na administração</h1>
+    <img
+      src="/assets/ltmj/perfil-facebook.jpg"
+      alt="LTMJ Eventos"
+      width="96"
+      height="96"
+      class="mx-auto rounded-2xl"
+    />
+    <p class="text-center text-sm text-primary">LTMJ Eventos · Área da equipe</p>
+    <h1 class="text-3xl font-bold">Entrar na gestão</h1>
     <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
       <mat-form-field
         ><mat-label>Login</mat-label
@@ -25,12 +33,12 @@ import { apiErrorMessage } from '../../core/http/api-error';
         ><input
           matInput
           type="password"
-          formControlName="senha"
+          formControlName="password"
           autocomplete="current-password"
           required
           maxlength="128"
         />
-        @if (form.controls.senha.invalid) {
+        @if (form.controls.password.invalid) {
           <mat-error>Informe sua senha.</mat-error>
         }
       </mat-form-field>
@@ -53,7 +61,7 @@ export class LoginPage {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(100)],
     }),
-    senha: new FormControl('', {
+    password: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(128)],
     }),
@@ -68,7 +76,7 @@ export class LoginPage {
     this.error.set(null);
     try {
       await this.auth.login(this.form.getRawValue());
-      await this.router.navigateByUrl('/admin');
+      await this.router.navigateByUrl('/gestao');
     } catch (error) {
       this.error.set(apiErrorMessage(error));
     } finally {

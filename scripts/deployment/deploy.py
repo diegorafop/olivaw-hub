@@ -118,18 +118,29 @@ class Executor:
 
     @staticmethod
     def public(job):
-        return {key: job[key] for key in ('id', 'status', 'log')}
+        return {key: job.get(key, '') for key in ('id', 'status', 'log', 'folder')}
 
     def submit(self, request):
         request = validate_request(request)
         resolve_repository(self.config, request)
+        return self.enqueue(request)
+
+    def submit_cleanup(self, request):
+        if set(request) != {'action'}:
+            raise ValueError('invalid_request')
+        return self.enqueue({'kind': 'disk-cleanup'})
+
+    def enqueue(self, request):
         with (self.state / 'submit.lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             pending = sum(self.status(path.stem)['status'] in ('queued', 'running')
                           for path in self.state.glob('*.json'))
             if pending >= 20:
                 raise RuntimeError('executor_busy')
-            job = dict(request, id=str(uuid.uuid4()), status='queued', log='Deployment queued.')
+            initial_log = 'Deployment queued.'
+            if request.get('kind') == 'disk-cleanup':
+                initial_log = 'Disk cleanup queued.'
+            job = dict(request, id=str(uuid.uuid4()), status='queued', log=initial_log)
             self.save(job)
             try:
                 subprocess.run([
@@ -164,13 +175,31 @@ class Executor:
             job = self.load(job_id)
             if job['status'] != 'queued':
                 return
-            job.update(status='running', log='Deployment started.')
+            initial_log = 'Deployment started.'
+            if job.get('kind') == 'disk-cleanup':
+                initial_log = 'Disk cleanup worker started.'
+            job.update(status='running', log=initial_log)
             self.save(job)
             try:
+                if job.get('kind') == 'disk-cleanup':
+                    self.run_cleanup(job)
+                    return
                 repository = resolve_repository(self.config, job)
-                for label, arguments in commands(job['branch'], job['environment'], job['folder'] in self.config.get('sshOverrideFolders', [])):
+                project_name = None
+                if job['folder'].startswith('olivaw-hub/'):
+                    service_name = Path(job['folder']).name.lower()
+                    project_name = f'{service_name}-{job["environment"]}'
+                for label, arguments in commands(
+                    job['branch'],
+                    job['environment'],
+                    job['folder'] in self.config.get('sshOverrideFolders', []),
+                    project_name
+                ):
                     directory = repository
                     if label == 'Compose':
+                        if project_name:
+                            job['log'] += f'\nCompose project: {project_name}.'
+                            self.save(job)
                         job['log'] += '\nCompose: validating service directory after Git update.'
                         self.save(job)
                         directory = resolve_folder(self.config, job)
@@ -180,6 +209,21 @@ class Executor:
                                          f'docker/docker-compose.{job["environment"]}.yml']:
                             if not safe_path(directory / filename).is_file():
                                 raise ValueError('invalid_request')
+                        if project_name:
+                            job['log'] += '\nCompose: removing this service from the legacy shared project if present.'
+                            self.save(job)
+                            cleanup = compose_command(
+                                job['environment'], 'docker',
+                                job['folder'] in self.config.get('sshOverrideFolders', [])
+                            )
+                            cleanup.extend(['rm', '--stop', '--force'])
+                            result = run_step(
+                                cleanup, directory, int(self.config.get('stepTimeoutSeconds', 300))
+                            )
+                            job['log'] += f'\nLegacy Compose cleanup: exit code {result}.'
+                            self.save(job)
+                            if result != 0:
+                                raise RuntimeError('step_failed')
                     job['log'] += f'\n{label}: started.'
                     self.save(job)
                     result = run_step(arguments, directory, int(self.config.get('stepTimeoutSeconds', 300)))
@@ -193,11 +237,54 @@ class Executor:
             self.save(job)
 
 
-def commands(branch, environment, include_ssh=False):
-    compose = ['/usr/bin/docker', 'compose', '--env-file', f'docker/.env.{environment}',
-               '-f', 'docker/docker-compose.yml', '-f', f'docker/docker-compose.{environment}.yml']
+    def run_cleanup(self, job):
+        try:
+            before = os.statvfs('/')
+            job['log'] += f"\nDisk cleanup started. Free bytes before: {before.f_bavail * before.f_frsize}."
+            self.save(job)
+            for label, arguments in cleanup_commands():
+                job['log'] += f'\n{label}: started.'
+                self.save(job)
+                result = run_step(arguments, Path('/'), int(self.config.get('stepTimeoutSeconds', 300)))
+                job['log'] += f'\n{label}: exit code {result}.'
+                self.save(job)
+                if result != 0:
+                    raise RuntimeError('step_failed')
+            after = os.statvfs('/')
+            job['log'] += f"\nFree bytes after: {after.f_bavail * after.f_frsize}."
+            reclaimed = max(0, after.f_bavail * after.f_frsize - before.f_bavail * before.f_frsize)
+            job['log'] += f"\nReclaimed bytes: {reclaimed}."
+            job['status'] = 'succeeded'
+        except (ValueError, OSError, RuntimeError, subprocess.SubprocessError):
+            job.update(status='failed', log=job['log'] + '\nDisk cleanup failed; subsequent steps were skipped.')
+        self.save(job)
+
+
+def cleanup_commands():
+    # Fixed argv only. Preserve volumes, containers, networks and active log files.
+    return [
+        ('Build cache cleanup', ['/usr/bin/docker', 'builder', 'prune', '--all', '--force']),
+        ('Unused image cleanup', ['/usr/bin/docker', 'image', 'prune', '--all', '--force']),
+        ('Aged temporary files cleanup', ['/usr/bin/sudo', '-n', '/usr/bin/systemd-tmpfiles', '--clean', '--prefix=/tmp', '--prefix=/var/tmp']),
+        ('Archived journal cleanup', ['/usr/bin/sudo', '-n', '/usr/bin/journalctl', '--vacuum-time=7d', '--vacuum-size=100M'])
+    ]
+
+
+def compose_command(environment, project_name=None, include_ssh=False):
+    compose = ['/usr/bin/docker', 'compose']
+    if project_name:
+        compose.extend(['--project-name', project_name])
+    compose.extend([
+        '--env-file', f'docker/.env.{environment}',
+        '-f', 'docker/docker-compose.yml', '-f', f'docker/docker-compose.{environment}.yml'
+    ])
     if include_ssh:
         compose.extend(['-f', 'docker/docker-compose.ssh.yml'])
+    return compose
+
+
+def commands(branch, environment, include_ssh=False, project_name=None):
+    compose = compose_command(environment, project_name, include_ssh)
     compose.extend(['up', '-d', '--build'])
     return [
         ('Fetch', ['/usr/bin/git', 'fetch', 'origin']),
@@ -230,6 +317,8 @@ def gateway(executor, raw):
             raise ValueError('invalid_request')
         if request.get('action') == 'submit':
             status = executor.submit(request)
+        elif request.get('action') == 'cleanup':
+            status = executor.submit_cleanup(request)
         elif request.get('action') == 'status':
             status = executor.status(request.get('id'))
         else:

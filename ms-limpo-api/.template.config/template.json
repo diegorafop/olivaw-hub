@@ -1,15 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/template",
-  "author": "MPS",
+  "author": "Olivaw Hub",
   "classifications": [
     "Web",
     "API",
     "Microservice"
   ],
-  "identity": "Mps.Templates.Microservice",
-  "name": "MPS Microservice",
-  "shortName": "mps-microservice",
-  "description": "Cria um microservice ASP.NET Core a partir do template Mps.Limpo.",
+  "identity": "Owh.Templates.Microservice",
+  "name": "Olivaw Hub Microservice",
+  "shortName": "owh-microservice",
+  "description": "Cria um microservice ASP.NET Core a partir do template Owh.Limpo.",
   "sourceName": "Limpo",
   "preferNameDirectory": false,
   "tags": {
@@ -85,7 +85,8 @@
         "certificates/**",
         "**/*.pfx",
         "**/.env",
-        "**/.env.*"
+        "**/.env.*",
+        "scripts/configure-generated-service.py"
       ]
     },
     {

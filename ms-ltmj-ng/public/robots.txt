@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /login
+Disallow: /gestao
+Disallow: /gestao/entrar
 Sitemap: https://ltmj.olivaw-hub.duckdns.org/sitemap.xml
+
+Disallow: /previa-portfolio

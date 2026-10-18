@@ -25,12 +25,12 @@ import { apiErrorMessage } from '../../core/http/api-error';
         ><input
           matInput
           type="password"
-          formControlName="senha"
+          formControlName="password"
           autocomplete="current-password"
           required
           maxlength="128"
         />
-        @if (form.controls.senha.invalid) {
+        @if (form.controls.password.invalid) {
           <mat-error>Informe sua senha.</mat-error>
         }
       </mat-form-field>
@@ -53,7 +53,7 @@ export class LoginPage {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(100)],
     }),
-    senha: new FormControl('', {
+    password: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(128)],
     }),

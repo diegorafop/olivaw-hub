@@ -1,22 +1,22 @@
-# Diretrizes de desenvolvimento — Mps.Ltmj
+﻿# Diretrizes de desenvolvimento — Owh.Ltmj
 
 Este arquivo contém as regras globais do repositório. Os arquivos `AGENTS.md` das camadas complementam estas regras no respectivo diretório. Em caso de conflito, siga a instrução mais específica, preserve o comportamento existente e registre no PR decisões arquiteturais que extrapolem as diretrizes.
 
 ## Objetivo e arquitetura
 
-O `Mps.Ltmj` é uma API ASP.NET Core organizada por Command–Query Separation (CQS), MediatR, FluentValidation, Repository Pattern e Entity Framework Core. PostgreSQL e SQL Server são suportados; Oracle permanece reservado e não deve ser presumido funcional sem implementação e testes equivalentes.
+O `Owh.Ltmj` é uma API ASP.NET Core organizada por Command–Query Separation (CQS), MediatR, FluentValidation, Repository Pattern e Entity Framework Core. PostgreSQL e SQL Server são suportados; Oracle permanece reservado e não deve ser presumido funcional sem implementação e testes equivalentes.
 
 ```text
-Mps.Ltmj.Api ───────> Mps.Ltmj.Dados.<Provedor>
+Owh.Ltmj.Api ───────> Owh.Ltmj.Dados.<Provedor>
        │                         │
-       ├─────────────> Mps.Ltmj.Dados
+       ├─────────────> Owh.Ltmj.Dados
        │                         │
-       └─────────────────────────┴──> Mps.Ltmj
+       └─────────────────────────┴──> Owh.Ltmj
 
-Mps.Ltmj.Tests ─────> Mps.Ltmj.Api
+Owh.Ltmj.Tests ─────> Owh.Ltmj.Api
 ```
 
-Os projetos consomem `Mps.OlivawCore` (núcleo), `Mps.OlivawCore.Dados` (EF Core) e `Mps.OlivawCore.Api` (infraestrutura ASP.NET Core) por `ProjectReference` no monorepo. Não recrie tipos compartilhados, helpers ou extensões locais que apenas dupliquem esses pacotes. O `Mps.Ltmj` fica disponível para regras próprias do novo microservice.
+Os projetos consomem `Owh.OlivawCore` (núcleo), `Owh.OlivawCore.Dados` (EF Core) e `Owh.OlivawCore.Api` (infraestrutura ASP.NET Core) por `ProjectReference` no monorepo. Não recrie tipos compartilhados, helpers ou extensões locais que apenas dupliquem esses pacotes. O `Owh.Ltmj` fica disponível para regras próprias do novo microservice.
 
 - O núcleo não referencia infraestrutura nem apresentação.
 - Dados não referencia a API.
@@ -35,11 +35,11 @@ Os projetos consomem `Mps.OlivawCore` (núcleo), `Mps.OlivawCore.Dados` (EF Core
 
 ## Comando Codex `new feature`
 
-Quando o usuário escrever `new feature <nome-do-objeto-de-dominio>` ou `codex new feature <nome-do-objeto-de-dominio>`, trate isso como solicitação para implementar uma feature CQS completa para o objeto informado. Exemplo: `codex new feature usuario` cria a feature `Usuario`.
+Quando o usuário escrever `new feature <nome-do-objeto-de-dominio>` ou `codex new feature <nome-do-objeto-de-dominio>`, trate isso como solicitação para implementar uma feature CQS completa para o objeto informado. Exemplo: `codex new feature usuario` cria a feature `UserProfile`.
 
-O comando pode conter um bloco opcional de propriedades no formato `{ campo: tipo, modificadores }`, por exemplo `codex new feature usuario { nome: string, obrigatório, max: 150; email: string, obrigatório, único, email, max: 254 }`. Interprete `obrigatório`, `opcional`, `único`, `email`, `max`, `min`, `filtro`, `sensível`, valores default e relacionamentos como requisitos do domínio, validator, mapping, queries, responses e testes, conforme aplicável. O bloco descreve apenas propriedades específicas do objeto; não duplique `Id`, `IdExterno`, `UsuarioLogadoId`, `DataCadastro`, `DataAtualizacao` ou `DataRemocao`, pois são herdados de `Entity`.
+O comando pode conter um bloco opcional de propriedades no formato `{ campo: tipo, modificadores }`, por exemplo `codex new feature usuario { nome: string, obrigatório, max: 150; email: string, obrigatório, único, email, max: 254 }`. Interprete `obrigatório`, `opcional`, `único`, `email`, `max`, `min`, `filtro`, `sensível`, valores default e relacionamentos como requisitos do domínio, validator, mapping, queries, responses e testes, conforme aplicável. O bloco descreve apenas propriedades específicas do objeto; não duplique `Id`, `ExternalId`, `ActorUserId`, `CreatedAt`, `UpdatedAt` ou `DeletedAt`, pois são herdados de `Entity`.
 
-Antes de implementar, inspecione a entidade e a feature completa mais próxima — atualmente `ExampleFeature` — e preserve os padrões atuais. Se o objeto ainda não existir e suas propriedades não forem informadas, procure contratos e linguagem já presentes no repositório; faça somente suposições conservadoras, informe-as durante o trabalho e peça definição quando a escolha alterar materialmente o contrato ou o schema.
+Antes de implementar, inspecione a entidade e a feature completa mais próxima e preserve os padrões atuais. Se o objeto ainda não existir e suas propriedades não forem informadas, procure contratos e linguagem já presentes no repositório; faça somente suposições conservadoras, informe-as durante o trabalho e peça definição quando a escolha alterar materialmente o contrato ou o schema.
 
 Por padrão, o comando inclui:
 
@@ -47,8 +47,8 @@ Por padrão, o comando inclui:
 2. Mapeamento Fluent API e inclusão na facade de tabelas.
 3. Extensions/mapeadores específicos da entidade.
 4. Controller com rotas de recurso.
-5. Commands `Inserir`, `Atualizar`, `Remover` e `Alternar`, com requests, responses, handlers e validators próprios.
-6. Queries `Selecionar<Nome>ById` e `Selecionar<Nome>ByFilter`, com requests, responses, handlers e validators próprios.
+5. Commands `Create`, `Update`, `Delete` e `UpdateVisibility`, com requests, responses, handlers e validators próprios.
+6. Queries `Read<Nome>ById` e `Read<Nome>ByFilter`, com requests, responses, handlers e validators próprios.
 7. Propagação de `CancellationToken`, auditoria e remoção lógica conforme `Entity`.
 8. Faker Builders e testes unitários de controller, handlers, validators, predicados e ramificações relevantes.
 9. Build, testes proporcionais ao escopo e revisão final do diff.
@@ -100,8 +100,8 @@ Execute conforme o escopo:
 ```bash
 dotnet restore Ltmj.sln
 dotnet build Ltmj.sln --no-restore
-dotnet test tests/Mps.Ltmj.Tests/Mps.Ltmj.Tests.csproj --no-build
-dotnet test tests/Mps.Ltmj.Tests/Mps.Ltmj.Tests.csproj --collect:"XPlat Code Coverage"
+dotnet test tests/Owh.Ltmj.Tests/Owh.Ltmj.Tests.csproj --no-build
+dotnet test tests/Owh.Ltmj.Tests/Owh.Ltmj.Tests.csproj --collect:"XPlat Code Coverage"
 ```
 
 Mantenha a capitalização dos caminhos dos projetos na solução igual à dos diretórios reais; em sistemas case-sensitive, uma divergência impede o restore e o build. Não renomeie diretórios nem regrave a solução como efeito colateral de outras tarefas.
@@ -129,7 +129,7 @@ Antes de concluir:
 
 ## Guia para um futuro cliente NuGet
 
-Quando este template receber um cliente REST completo, siga também `src/Mps.Ltmj.Client/AGENTS.md` e confira os contratos reais da API antes de implementá-lo. A presença dessas diretrizes não cria o projeto nem autoriza migração de contratos existentes.
+Quando este template receber um cliente REST completo, siga também `src/Owh.Ltmj.Client/AGENTS.md` e confira os contratos reais da API antes de implementá-lo. A presença dessas diretrizes não cria o projeto nem autoriza migração de contratos existentes.
 
 1. Inventarie operações, controllers, requests, responses, validators, handlers, mapeadores e testes. Preserve verbos, rotas, status, JSON, enums e significado dos IDs.
 2. Defina cada contrato público uma única vez no projeto cliente, em `Features/<Recurso>Feature/Commands` ou `Queries`. Payloads e responses são classes simples, sem MediatR, ASP.NET Core, herança de entidades ou auditoria interna.
@@ -143,6 +143,8 @@ Quando este template receber um cliente REST completo, siga também `src/Mps.Ltm
 10. Teste HTTP em memória, autenticação, serialização, cancelamento, compatibilidade de payloads e correspondência das rotas com os controllers. Execute build, testes e `dotnet pack`; não publique sem pedido explícito.
 
 ## Identidade compartilhada
+
+- Root de cada cliente é exclusivo da operação Olivaw Hub; clientes usam contas sem root e perfis com somente as permissões necessárias. Cada serviço e ambiente possui chave JWT própria, sem reutilizar a chave do template, Hub ou DevOps.
 
 - Usuários, autenticação, perfis e permissões vêm de `../olivaw-identity`, por `ProjectReference`; não copie essas features para cada cliente.
 - O contexto local aplica `AddOlivawIdentity()`. Banco e migrations continuam no consumidor.

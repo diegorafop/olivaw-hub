@@ -1,8 +1,9 @@
+name: ms-ltmj-api-local
 services:
   ms-ltmj-api:
     build:
       context: ../..
-      dockerfile: ms-ltmj-api/src/Mps.Ltmj.Api/Dockerfile
+      dockerfile: ms-ltmj-api/src/Owh.Ltmj.Api/Dockerfile
       args:
         BUILD_CONFIG: Release
     env_file:
@@ -18,15 +19,15 @@ services:
       Identity__Issuer: ${Identity__Issuer:?Configure o emissor deste serviço}
       Identity__Audience: ${Identity__Audience:?Configure o destinatário deste serviço}
       Identity__SigningKey: ${Identity__SigningKey:?Configure a chave exclusiva deste serviço}
-      Identity__Bootstrap__Enabled: ${Identity__Bootstrap__Enabled:-false}
       Identity__Bootstrap__Email: ${Identity__Bootstrap__Email:-}
       Identity__Bootstrap__Password: ${Identity__Bootstrap__Password:-}
-      Database__ApplyMigrations: ${Database__ApplyMigrations:-false}
       masstransit__configured: ${masstransit__configured:-false}
       masstransit__server: ${masstransit__server:-ms-rabbit-mq}
       masstransit__user: ${masstransit__user:-}
       masstransit__password: ${masstransit__password:-}
       masstransit__prefix: ${masstransit__prefix:-ms-ltmj-api-prd}
+    volumes:
+    - portfolio-data:/app/data
     networks:
     - rabbit-net
     - postgres-net
@@ -42,3 +43,6 @@ networks:
   traefik-net:
     external: true
     name: ${TRAEFIK_NETWORK:-traefik-net}
+
+volumes:
+  portfolio-data:

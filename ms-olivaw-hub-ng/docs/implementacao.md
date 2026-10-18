@@ -23,3 +23,10 @@ DNS, TLS, API e implantação não são criados pela geração. O HTML público 
 ## Avatar do Hub
 
 O cabeçalho e o ícone do navegador passam a usar `public/assets/brand/olivaw-avatar-v1.png`, proposta de guardião robótico que mantém o “O” e o ponto luminoso. O arquivo para o grupo de WhatsApp está em `docs/identidade` na raiz do monorepo. Não altera a identidade própria da LTMJ.
+
+
+## 17/10/2026 — Avatar web v2 e ações suaves
+
+Avatar com transparência em `public/assets/brand/olivaw-avatar-web-v2.png`, aplicado ao cabeçalho, favicon e ícone para celular. A imagem original de WhatsApp permanece preservada. O fundo azul-marinho fazia parte do PNG v1; a v2 remove o fundo ao redor do símbolo.
+
+Ações públicas usam tokens `--action-background`, `--action-background-hover` e `--action-border`, com verde suave e texto na tinta da marca. O botão do cabeçalho tem superfície mais leve que o CTA principal, preservando a hierarquia. Validação visual em desktop e celular; sem implantação nesta alteração.

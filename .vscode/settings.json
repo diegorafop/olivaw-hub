@@ -57,5 +57,6 @@
     "**/artifacts": true,
     "**/BenchmarkDotNet.Artifacts": true
   },
-  "python.terminal.useEnvFile": true
+  "python.terminal.useEnvFile": true,
+  "dotnet.defaultSolution": "OlivawHub.sln"
 }

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <PackageId>Owh.Limpo.Client</PackageId>
+        <Version>0.1.0</Version>
+        <Authors>Olivaw Hub</Authors>
+        <Company>Olivaw Hub</Company>
+        <Description>Biblioteca de contratos públicos e cliente REST do Owh.Limpo.</Description>
+        <RepositoryType>git</RepositoryType>
+
+        <IsPackable>true</IsPackable>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
+</Project>

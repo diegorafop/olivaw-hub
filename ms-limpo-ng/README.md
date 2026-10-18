@@ -43,7 +43,7 @@ Abra `http://localhost:4200`. O frontend inicia sozinho e não exige backend par
 }
 ```
 
-O navegador chama essa URL diretamente, por exemplo `http://localhost:5137/identity/autenticacao/login`. Não existe proxy de API no Angular ou no Nginx. Em produção, configure a URL pública HTTPS da API, por exemplo `https://api.cliente.example.com`. O endereço deve ser acessível ao navegador do usuário; nomes internos Docker como `ms-limpo-api` não servem para isso.
+O navegador chama essa URL diretamente, por exemplo `http://localhost:5137/identity/authentication/login`. Não existe proxy de API no Angular ou no Nginx. Em produção, configure a URL pública HTTPS da API, por exemplo `https://api.cliente.example.com`. O endereço deve ser acessível ao navegador do usuário; nomes internos Docker como `ms-limpo-api` não servem para isso.
 
 A configuração é carregada antes das rotas, sem cache e sem passar pelos interceptors. A URL deve ser absoluta e usar HTTP(S), sem credenciais, query ou fragmento. Arquivo ausente ou inválido impede a inicialização. A API precisa permitir a origem pública do frontend via CORS, incluindo métodos utilizados e os headers `Authorization` e `Content-Type`. Não é necessário compartilhar rede Docker entre frontend e API, pois a chamada parte do navegador. A configuração CORS do backend deve ser revisada na implantação; este template não altera a API.
 
@@ -57,11 +57,11 @@ Idioma inicial: `pt-BR`. Pipes de datas e números usam esse locale; declare `BR
 
 Integração com os contratos atuais do [Olivaw Identity](../docs/identidade.md):
 
-- `POST /identity/autenticacao/login`: `{ login, senha }` → `{ accessToken, expiresAt }`.
-- `GET /identity/autenticacao/acesso`: `{ usuarioId, nome, root, autorizacoes }`.
-- `POST /identity/autenticacao/logout`: corpo `{}`; o backend revoga todas as sessões do usuário.
+- `POST /identity/authentication/login`: `{ login, senha }` → `{ accessToken, expiresAt }`.
+- `GET /identity/authentication/acesso`: `{ usuarioId, nome, root, autorizacoes }`.
+- `POST /identity/authentication/logout`: corpo `{}`; o backend revoga todas as sessões do usuário.
 
-O prefixo da configuração pública é adicionado a esses caminhos. O estado `AutenticacaoStore.autenticacao` contém token, validade e usuário com permissões somente após login e consulta de acesso bem sucedidos. Fica em memória; recarregar a página exige novo login. Não usa localStorage, cookies, persistência de senha ou refresh token.
+O prefixo da configuração pública é adicionado a esses caminhos. O estado `AuthenticationStore.autenticacao` contém token, validade e usuário com permissões somente após login e consulta de acesso bem sucedidos. Fica em memória; recarregar a página exige novo login. Não usa localStorage, cookies, persistência de senha ou refresh token.
 
 O token acompanha apenas a origem e o prefixo configurados da API. Expiração e respostas 401 autenticadas encerram a sessão local. Logout tenta revogar a sessão no servidor e limpa o estado mesmo quando a API falha; nesse caso a revogação remota não é garantida. Permissões são um retrato da consulta de acesso, e a API continua responsável por validar cada operação.
 

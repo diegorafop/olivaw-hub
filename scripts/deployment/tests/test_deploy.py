@@ -67,7 +67,7 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(['run', result['id']], command[-2:])
         self.assertNotIn('shell', run.call_args.kwargs)
         self.assertEqual(self.request['folder'], self.executor.load(result['id'])['folder'])
-        self.assertNotIn('folder', result)
+        self.assertEqual(self.request['folder'], result['folder'])
         self.assertEqual(0, self.executor.path(result['id']).stat().st_mode & 0o077)
 
     @patch.object(deploy.subprocess, 'run')
@@ -95,7 +95,7 @@ class DeploymentTests(unittest.TestCase):
             self.executor.run(job['id'])
         self.assertEqual('succeeded', self.executor.load(job['id'])['status'])
         self.assertEqual(self.root / folder, calls[-1][1])
-        self.assertEqual(4, len(calls))
+        self.assertEqual(5, len(calls))
 
     @patch.object(deploy, 'run_step', return_value=0)
     def test_worker_does_not_compose_when_service_still_missing_after_pull(self, run):
@@ -180,20 +180,20 @@ class DeploymentTests(unittest.TestCase):
         self.executor.run(job['id'])
         saved = self.executor.load(job['id'])
         self.assertEqual('succeeded', saved['status'])
-        self.assertEqual(4, run.call_count)
+        self.assertEqual(5, run.call_count)
         self.assertEqual(['/usr/bin/git', 'fetch', 'origin'], run.call_args_list[0].args[0])
         self.assertEqual(['/usr/bin/git', 'checkout', 'develop'], run.call_args_list[1].args[0])
         self.assertEqual(['/usr/bin/git', 'pull', '--ff-only', 'origin', 'develop'], run.call_args_list[2].args[0])
         for call in run.call_args_list[:3]:
             self.assertEqual(self.root / 'olivaw-hub', call.args[1])
-        self.assertIn('docker/docker-compose.dev.yml', run.call_args_list[3].args[0])
-        self.assertIn('--build', run.call_args_list[3].args[0])
-        self.assertEqual(self.root / self.request['folder'], run.call_args_list[3].args[1])
+        self.assertIn('docker/docker-compose.dev.yml', run.call_args_list[4].args[0])
+        self.assertIn('--build', run.call_args_list[4].args[0])
+        self.assertEqual(self.root / self.request['folder'], run.call_args_list[4].args[1])
         self.executor.run(job['id'])
-        self.assertEqual(4, run.call_count)
+        self.assertEqual(5, run.call_count)
 
     def test_worker_stops_on_checkout_pull_or_docker_failure(self):
-        for index in range(4):
+        for index in range(5):
             job = self.job()
             with patch.object(deploy, 'run_step', side_effect=[0] * index + [1]) as run:
                 self.executor.run(job['id'])
@@ -245,6 +245,45 @@ class DeploymentTests(unittest.TestCase):
         killpg.assert_called_once_with(42, deploy.signal.SIGKILL)
         self.assertTrue(popen.call_args.kwargs['start_new_session'])
         self.assertEqual(subprocess.DEVNULL, popen.call_args.kwargs['stdin'])
+
+    def test_cleanup_uses_fixed_commands_without_pruning_persistent_resources(self):
+        commands = [arguments for _, arguments in deploy.cleanup_commands()]
+        self.assertIn(['/usr/bin/docker', 'image', 'prune', '--all', '--force'], commands)
+        self.assertIn(['/usr/bin/docker', 'builder', 'prune', '--all', '--force'], commands)
+        self.assertIn(['/usr/bin/sudo', '-n', '/usr/bin/systemd-tmpfiles', '--clean', '--prefix=/tmp', '--prefix=/var/tmp'], commands)
+        self.assertIn(['/usr/bin/sudo', '-n', '/usr/bin/journalctl', '--vacuum-time=7d', '--vacuum-size=100M'], commands)
+        for arguments in commands:
+            self.assertNotIn('volume', arguments)
+            self.assertNotIn('network', arguments)
+            self.assertNotIn('container', arguments)
+            self.assertNotIn('rm', arguments)
+
+    @patch.object(deploy, 'run_step', return_value=0)
+    def test_cleanup_records_completion_and_free_space(self, run):
+        job = dict(id=str(uuid.uuid4()), kind='disk-cleanup', status='queued', log='Queued.')
+        self.executor.save(job)
+        self.executor.run(job['id'])
+        result = self.executor.load(job['id'])
+        self.assertEqual('succeeded', result['status'])
+        self.assertIn('Free bytes before:', result['log'])
+        self.assertIn('Free bytes after:', result['log'])
+        self.assertIn('Reclaimed bytes:', result['log'])
+        self.assertEqual(len(deploy.cleanup_commands()), run.call_count)
+
+    @patch.object(deploy, 'run_step', side_effect=[0, 1])
+    def test_cleanup_stops_after_failed_command(self, run):
+        job = dict(id=str(uuid.uuid4()), kind='disk-cleanup', status='queued', log='Queued.')
+        self.executor.save(job)
+        self.executor.run(job['id'])
+        self.assertEqual('failed', self.executor.load(job['id'])['status'])
+        self.assertEqual(2, run.call_count)
+
+    def test_cleanup_rejects_custom_commands(self):
+        response = deploy.gateway(self.executor, json.dumps({'action': 'cleanup', 'command': 'rm -rf /'}))
+        self.assertEqual({'success': False, 'error': 'invalid_request'}, response)
+
+    def test_public_job_includes_folder_for_api_authorization(self):
+        self.assertEqual(self.request['folder'], self.executor.public(self.job())['folder'])
 
 
 if __name__ == '__main__':

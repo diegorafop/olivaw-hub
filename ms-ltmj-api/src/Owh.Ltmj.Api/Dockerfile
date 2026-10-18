@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIG=Release
+WORKDIR /src
+COPY . .
+RUN dotnet restore ms-ltmj-api/src/Owh.Ltmj.Api/Owh.Ltmj.Api.csproj
+RUN dotnet publish ms-ltmj-api/src/Owh.Ltmj.Api/Owh.Ltmj.Api.csproj -c ${BUILD_CONFIG} --no-restore -o /app/publish
+
+FROM build AS tests
+ARG BUILD_CONFIG=Release
+RUN dotnet test olivaw-identity/tests/Olivaw.Identity.Tests/Olivaw.Identity.Tests.csproj -c ${BUILD_CONFIG}
+RUN dotnet test ms-olivaw-core-api/tests/Owh.OlivawCore.Tests/Owh.OlivawCore.Tests.csproj -c ${BUILD_CONFIG}
+RUN dotnet test ms-ltmj-api/tests/Owh.Ltmj.Tests/Owh.Ltmj.Tests.csproj -c ${BUILD_CONFIG}
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+ENV ASPNETCORE_HTTP_PORTS=8080
+EXPOSE 8080
+COPY --from=tests --chown=app:app /app/publish .
+RUN mkdir -p /app/data/portfolio && chown -R app:app /app/data
+USER app
+ENTRYPOINT ["dotnet", "Owh.Ltmj.Api.dll"]

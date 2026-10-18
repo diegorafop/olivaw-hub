@@ -2,6 +2,25 @@ import { expect, test } from '@playwright/test';
 
 test('menu mobile e marca oficial sem transbordamento', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/portfolio/events?*', (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          {
+            id: 'churrasco',
+            title: 'Churrasco de confraternização',
+            description: 'Churrasco da LTMJ',
+            category: 'Confraternizações',
+            isVisible: true,
+            photos: Array.from({ length: 12 }, (_, index) => ({
+              id: String(index),
+              url: `assets/events/churrasco-confraternizacao/churrasco${String(index + 1).padStart(2, '0')}.jpeg`,
+            })),
+          },
+        ],
+      },
+    }),
+  );
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Você vive');
   await expect(page.getByRole('img', { name: /Logotipo oficial LTMJ/ })).toBeVisible();
@@ -21,8 +40,27 @@ test('prepara orçamento revisável sem enviar dados à API', async ({ page, con
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   let apiRequests = 0;
   page.on('request', (request) => {
-    if (request.url().startsWith('https://api.ltmj.')) apiRequests++;
+    if (request.url().startsWith('https://api.ltmj.') && request.method() !== 'GET') apiRequests++;
   });
+  await page.route('**/portfolio/events?*', (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          {
+            id: 'churrasco',
+            title: 'Churrasco de confraternização',
+            description: 'Churrasco da LTMJ',
+            category: 'Confraternizações',
+            isVisible: true,
+            photos: Array.from({ length: 12 }, (_, index) => ({
+              id: String(index),
+              url: `assets/events/churrasco-confraternizacao/churrasco${String(index + 1).padStart(2, '0')}.jpeg`,
+            })),
+          },
+        ],
+      },
+    }),
+  );
   await page.goto('/');
   await page.getByRole('combobox', { name: 'Qual é a ocasião?' }).click();
   await page.getByRole('option', { name: 'Casamento', exact: true }).click();
@@ -41,11 +79,49 @@ test('prepara orçamento revisável sem enviar dados à API', async ({ page, con
   await expect(page.locator('a[href^="https://wa.me/"]')).toHaveCount(0);
   await page.getByRole('textbox', { name: 'Cidade do evento' }).fill('Pinhais');
   await expect(review).toHaveCount(0);
+  await page.route('**/portfolio/events?*', (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          {
+            id: 'churrasco',
+            title: 'Churrasco de confraternização',
+            description: 'Churrasco da LTMJ',
+            category: 'Confraternizações',
+            isVisible: true,
+            photos: Array.from({ length: 12 }, (_, index) => ({
+              id: String(index),
+              url: `assets/events/churrasco-confraternizacao/churrasco${String(index + 1).padStart(2, '0')}.jpeg`,
+            })),
+          },
+        ],
+      },
+    }),
+  );
   await page.goto('/');
   await page.screenshot({ path: testInfo.outputPath('ltmj-desktop.png'), fullPage: true });
 });
 
 test('mural filtra ocasiões e apresenta o churrasco com fotos', async ({ page }) => {
+  await page.route('**/portfolio/events?*', (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          {
+            id: 'churrasco',
+            title: 'Churrasco de confraternização',
+            description: 'Churrasco da LTMJ',
+            category: 'Confraternizações',
+            isVisible: true,
+            photos: Array.from({ length: 12 }, (_, index) => ({
+              id: String(index),
+              url: `assets/events/churrasco-confraternizacao/churrasco${String(index + 1).padStart(2, '0')}.jpeg`,
+            })),
+          },
+        ],
+      },
+    }),
+  );
   await page.goto('/');
   const mural = page.getByRole('region', { name: /Histórias servidas/ });
   await expect(mural.locator('article')).toHaveCount(1);

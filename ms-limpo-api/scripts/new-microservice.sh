@@ -32,11 +32,13 @@ if [[ "$output_parent" != "$monorepo_dir" ]]; then
 fi
 
 dotnet new install "$repo_dir" --force
-dotnet new mps-microservice \
+dotnet new owh-microservice \
     --name "$service_name" \
     --serviceSlug "$service_slug" \
     --serviceToken "$service_token" \
     --databaseOwnerInput "$database_owner" \
     --output "$output_dir"
+
+python3 "$script_dir/configure-generated-service.py" "$repo_dir" "$output_dir" "$service_slug" "$database_owner"
 
 echo "Microservice criado em: $output_dir"

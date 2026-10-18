@@ -1,29 +1,19 @@
-# Gerar um microservice de cliente
+# Gerar um microservice
 
 Na raiz do monorepo:
 
 ```bash
-bash ms-limpo-api/scripts/new-microservice.sh pastelaria-joao ./ms-pastelaria-joao-api pastelaria
+bash ms-limpo-api/scripts/new-microservice.sh cliente-novo ./ms-cliente-novo-api cliente_novo
 ```
 
-O script instala o template local do `dotnet new` e gera `ms-pastelaria-joao-api`, com solução, projetos e namespaces em `Mps.PastelariaJoao`. O destino não pode existir e deve ser uma pasta diretamente na raiz do monorepo, ao lado de `olivaw-identity` e `ms-olivaw-core-api`, para preservar os caminhos dos `ProjectReference`.
+O gerador usa `dotnet new owh-microservice` e cria projetos e namespaces `Owh.ClienteNovo`. O destino deve ser uma pasta nova diretamente na raiz do monorepo. Ele referencia core e identidade sem duplicar as bibliotecas.
 
-O cliente importa as bibliotecas compartilhadas; as features de identidade não são copiadas. O cliente mantém seu `DbContext`, suas migrations, suas funcionalidades e a conexão com o banco da organização e seu schema exclusivo. O projeto `.Client` é uma biblioteca base, sem implementação automática de cliente REST.
+O projeto começa com identidade local, migration inicial, diretórios `Domain`, `Repositories`, `Services` e `Requests` e suas instruções. A API também contém `Domain/AGENTS.md` para orientar a separação entre modelos internos e entidades do núcleo. Não inclui entidades ou endpoints demonstrativos.
 
-Após gerar:
+`configure-generated-service.py` cria os dotenv iniciais versionados com emissor, audiência, secret e senha de root independentes por serviço/ambiente. Esse passo ocorre somente ao gerar o projeto: não existem scripts para reconstruir configurações em cada clone. A infraestrutura compartilhada permanece configurada como no template; revise os bancos e domínios do novo cliente antes de publicar. O gerador não conecta ao banco nem publica containers.
 
-1. Adicione os projetos do cliente à `OlivawHub.sln` se ele fizer parte da solução de trabalho.
-2. Configure conexão, emissor/destinatário JWT e chave exclusiva por ambiente ou secret store.
-3. Crie e revise a migration inicial no projeto de provedor do cliente; não há schema herdado do antigo sistema.
-4. Prepare o banco e execute o bootstrap de root uma vez, conforme [Olivaw Identity](../olivaw-identity/README.md).
-5. Compile e teste o cliente e os módulos compartilhados antes de implantar.
+As migrations do template descrevem exclusivamente o modelo básico de identidade. Cada novo serviço mantém seu próprio histórico e deve gerar migrations adicionais para suas entidades. O startup aplica migrations e garante root automaticamente; não gera arquivos de migrations no runtime. Novos clientes mantêm bancos e usuários próprios.
 
-O template exclui `.env`, certificados, binários e metadados de ferramentas. O Dockerfile gerado usa a raiz do monorepo como contexto; não exige feed NuGet privado nem chave Gitea para consumir core/identidade.
+Para um serviço interno consumidor do Hub, registre `AddOlivawIdentityConsumer` em vez de `AddOlivawIdentity`, remova `AddOlivawIdentity()` do modelo de dados e o bootstrap do startup e gere a migration própria. Configure o mesmo emissor, audiência e secret do Hub. Esse consumidor usa apenas o JWT; não acessa o banco de identidade nem consulta o Hub por requisição.
 
-## Infraestrutura e configuração de ambientes
-
-O dono do banco é o terceiro argumento do script e usa snake_case; o padrão é `olivaw` para serviços internos. O exemplo acima configura `pastelaria_dev` até `pastelaria_prd`, com schema `ms_pastelaria_joao`. Sem o terceiro argumento, `cloud-validacao` usa `olivaw_dev` até `olivaw_prd` e schema `ms_cloud_validacao`. A geração apenas configura os nomes: não cria bancos ou schemas. Serviços, imagens, routers e domínios preservam o nome em kebab-case. Produção usa `api.<slug>.olivaw-hub.duckdns.org`; ambientes adicionais inserem seu sufixo antes da base DuckDNS.
-
-O gerador exclui todos os dotenv locais com credenciais e inclui apenas `.env.example`. Prepare credenciais por serviço e configure o JWT conforme o emissor principal da organização; o template atual inclui identidade local e serviços agregados precisarão de adaptação antes de usá-lo. Configure os segredos antes de executar o Compose. Veja [configuração de nuvem](../docs/cloud.md).
-
-A identidade é mantida somente no serviço principal do cliente. Serviços agregados compartilharão o emissor e validarão seus tokens, sem duplicar usuários. Veja as limitações atuais e a governança dos schemas no [guia de nuvem](../docs/cloud.md).
+Veja [Olivaw Identity](../olivaw-identity/README.md) e [arquitetura de identidade](../docs/identity-architecture.md).

@@ -3,7 +3,7 @@
 ## Quem faz o quê
 
 ```text
-POST /implantacoes → CQS → SshDeploymentService → ProcessExecutionService
+POST /deployments → CQS → SshDeploymentService → ProcessExecutionService
                                                      │ JSON via SSH
                                                      ▼
                            /opt/olivaw/deploy.py (comando fixo da chave)
@@ -18,16 +18,16 @@ O script usa apenas a biblioteca padrão Python 3, já comum em Linux. O systemd
 
 ## Contrato HTTP
 
-Autenticação JWT e permissão `devops.implantar` continuam obrigatórias para ambas as rotas.
+Autenticação JWT e permissão `devops.deploy` continuam obrigatórias para ambas as rotas.
 
 ```http
-POST /implantacoes
+POST /deployments
 Content-Type: application/json
 
 {"folder":"olivaw-hub/ms-devops-api","branch":"develop","environment":"dev"}
 ```
 
-Retorna **202 Accepted**, `Location: /implantacoes/<id>` e corpo `{"id":"<uuid>","status":"queued","log":"Deployment queued."}`. Consulte `GET /implantacoes/<id>` para acompanhar `queued`, `running`, `succeeded` ou `failed`.
+Retorna **202 Accepted**, `Location: /deployments/<id>` e corpo `{"id":"<uuid>","status":"queued","log":"Deployment queued."}`. Consulte `GET /deployments/<id>` para acompanhar `queued`, `running`, `succeeded` ou `failed`.
 
 Erro de entrada/conexão/protocolo/aceite é `ValidationProblemDetails` HTTP 400; job inexistente retorna 404. Falha de checkout, pull, build ou Compose é um **job `failed`**, consultável com HTTP 200 e log seguro. A saída bruta dos comandos é descartada; nenhum segredo ou stack trace é enviado ao cliente.
 
@@ -89,15 +89,15 @@ Antes de subir, provisione os arquivos; o Compose base recusa criar diretórios 
 O worker encontra a raiz Git existente acima da pasta autorizada e executa `git fetch origin`, checkout e `git pull --ff-only origin <branch>` nessa raiz. Só depois verifica a pasta do serviço e seus arquivos de ambiente/Compose, e executa nela:
 
 ```bash
-docker compose --env-file docker/.env.dev \
+docker compose --project-name <servico>-<ambiente> --env-file docker/.env.dev \
   -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build
 ```
 
-O ambiente validado seleciona os arquivos `dev/qas/stg/rls/prd`. Para o primeiro projeto externo na VM, use `folder=lisierp` (nome exibido no console); não use o nome local `lisifin` sem conferir a pasta remota.
+O worker define o projeto Compose como `<nome-da-pasta-do-servico>-<ambiente>` para serviços dentro de `olivaw-hub`, por exemplo `ms-ltmj-api-prd`. Isso mantém containers, volumes e demais recursos do Compose no escopo correto. Na primeira implantação após essa mudança, ele remove apenas o container do serviço alvo que ainda pertença ao antigo projeto compartilhado `docker`; volumes não são removidos. Para `lisierp`, preserva o nome e o fluxo configurados no próprio Compose. O ambiente validado seleciona os arquivos `dev/qas/stg/rls/prd`. Para o primeiro projeto externo na VM, use `folder=lisierp` (nome exibido no console); não use o nome local `lisifin` sem conferir a pasta remota.
 
 `--build` é necessário para publicar as alterações de código obtidas pelo Git. A fila usa um lock único **na VM**, incluindo serviços do mesmo monorepo, evitando checkout concorrente. A API não mantém mais `DeploymentGate` local.
 
-Cada etapa tem timeout (300s padrão); o worker inteiro expira após 1800s, incluindo espera pelo lock. O timeout encerra o grupo de processos da etapa; o systemd controla o restante do serviço. Falhas interrompem as próximas etapas, sem rollback. Preserve e monitore a pasta de estado; retenção/limpeza de jobs finalizados, health checks pós-deploy e rollback ficam para evoluções futuras.
+Cada etapa tem timeout configurável (1200s no arquivo de referência); o worker inteiro expira após 1800s, incluindo espera pelo lock. O timeout encerra o grupo de processos da etapa; o systemd controla o restante do serviço. Falhas interrompem as próximas etapas, sem rollback. Preserve e monitore a pasta de estado; retenção/limpeza de jobs finalizados, health checks pós-deploy e rollback ficam para evoluções futuras.
 
 ## Arquivos e testes
 
@@ -108,7 +108,7 @@ Cada etapa tem timeout (300s padrão); o worker inteiro expira após 1800s, incl
 
 ```bash
 python3 -m unittest discover -s scripts/deployment/tests -v
-dotnet test ms-devops-api/tests/Mps.Devops.Tests/Mps.Devops.Tests.csproj
+dotnet test ms-devops-api/tests/Owh.Devops.Tests/Owh.Devops.Tests.csproj
 ```
 
 Os testes simulam SSH, systemd, Git e Docker; usam apenas arquivos temporários locais. A instalação real, conectividade, permissões, imagem e sobrevivência a reinício precisam de validação posterior na VM.
@@ -117,7 +117,7 @@ Referências: [restrições de chaves SSH](https://man.openbsd.org/sshd.8), [ver
 
 ## Deploy de serviços pelo DevOps
 
-O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.devops.olivaw-hub.duckdns.org` com o login `root`, solicita a implantação do serviço informado e acompanha o job até sucesso ou falha. A senha fica no script por autorização explícita do mantenedor, até Key Vault; nunca imprima senha ou token.
+O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw-hub.duckdns.org` usando a conta técnica definida para o serviço, solicita a implantação e acompanha o job até sucesso ou falha. Cada serviço tem `deployment/hub-credentials.env` no próprio diretório; serviços administrativos usam a conta root, enquanto clientes usam sua conta técnica. Os arquivos são versionados conforme decisão do mantenedor, mas excluídos dos contextos Docker; nunca imprima senha ou token.
 
 Na raiz do clone, os três argumentos são obrigatórios:
 
@@ -136,11 +136,13 @@ bash scripts/deployment/deploy.sh lisierp prd master
 
 Para serviços com prefixo `ms-`, o cliente monta `folder=olivaw-hub/<servico>`. Para repositórios independentes, como `lisierp`, usa `folder=<servico>`. Em ambos os casos, usa o ambiente `dev/qas/rls/stg/prd` e envia a branch informada. Exibe o destino antes de autenticar; não há serviço, ambiente ou branch implícitos. Novos serviços não exigem editar esse script.
 
+O repositório independente do Lisierp também mantém um cliente local próprio em `scripts/deploy-lisierp.sh` e `scripts/deploy-lisierp.ps1`. Esses scripts usam o Node.js 24 do próprio projeto, leem `deployment/hub-credentials.env` e não dependem do clone do monorepo Olivaw. O script do Hub resolve o checkout local do Lisierp pelo mapa `scripts/deployment/external-services.json` (ou `OLIVAW_LISIERP_SERVICE_DIR`); isso serve apenas para selecionar a conta ao disparar o job, enquanto o executor AWS continua implantando a pasta remota `lisierp`.
+
 Cada serviço deve ter `docker/.env.<ambiente>`, `docker/docker-compose.yml` e `docker/docker-compose.<ambiente>.yml` na branch publicada. Seu caminho completo precisa estar em `allowedFolders` de `/etc/olivaw/deployment.json` na VM. O exemplo versionado inclui o frontend institucional e DevOps; não modifica a configuração já instalada. Não adicione frontends a `sshOverrideFolders`; essa opção preserva a integração SSH específica do DevOps.
 
-Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. `DEVOPS_API_URL` e `DEVOPS_ROOT_PASSWORD` substituem os valores fixos sem editar o arquivo.
+Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. Ele lê `deployment/hub-credentials.env` na pasta do serviço; deploys administrativos usam a conta root guardada nas respectivas pastas. A lista de repositórios independentes fica em `scripts/deployment/external-services.json`; `OLIVAW_LISIERP_SERVICE_DIR` permite substituir localmente o caminho temporário da Lisierp.
 
-A branch deve estar publicada com todos os arquivos de implantação. Se a senha root já tiver sido alterada no banco, atualize a credencial do script; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente porque o logout atual revoga todas as sessões root. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
+A branch deve estar publicada com todos os arquivos de implantação. Se uma senha for alterada no Hub, atualize o arquivo versionado da conta correspondente; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente, então o JWT segue válido até expirar. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
 
 ## Primeiro deploy de um serviço e compatibilidade com lisierp
 
@@ -160,3 +162,33 @@ Não é necessário reconstruir a API DevOps para essa alteração de script. A 
 ## Permissões dos arquivos da API
 
 Os Dockerfiles do DevOps, template e API LTMJ copiam o publish com `--chown=app:app` e executam como `USER app`. Isso permite ler appsettings e assemblies mesmo quando o checkout do executor herda `umask 077`. O usuário Linux do container é `app`; ele não é o usuário root da aplicação nem o usuário SSH da VM. Se a API estiver fora do ar, reconstruir seu container diretamente pelo Compose na VM; o cliente HTTP de deploy depende de a API responder.
+
+
+
+## Limpeza do EC2 pelo Hub
+
+```bash
+bash scripts/deployment/cleanup.sh
+bash scripts/deployment/cleanup.sh --no-wait
+```
+
+O script autentica no Hub e solicita `POST /disk-cleanups` na DevOps. O acompanhamento usa `GET /disk-cleanups/{id}`. As duas rotas exigem o claim root no JWT interno. Não há autenticação local nem consulta ao Hub durante a validação de requisições na DevOps.
+
+O executor roda na VM via SSH, com argv fixo e sem aceitar comandos do cliente:
+
+- `docker builder prune --all --force`: cache de build sem uso.
+- `docker image prune --all --force`: imagens sem containers associados.
+- `sudo -n systemd-tmpfiles --clean --prefix=/tmp --prefix=/var/tmp`: temporários vencidos pelas regras do Linux.
+- `sudo -n journalctl --vacuum-time=7d --vacuum-size=100M`: journal arquivado.
+
+Volumes, containers, redes e arquivos de logs ativos são preservados. Limpeza e deploy usam o mesmo lock. O job registra bytes livres antes e depois, bytes recuperados e os códigos de saída. Falha em uma etapa interrompe as seguintes.
+
+Na VM, atualize o executor e, se necessário para o usuário SSH, instale a permissão sudo restrita. Os comandos abaixo não iniciam a limpeza:
+
+```bash
+sudo install -o root -g root -m 0644 scripts/deployment/deploy.py /opt/olivaw/deploy.py
+sudo visudo -cf scripts/deployment/olivaw-cleanup.sudoers
+sudo install -o root -g root -m 0440 scripts/deployment/olivaw-cleanup.sudoers /etc/sudoers.d/olivaw-cleanup
+```
+
+A primeira publicação da nova autoridade e da DevOps está no [roteiro de identidade](identity-architecture.md). Cada usuário técnico precisa de permissão de deploy por pasta; o JWT root da operação mantém acesso administrativo.

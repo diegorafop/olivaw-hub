@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
       >
         <img
           class="brand-mark"
-          src="assets/brand/olivaw-avatar-v1.png"
+          src="assets/brand/olivaw-avatar-web-v2.png"
           width="48"
           height="48"
           alt=""
@@ -62,19 +62,29 @@ import { RouterLink } from '@angular/router';
       display: block;
       width: 3rem;
       height: 3rem;
-      border-radius: 50%;
-      object-fit: cover;
+      border-radius: 0;
+      object-fit: contain;
       flex-shrink: 0;
     }
     .nav-cta {
-      background: var(--brand-ink);
-      color: white;
-      padding: 0.8rem 1.2rem;
+      background: var(--brand-mist);
+      color: var(--brand-ink);
+      border: 1px solid var(--action-border);
+      min-height: 44px;
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition:
+        background 0.2s,
+        border-color 0.2s;
+      padding: 0.65rem 1.1rem;
       border-radius: 2rem;
     }
     .nav-cta:hover {
-      color: white;
-      background: var(--mat-sys-primary);
+      color: var(--brand-ink);
+      background: var(--action-background);
+      border-color: var(--brand-accent);
     }
   `,
 })

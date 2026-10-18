@@ -12,8 +12,9 @@
     </div>
     @if (isPreview) {
       <p class="preview-notice">
-        <strong>Prévia do mural de eventos.</strong> Os cartões abaixo são modelos de apresentação.
-        Fotos e histórias de eventos reais serão incluídas após a seleção do acervo pela LTMJ.
+        <strong>Prévia do mural de eventos.</strong> As fotos são do acervo real da LTMJ. As quatro
+        novas seleções são demonstrativas: agrupamentos e categorias precisam ser confirmados e não
+        representam quatro eventos distintos já identificados.
       </p>
     }
     <div class="my-8 flex flex-wrap gap-2" role="group" aria-label="Filtrar eventos por ocasião">
@@ -28,6 +29,13 @@
         </button>
       }
     </div>
+    @if (loading()) {
+      <p role="status">Carregando eventos…</p>
+    }
+    @if (error()) {
+      <p role="alert">Não foi possível carregar os eventos agora.</p>
+      <button mat-button (click)="loadMore()">Tentar novamente</button>
+    }
     <div class="event-grid">
       @for (event of visibleEvents(); track event.id) {
         <article class="event-card">
@@ -68,12 +76,19 @@
           </div>
         </article>
       } @empty {
-        <p class="empty-state" role="status">
-          Ainda não há eventos publicados nesta categoria. Explore as outras ocasiões ou acompanhe
-          as redes da LTMJ.
-        </p>
+        @if (!loading() && !error()) {
+          <p class="empty-state" role="status">
+            Ainda não há eventos publicados nesta categoria. Explore as outras ocasiões ou acompanhe
+            as redes da LTMJ.
+          </p>
+        }
       }
     </div>
+    @if (hasMore()) {
+      <button mat-stroked-button [disabled]="loading()" (click)="loadMore()">
+        Carregar mais eventos
+      </button>
+    }
     <div class="social-note">
       <p>
         Enquanto o acervo do site é organizado, acompanhe os registros reais publicados pela equipe.

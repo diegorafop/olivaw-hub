@@ -1,0 +1,2 @@
+ec2-user ALL=(root) NOPASSWD: /usr/bin/systemd-tmpfiles --clean --prefix\=/tmp --prefix\=/var/tmp
+ec2-user ALL=(root) NOPASSWD: /usr/bin/journalctl --vacuum-time\=7d --vacuum-size\=100M

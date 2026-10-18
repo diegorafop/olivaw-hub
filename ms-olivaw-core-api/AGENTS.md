@@ -1,22 +1,22 @@
-# Diretrizes de desenvolvimento — Mps.OlivawCore
+# Diretrizes de desenvolvimento — Owh.OlivawCore
 
 Este arquivo contém as regras globais do repositório. Os `AGENTS.md` dos projetos complementam estas regras no respectivo diretório. Em caso de conflito, siga a instrução mais específica e registre no PR decisões arquiteturais que extrapolem as diretrizes.
 
 ## Objetivo e arquitetura
 
-O `Mps.OlivawCore` reúne bibliotecas reutilizáveis do ecossistema OlivawCore, distribuídas como pacotes NuGet com suas DLLs para consumo pelos microservices. O objetivo é compartilhar contratos, extensões e infraestrutura sem replicar código entre serviços.
+O `Owh.OlivawCore` reúne bibliotecas reutilizáveis do ecossistema OlivawCore, distribuídas como pacotes NuGet com suas DLLs para consumo pelos microservices. O objetivo é compartilhar contratos, extensões e infraestrutura sem replicar código entre serviços.
 
 | Projeto / pacote | Target | Responsabilidade |
 | --- | --- | --- |
-| `Mps.OlivawCore` | `netstandard2.1`, C# 10 | Entidade base, contratos, requests e interfaces de repositório, serviços e configuração. |
-| `Mps.OlivawCore.Dados` | `net10.0` | Helpers e convenções de EF Core e `EntityValidator<T>`. |
-| `Mps.OlivawCore.Api` | `net10.0` | Extensões ASP.NET Core, validação, mapeamento, clientes HTTP, autenticação e mensageria. |
-| `Mps.OlivawCore.Tests` | `net10.0` | Testes das bibliotecas; não gera pacote. |
+| `Owh.OlivawCore` | `netstandard2.1`, C# 10 | Entidade base, contratos, requests e interfaces de repositório, serviços e configuração. |
+| `Owh.OlivawCore.Dados` | `net10.0` | Helpers e convenções de EF Core e `EntityValidator<T>`. |
+| `Owh.OlivawCore.Api` | `net10.0` | Extensões ASP.NET Core, validação, mapeamento, clientes HTTP, autenticação e mensageria. |
+| `Owh.OlivawCore.Tests` | `net10.0` | Testes das bibliotecas; não gera pacote. |
 
 ```text
-Mps.OlivawCore.Api   -> Mps.OlivawCore.Dados -> Mps.OlivawCore
-Mps.OlivawCore.Api   -> Mps.OlivawCore
-Mps.OlivawCore.Tests -> Mps.OlivawCore.Api
+Owh.OlivawCore.Api   -> Owh.OlivawCore.Dados -> Owh.OlivawCore
+Owh.OlivawCore.Api   -> Owh.OlivawCore
+Owh.OlivawCore.Tests -> Owh.OlivawCore.Api
 ```
 
 - Os três projetos de produção usam `Microsoft.NET.Sdk` e são bibliotecas. O sufixo `.Api` identifica utilitários para aplicações ASP.NET Core; o host pertence ao microservice consumidor.
@@ -29,15 +29,14 @@ Mps.OlivawCore.Tests -> Mps.OlivawCore.Api
 
 - Implemente capacidades compartilhadas que possam ser usadas por diferentes microservices, com contratos pequenos e explícitos.
 - Antes de alterar, inspecione a implementação mais próxima, seus consumidores internos, testes, referências e metadados de pacote.
-- Solicitações como `new feature` devem ser interpretadas no contexto destas bibliotecas. Não aplique automaticamente scaffolding de CRUD, controllers, handlers CQS, `ExampleFeature`, facade de tabelas ou migrations copiado de outro repositório.
-- `Domain/Example.cs` é usado pelos testes atuais; sua presença não define um módulo de negócio nem autoriza ampliar o domínio compartilhado com entidades específicas de um serviço.
+- Solicitações como `new feature` devem ser interpretadas no contexto destas bibliotecas. Não aplique automaticamente scaffolding de CRUD, controllers, handlers CQS, facade de tabelas ou migrations copiado de outro repositório.
 - CQS e MediatR podem ser usados pelos consumidores. Aqui, mantenha a infraestrutura transversal correspondente, como o pipeline de validação.
 - Quando faltar informação que altere materialmente um contrato público, esclareça o requisito; para decisões locais, siga os padrões existentes e informe suposições relevantes.
 
 ## Compatibilidade e empacotamento
 
 - Tipos públicos, namespaces, assinaturas, constraints genéricas, serialização, mensagens de validação e chaves de configuração fazem parte do contrato consumido por outros projetos.
-- Preserve compatibilidade de fonte e binária. Remover/renomear membros, adicionar membros obrigatórios a interfaces, alterar defaults ou mover tipos entre assemblies exige avaliação do impacto nos consumidores.
+- Preserve compatibilidade de fonte e binária. Delete/renomear membros, adicionar membros obrigatórios a interfaces, alterar defaults ou mover tipos entre assemblies exige avaliação do impacto nos consumidores.
 - Prefira evolução aditiva quando possível. Não transforme membros `internal` em `public` sem necessidade de consumo externo e contrato definido.
 - Preserve `PackageId`, targets, referências entre projetos e `IsPackable`. Não eleve o target do núcleo para acomodar uma dependência de infraestrutura.
 - As versões estão nos `.csproj`; mantenha coerência entre os pacotes de uma entrega. Use versionamento semântico: correção compatível em patch, capacidade compatível em minor e quebra de contrato em major.
@@ -87,11 +86,11 @@ Execute conforme o escopo, a partir da raiz:
 ```bash
 dotnet restore OlivawCore.sln
 dotnet build OlivawCore.sln -c Release --no-restore
-dotnet test tests/Mps.OlivawCore.Tests/Mps.OlivawCore.Tests.csproj -c Release --no-build
+dotnet test tests/Owh.OlivawCore.Tests/Owh.OlivawCore.Tests.csproj -c Release --no-build
 dotnet pack OlivawCore.sln -c Release --no-build -o ./dist/packages
 ```
 
-Para mudanças de comportamento, cubra os cenários relevantes com testes isolados. Quando necessário, colete cobertura com `dotnet test tests/Mps.OlivawCore.Tests/Mps.OlivawCore.Tests.csproj -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory ./dist/test-results`. Informe separadamente cobertura de linhas e ramificações, respeitando as exclusões documentadas no README. Alterações somente em documentação pedem conferência de comandos, caminhos e diff; não exigem execução da suíte.
+Para mudanças de comportamento, cubra os cenários relevantes com testes isolados. Quando necessário, colete cobertura com `dotnet test tests/Owh.OlivawCore.Tests/Owh.OlivawCore.Tests.csproj -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory ./dist/test-results`. Informe separadamente cobertura de linhas e ramificações, respeitando as exclusões documentadas no README. Alterações somente em documentação pedem conferência de comandos, caminhos e diff; não exigem execução da suíte.
 
 O fluxo Docker oficial de geração está no [README](README.md#gerar-pacotes-com-docker). Ele usa o SDK .NET 10, gera os pacotes em `dist/packages` e exporta os resultados de testes em `dist/results`. O target `final` exporta arquivos; não é uma imagem para executar um serviço e não envia pacotes ao Gitea.
 

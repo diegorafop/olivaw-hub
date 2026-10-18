@@ -1,6 +1,7 @@
+name: ms-ltmj-api-prd
 services:
   ms-ltmj-api:
-    container_name: ms-ltmj-api
+    container_name: ms-ltmj-api-prd
     image: ms-ltmj-api:prd
     environment:
       ASPNETCORE_ENVIRONMENT: Production
