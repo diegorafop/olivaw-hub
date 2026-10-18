@@ -4,11 +4,11 @@ services:
     container_name: ms-limpo-ng-stg
     image: ${FRONTEND_IMAGE:-ms-limpo-ng:stg}
     environment:
-      API_URL: ${API_URL:-https://api.limpo-stg.olivaw-hub.duckdns.org}
+      API_URL: ${API_URL:-https://api.limpo-stg.olivaw.com.br}
     labels:
       traefik.enable: 'true'
       traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
-      traefik.http.routers.ms-limpo-ng-stg.rule: Host(`${PUBLIC_HOST:-limpo-stg.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-limpo-ng-stg.rule: Host(`${PUBLIC_HOST:-limpo-stg.olivaw.com.br}`)
       traefik.http.routers.ms-limpo-ng-stg.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
       traefik.http.routers.ms-limpo-ng-stg.tls: 'true'
       traefik.http.routers.ms-limpo-ng-stg.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}

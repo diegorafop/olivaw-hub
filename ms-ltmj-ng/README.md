@@ -17,7 +17,7 @@ npx playwright install chromium
 npm run e2e
 ```
 
-Settings públicos: `public/config.json`. Tema: `src/theme/_brand.scss`. Site: https://ltmj.olivaw-hub.duckdns.org. API: https://api.ltmj.olivaw-hub.duckdns.org.
+Settings públicos: `public/config.json`. Tema: `src/theme/_brand.scss`. Site: https://ltmj.olivaw.com.br. API: https://api.ltmj.olivaw.com.br.
 
 Docker: `docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up --build -d`. Configure CORS na API para a origem do frontend. Não há proxy de API, refresh token nem persistência da sessão. Consulte o [template](../ms-limpo-ng/README.md) para os padrões compartilhados. Arquivos existentes no destino são preservados; a geração recusa conflitos e não atualiza projetos já gerados.
 
@@ -29,7 +29,7 @@ A landing page apresenta serviços reais descritos no briefing, o logo obtido do
 
 Fotos de eventos ainda não foram fornecidas/recuperadas. O mural próprio tem filtros por ocasião e detalhes com galeria. Enquanto o acervo real não chega, exibe modelos identificados, com acesso às redes oficiais; nenhum modelo é apresentado como trabalho realizado. O logo e sua origem estão em `public/assets/ltmj/`.
 
-Domínios técnicos propostos: `ltmj.olivaw-hub.duckdns.org` e `api.ltmj.olivaw-hub.duckdns.org`. Os cinco ambientes e dotenv acompanham o padrão do template; não houve publicação, registro DNS ou criação de banco. A gestão de eventos está implementada em `/gestao`, com login em `/gestao/entrar`; requer API, schema e permissão preparados. Consulte [gestão de portfólio](docs/gestao-portfolio.md). Para publicar, preparar infraestrutura, autorizar o serviço no executor e obter aprovação do cliente.
+Domínios técnicos propostos: `ltmj.olivaw.com.br` e `api.ltmj.olivaw.com.br`. Os cinco ambientes e dotenv acompanham o padrão do template; não houve publicação, registro DNS ou criação de banco. A gestão de eventos está implementada em `/gestao`, com login em `/gestao/entrar`; requer API, schema e permissão preparados. Consulte [gestão de portfólio](docs/gestao-portfolio.md). Para publicar, preparar infraestrutura, autorizar o serviço no executor e obter aprovação do cliente.
 
 Os testes E2E simulam a API futura e validam login, mobile e orçamento local. O protocolo de briefing em `docs/prototipos` da raiz é uma prova de conceito separada, não uma nova tela do site institucional.
 

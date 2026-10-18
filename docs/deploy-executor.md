@@ -117,7 +117,7 @@ Referências: [restrições de chaves SSH](https://man.openbsd.org/sshd.8), [ver
 
 ## Deploy de serviços pelo DevOps
 
-O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw-hub.duckdns.org` usando a conta técnica definida para o serviço, solicita a implantação e acompanha o job até sucesso ou falha. Cada serviço tem `deployment/olivaw-credentials.env` no próprio diretório; serviços administrativos usam a conta root, enquanto clientes usam sua conta técnica. Os arquivos são versionados conforme decisão do mantenedor, mas excluídos dos contextos Docker; nunca imprima senha ou token.
+O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw.com.br` usando a conta técnica definida para o serviço, solicita a implantação e acompanha o job até sucesso ou falha. Cada serviço tem `deployment/olivaw-credentials.env` no próprio diretório; serviços administrativos usam a conta root, enquanto clientes usam sua conta técnica. Os arquivos são versionados conforme decisão do mantenedor, mas excluídos dos contextos Docker; nunca imprima senha ou token.
 
 Na raiz do clone, os três argumentos são obrigatórios:
 

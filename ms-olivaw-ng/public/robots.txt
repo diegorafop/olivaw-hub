@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /login
-Sitemap: https://olivaw-hub.duckdns.org/sitemap.xml
+Sitemap: https://olivaw.com.br/sitemap.xml

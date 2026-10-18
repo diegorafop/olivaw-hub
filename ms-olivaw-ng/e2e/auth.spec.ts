@@ -10,8 +10,8 @@ test('rota pública e acesso direto protegido', async ({ page }) => {
 
 test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
   let logout = false;
-  await page.route('https://api.olivaw-hub.duckdns.org/identity/authentication/**', async (route) => {
-    expect(new URL(route.request().url()).origin).toBe('https://api.olivaw-hub.duckdns.org');
+  await page.route('https://api.olivaw.com.br/identity/authentication/**', async (route) => {
+    expect(new URL(route.request().url()).origin).toBe('https://api.olivaw.com.br');
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/login')) {
       expect(route.request().postDataJSON()).toEqual({ login: 'operador', password: 'password-exemplo' });
@@ -44,7 +44,7 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
 });
 
 test('erro de credenciais aparece uma única vez', async ({ page }) => {
-  await page.route('https://api.olivaw-hub.duckdns.org/identity/authentication/login', (route) =>
+  await page.route('https://api.olivaw.com.br/identity/authentication/login', (route) =>
     route.fulfill({ status: 401, json: { title: 'Credenciais inválidas.' } }),
   );
   await page.goto('/login');

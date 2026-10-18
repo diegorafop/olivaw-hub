@@ -2,6 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /gestao
 Disallow: /gestao/entrar
-Sitemap: https://ltmj.olivaw-hub.duckdns.org/sitemap.xml
+Sitemap: https://ltmj.olivaw.com.br/sitemap.xml
 
 Disallow: /previa-portfolio

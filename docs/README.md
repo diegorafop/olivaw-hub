@@ -21,3 +21,5 @@ Comece pelo guia de desenvolvimento para entender como os componentes se relacio
 
 - [Contrato do Registro.br: análise](registrobr/analise-contrato.md).
 - [Compra e validação do domínio](registrobr/validacao-dominio.md).
+
+- [Migração dos serviços para o domínio próprio](registrobr/migracao-servicos.md): DNS, Traefik, banco e scripts de deploy.

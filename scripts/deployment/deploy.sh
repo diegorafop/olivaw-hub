@@ -4,8 +4,8 @@ set +x
 set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 export OLIVAW_REPO_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
-export OLIVAW_API_URL="${OLIVAW_API_URL:-https://api.olivaw-hub.duckdns.org}"
-export DEVOPS_API_URL="${DEVOPS_API_URL:-https://api.devops.olivaw-hub.duckdns.org}"
+export OLIVAW_API_URL="${OLIVAW_API_URL:-https://api.olivaw.com.br}"
+export DEVOPS_API_URL="${DEVOPS_API_URL:-https://api.devops.olivaw.com.br}"
 exec python3 - "$@" <<'PYTHON'
 import argparse
 import json

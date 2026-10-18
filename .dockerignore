@@ -15,3 +15,7 @@
 .aws
 .codex
 .vscode
+
+docs/secrets
+
+**/*.pem

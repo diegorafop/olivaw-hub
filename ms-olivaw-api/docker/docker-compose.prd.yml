@@ -8,7 +8,7 @@ services:
     labels:
       traefik.enable: 'true'
       traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
-      traefik.http.routers.ms-olivaw-api-prd.rule: Host(`${PUBLIC_HOST:-api.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-api-prd.rule: Host(`${PUBLIC_HOST:-api.olivaw.com.br}`)
       traefik.http.routers.ms-olivaw-api-prd.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
       traefik.http.routers.ms-olivaw-api-prd.tls: 'true'
       traefik.http.routers.ms-olivaw-api-prd.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}

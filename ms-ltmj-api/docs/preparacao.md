@@ -2,7 +2,7 @@
 
 ## Entrega atual
 
-API derivada do template, com gestão de portfólio, com core e identidade por `ProjectReference`. Domínio técnico proposto: `api.ltmj.olivaw-hub.duckdns.org`. As cinco configurações e dotenv fazem parte do projeto; a configuração é versionada temporariamente no repositório privado até Key Vault.
+API derivada do template, com gestão de portfólio, com core e identidade por `ProjectReference`. Domínio técnico proposto: `api.ltmj.olivaw.com.br`. As cinco configurações e dotenv fazem parte do projeto; a configuração é versionada temporariamente no repositório privado até Key Vault.
 
 CRUD de eventos, consulta pública, visibilidade e upload multipart estão implementados. Consulte [gestão de portfólio](../../ms-ltmj-ng/docs/gestao-portfolio.md). Comentários e pedidos comerciais continuam fora desta entrega. A migration inicial PostgreSQL foi gerada e revisada, sem execução remota; consulte [migrations](migrations.md). O mantenedor informou a criação de `ltmj_prd`. Root, schema e tabelas ainda dependem da preparação do ambiente. Há testes próprios de portfólio além dos testes herdados.
 

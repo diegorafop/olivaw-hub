@@ -19,7 +19,7 @@ test('resumo é copiado localmente sem envio à API', async ({ page, context }, 
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   let apiRequests = 0;
   page.on('request', (request) => {
-    if (request.url().startsWith('https://api.olivaw-hub.duckdns.org')) apiRequests++;
+    if (request.url().startsWith('https://api.olivaw.com.br')) apiRequests++;
   });
   await page.goto('/');
   await page.getByLabel('Seu negócio', { exact: true }).fill('Empresa de eventos');

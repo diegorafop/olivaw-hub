@@ -5,7 +5,7 @@
 - Projeto gerado pela collection Angular Schematics de `ms-limpo-ng`, preservando o HTML de inspiração. Este documento consolida as decisões atuais e substitui a proposta inicial de marca.
 - Padrão técnico herdado: standalone, Signals/SignalStore, Material, Tailwind, tema centralizado, prerender público e administração CSR.
 - O HTML de referência não é servido nem importado pela aplicação. Sua marca, sequência de apresentação e proposta de simplicidade inspiram o conteúdo.
-- Frontend e API são serviços separados. Domínios previstos: `olivaw-hub.duckdns.org` e `api.olivaw-hub.duckdns.org`.
+- Frontend e API são serviços separados. Domínios previstos: `olivaw.com.br` e `api.olivaw.com.br`.
 - A API será criada depois. A página pública e o resumo local não dependem dela; login e administração exigem a API.
 
 ## Conteúdo aplicado

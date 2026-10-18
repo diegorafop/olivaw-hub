@@ -1,6 +1,6 @@
 # Identidade do Olivaw e dos clientes
 
-A `ms-olivaw-api` é a autoridade administrativa do Olivaw em `https://api.olivaw-hub.duckdns.org`. Mantém contas humanas da operação, contas técnicas de clientes, perfis, permissões e vínculos. O frontend institucional aponta para essa API.
+A `ms-olivaw-api` é a autoridade administrativa do Olivaw em `https://api.olivaw.com.br`. Mantém contas humanas da operação, contas técnicas de clientes, perfis, permissões e vínculos. O frontend institucional aponta para essa API.
 
 A `ms-devops-api` tem banco próprio, sem usuários, senhas, bootstrap ou endpoints de login. Ela valida assinatura, emissor, audiência e expiração dos JWTs do Olivaw localmente. Os serviços internos compartilham o secret interno por ambiente e usam os claims assinados até expirar. Não consultam o Olivaw por requisição. Alterações de permissões passam a valer ao emitir um novo token; logout na autoridade não revoga um token já emitido nos consumidores.
 
@@ -42,4 +42,4 @@ bash scripts/deployment/deploy.sh ms-olivaw-ng prd <branch-publicada>
 bash scripts/deployment/cleanup.sh
 ```
 
-Inclua `olivaw/ms-olivaw-api` na allowlist de `/etc/olivaw/deployment.json` e atualize o executor conforme [instalação e limpeza](deploy-executor.md). Preserve as entradas dos outros serviços. DNS/Traefik precisam encaminhar `api.olivaw-hub.duckdns.org` para o novo Olivaw. Os containers usam nomes com o sufixo do ambiente.
+Inclua `olivaw/ms-olivaw-api` na allowlist de `/etc/olivaw/deployment.json` e atualize o executor conforme [instalação e limpeza](deploy-executor.md). Preserve as entradas dos outros serviços. DNS/Traefik precisam encaminhar `api.olivaw.com.br` para o novo Olivaw. Os containers usam nomes com o sufixo do ambiente.
