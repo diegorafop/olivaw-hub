@@ -20,11 +20,11 @@ public class SshDeploymentServiceTest
         string captured = "";
         transport.Setup(item => item.ExecuteAsync(It.IsAny<string>(), source.Token)).Callback<string, CancellationToken>((payload, token) => captured = payload)
             .ReturnsAsync(new ProcessExecutionResult { Success = true, Output = JsonSerializer.Serialize(new { success = true, deployment = new { id, status = "queued", log = "Queued." } }) });
-        var result = await new SshDeploymentService(transport.Object).SubmitAsync(new DeploymentRequest { Folder = "olivaw-hub/ms-devops-api", Branch = "develop", Environment = "dev" }, source.Token);
+        var result = await new SshDeploymentService(transport.Object).SubmitAsync(new DeploymentRequest { Folder = "olivaw/ms-devops-api", Branch = "develop", Environment = "dev" }, source.Token);
         Assert.Equal(id, result.Id); Assert.Equal("queued", result.Status);
         using var json = JsonDocument.Parse(captured);
         Assert.Equal("submit", json.RootElement.GetProperty("action").GetString());
-        Assert.Equal("olivaw-hub/ms-devops-api", json.RootElement.GetProperty("folder").GetString());
+        Assert.Equal("olivaw/ms-devops-api", json.RootElement.GetProperty("folder").GetString());
         Assert.Equal("dev", json.RootElement.GetProperty("environment").GetString());
     }
 

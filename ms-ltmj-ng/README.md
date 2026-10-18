@@ -1,6 +1,6 @@
 # ms-ltmj-ng
 
-Frontend gerado do template **Olivaw Hub**, com build e publicação independentes da API.
+Frontend gerado do template **Olivaw**, com build e publicação independentes da API.
 
 ## Desenvolvimento
 
@@ -23,7 +23,7 @@ Docker: `docker compose -f docker/docker-compose.yml -f docker/docker-compose.ov
 
 ## Protótipo LTMJ Eventos
 
-Projeto gerado por Schematics, preservando o padrão Angular standalone, SignalStore, Material, Tailwind e frontend separado da API. O estudo do cliente, as fontes e o plano de evolução estão em [briefing e MVP](docs/briefing-e-mvp.md). O protocolo reutilizável do Hub está em [descoberta de clientes](../docs/protocolo-descoberta-cliente.md).
+Projeto gerado por Schematics, preservando o padrão Angular standalone, SignalStore, Material, Tailwind e frontend separado da API. O estudo do cliente, as fontes e o plano de evolução estão em [briefing e MVP](docs/briefing-e-mvp.md). O protocolo reutilizável do Olivaw está em [descoberta de clientes](../docs/protocolo-descoberta-cliente.md).
 
 A landing page apresenta serviços reais descritos no briefing, o logo obtido do perfil público e os links sociais oficiais. O assistente prepara um resumo local; não registra dados nem simula envio. Para ativar o link de WhatsApp, preencha o número comercial confirmado em `src/app/features/public/ltmj-content.ts`, com país e DDD, somente dígitos. O número ainda não foi informado.
 
@@ -33,6 +33,6 @@ Domínios técnicos propostos: `ltmj.olivaw-hub.duckdns.org` e `api.ltmj.olivaw-
 
 Os testes E2E simulam a API futura e validam login, mobile e orçamento local. O protocolo de briefing em `docs/prototipos` da raiz é uma prova de conceito separada, não uma nova tela do site institucional.
 
-Para execução simultânea com o site do Hub, use `npm start -- --port 4201`. No Docker local, use `FRONTEND_PORT=8083` para evitar disputar a porta 8081. Os hosts e valores de publicação são propostas técnicas e não representam domínio já aprovado pelo cliente.
+Para execução simultânea com o site do Olivaw, use `npm start -- --port 4201`. No Docker local, use `FRONTEND_PORT=8083` para evitar disputar a porta 8081. Os hosts e valores de publicação são propostas técnicas e não representam domínio já aprovado pelo cliente.
 
 O [índice da documentação do cliente](docs/README.md) reúne o briefing inicial e o histórico de conversas/decisões, atualizado a cada nova informação relevante.

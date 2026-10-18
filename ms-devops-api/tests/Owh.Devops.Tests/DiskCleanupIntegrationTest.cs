@@ -29,7 +29,7 @@ public class DiskCleanupIntegrationTest
     {
         using var cancellation = new System.Threading.CancellationTokenSource();
         var token = cancellation.Token;
-        const string key = "test-only-internal-hub-signing-key-at-least-32-bytes";
+        const string key = "test-only-internal-olivaw-signing-key-at-least-32-bytes";
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
             EnvironmentName = "Testing", ApplicationName = typeof(Api.Features.DiskCleanupFeature.DiskCleanupController).Assembly.FullName
@@ -38,7 +38,7 @@ public class DiskCleanupIntegrationTest
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["DatabaseProvider"] = "PostgreSql", ["ConnectionStrings:DbContext"] = "Host=localhost;Database=test",
-            ["Identity:Issuer"] = "hub-tests", ["Identity:Audience"] = "hub-tests", ["Identity:SigningKey"] = key,
+            ["Identity:Issuer"] = "olivaw-tests", ["Identity:Audience"] = "olivaw-tests", ["Identity:SigningKey"] = key,
             ["masstransit:configured"] = "false", ["services:loki:configured"] = "false"
         });
         builder.AddSetups();
@@ -51,7 +51,7 @@ public class DiskCleanupIntegrationTest
         app.UseSetups();
         await app.StartAsync(token);
         using var client = app.GetTestClient();
-        var jwt = new JwtSecurityToken("hub-tests", "hub-tests", new[]
+        var jwt = new JwtSecurityToken("olivaw-tests", "olivaw-tests", new[]
         {
             new Claim("sub", Guid.NewGuid().ToString()), new Claim("root", root.ToString().ToLowerInvariant()),
             new Claim("permission", "devops.deploy")

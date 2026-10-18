@@ -1,6 +1,6 @@
 # ms-ltmj-api
 
-Template ASP.NET Core/.NET 10 para novos clientes do Olivaw Hub. O host mantém suas features, contexto, repositórios e projetos de provedor. Core e identidade são bibliotecas compartilhadas por `ProjectReference` dentro deste monorepo.
+Template ASP.NET Core/.NET 10 para novos clientes do Olivaw. O host mantém suas features, contexto, repositórios e projetos de provedor. Core e identidade são bibliotecas compartilhadas por `ProjectReference` dentro deste monorepo.
 
 ## Estrutura
 
@@ -21,7 +21,7 @@ Veja [TEMPLATE.md](TEMPLATE.md). A partir da raiz do monorepo:
 
 ```bash
 bash ms-ltmj-api/scripts/new-microservice.sh pastelaria-joao
-dotnet build OlivawHub.sln -c Release
+dotnet build Olivaw.sln -c Release
 dotnet test ms-ltmj-api/tests/Owh.Ltmj.Tests/Owh.Ltmj.Tests.csproj -c Release
 ```
 
@@ -33,7 +33,7 @@ Cada organização/cliente recebe seu banco por ambiente; cada serviço usa um s
 
 O startup sempre aplica as migrations pendentes do provedor e depois garante o root antes de atender requisições. Não há flag para habilitar migrations ou bootstrap. Se essa preparação falhar, a API não inicia com o banco incompleto.
 
-O bootstrap é idempotente: se root já existir, preserva sua senha e seu cadastro. Configure `Identity__Bootstrap__Email` e `Identity__Bootstrap__Password` para a primeira inicialização. Root é exclusivo do Olivaw Hub; contas de clientes recebem somente as permissões de negócio.
+O bootstrap é idempotente: se root já existir, preserva sua senha e seu cadastro. Configure `Identity__Bootstrap__Email` e `Identity__Bootstrap__Password` para a primeira inicialização. Root é exclusivo do Olivaw; contas de clientes recebem somente as permissões de negócio.
 
 Os arquivos de migrations precisam acompanhar o projeto. O startup aplica arquivos existentes; geração de novas migrations é uma etapa de desenvolvimento. O contexto de design time PostgreSQL permite gerar arquivos sem inicializar a API nem acessar a AWS.
 
@@ -58,8 +58,8 @@ O Dockerfile executa as suítes de identidade, core e template e roda a aplicaç
 
 Gerado por `bash ms-limpo-api/scripts/new-microservice.sh ltmj ./ms-ltmj-api ltmj` para ser o backend independente de `ms-ltmj-ng`. Nesta entrega há a fundação do template e identidade; não há endpoints de eventos, galeria, comentários ou orçamento implementados. O protótipo público funciona sem API e não persiste pedidos.
 
-Banco por ambiente: `ltmj_dev/qas/rls/stg/prd`; schema `ms_ltmj`. Os dotenv reais estão versionados conforme o padrão atual do Olivaw Hub. As chaves JWT foram geradas exclusivamente para este cliente e ambiente. Migrations pendentes e bootstrap do root rodam automaticamente no startup; RabbitMQ permanece desabilitado por enquanto. As credenciais de infraestrutura do template são mantidas para o servidor compartilhado; bancos, permissões e usuário exclusivo precisam ser preparados antes da publicação.
+Banco por ambiente: `ltmj_dev/qas/rls/stg/prd`; schema `ms_ltmj`. Os dotenv reais estão versionados conforme o padrão atual do Olivaw. As chaves JWT foram geradas exclusivamente para este cliente e ambiente. Migrations pendentes e bootstrap do root rodam automaticamente no startup; RabbitMQ permanece desabilitado por enquanto. As credenciais de infraestrutura do template são mantidas para o servidor compartilhado; bancos, permissões e usuário exclusivo precisam ser preparados antes da publicação.
 
 O gerador não cria bancos. A migration inicial foi recriada para uma base vazia; veja [migrations](docs/migrations.md). Não foi aplicada alteração em dados. O plano de evolução está em [briefing e MVP](../ms-ltmj-ng/docs/briefing-e-mvp.md); a preparação da API está em [infraestrutura](docs/preparacao.md).
 
-A identidade deste cliente é isolada do Hub: tabelas e contratos em inglês, secret e emissor próprios. A conta técnica `ltmj` no Hub é independente da conta da equipe.
+A identidade deste cliente é isolada do Olivaw: tabelas e contratos em inglês, secret e emissor próprios. A conta técnica `ltmj` no Olivaw é independente da conta da equipe.

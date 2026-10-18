@@ -18,7 +18,7 @@ class ClientTests(unittest.TestCase):
         calls = []
 
         with tempfile.TemporaryDirectory() as temporary:
-            repo_root = Path(temporary) / 'olivaw-hub'
+            repo_root = Path(temporary) / 'olivaw'
             repo_root.mkdir()
             service = service_dir_name or ("ms-devops-api" if arguments == ["--cleanup"] else arguments[0])
             if service == "lisierp":
@@ -28,10 +28,10 @@ class ClientTests(unittest.TestCase):
                     json.dumps({"lisierp": "../lisifin"}), encoding='utf-8')
             else:
                 service_directory = repo_root / service
-            credentials_path = service_directory / 'deployment' / 'hub-credentials.env'
+            credentials_path = service_directory / 'deployment' / 'olivaw-credentials.env'
             credentials_path.parent.mkdir(parents=True)
             credentials_path.write_text(
-                f'HUB_LOGIN={login_name}\nHUB_PASSWORD=test-only-password\n', encoding='utf-8')
+                f'OLIVAW_LOGIN={login_name}\nOLIVAW_PASSWORD=test-only-password\n', encoding='utf-8')
 
             def open_request(request, timeout):
                 calls.append(request)
@@ -41,7 +41,7 @@ class ClientTests(unittest.TestCase):
                 return reply
 
             settings = dict(
-                HUB_API_URL='https://hub.test',
+                OLIVAW_API_URL='https://olivaw.test',
                 DEVOPS_API_URL='https://devops.test',
                 OLIVAW_REPO_ROOT=str(repo_root),
             )
@@ -50,7 +50,7 @@ class ClientTests(unittest.TestCase):
                     with self.assertRaises(SystemExit) as result:
                         exec(compile(source, 'deploy-client', 'exec'), {'__name__': '__main__'})
         self.assertEqual(0, result.exception.code)
-        self.assertEqual('https://hub.test/identity/authentication/login', calls[0].full_url)
+        self.assertEqual('https://olivaw.test/identity/authentication/login', calls[0].full_url)
         self.assertEqual({'login': login_name, 'password': 'test-only-password'}, json.loads(calls[0].data))
         self.assertEqual('https://devops.test' + job_path, calls[1].full_url)
         self.assertEqual('Bearer test-jwt', calls[1].get_header('Authorization'))
@@ -58,7 +58,7 @@ class ClientTests(unittest.TestCase):
 
     def test_deployment_reads_client_credentials_from_service_directory(self):
         self.run_client(['ms-ltmj-ng', 'prd', 'develop'], '/deployments',
-                        dict(folder='olivaw-hub/ms-ltmj-ng', environment='prd', branch='develop'),
+                        dict(folder='olivaw/ms-ltmj-ng', environment='prd', branch='develop'),
                         login_name='ltmj')
 
     def test_deployment_resolves_standalone_lisierp_repository(self):
@@ -68,7 +68,7 @@ class ClientTests(unittest.TestCase):
 
     def test_internal_service_uses_root_credentials_in_its_own_directory(self):
         self.run_client(['ms-devops-api', 'prd', 'develop'], '/deployments',
-                        dict(folder='olivaw-hub/ms-devops-api', environment='prd', branch='develop'),
+                        dict(folder='olivaw/ms-devops-api', environment='prd', branch='develop'),
                         login_name='root')
 
     def test_cleanup_uses_root_credentials_from_devops_directory(self):

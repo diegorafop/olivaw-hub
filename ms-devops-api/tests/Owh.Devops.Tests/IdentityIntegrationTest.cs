@@ -19,7 +19,7 @@ namespace Owh.Devops.Tests;
 public class IdentityIntegrationTest
 {
     [Fact]
-    public async Task Host_should_use_hub_without_local_identity_tables_or_services()
+    public async Task Host_should_use_olivaw_without_local_identity_tables_or_services()
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {

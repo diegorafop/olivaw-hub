@@ -1,9 +1,0 @@
-services:
-  ms-olivaw-hub-api:
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      masstransit__configured: 'false'
-    ports:
-    - 127.0.0.1:8081:8080
-    labels:
-      traefik.enable: 'false'

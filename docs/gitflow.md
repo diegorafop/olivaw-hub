@@ -1,6 +1,6 @@
 # Git Flow e rastreabilidade
 
-## Padrão do Olivaw Hub
+## Padrão do Olivaw
 
 Usamos Git Flow clássico, conforme a configuração atual do repositório:
 

@@ -11,8 +11,8 @@ Este diretório agrupa bibliotecas compartilhadas, não um microservice. `Olivaw
 - Senhas preservam todos os caracteres e usam `IPasswordHasher<UserProfile>`. Não aplique `Trim()` em senha nem exponha hashes, stamps ou campos internos nas respostas.
 - Auditoria vem de `CurrentActor`, nunca do body HTTP. Root só pode nascer pelo bootstrap; não exponha sua atribuição pelo CRUD.
 - Na autoridade local, JWT é validado pelo esquema do módulo e pelo estado atual no banco. Preserve validação por stamp, perfis ativos e remoção lógica.
-- Nos serviços consumidores internos, valide JWT localmente com o mesmo secret, emissor e audiência do Hub. Use os claims de root, conta técnica e permissões até a expiração. Não consulte o Hub nem seu banco por requisição; mudanças de acesso exigem novo token.
-- Contas técnicas de clientes vivem no Hub e são independentes das contas humanas dos clientes. Consumidores não registram CRUD, banco de identidade ou bootstrap.
+- Nos serviços consumidores internos, valide JWT localmente com o mesmo secret, emissor e audiência do Olivaw. Use os claims de root, conta técnica e permissões até a expiração. Não consulte o Olivaw nem seu banco por requisição; mudanças de acesso exigem novo token.
+- Contas técnicas de clientes vivem no Olivaw e são independentes das contas humanas dos clientes. Consumidores não registram CRUD, banco de identidade ou bootstrap.
 
 ## Desenvolvimento e validação
 
@@ -21,7 +21,7 @@ Use quatro espaços, UTF-8 e CRLF em C#. Mantenha commands e queries concretos e
 Execute na raiz do monorepo:
 
 ```bash
-dotnet build OlivawHub.sln -c Release
+dotnet build Olivaw.sln -c Release
 dotnet test olivaw-identity/tests/Olivaw.Identity.Tests/Olivaw.Identity.Tests.csproj -c Release --no-build
 ```
 

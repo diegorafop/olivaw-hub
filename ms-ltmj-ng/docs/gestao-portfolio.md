@@ -4,7 +4,7 @@
 
 - Login: `/gestao/entrar`; painel: `/gestao`. Não há link no menu público nem rota `/admin`.
 - A rota discreta não substitui segurança: JWT válido e permissão `portfolio.manage` são exigidos. Root mantém o acesso previsto pela identidade compartilhada.
-- Por decisão do responsável, a equipe usará o login `ltmj`, na identidade da própria API LTMJ, com a autorização `portfolio.manage` em um perfil dedicado. Root de cada cliente é exclusivo do Olivaw Hub. A conta ainda não foi criada no servidor; e-mail definido como `ltmj@teste.com.br`, sem confirmação por e-mail, e senha obrigatória sem mínimo adicional.
+- Por decisão do responsável, a equipe usará o login `ltmj`, na identidade da própria API LTMJ, com a autorização `portfolio.manage` em um perfil dedicado. Root de cada cliente é exclusivo do Olivaw. A conta ainda não foi criada no servidor; e-mail definido como `ltmj@teste.com.br`, sem confirmação por e-mail, e senha obrigatória sem mínimo adicional.
 - Sessão permanece em memória, conforme o template. Recarregar a página exige novo login; refresh token continua fora do escopo.
 - Cadastro exige título (até 150 caracteres), descrição (até 4.000) e uma das quatro categorias acordadas.
 - Novos eventos começam ocultos. Salvar, conferir e ativar **Exibir no site**. A edição preserva a visibilidade atual.

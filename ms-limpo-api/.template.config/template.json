@@ -1,13 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/template",
-  "author": "Olivaw Hub",
+  "author": "Olivaw",
   "classifications": [
     "Web",
     "API",
     "Microservice"
   ],
   "identity": "Owh.Templates.Microservice",
-  "name": "Olivaw Hub Microservice",
+  "name": "Olivaw Microservice",
   "shortName": "owh-microservice",
   "description": "Cria um microservice ASP.NET Core a partir do template Owh.Limpo.",
   "sourceName": "Limpo",

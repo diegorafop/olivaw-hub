@@ -13,4 +13,4 @@ dotnet ef migrations add NomeDaMigration \
   --context WriteDbContext --configuration Release --output-dir Migrations
 ```
 
-A factory é de design time e não abre conexão ao gerar arquivos. Nenhum banco remoto foi alterado durante esta tarefa. O root fica com a operação Olivaw Hub; a equipe do cliente usa conta local sem root e permissão `portfolio.manage`. A conta técnica `ltmj` no Hub é outra identidade e não compartilha o banco ou o secret desta API.
+A factory é de design time e não abre conexão ao gerar arquivos. Nenhum banco remoto foi alterado durante esta tarefa. O root fica com a operação Olivaw; a equipe do cliente usa conta local sem root e permissão `portfolio.manage`. A conta técnica `ltmj` no Olivaw é outra identidade e não compartilha o banco ou o secret desta API.

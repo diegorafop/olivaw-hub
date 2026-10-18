@@ -24,7 +24,7 @@ Autenticação JWT e permissão `devops.deploy` continuam obrigatórias para amb
 POST /deployments
 Content-Type: application/json
 
-{"folder":"olivaw-hub/ms-devops-api","branch":"develop","environment":"dev"}
+{"folder":"olivaw/ms-devops-api","branch":"develop","environment":"dev"}
 ```
 
 Retorna **202 Accepted**, `Location: /deployments/<id>` e corpo `{"id":"<uuid>","status":"queued","log":"Deployment queued."}`. Consulte `GET /deployments/<id>` para acompanhar `queued`, `running`, `succeeded` ou `failed`.
@@ -37,7 +37,7 @@ A consulta não modifica o registro: se o systemd indicar que um worker pendente
 
 Esta documentação não foi executada na AWS. Revise cada etapa antes de instalar. Os exemplos usam `ec2-user`, que já acessa os repositórios em `/home/ec2-user` e o Docker. Esse usuário e o executor são privilegiados: acesso ao Docker permite controlar o host. Restrinja quem pode alterar os repositórios/Compose e quem possui a permissão de deploy.
 
-Na raiz do clone `/home/ec2-user/olivaw-hub`:
+Na raiz do clone `/home/ec2-user/olivaw`:
 
 ```bash
 sudo install -d -m 0755 /opt/olivaw /etc/olivaw /etc/olivaw/ssh
@@ -48,7 +48,7 @@ sudo loginctl enable-linger ec2-user
 
 O script/configuração ficam fora do clone, administrados por root: um checkout não substitui o próprio executor. Atualize essa cópia explicitamente quando mudar o protocolo. Confira `systemctl --user status` em uma sessão de `ec2-user`; o gerenciador de usuário deve estar disponível. O script define o endereço do barramento em `/run/user/<uid>/bus`.
 
-Edite `/etc/olivaw/deployment.json`: `rootDirectory=/home/ec2-user`; `allowedFolders` contém apenas os caminhos relativos autorizados (inicialmente `olivaw-hub/ms-devops-api` e `lisierp`). Configure `stateDirectory` em diretório privado do usuário. Git e Docker devem existir em `/usr/bin/git` e `/usr/bin/docker`, com Compose disponível. Git precisa de upstream e credenciais não interativas para `ec2-user`. Nenhuma credencial atual é copiada pelo código.
+Edite `/etc/olivaw/deployment.json`: `rootDirectory=/home/ec2-user`; `allowedFolders` contém apenas os caminhos relativos autorizados (inicialmente `olivaw/ms-devops-api` e `lisierp`). Configure `stateDirectory` em diretório privado do usuário. Git e Docker devem existir em `/usr/bin/git` e `/usr/bin/docker`, com Compose disponível. Git precisa de upstream e credenciais não interativas para `ec2-user`. Nenhuma credencial atual é copiada pelo código.
 
 Gere uma chave **exclusiva** para a API, uma única vez:
 
@@ -93,7 +93,7 @@ docker compose --project-name <servico>-<ambiente> --env-file docker/.env.dev \
   -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build
 ```
 
-O worker define o projeto Compose como `<nome-da-pasta-do-servico>-<ambiente>` para serviços dentro de `olivaw-hub`, por exemplo `ms-ltmj-api-prd`. Isso mantém containers, volumes e demais recursos do Compose no escopo correto. Na primeira implantação após essa mudança, ele remove apenas o container do serviço alvo que ainda pertença ao antigo projeto compartilhado `docker`; volumes não são removidos. Para `lisierp`, preserva o nome e o fluxo configurados no próprio Compose. O ambiente validado seleciona os arquivos `dev/qas/stg/rls/prd`. Para o primeiro projeto externo na VM, use `folder=lisierp` (nome exibido no console); não use o nome local `lisifin` sem conferir a pasta remota.
+O worker define o projeto Compose como `<nome-da-pasta-do-servico>-<ambiente>` para serviços dentro de `olivaw`, por exemplo `ms-ltmj-api-prd`. Isso mantém containers, volumes e demais recursos do Compose no escopo correto. Na primeira implantação após essa mudança, ele remove apenas o container do serviço alvo que ainda pertença ao antigo projeto compartilhado `docker`; volumes não são removidos. Para `lisierp`, preserva o nome e o fluxo configurados no próprio Compose. O ambiente validado seleciona os arquivos `dev/qas/stg/rls/prd`. Para o primeiro projeto externo na VM, use `folder=lisierp` (nome exibido no console); não use o nome local `lisifin` sem conferir a pasta remota.
 
 `--build` é necessário para publicar as alterações de código obtidas pelo Git. A fila usa um lock único **na VM**, incluindo serviços do mesmo monorepo, evitando checkout concorrente. A API não mantém mais `DeploymentGate` local.
 
@@ -117,7 +117,7 @@ Referências: [restrições de chaves SSH](https://man.openbsd.org/sshd.8), [ver
 
 ## Deploy de serviços pelo DevOps
 
-O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw-hub.duckdns.org` usando a conta técnica definida para o serviço, solicita a implantação e acompanha o job até sucesso ou falha. Cada serviço tem `deployment/hub-credentials.env` no próprio diretório; serviços administrativos usam a conta root, enquanto clientes usam sua conta técnica. Os arquivos são versionados conforme decisão do mantenedor, mas excluídos dos contextos Docker; nunca imprima senha ou token.
+O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw-hub.duckdns.org` usando a conta técnica definida para o serviço, solicita a implantação e acompanha o job até sucesso ou falha. Cada serviço tem `deployment/olivaw-credentials.env` no próprio diretório; serviços administrativos usam a conta root, enquanto clientes usam sua conta técnica. Os arquivos são versionados conforme decisão do mantenedor, mas excluídos dos contextos Docker; nunca imprima senha ou token.
 
 Na raiz do clone, os três argumentos são obrigatórios:
 
@@ -128,32 +128,32 @@ bash scripts/deployment/deploy.sh <servico> <ambiente> <branch>
 Exemplos:
 
 ```bash
-bash scripts/deployment/deploy.sh ms-olivaw-hub-ng prd master
+bash scripts/deployment/deploy.sh ms-olivaw-ng prd master
 bash scripts/deployment/deploy.sh ms-devops-api prd master
 bash scripts/deployment/deploy.sh ms-novo-servico-api stg develop
 bash scripts/deployment/deploy.sh lisierp prd master
 ```
 
-Para serviços com prefixo `ms-`, o cliente monta `folder=olivaw-hub/<servico>`. Para repositórios independentes, como `lisierp`, usa `folder=<servico>`. Em ambos os casos, usa o ambiente `dev/qas/rls/stg/prd` e envia a branch informada. Exibe o destino antes de autenticar; não há serviço, ambiente ou branch implícitos. Novos serviços não exigem editar esse script.
+Para serviços com prefixo `ms-`, o cliente monta `folder=olivaw/<servico>`. Para repositórios independentes, como `lisierp`, usa `folder=<servico>`. Em ambos os casos, usa o ambiente `dev/qas/rls/stg/prd` e envia a branch informada. Exibe o destino antes de autenticar; não há serviço, ambiente ou branch implícitos. Novos serviços não exigem editar esse script.
 
-O repositório independente do Lisierp também mantém um cliente local próprio em `scripts/deploy-lisierp.sh` e `scripts/deploy-lisierp.ps1`. Esses scripts usam o Node.js 24 do próprio projeto, leem `deployment/hub-credentials.env` e não dependem do clone do monorepo Olivaw. O script do Hub resolve o checkout local do Lisierp pelo mapa `scripts/deployment/external-services.json` (ou `OLIVAW_LISIERP_SERVICE_DIR`); isso serve apenas para selecionar a conta ao disparar o job, enquanto o executor AWS continua implantando a pasta remota `lisierp`.
+O repositório independente do Lisierp também mantém um cliente local próprio em `scripts/deploy-lisierp.sh` e `scripts/deploy-lisierp.ps1`. Esses scripts usam o Node.js 24 do próprio projeto e não dependem do clone do monorepo Olivaw. A integração com o cliente genérico passa a esperar `deployment/olivaw-credentials.env`, com `OLIVAW_LOGIN` e `OLIVAW_PASSWORD`; atualizar o arquivo e os scripts no repositório independente antes de voltar a usá-la. A renomeação local do monorepo não modifica esse checkout externo. O script do Olivaw resolve o checkout local do Lisierp pelo mapa `scripts/deployment/external-services.json` (ou `OLIVAW_LISIERP_SERVICE_DIR`); isso serve apenas para selecionar a conta ao disparar o job, enquanto o executor AWS continua implantando a pasta remota `lisierp`.
 
 Cada serviço deve ter `docker/.env.<ambiente>`, `docker/docker-compose.yml` e `docker/docker-compose.<ambiente>.yml` na branch publicada. Seu caminho completo precisa estar em `allowedFolders` de `/etc/olivaw/deployment.json` na VM. O exemplo versionado inclui o frontend institucional e DevOps; não modifica a configuração já instalada. Não adicione frontends a `sshOverrideFolders`; essa opção preserva a integração SSH específica do DevOps.
 
-Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. Ele lê `deployment/hub-credentials.env` na pasta do serviço; deploys administrativos usam a conta root guardada nas respectivas pastas. A lista de repositórios independentes fica em `scripts/deployment/external-services.json`; `OLIVAW_LISIERP_SERVICE_DIR` permite substituir localmente o caminho temporário da Lisierp.
+Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. Ele lê `deployment/olivaw-credentials.env` na pasta do serviço; deploys administrativos usam a conta root guardada nas respectivas pastas. A lista de repositórios independentes fica em `scripts/deployment/external-services.json`; `OLIVAW_LISIERP_SERVICE_DIR` permite substituir localmente o caminho temporário da Lisierp.
 
-A branch deve estar publicada com todos os arquivos de implantação. Se uma senha for alterada no Hub, atualize o arquivo versionado da conta correspondente; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente, então o JWT segue válido até expirar. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
+A branch deve estar publicada com todos os arquivos de implantação. Se uma senha for alterada no Olivaw, atualize o arquivo versionado da conta correspondente; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente, então o JWT segue válido até expirar. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
 
 ## Primeiro deploy de um serviço e compatibilidade com lisierp
 
-`folder` identifica onde executar o Compose, não obriga essa pasta a existir antes da atualização Git. No monorepo, `olivaw-hub/ms-olivaw-hub-ng` usa Git em `/home/ec2-user/olivaw-hub` e Compose em sua subpasta após atualizar a branch. O clone raiz precisa existir, e o serviço precisa estar na allowlist. Se a branch não contiver a pasta ou os arquivos de implantação, o job falha sem executar Docker.
+`folder` identifica onde executar o Compose, não obriga essa pasta a existir antes da atualização Git. No monorepo, `olivaw/ms-olivaw-ng` usa Git em `/home/ec2-user/olivaw` e Compose em sua subpasta após atualizar a branch. O clone raiz precisa existir, e o serviço precisa estar na allowlist. Se a branch não contiver a pasta ou os arquivos de implantação, o job falha sem executar Docker.
 
 Para `folder=lisierp`, Git e Compose continuam em `/home/ec2-user/lisierp`, seu repositório independente. Não há redirecionamento desse projeto para o monorepo. O lock único da VM, a allowlist, a recusa de links simbólicos e o override SSH específico do DevOps são preservados.
 
 Após publicar esta correção e atualizar o clone na VM, instale a nova versão do executor:
 
 ```bash
-cd /home/ec2-user/olivaw-hub
+cd /home/ec2-user/olivaw
 sudo install -o root -g root -m 0644 scripts/deployment/deploy.py /opt/olivaw/deploy.py
 ```
 
@@ -165,14 +165,14 @@ Os Dockerfiles do DevOps, template e API LTMJ copiam o publish com `--chown=app:
 
 
 
-## Limpeza do EC2 pelo Hub
+## Limpeza do EC2 pelo Olivaw
 
 ```bash
 bash scripts/deployment/cleanup.sh
 bash scripts/deployment/cleanup.sh --no-wait
 ```
 
-O script autentica no Hub e solicita `POST /disk-cleanups` na DevOps. O acompanhamento usa `GET /disk-cleanups/{id}`. As duas rotas exigem o claim root no JWT interno. Não há autenticação local nem consulta ao Hub durante a validação de requisições na DevOps.
+O script autentica no Olivaw e solicita `POST /disk-cleanups` na DevOps. O acompanhamento usa `GET /disk-cleanups/{id}`. As duas rotas exigem o claim root no JWT interno. Não há autenticação local nem consulta ao Olivaw durante a validação de requisições na DevOps.
 
 O executor roda na VM via SSH, com argv fixo e sem aceitar comandos do cliente:
 

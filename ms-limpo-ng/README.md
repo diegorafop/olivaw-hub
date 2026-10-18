@@ -1,6 +1,6 @@
 # ms-limpo-ng
 
-Template Angular do **Olivaw Hub** para produtos com site público e administração. Não contém funcionalidades de negócio, cadastro de eventos, upload de fotos ou agenda. Essas funcionalidades serão implementadas em cada cliente, com contratos próprios de API.
+Template Angular do **Olivaw** para produtos com site público e administração. Não contém funcionalidades de negócio, cadastro de eventos, upload de fotos ou agenda. Essas funcionalidades serão implementadas em cada cliente, com contratos próprios de API.
 
 ## Arquitetura
 
@@ -90,7 +90,7 @@ npm run e2e
 
 `npm run format` aplica o Prettier; `npm run test:watch` acompanha testes unitários. Arquivos unitários usam `*.spec.ts` ao lado da implementação e Vitest pelo Angular CLI. E2E ficam em `e2e/*.spec.ts`, usam Playwright/Chromium e simulam a API sem credenciais reais. Cobrem proteção de rota, login, acesso, logout e erro de credenciais. Unitários cobrem restrição do token, concorrência/cancelamento, sessão expirada, permissões e erro global.
 
-A [CI](../.github/workflows/frontend.yml) executa essas verificações, constrói a imagem e valida rotas e assets no Nginx. Não publica imagem nem implanta. Publicação futura deve seguir o Git Flow e a infraestrutura do Olivaw Hub, com destino e credenciais definidos separadamente.
+A [CI](../.github/workflows/frontend.yml) executa essas verificações, constrói a imagem e valida rotas e assets no Nginx. Não publica imagem nem implanta. Publicação futura deve seguir o Git Flow e a infraestrutura do Olivaw, com destino e credenciais definidos separadamente.
 
 ## Docker
 

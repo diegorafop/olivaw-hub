@@ -17,14 +17,14 @@ class DeploymentTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix='olivaw-executor-')
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        (self.root / 'olivaw-hub/.git').mkdir(parents=True)
-        (self.root / 'olivaw-hub/ms-devops-api/docker').mkdir(parents=True)
+        (self.root / 'olivaw/.git').mkdir(parents=True)
+        (self.root / 'olivaw/ms-devops-api/docker').mkdir(parents=True)
         for filename in ['.env.dev', 'docker-compose.yml', 'docker-compose.dev.yml']:
-            (self.root / 'olivaw-hub/ms-devops-api/docker' / filename).write_text('fixture')
+            (self.root / 'olivaw/ms-devops-api/docker' / filename).write_text('fixture')
         self.config = dict(rootDirectory=str(self.root), stateDirectory=str(self.root / 'state'),
-                           allowedFolders=['olivaw-hub/ms-devops-api'], stepTimeoutSeconds=1)
+                           allowedFolders=['olivaw/ms-devops-api'], stepTimeoutSeconds=1)
         self.executor = deploy.Executor(self.config)
-        self.request = dict(folder='olivaw-hub/ms-devops-api', branch='develop', environment='dev')
+        self.request = dict(folder='olivaw/ms-devops-api', branch='develop', environment='dev')
 
     def job(self):
         job = dict(self.request, id=str(uuid.uuid4()), status='queued', log='Queued.')
@@ -48,9 +48,9 @@ class DeploymentTests(unittest.TestCase):
 
     def test_allowlist_and_symbolic_links_are_rejected(self):
         with self.assertRaises(ValueError):
-            deploy.resolve_folder(self.config, dict(self.request, folder='olivaw-hub'))
+            deploy.resolve_folder(self.config, dict(self.request, folder='olivaw'))
         target = self.root / 'alias'
-        target.symlink_to(self.root / 'olivaw-hub/ms-devops-api', target_is_directory=True)
+        target.symlink_to(self.root / 'olivaw/ms-devops-api', target_is_directory=True)
         self.config['allowedFolders'].append('alias')
         with self.assertRaises(ValueError):
             deploy.resolve_folder(self.config, dict(self.request, folder='alias'))
@@ -72,13 +72,13 @@ class DeploymentTests(unittest.TestCase):
 
     @patch.object(deploy.subprocess, 'run')
     def test_submit_accepts_allowlisted_service_not_yet_in_checkout(self, run):
-        self.config['allowedFolders'].append('olivaw-hub/ms-novo-ng')
-        request = dict(self.request, folder='olivaw-hub/ms-novo-ng')
-        self.assertEqual(self.root / 'olivaw-hub', deploy.resolve_repository(self.config, request))
+        self.config['allowedFolders'].append('olivaw/ms-novo-ng')
+        request = dict(self.request, folder='olivaw/ms-novo-ng')
+        self.assertEqual(self.root / 'olivaw', deploy.resolve_repository(self.config, request))
         self.assertEqual('queued', self.executor.submit(request)['status'])
 
     def test_worker_resolves_new_service_only_after_pull(self):
-        folder = 'olivaw-hub/ms-novo-ng'
+        folder = 'olivaw/ms-novo-ng'
         self.config['allowedFolders'].append(folder)
         job = dict(self.request, folder=folder, id=str(uuid.uuid4()), status='queued', log='Queued.')
         self.executor.save(job)
@@ -99,8 +99,8 @@ class DeploymentTests(unittest.TestCase):
 
     @patch.object(deploy, 'run_step', return_value=0)
     def test_worker_does_not_compose_when_service_still_missing_after_pull(self, run):
-        self.config['allowedFolders'].append('olivaw-hub/ms-ausente-ng')
-        job = dict(self.request, folder='olivaw-hub/ms-ausente-ng', id=str(uuid.uuid4()), status='queued', log='Queued.')
+        self.config['allowedFolders'].append('olivaw/ms-ausente-ng')
+        job = dict(self.request, folder='olivaw/ms-ausente-ng', id=str(uuid.uuid4()), status='queued', log='Queued.')
         self.executor.save(job)
         self.executor.run(job['id'])
         self.assertEqual(3, run.call_count)
@@ -185,7 +185,7 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(['/usr/bin/git', 'checkout', 'develop'], run.call_args_list[1].args[0])
         self.assertEqual(['/usr/bin/git', 'pull', '--ff-only', 'origin', 'develop'], run.call_args_list[2].args[0])
         for call in run.call_args_list[:3]:
-            self.assertEqual(self.root / 'olivaw-hub', call.args[1])
+            self.assertEqual(self.root / 'olivaw', call.args[1])
         self.assertIn('docker/docker-compose.dev.yml', run.call_args_list[4].args[0])
         self.assertIn('--build', run.call_args_list[4].args[0])
         self.assertEqual(self.root / self.request['folder'], run.call_args_list[4].args[1])

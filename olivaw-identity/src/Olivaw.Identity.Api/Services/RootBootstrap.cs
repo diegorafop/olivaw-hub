@@ -30,7 +30,7 @@ public sealed class RootBootstrap(IIdentityStore store, IPasswordHasher<UserProf
             CreatedAt = DateTime.UtcNow,
             Login = "root",
             NormalizedLogin = "ROOT",
-            Name = "Olivaw Hub Root",
+            Name = "Olivaw Root",
             Email = email,
             IsRoot = true
         };

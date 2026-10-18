@@ -7,11 +7,11 @@
 
 		<PackageId>Owh.OlivawCore.Dados</PackageId>
 		<Version>1.1.0</Version>
-		<Authors>Olivaw Hub</Authors>
-		<Company>Olivaw Hub</Company>
+		<Authors>Olivaw</Authors>
+		<Company>Olivaw</Company>
 		<Product>OlivawCore Framework Data</Product>
 		<Description>Biblioteca de infraestrutura de dados contendo abstrações e helpers para Entity Framework Core.</Description>
-		<Copyright>Copyright © Olivaw Hub</Copyright>
+		<Copyright>Copyright © Olivaw</Copyright>
 		<RepositoryUrl>https://github.com/diegorafop/olivaw-hub</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 

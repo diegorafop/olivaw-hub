@@ -186,7 +186,7 @@ class Executor:
                     return
                 repository = resolve_repository(self.config, job)
                 project_name = None
-                if job['folder'].startswith('olivaw-hub/'):
+                if job['folder'].startswith('olivaw/'):
                     service_name = Path(job['folder']).name.lower()
                     project_name = f'{service_name}-{job["environment"]}'
                 for label, arguments in commands(

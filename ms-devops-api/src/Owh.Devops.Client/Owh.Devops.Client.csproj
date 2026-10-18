@@ -6,8 +6,8 @@
 
         <PackageId>Owh.Devops.Client</PackageId>
         <Version>0.1.0</Version>
-        <Authors>Olivaw Hub</Authors>
-        <Company>Olivaw Hub</Company>
+        <Authors>Olivaw</Authors>
+        <Company>Olivaw</Company>
         <Description>Biblioteca de contratos públicos e cliente REST do Owh.Devops.</Description>
         <RepositoryType>git</RepositoryType>
 

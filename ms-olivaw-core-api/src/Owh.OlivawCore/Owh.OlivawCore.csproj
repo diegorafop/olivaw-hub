@@ -7,11 +7,11 @@
 
 		<PackageId>Owh.OlivawCore</PackageId>
 		<Version>1.1.0</Version>
-		<Authors>Olivaw Hub</Authors>
-		<Company>Olivaw Hub</Company>
+		<Authors>Olivaw</Authors>
+		<Company>Olivaw</Company>
 		<Product>OlivawCore Domain Framework</Product>
 		<Description>Biblioteca core com abstrações, contratos, interfaces e extensões genéricas do ecossistema OlivawCore.</Description>
-		<Copyright>Copyright © Olivaw Hub</Copyright>
+		<Copyright>Copyright © Olivaw</Copyright>
 		<RepositoryUrl>https://github.com/diegorafop/olivaw-hub</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 

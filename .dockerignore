@@ -7,7 +7,7 @@
 **/.env.*
 !**/.env.example
 !**/.env.*.example
-**/deployment/hub-credentials.env
+**/deployment/olivaw-credentials.env
 **/*.pfx
 **/certificates
 .git

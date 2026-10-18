@@ -2,7 +2,7 @@
 
 ## Escopo
 
-Os scripts da raiz automatizam o fluxo comum do Olivaw Hub. O gerador de clientes continua em `ms-limpo-api/scripts`. Não copie scripts que dependem da estrutura do monorepo para dentro dos clientes gerados.
+Os scripts da raiz automatizam o fluxo comum do Olivaw. O gerador de clientes continua em `ms-limpo-api/scripts`. Não copie scripts que dependem da estrutura do monorepo para dentro dos clientes gerados.
 
 ## Git Flow e rastreabilidade
 
@@ -18,4 +18,4 @@ Teste os scripts com `python3 -m unittest discover -s scripts/gitflow/tests -v`.
 
 ## Credenciais versionadas para deploy
 
-Por decisão explícita do mantenedor, cada serviço mantém `deployment/hub-credentials.env` versionado no repositório privado com o usuário e senha de serviço do Hub. Os dois serviços administrativos usam credenciais root próprias nos arquivos de suas pastas. Nunca imprima nem registre esses valores, inclua o arquivo em imagens Docker ou use-os para executar implantações sem autorização explícita.
+Por decisão explícita do mantenedor, cada serviço mantém `deployment/olivaw-credentials.env` versionado no repositório privado com o usuário e senha de serviço do Olivaw. Os dois serviços administrativos usam credenciais root próprias nos arquivos de suas pastas. Nunca imprima nem registre esses valores, inclua o arquivo em imagens Docker ou use-os para executar implantações sem autorização explícita.

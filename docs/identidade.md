@@ -1,8 +1,8 @@
-# Identidade compartilhada no Olivaw Hub
+# Identidade compartilhada no Olivaw
 
 ## Decisão
 
-A identidade foi extraída para três bibliotecas em `olivaw-identity`, separadas do core genérico. Elas são referenciadas pelo template por `ProjectReference`, incluídas em `OlivawHub.sln` e executadas dentro de cada API consumidora. Não há microservice central nem banco compartilhado de identidade.
+A identidade foi extraída para três bibliotecas em `olivaw-identity`, separadas do core genérico. Elas são referenciadas pelo template por `ProjectReference`, incluídas em `Olivaw.sln` e executadas dentro de cada API consumidora. Não há microservice central nem banco compartilhado de identidade.
 
 Cada cliente mantém seu host, conexão, contexto, migrations e implantação. Os novos projetos precisam ficar ao lado das bibliotecas no monorepo; o script do template verifica o diretório de destino. O build Docker recebe a raiz do monorepo como contexto.
 
@@ -24,7 +24,7 @@ A integração também fixa `System.Security.Cryptography.Pkcs` em `9.0.21` no p
 
 ## Verificações
 
-- Solução `OlivawHub.sln`: build Release sem erros ou warnings de compilação.
+- Solução `Olivaw.sln`: build Release sem erros ou warnings de compilação.
 - Identidade: 85 testes aprovados, incluindo unitários e HTTP/SQLite em memória.
 - Template: 59 testes aprovados, incluindo composição real do host, descoberta de rotas, segurança e registro das cinco entidades no contexto.
 - Core: 226 testes existentes aprovados.

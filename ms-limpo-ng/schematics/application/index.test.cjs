@@ -63,7 +63,7 @@ test('gera os cinco ambientes com domínio, API, isolamento e dotenv preenchidos
     assert.ok(compose.includes(`name: ms-exemplo-ng-${env}`));
     assert.ok(settings.includes(`PUBLIC_HOST=${host}`));
     assert.ok(settings.includes(`API_URL=https://api.${host}`));
-    assert.equal(compose.includes('limpo.olivaw-hub'), false);
+    assert.equal(compose.includes('limpo.olivaw'), false);
     assert.equal(compose.includes('ports:'), false);
   }
 });

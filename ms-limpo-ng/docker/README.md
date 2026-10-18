@@ -1,6 +1,6 @@
 # Docker e ambientes do frontend
 
-O padrão acompanha as APIs do Olivaw Hub: Compose base, override local e cinco overrides de nuvem. Cada frontend mantém imagem, build e publicação independentes da API.
+O padrão acompanha as APIs do Olivaw: Compose base, override local e cinco overrides de nuvem. Cada frontend mantém imagem, build e publicação independentes da API.
 
 ## Arquivos
 

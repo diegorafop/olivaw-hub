@@ -12,7 +12,7 @@ CRUD de eventos, consulta pública, visibilidade e upload multipart estão imple
 - Revisar e aplicar a migration inicial no ambiente autorizado; não presumir que o deploy já aplicou SQL.
 - Confirmar endereço da API e origem do frontend no CORS. O template atual permite origens amplamente; restringir às origens aprovadas antes de produção.
 - O startup prepara as tabelas pelas migrations existentes e executa o bootstrap obrigatório usando o e-mail root confirmado. Não há conta root já criada nem senha de cliente divulgada no protótipo.
-- Manter chaves JWT exclusivas desta organização/ambiente; não usar chave do Hub ou DevOps.
+- Manter chaves JWT exclusivas desta organização/ambiente; não usar chave do Olivaw ou DevOps.
 - Migrations pendentes e bootstrap sempre rodam no startup; manter broker desabilitado enquanto não houver necessidade.
 - Validar health e logs sem imprimir dotenv ou segredos.
 

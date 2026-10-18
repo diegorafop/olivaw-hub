@@ -2,15 +2,15 @@
   "rootDirectory": "/home/ec2-user",
   "stateDirectory": "/home/ec2-user/.local/state/olivaw-deploy",
   "allowedFolders": [
-    "olivaw-hub/ms-devops-api",
+    "olivaw/ms-devops-api",
     "lisierp",
-    "olivaw-hub/ms-olivaw-hub-ng",
-    "olivaw-hub/ms-ltmj-ng",
-    "olivaw-hub/ms-ltmj-api",
-    "olivaw-hub/ms-olivaw-hub-api"
+    "olivaw/ms-olivaw-ng",
+    "olivaw/ms-ltmj-ng",
+    "olivaw/ms-ltmj-api",
+    "olivaw/ms-olivaw-api"
   ],
   "stepTimeoutSeconds": 1200,
   "sshOverrideFolders": [
-    "olivaw-hub/ms-devops-api"
+    "olivaw/ms-devops-api"
   ]
 }

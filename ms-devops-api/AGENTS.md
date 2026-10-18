@@ -142,10 +142,10 @@ Quando este template receber um cliente REST completo, siga também `src/Owh.Dev
 9. Exponha operações tipadas e reutilize o transporte e a autenticação existentes. Não implemente obtenção ou armazenamento de JWT no pacote.
 10. Teste HTTP em memória, autenticação, serialização, cancelamento, compatibilidade de payloads e correspondência das rotas com os controllers. Execute build, testes e `dotnet pack`; não publique sem pedido explícito.
 
-## Identidade interna do Hub
+## Identidade interna do Olivaw
 
-- DevOps é consumidor de JWT do Hub e usa `AddOlivawIdentityConsumer`. Não possui usuários, tabelas de identidade, bootstrap ou endpoints de login.
-- Valide assinatura, emissor, audiência e expiração localmente, sem consultas ao Hub. Permissões e root vêm dos claims assinados.
+- DevOps é consumidor de JWT do Olivaw e usa `AddOlivawIdentityConsumer`. Não possui usuários, tabelas de identidade, bootstrap ou endpoints de login.
+- Valide assinatura, emissor, audiência e expiração localmente, sem consultas ao Olivaw. Permissões e root vêm dos claims assinados.
 - Contas técnicas precisam de `devops.deploy` e de `devops.deploy:<folder>` para criar e consultar jobs. Limpeza exige root da operação.
 - O banco DevOps é exclusivo das funcionalidades deste serviço. Suas migrations não devem incluir identidade.
 

@@ -1,11 +1,11 @@
 # Olivaw Identity
 
-Bibliotecas compartilhadas de identidade. A autoridade administrativa interna é a [ms-olivaw-hub-api](../ms-olivaw-hub-api/README.md). Cada cliente mantém sua própria autoridade, usuários, banco, emissor, audiência e secret.
+Bibliotecas compartilhadas de identidade. A autoridade administrativa interna é a [ms-olivaw-api](../ms-olivaw-api/README.md). Cada cliente mantém sua própria autoridade, usuários, banco, emissor, audiência e secret.
 
 ## Composição
 
-- `AddOlivawIdentity<WriteDbContext>(configuration)`: registra login, CRUD, permissões e validação do estado local dos usuários. Usado pelo Hub e pelas APIs principais dos clientes.
-- `AddOlivawIdentityConsumer(configuration)`: valida JWT localmente com o secret, emissor e audiência da autoridade. Não registra banco de identidade, usuários, bootstrap, endpoints de login ou consultas HTTP ao Hub. Usado pela DevOps e pelos outros serviços internos.
+- `AddOlivawIdentity<WriteDbContext>(configuration)`: registra login, CRUD, permissões e validação do estado local dos usuários. Usado pelo Olivaw e pelas APIs principais dos clientes.
+- `AddOlivawIdentityConsumer(configuration)`: valida JWT localmente com o secret, emissor e audiência da autoridade. Não registra banco de identidade, usuários, bootstrap, endpoints de login ou consultas HTTP ao Olivaw. Usado pela DevOps e pelos outros serviços internos.
 
 Os tokens incluem `sub`, `name`, `stamp`, `root`, `service`, `permission`, emissor, audiência e expiração. Os consumidores usam os claims assinados até expirar; alterações de acesso exigem novo token. A autoridade local continua validando o estado de seus próprios usuários no banco.
 
@@ -19,7 +19,7 @@ Os tokens incluem `sub`, `name`, `stamp`, `root`, `service`, `permission`, emiss
 | `UserProfileAccessProfile` | `userprofileaccessprofile` |
 | `AccessProfileAuthorization` | `accessprofileauthorization` |
 
-Entidades usam PK `int`, `ExternalId` GUID público e FKs `int`. O EF configura relacionamentos, índices únicos, remoção lógica e concorrência por `SecurityStamp`. Propriedades e colunas são em inglês; as convenções dos serviços aplicam lowercase às colunas. `IsServiceAccount` distingue contas técnicas de contas humanas. Root pertence somente à operação Olivaw Hub e não pode ser atribuído pelo CRUD.
+Entidades usam PK `int`, `ExternalId` GUID público e FKs `int`. O EF configura relacionamentos, índices únicos, remoção lógica e concorrência por `SecurityStamp`. Propriedades e colunas são em inglês; as convenções dos serviços aplicam lowercase às colunas. `IsServiceAccount` distingue contas técnicas de contas humanas. Root pertence somente à operação Olivaw e não pode ser atribuído pelo CRUD.
 
 ## API das autoridades
 
@@ -42,7 +42,7 @@ O CRUD exige `identity.manage` ou root. Leituras retornam `item` ou `items` e ac
 As autoridades aplicam migrations e executam bootstrap idempotente de root no startup. Os consumidores aplicam apenas suas próprias migrations. Os bancos precisam existir antes de iniciar os containers. Migrations pertencem aos serviços, não a esta biblioteca.
 
 ```bash
-dotnet build OlivawHub.sln -c Release -m:1
+dotnet build Olivaw.sln -c Release -m:1
 dotnet test olivaw-identity/tests/Olivaw.Identity.Tests/Olivaw.Identity.Tests.csproj -c Release --no-build
 ```
 

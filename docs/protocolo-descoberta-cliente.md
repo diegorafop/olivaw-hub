@@ -2,15 +2,15 @@
 
 ## Objetivo e estado
 
-Proposta v0.1, aplicada inicialmente à LTMJ Eventos. Conhecer o negócio, identificar uma melhoria de valor imediato e entregar um MVP que caiba na realidade do cliente. O Olivaw Hub atua como parceiro de inteligência de negócio; o processo não presume que o cliente saiba especificar software.
+Proposta v0.1, aplicada inicialmente à LTMJ Eventos. Conhecer o negócio, identificar uma melhoria de valor imediato e entregar um MVP que caiba na realidade do cliente. O Olivaw atua como parceiro de inteligência de negócio; o processo não presume que o cliente saiba especificar software.
 
-Este é o desenho do processo e de um futuro produto do Hub. Não existe ainda portal de briefing, transcrição de áudio, recomendação automática ou contratação online em produção. O [protótipo navegável](prototipos/briefing-cliente.html) funciona localmente, sem servidor ou envio de dados.
+Este é o desenho do processo e de um futuro produto do Olivaw. Não existe ainda portal de briefing, transcrição de áudio, recomendação automática ou contratação online em produção. O [protótipo navegável](prototipos/briefing-cliente.html) funciona localmente, sem servidor ou envio de dados.
 
 ## Jornada proposta
 
 ```mermaid
 flowchart LR
-  A[Resumo no site do Hub] --> B[Espaço de descoberta do cliente]
+  A[Resumo no site do Olivaw] --> B[Espaço de descoberta do cliente]
   B --> C[Escolhas simples, texto ou áudio]
   C --> D[Resumo revisado pelo cliente]
   D --> E[Análise humana do Olivaw]

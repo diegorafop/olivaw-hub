@@ -80,7 +80,7 @@ public class ValidatorTest
     [Theory]
     [InlineData("devops.deploy")]
     [InlineData("devops.deploy:lisierp")]
-    [InlineData("devops.deploy:olivaw-hub/ms-ltmj-api")]
+    [InlineData("devops.deploy:olivaw/ms-ltmj-api")]
     public void Authorization_should_accept_scoped_permission_keys(string key)
     {
         new CreateAuthorizationValidator().TestValidate(new CreateAuthorizationCommand

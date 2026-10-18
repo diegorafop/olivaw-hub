@@ -2,7 +2,7 @@
 
 Recebido em 17/10/2026 por WhatsApp e fornecido pelo responsável pelo projeto. Este registro preserva as respostas iniciais; propostas e mudanças posteriores ficam no [histórico](historico.md). Não representa aprovação de todo o escopo.
 
-## Contexto apresentado pelo Olivaw Hub
+## Contexto apresentado pelo Olivaw
 
 Empresa de eventos personalizados: casamentos, aniversários, festas diversas, bar, almoço, jantar, churrasco e serviços de garçons/cozinheiros. Objetivo inicial: site próprio para divulgar o trabalho e conquistar novos clientes. Evolução desejada pelo responsável pelo projeto: administração de eventos, publicação de fotos e comentários no site.
 

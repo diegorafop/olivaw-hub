@@ -3,13 +3,13 @@ on:
   push:
     paths:
       - "ms-limpo-ng/**"
-      - "ms-olivaw-hub-ng/**"
+      - "ms-olivaw-ng/**"
       - "ms-ltmj-ng/**"
       - ".github/workflows/frontend.yml"
   pull_request:
     paths:
       - "ms-limpo-ng/**"
-      - "ms-olivaw-hub-ng/**"
+      - "ms-olivaw-ng/**"
       - "ms-ltmj-ng/**"
       - ".github/workflows/frontend.yml"
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
   validar:
     strategy:
       matrix:
-        project: [ms-limpo-ng, ms-olivaw-hub-ng, ms-ltmj-ng]
+        project: [ms-limpo-ng, ms-olivaw-ng, ms-ltmj-ng]
     runs-on: ubuntu-latest
     defaults:
       run:

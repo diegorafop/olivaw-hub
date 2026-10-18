@@ -87,7 +87,7 @@ public class IdentityConsumerTest
     }
 
     [Fact]
-    public async Task Consumer_should_accept_hub_root_until_token_expires_even_after_hub_logout()
+    public async Task Consumer_should_accept_olivaw_root_until_token_expires_even_after_olivaw_logout()
     {
         var token = Xunit.TestContext.Current.CancellationToken;
         await using var authority = await IdentityHost.CreateAsync();

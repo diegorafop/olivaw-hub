@@ -13,4 +13,4 @@
 
 Em 18/10/2026, o login foi validado contra `https://api.ltmj.olivaw-hub.duckdns.org`. A consulta de acesso confirmou `root: false` e somente `portfolio.manage`; a rota protegida de gestão do portfólio respondeu HTTP 200.
 
-O root da API permanece exclusivo do Olivaw Hub. As chaves JWT e credenciais de serviço não são as credenciais desta conta.
+O root da API permanece exclusivo do Olivaw. As chaves JWT e credenciais de serviço não são as credenciais desta conta.

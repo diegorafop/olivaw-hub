@@ -1,6 +1,6 @@
 # ms-limpo-api
 
-Template ASP.NET Core/.NET 10 para novos clientes do Olivaw Hub. O host mantém suas features, contexto, repositórios e projetos de provedor. Core e identidade são bibliotecas compartilhadas por `ProjectReference` dentro deste monorepo.
+Template ASP.NET Core/.NET 10 para novos clientes do Olivaw. O host mantém suas features, contexto, repositórios e projetos de provedor. Core e identidade são bibliotecas compartilhadas por `ProjectReference` dentro deste monorepo.
 
 ## Estrutura
 
@@ -29,7 +29,7 @@ Veja [TEMPLATE.md](TEMPLATE.md). A partir da raiz do monorepo:
 
 ```bash
 bash ms-limpo-api/scripts/new-microservice.sh pastelaria-joao
-dotnet build OlivawHub.sln -c Release
+dotnet build Olivaw.sln -c Release
 dotnet test ms-limpo-api/tests/Owh.Limpo.Tests/Owh.Limpo.Tests.csproj -c Release
 ```
 
@@ -41,7 +41,7 @@ Cada organização/cliente recebe seu banco por ambiente; cada serviço usa um s
 
 O startup sempre aplica as migrations pendentes do provedor e depois garante o root antes de atender requisições. Não há flag para habilitar migrations ou bootstrap. Se essa preparação falhar, a API não inicia com o banco incompleto.
 
-O bootstrap é idempotente: se root já existir, preserva sua senha e seu cadastro. Configure `Identity__Bootstrap__Email` e `Identity__Bootstrap__Password` para a primeira inicialização. Root é exclusivo do Olivaw Hub; contas de clientes recebem somente as permissões de negócio.
+O bootstrap é idempotente: se root já existir, preserva sua senha e seu cadastro. Configure `Identity__Bootstrap__Email` e `Identity__Bootstrap__Password` para a primeira inicialização. Root é exclusivo do Olivaw; contas de clientes recebem somente as permissões de negócio.
 
 Os arquivos de migrations precisam acompanhar o projeto. O startup aplica arquivos existentes; geração de novas migrations é uma etapa de desenvolvimento. O contexto de design time PostgreSQL permite gerar arquivos sem inicializar a API nem acessar a AWS.
 

@@ -7,11 +7,11 @@
 
 		<PackageId>Owh.OlivawCore.Api</PackageId>
 		<Version>1.2.1</Version>
-		<Authors>Olivaw Hub</Authors>
-		<Company>Olivaw Hub</Company>
+		<Authors>Olivaw</Authors>
+		<Company>Olivaw</Company>
 		<Product>OlivawCore Api Framework</Product>
 		<Description>Biblioteca de utilitários, middlewares, filtros e extensões genéricas do ASP.NET Core para APIs OlivawCore.</Description>
-		<Copyright>Copyright © Olivaw Hub</Copyright>
+		<Copyright>Copyright © Olivaw</Copyright>
 		<RepositoryUrl>https://github.com/diegorafop/olivaw-hub</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 

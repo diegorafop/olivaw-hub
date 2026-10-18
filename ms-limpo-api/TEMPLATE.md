@@ -14,6 +14,6 @@ O projeto começa com identidade local, migration inicial, diretórios `Domain`,
 
 As migrations do template descrevem exclusivamente o modelo básico de identidade. Cada novo serviço mantém seu próprio histórico e deve gerar migrations adicionais para suas entidades. O startup aplica migrations e garante root automaticamente; não gera arquivos de migrations no runtime. Novos clientes mantêm bancos e usuários próprios.
 
-Para um serviço interno consumidor do Hub, registre `AddOlivawIdentityConsumer` em vez de `AddOlivawIdentity`, remova `AddOlivawIdentity()` do modelo de dados e o bootstrap do startup e gere a migration própria. Configure o mesmo emissor, audiência e secret do Hub. Esse consumidor usa apenas o JWT; não acessa o banco de identidade nem consulta o Hub por requisição.
+Para um serviço interno consumidor do Olivaw, registre `AddOlivawIdentityConsumer` em vez de `AddOlivawIdentity`, remova `AddOlivawIdentity()` do modelo de dados e o bootstrap do startup e gere a migration própria. Configure o mesmo emissor, audiência e secret do Olivaw. Esse consumidor usa apenas o JWT; não acessa o banco de identidade nem consulta o Olivaw por requisição.
 
 Veja [Olivaw Identity](../olivaw-identity/README.md) e [arquitetura de identidade](../docs/identity-architecture.md).

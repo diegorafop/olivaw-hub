@@ -66,7 +66,7 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Origem:** responsável enviou dois JPEGs e três ZIPs em Downloads e pediu três ou quatro exemplos adicionais.
 - **Recebido:** 91 fotos e 33 vídeos. Fotos preservadas e conferidas em `docs/acervo-recebido/2026-10-17`; vídeos mantidos fora do Git em Downloads. Origens de fotos removidas após a conferência, conforme autorizado.
 - **Preparado:** quatro conjuntos demonstrativos com 14 fotos, além do churrasco inicial. Prévia em `/previa-portfolio#eventos` e carregamento individual no cadastro. Agrupamento/categoria pendentes de confirmação; não representam quatro eventos reais distintos comprovados.
-- **Acesso solicitado:** usuário `ltmj` na identidade da própria API LTMJ, com `portfolio.manage`, sem root. Root de cada cliente é reservado à gestão Olivaw Hub.
+- **Acesso solicitado:** usuário `ltmj` na identidade da própria API LTMJ, com `portfolio.manage`, sem root. Root de cada cliente é reservado à gestão Olivaw.
 - **Conferido:** chaves de assinatura JWT da LTMJ não são compartilhadas com outros serviços; os cinco ambientes têm chaves distintas. Nenhum valor foi registrado neste histórico.
 - **Pendências do usuário:** e-mail obrigatório e definição de senha compatível com a política atual de 12 caracteres, ou autorização de ajuste específico da LTMJ. Nenhum usuário foi criado no servidor.
 
@@ -75,7 +75,7 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Origem:** instrução explícita do responsável.
 - **Decisão:** remover o mínimo de 12 caracteres na identidade compartilhada, incluindo cadastro, troca de senha e bootstrap, mantendo senha obrigatória, limite de 128 e preservação integral dos caracteres. A alteração também atende ao template limpo por referência ao mesmo módulo.
 - **Conta planejada:** login `ltmj`, e-mail `ltmj@teste.com.br`, sem confirmação por e-mail. A senha fornecida não é reproduzida nos documentos.
-- **Permissões:** somente gestão de portfólio; root continua reservado ao Olivaw Hub. Chaves JWT não foram alteradas.
+- **Permissões:** somente gestão de portfólio; root continua reservado ao Olivaw. Chaves JWT não foram alteradas.
 - **Estado:** código e curl atualizados; usuário não criado remotamente.
 
 ## 17/10/2026 — Somente fotos e descarte dos vídeos recebidos
