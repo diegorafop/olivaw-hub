@@ -1,8 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Olivaw.Identity.Api.Security;
+using Olivaw.Identity.Api.Services;
 using Olivaw.Identity.Repositories;
-using Olivaw.Identity.Dados;
 using Owh.Devops.Dados;
 using Owh.OlivawCore.Api.Validation;
 using Owh.OlivawCore.Repositories;
@@ -49,9 +50,9 @@ public class HostingsTest
         Assert.Contains(builder.Services, item =>
             item.ServiceType == typeof(IRepository<>)
             && item.ImplementationType == typeof(Repository<>));
-        Assert.Contains(builder.Services, item =>
-            item.ServiceType == typeof(IIdentityStore)
-            && item.ImplementationType == typeof(IdentityStore<WriteDbContext>));
+        Assert.Contains(builder.Services, item => item.ServiceType == typeof(JwtIdentitySession));
+        Assert.DoesNotContain(builder.Services, item => item.ServiceType == typeof(IIdentityStore));
+        Assert.DoesNotContain(builder.Services, item => item.ServiceType == typeof(AuthenticationService));
         Assert.Contains(builder.Services, item =>
             item.ServiceType == typeof(IPipelineBehavior<,>)
             && item.ImplementationType == typeof(TemplateValidationBehavior<,>));
