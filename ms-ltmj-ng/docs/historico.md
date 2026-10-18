@@ -94,6 +94,12 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Conexão:** usuário PostgreSQL atual `postgres`, banco `ltmj_prd`, search path `ms_ltmj`. Não confundir o usuário PostgreSQL com as contas root e `ltmj` da aplicação.
 - **Pendência:** confirmar se já há tabelas antigas no banco antes de aplicar a migration inicial, configurar aplicação no startup e bootstrap do root, então concluir cadastro e vínculos da equipe.
 
+## 17/10/2026 — E-mail do root Olivaw confirmado
+
+- **Origem:** responsável confirmou o e-mail da gestão Olivaw para root.
+- **Configurado:** e-mail do root nos dotenv da API LTMJ; a conta da equipe continua separada, com login `ltmj` e sem root.
+- **Estado:** segredo e chaves JWT preservados; aplicação de migrations e bootstrap continuam desabilitados enquanto a autorização solicitada está pendente. Cadastro e vínculo ainda não concluídos devido ao HTTP 500 no login.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:
