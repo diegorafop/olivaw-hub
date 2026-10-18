@@ -16,7 +16,7 @@ Uma conta delegada precisa de `devops.deploy` e de uma autorização por pasta, 
 
 ## Banco, infraestrutura e execução
 
-Os bancos próprios são `devops_dev` até `devops_prd`, com schema `ms_devops`. A migration inicial atual é vazia: não existem entidades persistidas do serviço nesta versão. O banco é reservado às futuras funcionalidades próprias; os jobs atuais ficam no estado privado do executor na VM. O startup aplica as migrations automaticamente.
+O serviço usa o banco compartilhado dos serviços internos, `olivaw_hub_<ambiente>`, isolando seus dados no schema `ms_devops`. A migration inicial atual é vazia: não existem entidades persistidas do serviço nesta versão; os jobs ficam no estado privado do executor na VM. O startup aplica as migrations automaticamente.
 
 ```bash
 dotnet build ms-devops-api/Devops.sln -c Release -m:1

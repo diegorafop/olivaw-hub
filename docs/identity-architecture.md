@@ -16,7 +16,7 @@ As tabelas são `authorization`, `accessprofile`, `accessprofileauthorization`, 
 
 ## Reinicialização e primeira publicação
 
-Esta entrega recria as migrations para bases vazias. O mantenedor apagará e preparará os bancos antes de publicar. O código desta entrega não apaga bancos remotos. Em produção são usados `olivaw_hub_prd`, `devops_prd` e `ltmj_prd`, em seus schemas exclusivos. Os startups aplicam migrations automaticamente, sem flags. Somente autoridades executam bootstrap de root. Os usuários comuns e seus vínculos serão definidos depois da publicação.
+Esta entrega recria as migrations para bases vazias. O mantenedor apagará e preparará os bancos antes de publicar. O código desta entrega não apaga bancos remotos. Os serviços internos compartilham um banco por ambiente (`olivaw_hub_prd` em produção), cada um no seu schema (`ms_olivaw_hub` e `ms_devops`). Clientes como LTMJ mantêm bancos próprios, como `ltmj_prd`. Os startups aplicam migrations automaticamente, sem flags. Somente autoridades executam bootstrap de root. Os usuários comuns e seus vínculos serão definidos depois da publicação.
 
 Na primeira publicação, com a branch já disponível na VM e os bancos vazios criados, execute os comandos na raiz do checkout:
 

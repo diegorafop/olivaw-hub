@@ -4,7 +4,7 @@
 
 As configurações de `ms-limpo-api` e `ms-devops-api` seguem o appsettings de produção e os arquivos Docker do FinTalk, consultados somente para leitura. O core e a identidade são bibliotecas; configuração de banco, broker e exposição HTTP pertence aos hosts consumidores.
 
-Foram reaproveitados os endereços internos `ms-postgres-db`, `ms-rabbit-mq` e `ms-redis-db`. Cada cliente mantém bancos isolados dos serviços internos; Hub e DevOps também possuem bancos próprios por ambiente e schemas exclusivos. Domínio e prefixo de mensagens identificam serviço e ambiente. O banco `fintalk_core` não é usado pelo Olivaw Hub.
+Foram reaproveitados os endereços internos `ms-postgres-db`, `ms-rabbit-mq` e `ms-redis-db`. Cada cliente mantém bancos isolados dos serviços internos. Hub e DevOps compartilham um banco por ambiente e mantêm schemas exclusivos. Domínio e prefixo de mensagens identificam serviço e ambiente. O banco `fintalk_core` não é usado pelo Olivaw Hub.
 
 Nenhum banco, schema, usuário, fila, certificado ou recurso da AWS foi criado ou alterado nesta tarefa. Também não houve publicação de containers.
 
@@ -14,7 +14,7 @@ Nenhum banco, schema, usuário, fila, certificado ou recurso da AWS foi criado o
 | --- | --- | --- | --- |
 | Template | `https://api.limpo.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_limpo` |
 | Hub API | `https://api.olivaw-hub.duckdns.org` | `olivaw_hub_prd` | `ms_olivaw_hub` |
-| DevOps | `https://api.devops.olivaw-hub.duckdns.org` | `devops_prd` | `ms_devops` |
+| DevOps | `https://api.devops.olivaw-hub.duckdns.org` | `olivaw_hub_prd` | `ms_devops` |
 | LTMJ API | `https://api.ltmj.olivaw-hub.duckdns.org` | `ltmj_prd` | `ms_ltmj` |
 
 Os bancos usam o sufixo do ambiente: `_dev`, `_qas`, `_rls`, `_stg` e `_prd`. O domínio de produção não tem sufixo; os demais usam, por exemplo, `api.devops-stg.olivaw-hub.duckdns.org`.
@@ -27,10 +27,10 @@ Os nomes de bancos e schemas usam somente minúsculas, números e sublinhados. A
 
 ## Governança dos dados e identidade
 
-- Hub e DevOps têm bancos próprios: `olivaw_hub_<ambiente>` e `devops_<ambiente>`. Somente o Hub mantém identidade administrativa interna.
+- Hub e DevOps compartilham `olivaw_hub_<ambiente>`, cada serviço no próprio schema (`ms_olivaw_hub` e `ms_devops`). Somente o Hub mantém identidade administrativa interna.
 - Cada cliente possui seu banco, por exemplo `pastelaria_dev`, com schemas `ms_service1` e `ms_service2` para seus serviços.
 - Cada serviço mantém seu `DbContext`, migrations e histórico `__efmigrationshistory` no próprio schema. Prepare o schema antes de executar migrations; `SearchPath` não o cria e não substitui permissões de acesso.
-- Use usuários de banco limitados ao schema em produção. As conexões atuais com `postgres` são temporárias para testes. Evite consultas e chaves estrangeiras entre schemas de serviços; integre por APIs ou mensagens.
+- As conexões usam o usuário `postgres` nesta etapa; posteriormente, crie um usuário por serviço com acesso limitado ao próprio schema. Evite consultas e chaves estrangeiras entre schemas de serviços; integre por APIs ou mensagens.
 - A identidade pertence ao serviço principal do cliente. Serviços agregados consumirão o JWT desse emissor, sem cadastros de identidade próprios. Chave compartilhada exige isolamento por cliente/ambiente e validação de emissor, audiência e expiração; permissões e revogação também precisam de um contrato comum.
 
 `AddOlivawIdentityConsumer` valida JWT localmente com secret, emissor e audiência do Hub. Os claims assinados definem permissões até o token expirar; não há consulta ao Hub por requisição. Contas técnicas de clientes no Hub são independentes dos usuários locais dos clientes.

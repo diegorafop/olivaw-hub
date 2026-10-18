@@ -15,7 +15,7 @@ public sealed class WriteDbContextFactory : IDesignTimeDbContextFactory<WriteDbC
         }).Build();
         var options = new DbContextOptionsBuilder<WriteDbContext>()
             .UseLowerCaseNamingConvention()
-            .UseNpgsql("Host=localhost;Database=devops_design;SearchPath=ms_devops;Username=postgres;", provider =>
+            .UseNpgsql("Host=localhost;Database=olivaw_hub_design;SearchPath=ms_devops;Username=postgres;", provider =>
             {
                 provider.MigrationsAssembly(typeof(WriteDbContextFactory).Assembly.GetName().Name);
                 provider.MigrationsHistoryTable("__efmigrationshistory", "ms_devops");
