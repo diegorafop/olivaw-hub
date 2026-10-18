@@ -77,6 +77,19 @@ public class ValidatorTest
         }).ShouldHaveValidationErrorFor(item => item.Key);
     }
 
+    [Theory]
+    [InlineData("devops.deploy")]
+    [InlineData("devops.deploy:lisierp")]
+    [InlineData("devops.deploy:olivaw-hub/ms-ltmj-api")]
+    public void Authorization_should_accept_scoped_permission_keys(string key)
+    {
+        new CreateAuthorizationValidator().TestValidate(new CreateAuthorizationCommand
+        {
+            Key = key,
+            Name = "Deploy service"
+        }).ShouldNotHaveValidationErrorFor(item => item.Key);
+    }
+
     [Fact]
     public void ChangePassword_should_require_current_and_new_password()
     {

@@ -117,7 +117,7 @@ Referências: [restrições de chaves SSH](https://man.openbsd.org/sshd.8), [ver
 
 ## Deploy de serviços pelo DevOps
 
-O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw-hub.duckdns.org` com o login `root`, solicita a implantação do serviço informado e acompanha o job até sucesso ou falha. A senha fica no script por autorização explícita do mantenedor, até Key Vault; nunca imprima senha ou token.
+O cliente genérico `scripts/deployment/deploy.sh` autentica em `https://api.olivaw-hub.duckdns.org` usando a conta técnica definida para o serviço, solicita a implantação e acompanha o job até sucesso ou falha. Cada serviço tem `deployment/hub-credentials.env` no próprio diretório; serviços administrativos usam a conta root, enquanto clientes usam sua conta técnica. Os arquivos são versionados conforme decisão do mantenedor, mas excluídos dos contextos Docker; nunca imprima senha ou token.
 
 Na raiz do clone, os três argumentos são obrigatórios:
 
@@ -136,11 +136,13 @@ bash scripts/deployment/deploy.sh lisierp prd master
 
 Para serviços com prefixo `ms-`, o cliente monta `folder=olivaw-hub/<servico>`. Para repositórios independentes, como `lisierp`, usa `folder=<servico>`. Em ambos os casos, usa o ambiente `dev/qas/rls/stg/prd` e envia a branch informada. Exibe o destino antes de autenticar; não há serviço, ambiente ou branch implícitos. Novos serviços não exigem editar esse script.
 
+O repositório independente do Lisierp também mantém um cliente local próprio em `scripts/deploy-lisierp.sh` e `scripts/deploy-lisierp.ps1`. Esses scripts usam o Node.js 24 do próprio projeto, leem `deployment/hub-credentials.env` e não dependem do clone do monorepo Olivaw. O script do Hub resolve o checkout local do Lisierp pelo mapa `scripts/deployment/external-services.json` (ou `OLIVAW_LISIERP_SERVICE_DIR`); isso serve apenas para selecionar a conta ao disparar o job, enquanto o executor AWS continua implantando a pasta remota `lisierp`.
+
 Cada serviço deve ter `docker/.env.<ambiente>`, `docker/docker-compose.yml` e `docker/docker-compose.<ambiente>.yml` na branch publicada. Seu caminho completo precisa estar em `allowedFolders` de `/etc/olivaw/deployment.json` na VM. O exemplo versionado inclui o frontend institucional e DevOps; não modifica a configuração já instalada. Não adicione frontends a `sshOverrideFolders`; essa opção preserva a integração SSH específica do DevOps.
 
-Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. `DEVOPS_API_URL` e `DEVOPS_ROOT_PASSWORD` substituem os valores fixos sem editar o arquivo.
+Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. Ele lê `deployment/hub-credentials.env` na pasta do serviço; deploys administrativos usam a conta root guardada nas respectivas pastas. A lista de repositórios independentes fica em `scripts/deployment/external-services.json`; `OLIVAW_LISIERP_SERVICE_DIR` permite substituir localmente o caminho temporário da Lisierp.
 
-A branch deve estar publicada com todos os arquivos de implantação. Se a senha root já tiver sido alterada no banco, atualize a credencial do script; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente porque o logout atual revoga todas as sessões root. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
+A branch deve estar publicada com todos os arquivos de implantação. Se uma senha for alterada no Hub, atualize o arquivo versionado da conta correspondente; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente, então o JWT segue válido até expirar. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
 
 ## Primeiro deploy de um serviço e compatibilidade com lisierp
 

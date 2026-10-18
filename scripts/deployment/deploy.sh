@@ -2,9 +2,8 @@
 # Cliente de deploy: autentica no Hub e acompanha o job, sem executar SSH local.
 set +x
 set -euo pipefail
-# Credencial fixa autorizada pelo mantenedor; migração para Key Vault fica para o futuro.
-ROOT_PASSWORD=e9yjkfYwuK2c32wMzubf0gLgEEqsUprYtzNey2xSbomQ2Bm3
-export HUB_ROOT_PASSWORD="${HUB_ROOT_PASSWORD:-$ROOT_PASSWORD}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+export OLIVAW_REPO_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 export HUB_API_URL="${HUB_API_URL:-https://api.olivaw-hub.duckdns.org}"
 export DEVOPS_API_URL="${DEVOPS_API_URL:-https://api.devops.olivaw-hub.duckdns.org}"
 exec python3 - "$@" <<'PYTHON'
@@ -16,6 +15,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 from urllib.parse import urlsplit
 
 parser = argparse.ArgumentParser(description="Implanta um serviço do Olivaw Hub pelo ms-devops-api.")
@@ -30,6 +30,7 @@ if args.cleanup:
         parser.error("A limpeza não recebe serviço, ambiente ou branch.")
     folder = None
     job_path = "/disk-cleanups"
+    credential_service = "ms-devops-api"
     print("Destino: EC2 Olivaw Hub | operação: limpeza de disco", flush=True)
 else:
     if not all((args.service, args.environment, args.branch)):
@@ -37,6 +38,7 @@ else:
     job_path = "/deployments"
     if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.service):
         parser.error("Informe somente o nome da pasta, como ms-novo-servico-api ou lisierp.")
+    credential_service = args.service
     folder = f"olivaw-hub/{args.service}" if args.service.startswith("ms-") else args.service
     if (len(args.branch) > 200 or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._/-]*", args.branch)
             or ".." in args.branch or args.branch == "HEAD"
@@ -44,6 +46,54 @@ else:
         parser.error("Branch inválida.")
     print(f"Destino: {folder} | ambiente: {args.environment} | branch: {args.branch}", flush=True)
 base = os.environ["DEVOPS_API_URL"].rstrip("/")
+repo_root = Path(os.environ["OLIVAW_REPO_ROOT"]).resolve()
+external_services_file = Path(os.environ.get(
+    "OLIVAW_EXTERNAL_SERVICES_FILE",
+    repo_root / "scripts" / "deployment" / "external-services.json",
+))
+
+def service_directory(service):
+    local = repo_root / service
+    if local.is_dir():
+        return local
+    try:
+        configured = json.loads(external_services_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        configured = {}
+    if not isinstance(configured, dict):
+        configured = {}
+    if service == "lisierp" and os.environ.get("OLIVAW_LISIERP_SERVICE_DIR"):
+        configured[service] = os.environ["OLIVAW_LISIERP_SERVICE_DIR"]
+    relative_path = configured.get(service) if isinstance(configured, dict) else None
+    if not isinstance(relative_path, str) or not relative_path:
+        raise RuntimeError(f"Serviço {service} não foi encontrado no monorepo nem em {external_services_file}.")
+    directory = Path(relative_path)
+    if not directory.is_absolute():
+        directory = repo_root / directory
+    directory = directory.resolve()
+    if not directory.is_dir():
+        raise RuntimeError(f"Diretório local do serviço {service} não existe: {directory}.")
+    return directory
+
+def read_hub_credentials(service):
+    path = service_directory(service) / "deployment" / "hub-credentials.env"
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        raise RuntimeError(f"Credenciais do Hub não encontradas para {service}: {path}.") from None
+    values = {}
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key.strip()] = value.strip()
+    login = values.get("HUB_LOGIN")
+    password = values.get("HUB_PASSWORD")
+    if not login or not password:
+        raise RuntimeError(f"O arquivo de credenciais do Hub para {service} precisa definir HUB_LOGIN e HUB_PASSWORD.")
+    return {"login": login, "password": password}
+
 url = urlsplit(base)
 if url.scheme != "https" or not url.netloc or url.username or url.password or url.query or url.fragment:
     sys.exit("DEVOPS_API_URL deve ser uma URL HTTPS sem credenciais, query ou fragmento.")
@@ -52,6 +102,8 @@ auth_base = os.environ["HUB_API_URL"].rstrip("/")
 auth_url = urlsplit(auth_base)
 if auth_url.scheme != "https" or not auth_url.netloc or auth_url.username or auth_url.password or auth_url.query or auth_url.fragment:
     sys.exit("HUB_API_URL deve ser uma URL HTTPS sem credenciais, query ou fragmento.")
+
+credentials = {}
 
 def request(path, payload=None, token=None, endpoint=None):
     headers = {"Accept": "application/json"}
@@ -85,7 +137,7 @@ def request(path, payload=None, token=None, endpoint=None):
         except (ValueError, OSError):
             pass
         detail = " | ".join(messages) or "A API não retornou detalhes JSON."
-        for secret in (token, (payload or {}).get("password")):
+        for secret in (token, (payload or {}).get("password"), credentials.get("password")):
             if secret:
                 detail = detail.replace(secret, "[oculto]")
         detail = "".join(character for character in detail if character.isprintable())[:2000]
@@ -94,7 +146,8 @@ def request(path, payload=None, token=None, endpoint=None):
         raise RuntimeError(f"Falha de comunicação ou resposta inválida em {path}. Se o POST já foi enviado, confira o job antes de repetir.") from None
 
 try:
-    login = request("/identity/authentication/login", {"login": "root", "password": os.environ.pop("HUB_ROOT_PASSWORD")}, endpoint=auth_base)
+    credentials = read_hub_credentials(credential_service)
+    login = request("/identity/authentication/login", credentials, endpoint=auth_base)
     token = login.get("accessToken")
     if not token:
         raise RuntimeError("Login não retornou accessToken.")

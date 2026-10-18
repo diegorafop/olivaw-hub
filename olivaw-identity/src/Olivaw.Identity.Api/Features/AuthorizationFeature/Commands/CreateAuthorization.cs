@@ -36,6 +36,6 @@ public sealed class CreateAuthorizationValidator : AbstractValidator<CreateAutho
         RuleFor(item => item.Key).NotEmpty().MaximumLength(150);
         RuleFor(item => item.Name).NotEmpty().MaximumLength(150);
         RuleFor(item => item.Description).MaximumLength(500);
-        RuleFor(item => item.Key).Matches(@"^[a-z0-9]+([._-][a-z0-9]+)*$");
+        RuleFor(item => item.Key).Matches(@"^[a-z0-9]+([._-][a-z0-9]+)*(:[a-z0-9]+([._-][a-z0-9]+)*(\/[a-z0-9]+([._-][a-z0-9]+)*)*)?$");
     }
 }
