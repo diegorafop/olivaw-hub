@@ -108,6 +108,23 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Compatibilidade:** consumidores anteriores da biblioteca de identidade mantêm o comportamento do wrapper de inicialização já usado por eles. A LTMJ e o template usam diretamente o bootstrap obrigatório após as migrations.
 - **Pendência operacional:** publicar a nova imagem; o deploy anterior não contém esse comportamento. Cadastro e vínculo da equipe aguardam o login root funcionar.
 
+## 18/10/2026 — Conta da equipe criada e acesso conferido
+
+- **Origem:** responsável confirmou que a nova versão da API subiu e autorizou concluir o cadastro e o vínculo.
+- **Provisionado:** login `ltmj`, e-mail `ltmj@teste.com.br` e perfil dedicado `Gestão de portfólio LTMJ`.
+- **Acesso:** conta não root, com somente `portfolio.manage`; sem permissão de administrar usuários, perfis ou autorizações.
+- **Verificado:** login válido, consulta de permissões com o escopo esperado e resposta HTTP 200 na rota protegida de gestão do portfólio.
+- **Segredos:** senha, tokens e chaves não foram registrados neste histórico.
+- **Referência:** [acesso da equipe](acesso-gestao.md).
+
+## 18/10/2026 — Correção ao salvar fotos do portfólio
+
+- **Origem:** erro de concorrência relatado durante o cadastro de evento na produção.
+- **Causa:** o repositório marcava o agregado inteiro como alterado; o EF tentava atualizar fotos recém-adicionadas com GUIDs já preenchidos, em vez de inseri-las.
+- **Corrigido no código:** os handlers agora salvam as mudanças rastreadas pelo contexto sem remarcar o agregado completo. A correção também abrange edição, visibilidade e exclusão de eventos com fotos.
+- **Validação:** build Release concluído sem erros ou avisos; testes não executados.
+- **Estado:** aguardando publicação da nova imagem da API.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:

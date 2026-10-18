@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Moq;
 using Xunit;
 using Mps.Ltmj.Domain;
-using Mps.Ltmj.Portfolio;
 using Mps.OlivawCore.Repositories;
 using Mps.Ltmj.Tests.Mocks;
 using Mps.Ltmj.Api.Features.PortfolioFeature.Commands;
@@ -26,7 +25,6 @@ public class UpdateEventHandlerTest
         var response = await new UpdateEventHandler(repository.Object).Handle(new UpdateEventCommand { Id = item.IdExterno, Title = "Novo título", Description = "Descrição", Category = "Casamentos" }, token);
         Assert.Equal("Novo título", item.Title);
         Assert.Equal("Casamentos", item.Category);
-        repository.Verify(service => service.UpdateAsync(item, token), Times.Once);
         repository.Verify(service => service.SaveChangesAsync(token), Times.Once);
     }
     [Fact]

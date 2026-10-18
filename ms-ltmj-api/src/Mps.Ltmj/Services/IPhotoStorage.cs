@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mps.Ltmj.Portfolio;
+namespace Mps.Ltmj.Services;
 
 public interface IPhotoStorage
 {

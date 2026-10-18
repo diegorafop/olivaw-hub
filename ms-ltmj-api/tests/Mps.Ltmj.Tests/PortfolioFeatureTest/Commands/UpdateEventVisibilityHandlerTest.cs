@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Moq;
 using Xunit;
 using Mps.Ltmj.Domain;
-using Mps.Ltmj.Portfolio;
 using Mps.OlivawCore.Repositories;
 using Mps.Ltmj.Tests.Mocks;
 using Mps.Ltmj.Api.Features.PortfolioFeature.Commands;
@@ -25,7 +24,6 @@ public class UpdateEventVisibilityHandlerTest
         var token = source.Token;
         var response = await new UpdateEventVisibilityHandler(repository.Object).Handle(new UpdateEventVisibilityCommand { Id = item.IdExterno, IsVisible = true }, token);
         Assert.True(item.IsVisible);
-        repository.Verify(service => service.UpdateAsync(item, token), Times.Once);
         repository.Verify(service => service.SaveChangesAsync(token), Times.Once);
     }
     [Fact]

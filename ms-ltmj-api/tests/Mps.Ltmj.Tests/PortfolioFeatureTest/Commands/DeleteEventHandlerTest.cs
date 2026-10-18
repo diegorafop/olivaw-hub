@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Moq;
 using Xunit;
 using Mps.Ltmj.Domain;
-using Mps.Ltmj.Portfolio;
+using Mps.Ltmj.Services;
 using Mps.OlivawCore.Repositories;
 using Mps.Ltmj.Tests.Mocks;
 using Mps.Ltmj.Api.Features.PortfolioFeature.Commands;

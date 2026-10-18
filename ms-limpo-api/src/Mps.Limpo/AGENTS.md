@@ -18,9 +18,17 @@ Estas regras complementam o `AGENTS.md` da raiz para arquivos do núcleo `Mps.Li
 ## Contratos e abstrações
 
 - Reutilize `IRepository<T>` para CRUD genérico.
-- Crie contratos específicos apenas quando uma operação expressar linguagem do domínio ou exigir otimização própria.
+- Para leituras comuns, comece com `IRepository<T>` e seus métodos genéricos, usando `Expression<Func<T, bool>>` para filtros e os métodos básicos de consulta. Não implemente um repository/reader específico quando o contrato genérico já atender.
+- Crie um repository específico somente quando a consulta for realmente especializada ou exigir otimização própria. Nesse caso, mantenha o contrato em `Repositories/` e a implementação na camada de dados, aproveitando o repository base existente sempre que possível.
 - Services do núcleo são portas para APIs, filesystem, mensageria ou outros recursos externos; regras de negócio permanecem no domínio/caso de uso.
 - Mantenha contratos pequenos, explícitos e sem parâmetros opcionais que escondam informação necessária.
+
+## Estrutura de pastas
+
+- `Domain/` contém entidades, value objects e regras de domínio; não coloque interfaces de serviços ou repositórios nessa pasta.
+- `Services/` contém interfaces de portas para recursos que não são persistência, como armazenamento de arquivos, APIs externas e mensageria.
+- `Repositories/` contém contratos específicos de leitura ou persistência. Reutilize `IRepository<T>` de `Mps.OlivawCore` para CRUD genérico; não crie outra interface equivalente.
+- Implementações ficam nas camadas concretas, como `Mps.<Nome>.Api/Services` e `Mps.<Nome>.Dados/Repositories`.
 
 ## Tipos compartilhados e identidade
 

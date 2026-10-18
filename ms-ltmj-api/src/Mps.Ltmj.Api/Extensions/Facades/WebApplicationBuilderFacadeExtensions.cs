@@ -1,6 +1,7 @@
 using FluentValidation;
 using Olivaw.Identity.Api;
 using Mps.Ltmj.Dados;
+using Mps.Ltmj.Services;
 using MediatR;
 using Mps.OlivawCore.Api.Extensions.Hostings;
 using Mps.OlivawCore.Api.Validation;
@@ -18,8 +19,7 @@ public static class WebApplicationBuilderFacadeExtensions
             policy.AddAuthenticationSchemes("OlivawIdentity").RequireAuthenticatedUser()
                 .AddRequirements(new Olivaw.Identity.Api.Security.PermissionRequirement("portfolio.manage"))));
         builder.Services.Configure<Mps.Ltmj.Api.Settings.PortfolioSettings>(builder.Configuration.GetSection("Portfolio"));
-        builder.Services.AddScoped<Mps.Ltmj.Portfolio.IPhotoStorage, Mps.Ltmj.Api.Services.LocalPhotoStorage>();
-        builder.Services.AddScoped<Mps.Ltmj.Portfolio.IPortfolioReader, Mps.Ltmj.Dados.Repositories.PortfolioReader>();
+        builder.Services.AddScoped<IPhotoStorage, Mps.Ltmj.Api.Services.LocalPhotoStorage>();
         builder.Services.AddCorsDefaultPolicyCore();
         builder.AddControllerCore();
         builder.AddSwagger();

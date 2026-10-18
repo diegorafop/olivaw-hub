@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 using Mps.Ltmj.Domain;
-using Mps.Ltmj.Portfolio;
+using Mps.Ltmj.Services;
 using Mps.OlivawCore.Repositories;
 using Mps.OlivawCore.Api.Helpers;
 
@@ -45,7 +45,6 @@ public sealed class UploadEventPhotosHandler(IRepository<PortfolioEvent> reposit
             }
             item.Photos.AddRange(added);
             item.Update(item.Title, item.Description, item.Category, request.UserId);
-            await repository.UpdateAsync(item, cancellationToken);
             await repository.SaveChangesAsync(cancellationToken);
         }
         catch

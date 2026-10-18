@@ -4,7 +4,7 @@ using Mps.Ltmj.Domain;
 using Mps.OlivawCore.Repositories;
 using Mps.OlivawCore.Api.Helpers;
 
-using Mps.Ltmj.Portfolio;
+using Mps.Ltmj.Services;
 
 namespace Mps.Ltmj.Api.Features.PortfolioFeature.Commands;
 
@@ -24,7 +24,6 @@ public sealed class DeleteEventHandler(IRepository<PortfolioEvent> repository, I
         var item = await repository.GetFirstAsync(item => item.IdExterno == request.Id, cancellationToken);
         // Oculta antes da limpeza para não expor uma galeria parcialmente removida.
         item.SetVisibility(false, request.UserId);
-        await repository.UpdateAsync(item, cancellationToken);
         await repository.SaveChangesAsync(cancellationToken);
         // Se a limpeza falhar, o registro oculto permite repetir a exclusão.
         foreach (var photo in item.Photos) await storage.DeleteAsync(photo.StorageKey, cancellationToken);

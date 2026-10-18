@@ -64,7 +64,7 @@ public class Repository<T>
     {
         return await Query(joins)
             .Where(lambda)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<IEnumerable<T>> TakeOrderedAsync

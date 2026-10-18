@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 using Mps.Ltmj.Domain;
-using Mps.Ltmj.Portfolio;
+using Mps.Ltmj.Services;
 using Mps.OlivawCore.Repositories;
 using Mps.OlivawCore.Api.Helpers;
 

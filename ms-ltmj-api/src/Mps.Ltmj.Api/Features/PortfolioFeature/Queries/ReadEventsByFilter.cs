@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using MediatR;
-using Mps.Ltmj.Portfolio;
+using Mps.Ltmj.Domain;
+using Mps.OlivawCore.Repositories;
+using System.Linq.Expressions;
 using Mps.OlivawCore.Api.Helpers;
 
 namespace Mps.Ltmj.Api.Features.PortfolioFeature.Queries;
@@ -29,14 +31,21 @@ public sealed class ReadEventsByFilterResponse
 {
     public IReadOnlyList<EventResponse> Items { get; set; } = [];
 }
-public sealed class ReadEventsByFilterHandler(IPortfolioReader reader)
+public sealed class ReadEventsByFilterHandler(IRepository<PortfolioEvent> repository)
     : IRequestHandler<ReadEventsByFilterQuery, ReadEventsByFilterResponse>
 {
     public async Task<ReadEventsByFilterResponse> Handle(ReadEventsByFilterQuery request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        var items = await reader.ListAsync(request.PublicOnly, request.Page, request.PageSize, cancellationToken);
-        return new ReadEventsByFilterResponse { Items = items.Select(item => new EventResponse {
+        Expression<Func<PortfolioEvent, bool>> filter = item => !request.PublicOnly || item.IsVisible;
+        var items = await repository.GetAsync(filter, cancellationToken);
+        var page = items
+            .OrderByDescending(item => item.DataCadastro)
+            .ThenBy(item => item.Id)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize);
+
+        return new ReadEventsByFilterResponse { Items = page.Select(item => new EventResponse {
             Id = item.IdExterno, Title = item.Title, Description = item.Description, Category = item.Category,
             IsVisible = item.IsVisible,
             Photos = item.Photos.OrderBy(photo => photo.Position).Select(photo => new EventPhotoResponse {
