@@ -34,6 +34,14 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Domínios técnicos propostos:** `ltmj.olivaw-hub.duckdns.org` e `api.ltmj.olivaw-hub.duckdns.org`.
 - **Não executado:** implantação, DNS, criação de banco, migrations ou bootstrap de usuários.
 
+## 17/10/2026 — Legibilidade dos filtros selecionados
+
+- **Origem:** retorno do responsável após apresentação do site ao cliente.
+- **Relatado:** o fundo amarelo do filtro ativo, como “Todos”, prejudicava a leitura do rótulo.
+- **Ajustado:** seleção com fundo escuro levemente tonalizado, texto claro, contorno e linha inferior dourados. Os botões preservam `aria-pressed` e foco de teclado visível.
+- **Abrangência:** filtros do mural e seleção de serviços no orçamento, que compartilhavam o mesmo estilo.
+- **Estado:** ajuste implementado para revisão; não houve nova implantação.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:

@@ -49,7 +49,23 @@ html {
     scroll-behavior: auto;
   }
 }
+// Os tokens públicos do Material mantêm o texto legível também nas camadas internas.
+button[aria-pressed] {
+  @include mat.button-overrides(
+    (
+      outlined-label-text-color: var(--brand-cream),
+      outlined-state-layer-color: var(--brand-gold),
+      outlined-outline-color: var(--mat-sys-outline),
+    )
+  );
+}
 button[aria-pressed='true'] {
-  background: var(--brand-gold);
-  color: var(--brand-ink);
+  @include mat.button-overrides(
+    (
+      outlined-outline-color: var(--brand-gold),
+    )
+  );
+  background: color-mix(in srgb, var(--brand-gold) 8%, var(--brand-panel));
+  box-shadow: inset 0 -2px 0 var(--brand-gold);
+  font-weight: 600;
 }
