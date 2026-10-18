@@ -1,7 +1,7 @@
 name: ms-olivaw-hub-ng-prd
 services:
   ms-olivaw-hub-ng:
-    container_name: ms-olivaw-hub-ng
+    container_name: ms-olivaw-hub-ng-prd
     image: ${FRONTEND_IMAGE:-ms-olivaw-hub-ng:prd}
     environment:
       API_URL: ${API_URL:-https://api.olivaw-hub.duckdns.org}
