@@ -29,7 +29,7 @@ A landing page apresenta serviços reais descritos no briefing, o logo obtido do
 
 Fotos de eventos ainda não foram fornecidas/recuperadas. O mural próprio tem filtros por ocasião e detalhes com galeria. Enquanto o acervo real não chega, exibe modelos identificados, com acesso às redes oficiais; nenhum modelo é apresentado como trabalho realizado. O logo e sua origem estão em `public/assets/ltmj/`.
 
-Domínios técnicos propostos: `ltmj.olivaw-hub.duckdns.org` e `api.ltmj.olivaw-hub.duckdns.org`. Os cinco ambientes e dotenv acompanham o padrão do template; não houve publicação, registro DNS ou criação de banco. A área administrativa herdada ainda não gerencia eventos. Para publicar, preparar infraestrutura, autorizar o serviço no executor e obter aprovação do cliente.
+Domínios técnicos propostos: `ltmj.olivaw-hub.duckdns.org` e `api.ltmj.olivaw-hub.duckdns.org`. Os cinco ambientes e dotenv acompanham o padrão do template; não houve publicação, registro DNS ou criação de banco. A gestão de eventos está implementada em `/gestao`, com login em `/gestao/entrar`; requer API, schema e permissão preparados. Consulte [gestão de portfólio](docs/gestao-portfolio.md). Para publicar, preparar infraestrutura, autorizar o serviço no executor e obter aprovação do cliente.
 
 Os testes E2E simulam a API futura e validam login, mobile e orçamento local. O protocolo de briefing em `docs/prototipos` da raiz é uma prova de conceito separada, não uma nova tela do site institucional.
 

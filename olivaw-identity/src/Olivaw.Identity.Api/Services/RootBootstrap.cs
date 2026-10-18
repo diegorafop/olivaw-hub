@@ -20,7 +20,7 @@ public sealed class RootBootstrap(IIdentityStore store, IPasswordHasher<Usuario>
         var password = configuration["Identity:Bootstrap:Password"] ?? string.Empty;
         var email = configuration["Identity:Bootstrap:Email"] ?? string.Empty;
         var validator = new InlineValidator<BootstrapInput>();
-        validator.RuleFor(item => item.Password).MinimumLength(12).MaximumLength(128);
+        validator.RuleFor(item => item.Password).NotEmpty().MaximumLength(128);
         validator.RuleFor(item => item.Email).NotEmpty().EmailAddress().MaximumLength(254);
         await validator.ValidateAndThrowAsync(new BootstrapInput(password, email), cancellationToken);
         var id = Guid.NewGuid();

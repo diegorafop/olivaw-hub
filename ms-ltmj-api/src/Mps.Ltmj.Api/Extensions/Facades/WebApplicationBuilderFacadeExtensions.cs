@@ -14,7 +14,12 @@ public static class WebApplicationBuilderFacadeExtensions
 {
     public static void AddSetups(this WebApplicationBuilder builder)
     {
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthorization(options => options.AddPolicy("portfolio.manage", policy =>
+            policy.AddAuthenticationSchemes("OlivawIdentity").RequireAuthenticatedUser()
+                .AddRequirements(new Olivaw.Identity.Api.Security.PermissionRequirement("portfolio.manage"))));
+        builder.Services.Configure<Mps.Ltmj.Api.Settings.PortfolioSettings>(builder.Configuration.GetSection("Portfolio"));
+        builder.Services.AddScoped<Mps.Ltmj.Portfolio.IPhotoStorage, Mps.Ltmj.Api.Services.LocalPhotoStorage>();
+        builder.Services.AddScoped<Mps.Ltmj.Portfolio.IPortfolioReader, Mps.Ltmj.Dados.Repositories.PortfolioReader>();
         builder.Services.AddCorsDefaultPolicyCore();
         builder.AddControllerCore();
         builder.AddSwagger();

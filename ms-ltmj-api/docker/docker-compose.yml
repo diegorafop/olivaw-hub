@@ -27,6 +27,8 @@ services:
       masstransit__user: ${masstransit__user:-}
       masstransit__password: ${masstransit__password:-}
       masstransit__prefix: ${masstransit__prefix:-ms-ltmj-api-prd}
+    volumes:
+    - portfolio-data:/app/data
     networks:
     - rabbit-net
     - postgres-net
@@ -42,3 +44,6 @@ networks:
   traefik-net:
     external: true
     name: ${TRAEFIK_NETWORK:-traefik-net}
+
+volumes:
+  portfolio-data:

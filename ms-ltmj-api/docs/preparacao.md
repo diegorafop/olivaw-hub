@@ -2,9 +2,9 @@
 
 ## Entrega atual
 
-Esqueleto gerado do template, com core e identidade por `ProjectReference`. Domínio técnico proposto: `api.ltmj.olivaw-hub.duckdns.org`. As cinco configurações e dotenv fazem parte do projeto; a configuração é versionada temporariamente no repositório privado até Key Vault.
+API derivada do template, com gestão de portfólio, com core e identidade por `ProjectReference`. Domínio técnico proposto: `api.ltmj.olivaw-hub.duckdns.org`. As cinco configurações e dotenv fazem parte do projeto; a configuração é versionada temporariamente no repositório privado até Key Vault.
 
-Não existe implementação de catálogo, CRUD de eventos, upload, comentários ou pedido comercial nesta etapa. Não foram criadas migrations, banco, usuário root, schema ou filas. Os testes herdados validam o template, não funcionalidades futuras.
+CRUD de eventos, consulta pública, visibilidade e upload multipart estão implementados. Consulte [gestão de portfólio](../../ms-ltmj-ng/docs/gestao-portfolio.md). Comentários e pedidos comerciais continuam fora desta entrega. Não foram criadas migrations, banco, usuário root, schema ou filas. Há testes próprios de portfólio além dos testes herdados.
 
 ## Antes de executar com infraestrutura real
 

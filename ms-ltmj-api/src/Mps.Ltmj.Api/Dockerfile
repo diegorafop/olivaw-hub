@@ -16,5 +16,6 @@ WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
 COPY --from=tests --chown=app:app /app/publish .
+RUN mkdir -p /app/data/portfolio && chown -R app:app /app/data
 USER app
 ENTRYPOINT ["dotnet", "Mps.Ltmj.Api.dll"]

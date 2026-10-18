@@ -10,8 +10,8 @@ public class ValidatorTest
 {
     [Theory]
     [InlineData("")]
-    [InlineData("short")]
-    public void InserirUsuario_should_reject_weak_password(string password)
+    [InlineData(" ")]
+    public void InserirUsuario_should_reject_empty_password(string password)
     {
         var result = new InserirUsuarioValidator().TestValidate(new InserirUsuarioCommand
         {
@@ -21,6 +21,35 @@ public class ValidatorTest
             Senha = password
         });
         result.ShouldHaveValidationErrorFor(item => item.Senha);
+    }
+
+    [Theory]
+    [InlineData("x")]
+    [InlineData("demo7* ")]
+    public void Passwords_should_accept_nonempty_short_values(string password)
+    {
+        new InserirUsuarioValidator().TestValidate(new InserirUsuarioCommand
+        {
+            Login = "cliente", Nome = "Cliente", Email = "cliente@example.test", Senha = password
+        }).ShouldNotHaveAnyValidationErrors();
+        new AlterarSenhaValidator().TestValidate(new AlterarSenhaCommand
+        {
+            SenhaAtual = "anterior", NovaSenha = password
+        }).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Passwords_should_keep_maximum_length()
+    {
+        var password = new string('x', 129);
+        new InserirUsuarioValidator().TestValidate(new InserirUsuarioCommand
+        {
+            Login = "cliente", Nome = "Cliente", Email = "cliente@example.test", Senha = password
+        }).ShouldHaveValidationErrorFor(item => item.Senha);
+        new AlterarSenhaValidator().TestValidate(new AlterarSenhaCommand
+        {
+            SenhaAtual = "anterior", NovaSenha = password
+        }).ShouldHaveValidationErrorFor(item => item.NovaSenha);
     }
 
     [Fact]
@@ -49,7 +78,7 @@ public class ValidatorTest
     }
 
     [Fact]
-    public void AlterarSenha_should_require_current_and_strong_new_password()
+    public void AlterarSenha_should_require_current_and_new_password()
     {
         var result = new AlterarSenhaValidator().TestValidate(new AlterarSenhaCommand());
         result.ShouldHaveValidationErrorFor(item => item.SenhaAtual);

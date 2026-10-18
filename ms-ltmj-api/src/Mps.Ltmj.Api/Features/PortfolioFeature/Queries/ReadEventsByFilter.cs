@@ -1,0 +1,55 @@
+﻿using FluentValidation;
+using MediatR;
+using Mps.Ltmj.Portfolio;
+using Mps.OlivawCore.Api.Helpers;
+
+namespace Mps.Ltmj.Api.Features.PortfolioFeature.Queries;
+
+public sealed class ReadEventsByFilterQuery : IRequest<ReadEventsByFilterResponse>
+{
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 12;
+    internal bool PublicOnly { get; set; } = true;
+}
+public sealed class EventPhotoResponse
+{
+    public Guid Id { get; set; }
+    public string Url { get; set; } = string.Empty;
+}
+public sealed class EventResponse
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public bool IsVisible { get; set; }
+    public IReadOnlyList<EventPhotoResponse> Photos { get; set; } = [];
+}
+public sealed class ReadEventsByFilterResponse
+{
+    public IReadOnlyList<EventResponse> Items { get; set; } = [];
+}
+public sealed class ReadEventsByFilterHandler(IPortfolioReader reader)
+    : IRequestHandler<ReadEventsByFilterQuery, ReadEventsByFilterResponse>
+{
+    public async Task<ReadEventsByFilterResponse> Handle(ReadEventsByFilterQuery request, CancellationToken cancellationToken)
+    {
+        ValidationHelper.ThrowIfNull(request);
+        var items = await reader.ListAsync(request.PublicOnly, request.Page, request.PageSize, cancellationToken);
+        return new ReadEventsByFilterResponse { Items = items.Select(item => new EventResponse {
+            Id = item.IdExterno, Title = item.Title, Description = item.Description, Category = item.Category,
+            IsVisible = item.IsVisible,
+            Photos = item.Photos.OrderBy(photo => photo.Position).Select(photo => new EventPhotoResponse {
+                Id = photo.Id, Url = $"portfolio/events/{item.IdExterno}/photos/{photo.Id}"
+            }).ToArray()
+        }).ToArray() };
+    }
+}
+public sealed class ReadEventsByFilterValidator : AbstractValidator<ReadEventsByFilterQuery>
+{
+    public ReadEventsByFilterValidator()
+    {
+        RuleFor(item => item.Page).InclusiveBetween(1, 10000);
+        RuleFor(item => item.PageSize).InclusiveBetween(1, 50);
+    }
+}

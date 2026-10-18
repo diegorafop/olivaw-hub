@@ -37,8 +37,9 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 1rem;
-  background: var(--brand-ink);
-  color: white;
+  background: var(--action-background);
+  color: var(--brand-ink);
+  border: 1px solid var(--action-border);
   text-decoration: none;
   padding: 1.1rem 1.5rem;
   border-radius: 2rem;
@@ -47,7 +48,7 @@ h1 {
   transition: background 0.2s;
 }
 .button-primary:hover {
-  background: var(--mat-sys-primary);
+  background: var(--action-background-hover);
 }
 .workspace {
   border: 1px solid color-mix(in srgb, var(--brand-ink) 14%, transparent);

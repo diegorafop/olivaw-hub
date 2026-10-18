@@ -51,6 +51,33 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Pendências:** data, local e contexto adicional do evento não informados; não foram deduzidos dos nomes dos arquivos.
 - **Estado:** conteúdo incluído a pedido do responsável; implantação não executada nesta alteração.
 
+## 17/10/2026 — Backoffice de portfólio, issue 009
+
+- **Origem:** história de usuário enviada pelo responsável pelo projeto.
+- **Escopo solicitado:** gestão restrita e mobile, título/descrição/categoria, várias fotos, edição, visibilidade pública e exclusão confirmada.
+- **Implementado:** `/gestao/entrar` e `/gestao`, autorização `portfolio.manage`, API CQS em inglês com leituras `Read`, multipart, persistência EF e armazenamento em volume. Nenhuma conta individual da equipe foi criada.
+- **Decisão técnica desta entrega:** armazenamento local persistente atrás de `IPhotoStorage`; integração S3 continua como evolução. O volume deve ser copiado ao trocar o servidor.
+- **Mural:** passa a ler a API, sem fallback fixo que possa republicar eventos ocultos. Importação manual do churrasco disponível no painel.
+- **Pendência operacional:** migration autorizada, preparação do banco/identidade, backup e implantação. Nenhum desses passos foi executado nesta tarefa.
+- **Referência:** [gestão de portfólio](gestao-portfolio.md).
+
+## 17/10/2026 — Novas seleções de acervo e acesso da equipe
+
+- **Origem:** responsável enviou dois JPEGs e três ZIPs em Downloads e pediu três ou quatro exemplos adicionais.
+- **Recebido:** 91 fotos e 33 vídeos. Fotos preservadas e conferidas em `docs/acervo-recebido/2026-10-17`; vídeos mantidos fora do Git em Downloads. Origens de fotos removidas após a conferência, conforme autorizado.
+- **Preparado:** quatro conjuntos demonstrativos com 14 fotos, além do churrasco inicial. Prévia em `/previa-portfolio#eventos` e carregamento individual no cadastro. Agrupamento/categoria pendentes de confirmação; não representam quatro eventos reais distintos comprovados.
+- **Acesso solicitado:** usuário `ltmj` na identidade da própria API LTMJ, com `portfolio.manage`, sem root. Root de cada cliente é reservado à gestão Olivaw Hub.
+- **Conferido:** chaves de assinatura JWT da LTMJ não são compartilhadas com outros serviços; os cinco ambientes têm chaves distintas. Nenhum valor foi registrado neste histórico.
+- **Pendências do usuário:** e-mail obrigatório e definição de senha compatível com a política atual de 12 caracteres, ou autorização de ajuste específico da LTMJ. Nenhum usuário foi criado no servidor.
+
+## 17/10/2026 — Política de senha e e-mail da equipe confirmados
+
+- **Origem:** instrução explícita do responsável.
+- **Decisão:** remover o mínimo de 12 caracteres na identidade compartilhada, incluindo cadastro, troca de senha e bootstrap, mantendo senha obrigatória, limite de 128 e preservação integral dos caracteres. A alteração também atende ao template limpo por referência ao mesmo módulo.
+- **Conta planejada:** login `ltmj`, e-mail `ltmj@teste.com.br`, sem confirmação por e-mail. A senha fornecida não é reproduzida nos documentos.
+- **Permissões:** somente gestão de portfólio; root continua reservado ao Olivaw Hub. Chaves JWT não foram alteradas.
+- **Estado:** código e curl atualizados; usuário não criado remotamente.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:

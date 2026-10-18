@@ -2,7 +2,7 @@
 
 ## Estado e origem
 
-Protótipo para avaliação do primeiro cliente, criado a partir de `ms-limpo-ng`; backend derivado de `ms-limpo-api`. Não publicado. O [protocolo Olivaw](../../docs/protocolo-descoberta-cliente.md) é reutilizável em outros negócios; este documento aplica o processo à LTMJ.
+Landing e backoffice do primeiro cliente, criados a partir de `ms-limpo-ng`; backend derivado de `ms-limpo-api`. A implantação da issue 009 não foi executada nesta alteração. O [protocolo Olivaw](../../docs/protocolo-descoberta-cliente.md) é reutilizável em outros negócios; este documento aplica o processo à LTMJ.
 
 Briefing fornecido pelo responsável via WhatsApp, em 17/10/2026. O texto abaixo é uma síntese; não replica nomes pessoais ou a conversa privada completa.
 
@@ -12,7 +12,7 @@ Briefing fornecido pelo responsável via WhatsApp, em 17/10/2026. O texto abaixo
 - Essência: transformar momentos especiais em experiências inesquecíveis, com sabor, elegância e excelência nos detalhes.
 - Atuação descrita: eventos personalizados, casamentos, aniversários e outras festas; bar, almoço, jantar, churrasco, garçons e cozinheiros.
 - Perguntas recorrentes: valores, cardápio e possibilidade de acrescentar/retirar itens.
-- Há material de diferentes tipos: fotos, vídeos, pessoas e estrutura, ainda sem seleção recebida.
+- Há material de diferentes tipos; foram recebidas 12 imagens para o primeiro churrasco de confraternização.
 - Ação principal desejada: solicitar orçamento.
 - Preto e dourado são a direção inicial; a resposta recebida sobre dourado estava abreviada e a paleta ainda precisa de aprovação visual.
 
@@ -36,8 +36,8 @@ Uma vitrine própria deve explicar os serviços e transformar a conversa de orç
 - Página pública responsiva: marca real, serviços, ocasiões, personalização, processo e dúvidas frequentes.
 - CTA “Solicitar orçamento” conduz a um assistente curto com ocasião, serviços, convidados aproximados, data opcional, cidade e observações.
 - O resumo é revisável e copiável; WhatsApp só é ativado quando o número comercial for confirmado. Até lá há acesso ao Instagram e Facebook oficiais, sem simular envio.
-- Mural próprio com filtros de ocasião, cartões e detalhes em diálogo. Enquanto o acervo real não chega, os cartões são explicitamente identificados como modelos de apresentação; não há nomes, datas ou clientes fictícios. As redes reais continuam acessíveis.
-- HTML público prerenderizado; API separada; autenticação/área administrativa herdadas do template, sem CRUD de eventos nesta entrega.
+- Mural próprio com filtros de ocasião e galeria, carregado pela API com eventos visíveis; o churrasco inicial pode ser importado pelo painel.
+- Landing prerenderizada e mural carregado no navegador; API separada; backoffice mobile em `/gestao` com cadastro, upload, edição, visibilidade e exclusão confirmada.
 - Metadados básicos, canonical e sitemap com domínio técnico proposto, ainda sujeito à aprovação.
 
 ## Entregas seguintes
@@ -75,6 +75,6 @@ Não haverá migração de banco, upload público, comentários abertos, pagamen
 
 ## Mural de eventos
 
-Componente em `src/app/features/public/events/`. O catálogo `event-portfolio.data.ts` separa `PUBLISHED_EVENTS` (somente trabalhos reais aprovados) de `PREVIEW_EVENTS` (modelos explícitos de layout). Sem eventos reais, o protótipo exibe os modelos com aviso visível. Assim que houver eventos publicados, os exemplos deixam de aparecer automaticamente.
+Componente em `src/app/features/public/events/`. O catálogo estático guarda o churrasco inicial apenas para importação explícita. O mural usa a API como fonte de verdade e não exibe modelos ou conteúdo fixo se ela falhar. Consulte [gestão de portfólio](gestao-portfolio.md).
 
-Cada evento admite título, ocasião, descrição, serviços efetivamente realizados e fotos com texto alternativo/legenda. Data e local são opcionais; não exibir nomes de contratantes sem aprovação. O diálogo permite navegar entre fotos e seguir para orçamento. Não há afirmação de quantidade de clientes, marcas atendidas ou depoimentos sem confirmação. Cadastro, upload e moderação de comentários continuam sendo a próxima fase, sem persistência improvisada no navegador.
+Cada evento admite título, ocasião, descrição, serviços efetivamente realizados e fotos com texto alternativo/legenda. Data e local são opcionais; não exibir nomes de contratantes sem aprovação. O diálogo permite navegar entre fotos e seguir para orçamento. Não há afirmação de quantidade de clientes, marcas atendidas ou depoimentos sem confirmação. Cadastro e upload foram implementados na issue 009; comentários e moderação continuam como evolução. Não há persistência de portfólio no navegador.

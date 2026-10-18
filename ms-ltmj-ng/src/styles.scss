@@ -19,6 +19,8 @@ html {
       on-surface: brand.$cream,
       surface-container: brand.$panel,
       outline: #837a65,
+      error: #ffb4ab,
+      on-error: #690005,
       on-surface-variant: #c5c1b6,
     )
   );

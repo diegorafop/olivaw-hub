@@ -11,5 +11,6 @@ internal static class TableExtensionsFacade
     )
     {
         modelBuilder.SetupExample();
+        modelBuilder.SetupPortfolio();
     }
 }

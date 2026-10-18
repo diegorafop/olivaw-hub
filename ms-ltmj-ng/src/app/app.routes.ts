@@ -1,6 +1,12 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth.guard';
+import { authGuard, permissionGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
+  {
+    path: 'previa-portfolio',
+    title: 'Prévia do portfólio | LTMJ Eventos',
+    data: { portfolioPreview: true },
+    loadComponent: () => import('./features/public/public-page').then((m) => m.PublicPage),
+  },
   {
     path: '',
     pathMatch: 'full',
@@ -8,17 +14,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/public-page').then((m) => m.PublicPage),
   },
   {
-    path: 'login',
+    path: 'gestao/entrar',
     title: 'Entrar | LTMJ Eventos',
     loadComponent: () => import('./features/login/login-page').then((m) => m.LoginPage),
   },
   {
-    path: 'admin',
+    path: 'gestao',
     canMatch: [authGuard],
     children: [
       {
         path: '',
-        title: 'Administração | LTMJ Eventos',
+        title: 'Portfólio | LTMJ Eventos',
+        canActivate: [permissionGuard],
+        data: { permissao: 'portfolio.manage' },
         loadComponent: () => import('./features/admin/admin-page').then((m) => m.AdminPage),
       },
     ],

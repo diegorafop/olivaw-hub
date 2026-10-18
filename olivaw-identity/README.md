@@ -57,7 +57,7 @@ Após preparar o schema do cliente, habilite o bootstrap uma vez:
 ```text
 Identity__Bootstrap__Enabled=true
 Identity__Bootstrap__Email=<email do responsável>
-Identity__Bootstrap__Password=<senha exclusiva de 12 a 128 caracteres>
+Identity__Bootstrap__Password=<senha exclusiva não vazia, até 128 caracteres>
 ```
 
 O host chama `await app.InitializeOlivawIdentityAsync()`. O bootstrap cria somente `root`, com senha em hash, e não altera um root existente. Depois, desabilite-o e retire a senha de bootstrap do ambiente. Execute o primeiro bootstrap em uma única instância; inicializações concorrentes podem disputar a chave única. O root não pode ser removido, desativado ou renomeado pelas rotas.
@@ -116,3 +116,5 @@ dotnet run --project olivaw-identity/tests/Olivaw.Identity.Tests/Olivaw.Identity
 ```
 
 Testes relacionais usam SQLite; isso não comprova integração específica com PostgreSQL ou SQL Server. Consulte o [registro da implementação](../docs/identidade.md).
+
+A senha é obrigatória, com limite de 128 caracteres e sem tamanho mínimo adicional, tanto no cadastro quanto na troca e no bootstrap. Os caracteres são preservados integralmente. O e-mail tem validação de formato; não há envio ou confirmação por e-mail como requisito para login.

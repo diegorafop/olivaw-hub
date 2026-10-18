@@ -12,6 +12,22 @@ namespace Olivaw.Identity.Tests;
 public class AuthenticationTest
 {
     [Fact]
+    public async Task Short_password_should_allow_signup_login_and_change_without_email_confirmation()
+    {
+        await using var host = await IdentityHost.CreateAsync();
+        await host.InsertAsync("usuarios", new { login = "demo", nome = "Equipe", email = "equipe@example.test", senha = "demo7* " });
+        await host.LoginAsync("demo", "demo7* ");
+        var token = Xunit.TestContext.Current.CancellationToken;
+        var response = await host.Client.PutAsJsonAsync("/identity/autenticacao/senha",
+            new { senhaAtual = "demo7* ", novaSenha = "z " }, cancellationToken: token);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await host.Client.GetAsync("/identity/autenticacao/acesso", token)).StatusCode);
+        await host.LoginAsync("demo", "z ");
+        var wrong = await host.Client.PostAsJsonAsync("/identity/autenticacao/login", new { login = "demo", senha = "z" }, cancellationToken: token);
+        Assert.Equal(HttpStatusCode.Unauthorized, wrong.StatusCode);
+    }
+
+    [Fact]
     public async Task Bootstrap_should_create_only_root_and_preserve_password_on_repeat()
     {
         await using var host = await IdentityHost.CreateAsync();

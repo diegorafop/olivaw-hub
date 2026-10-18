@@ -144,6 +144,8 @@ Quando este template receber um cliente REST completo, siga também `src/Mps.Lim
 
 ## Identidade compartilhada
 
+- Root de cada cliente é exclusivo da operação Olivaw Hub; clientes usam contas sem root e perfis com somente as permissões necessárias. Cada serviço e ambiente possui chave JWT própria, sem reutilizar a chave do template, Hub ou DevOps.
+
 - Usuários, autenticação, perfis e permissões vêm de `../olivaw-identity`, por `ProjectReference`; não copie essas features para cada cliente.
 - O contexto local aplica `AddOlivawIdentity()`. Banco e migrations continuam no consumidor.
 - O módulo registra o esquema JWT local e controllers por application part. Não reintroduza o cliente externo de autenticação como requisito de inicialização.

@@ -39,6 +39,6 @@ public sealed class InserirUsuarioValidator : AbstractValidator<InserirUsuarioCo
         RuleFor(item => item.Nome).NotEmpty().MaximumLength(150);
         RuleFor(item => item.Email).NotEmpty().MaximumLength(254);
         RuleFor(item => item.Email).EmailAddress();
-        RuleFor(item => item.Senha).NotEmpty().MinimumLength(12).MaximumLength(128);
+        RuleFor(item => item.Senha).NotEmpty().MaximumLength(128);
     }
 }

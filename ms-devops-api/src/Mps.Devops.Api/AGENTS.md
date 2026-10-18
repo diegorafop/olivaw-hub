@@ -29,8 +29,8 @@ Features/<Nome>Feature/
 - Componentes internos que não são casos de uso ficam em `Features/<Nome>Feature/Internals`, com nomes que descrevem sua responsabilidade; por exemplo, componentes de coordenação exclusivos daquela feature. Evite pastas vagas como `Extras` e nomes de pasta baseados somente no mecanismo, como `Semaphore`.
 
 - Command altera estado; Query apenas lê e não causa efeito colateral observável.
-- Novas features usam inglês e nomenclatura CRUD: `CreateCustomerCommand`, `GetCustomerByIdQuery`, `UpdateCustomerCommand` e `DeleteCustomerCommand`. Use inglês também em propriedades, contratos, testes e recursos HTTP.
-- Para novas leituras CRUD, use `Get`, com `ById` ou `ByFilter` conforme o caso. Preserve nomes e rotas existentes em português até uma refatoração explicitamente solicitada; veja o [guia de desenvolvimento](../../../docs/desenvolvimento.md).
+- Novas features usam inglês e nomenclatura CRUD: `CreateCustomerCommand`, `ReadCustomerByIdQuery`, `UpdateCustomerCommand` e `DeleteCustomerCommand`. Use inglês também em propriedades, contratos, testes e recursos HTTP.
+- Para novas leituras CRUD, use `Read`, com `ById` ou `ByFilter` conforme o caso. Preserve nomes e rotas existentes em português até uma refatoração explicitamente solicitada; veja o [guia de desenvolvimento](../../../docs/desenvolvimento.md).
 - Use classes próprias para entrada e saída de cada operação, inclusive quando vazias. Não retorne diretamente tipos primitivos ou coleções de handlers CQS.
 - Não crie hierarquias entre commands ou queries para compartilhar implementação.
 - Cada operação concreta declara request, response, handler e validator próprios, normalmente no mesmo arquivo quando coesos.

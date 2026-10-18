@@ -136,7 +136,7 @@ O guia da raiz ainda descreve a fase inicial de planejamento; os caminhos e flux
 
 ## Inglês como padrão para novas features de APIs
 
-A partir desta decisão, novas features das APIs e dos projetos gerados pelo template usam inglês nos nomes de entidades, propriedades, contratos, casos de uso, testes e recursos HTTP. Para CRUD, use `Create`, `Get`, `Update` e `Delete`, por exemplo `CreateCustomerCommand`, `GetCustomerByIdQuery` e `GetCustomersByFilterQuery`. Preserve CQS: escrita em Commands, leitura em Queries; operações específicas do domínio também devem ter nomes em inglês.
+A partir desta decisão, novas features das APIs e dos projetos gerados pelo template usam inglês nos nomes de entidades, propriedades, contratos, casos de uso, testes e recursos HTTP. Para CRUD, use `Create`, `Read`, `Update` e `Delete`, por exemplo `CreateCustomerCommand`, `ReadCustomerByIdQuery` e `ReadCustomersByFilterQuery`. Preserve CQS: escrita em Commands, leitura em Queries; operações específicas do domínio também devem ter nomes em inglês.
 
 O código existente em português será refatorado em uma tarefa futura, com revisão de compatibilidade dos contratos e rotas. Não renomeie esse legado automaticamente ao desenvolver funcionalidades. Nesta alteração, `CriarImplantacao`, `/implantacoes` e `devops.implantar` permanecem; o payload solicitado passa a usar `folder`, `branch` e `environment`. Documentação e mensagens de erro podem continuar em português.
 
@@ -145,3 +145,8 @@ O código existente em português será refatorado em uma tarefa futura, com rev
 `ms-limpo-ng` e `ms-limpo-api` formam o par de templates. O frontend tem ciclo de instalação, testes e build próprio com npm e não pertence à solução .NET. Frontend e API são serviços separados, com builds, imagens e publicações independentes. A configuração pública `ms-limpo-ng/public/config.json` aponta diretamente para `http://localhost:5137` no desenvolvimento e deve receber a URL pública HTTPS da API em produção. O navegador chama essa URL, sem proxy Angular/Nginx e sem rede Docker compartilhada obrigatória. A API deve permitir a origem do frontend via CORS. Outra URL pode ser fornecida em runtime sem novo build do frontend.
 
 A página pública inicial é prerenderizada; login e administração são renderizados no navegador. O estado `autenticacao` usa NgRx SignalStore e os contratos existentes de login, acesso e logout. Não há refresh token nem persistência de sessão nesta etapa. Funcionalidades de eventos, fotos e agenda serão adicionadas nos projetos consumidores; A geração do frontend usa a collection local do template; o comando está no README de `ms-limpo-ng`. Consulte o [guia do frontend](../ms-limpo-ng/README.md) para comandos, tema, testes e limites da publicação de conteúdo com prerenderização.
+
+
+### Acesso administrativo dos clientes
+
+Root de cada cliente permanece exclusivo da operação Olivaw Hub. Contas entregues ao cliente recebem um perfil com permissões de negócio específicas; acesso ao portfólio não concede administração de identidade. A identidade fica na API e na base do próprio cliente. Chave de assinatura JWT, emissor e destinatário são exclusivos do serviço e ambiente; a senha de um usuário não é a chave de assinatura.

@@ -1,0 +1,166 @@
+<main class="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6 sm:px-8">
+  <header class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-sm text-primary">LTMJ Eventos · Área da equipe</p>
+      <h1 class="text-3xl font-bold">Meu portfólio</h1>
+      <p>Olá, {{ store.usuario()?.nome }}.</p>
+    </div>
+    <div class="flex gap-2">
+      <a mat-button routerLink="/">Ver site</a
+      ><button mat-button [disabled]="pending()" (click)="logout()">Sair</button>
+    </div>
+  </header>
+  @if (error()) {
+    <p role="alert" class="rounded-xl border border-outline p-4">{{ error() }}</p>
+  }
+  @if (message()) {
+    <p role="status" class="rounded-xl border border-outline p-4">{{ message() }}</p>
+  }
+  @if (pending()) {
+    <p role="status">Aguarde, processando…</p>
+  }
+  <section id="event-form" class="event-card" aria-labelledby="form-title">
+    <h2 id="form-title" class="mb-5 text-2xl">
+      {{ editingId() ? 'Editar evento' : 'Novo evento' }}
+    </h2>
+    <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-3">
+      <fieldset [disabled]="pending()" class="m-0 flex min-w-0 flex-col gap-3 border-0 p-0">
+        <mat-form-field appearance="outline"
+          ><mat-label>Título</mat-label
+          ><input matInput formControlName="title" maxlength="150" required />
+          <mat-error>Informe um título de até 150 caracteres.</mat-error></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Descrição</mat-label
+          ><textarea
+            matInput
+            formControlName="description"
+            rows="4"
+            maxlength="4000"
+            required
+          ></textarea>
+          <mat-error>Informe uma descrição de até 4.000 caracteres.</mat-error></mat-form-field
+        >
+        <mat-form-field appearance="outline"
+          ><mat-label>Categoria</mat-label
+          ><mat-select formControlName="category" required [disabled]="pending()">
+            @for (category of categories; track category) {
+              <mat-option [value]="category">{{ category }}</mat-option>
+            }</mat-select
+          ><mat-error>Escolha uma categoria.</mat-error></mat-form-field
+        >
+        <label for="event-photos" class="font-bold">Adicionar fotos</label>
+        <p id="photo-help" class="text-sm">
+          Selecione várias de uma vez. JPEG, PNG ou WebP, até 10 MB por foto e 100 fotos por evento.
+          A primeira foto será a capa.
+        </p>
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="photoInput.click()"
+          aria-describedby="photo-help"
+        >
+          Selecionar fotos
+        </button>
+        <input
+          #photoInput
+          id="event-photos"
+          class="sr-only"
+          tabindex="-1"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          aria-describedby="photo-help"
+          (change)="selectFiles($event)"
+        />
+        <p role="status">{{ selectedPhotos().length }} novas fotos selecionadas</p>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          @for (photo of selectedPhotos(); track photo.preview; let index = $index) {
+            <figure class="m-0 min-w-0">
+              <img
+                [src]="photo.preview"
+                [alt]="'Prévia da foto ' + (index + 1)"
+                width="180"
+                height="140"
+                class="aspect-[4/3] w-full rounded-lg object-cover"
+              />
+              <figcaption class="truncate text-xs">{{ photo.file.name }}</figcaption>
+              <button
+                mat-button
+                type="button"
+                (click)="removePhoto(index)"
+                [attr.aria-label]="'Remover foto ' + (index + 1)"
+              >
+                Remover
+              </button>
+            </figure>
+          }
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button mat-flat-button type="submit" [disabled]="pending()">
+            {{ pending() ? 'Salvando…' : 'Salvar evento' }}
+          </button>
+          <button mat-button type="button" (click)="reset()">Limpar formulário</button>
+        </div>
+      </fieldset>
+    </form>
+  </section>
+  <section aria-labelledby="list-title">
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <h2 id="list-title" class="text-2xl">Eventos cadastrados</h2>
+      <button mat-button [disabled]="pending()" (click)="refresh()">Atualizar lista</button>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      @for (event of events(); track event.id) {
+        <article class="event-card flex flex-col gap-4">
+          <p class="text-sm text-primary">{{ event.category }}</p>
+          <h3 class="break-words text-xl">{{ event.title }}</h3>
+          <p class="break-words whitespace-pre-line">{{ event.description }}</p>
+          <p class="text-sm">
+            {{ event.photos.length }} fotos · {{ event.isVisible ? 'Publicado' : 'Oculto' }}
+          </p>
+          <mat-slide-toggle
+            [checked]="event.isVisible"
+            [disabled]="pending()"
+            (change)="toggle(event, $event.checked)"
+            [aria-label]="'Exibir no site: ' + event.title"
+            >Exibir no site</mat-slide-toggle
+          >
+          <div class="flex flex-wrap gap-2">
+            <button mat-stroked-button [disabled]="pending()" (click)="edit(event)">Editar</button
+            ><button mat-button [disabled]="pending()" (click)="remove(event)">Excluir</button>
+          </div>
+        </article>
+      } @empty {
+        <p>Nenhum evento nesta página. Cadastre o primeiro no formulário acima.</p>
+      }
+    </div>
+    <nav aria-label="Paginação dos eventos" class="mt-5 flex items-center justify-between gap-2">
+      <button mat-button [disabled]="pending() || page() === 1" (click)="refresh(page() - 1)">
+        Anterior</button
+      ><span>Página {{ page() }}</span
+      ><button
+        mat-button
+        [disabled]="pending() || events().length < 12"
+        (click)="refresh(page() + 1)"
+      >
+        Próxima
+      </button>
+    </nav>
+    <details class="mt-6">
+      <summary class="cursor-pointer py-3">Migrar conteúdo inicial do protótipo</summary>
+      <p>
+        Carrega uma seleção no formulário. As quatro novas seleções são demonstrativas; confirme o
+        contexto antes de publicar. Confira se o evento já foi cadastrado para evitar duplicações.
+      </p>
+      <a mat-button routerLink="/previa-portfolio">Ver prévia do portfólio</a>
+      <div class="flex flex-wrap gap-3">
+        @for (sample of samples; track sample.id) {
+          <button mat-stroked-button [disabled]="pending()" (click)="importInitial(sample.id)">
+            Carregar: {{ sample.title }}
+          </button>
+        }
+      </div>
+    </details>
+  </section>
+</main>

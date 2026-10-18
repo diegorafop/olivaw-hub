@@ -4,13 +4,13 @@ import { AutenticacaoStore } from './autenticacao.store';
 
 export const authGuard: CanMatchFn = () => {
   const auth = inject(AutenticacaoStore);
-  return !!auth.tokenValido() || inject(Router).createUrlTree(['/login']);
+  return !!auth.tokenValido() || inject(Router).createUrlTree(['/gestao/entrar']);
 };
 // Uso futuro: canActivate: [permissionGuard], data: { permissao: 'eventos.editar' }.
 export const permissionGuard: CanActivateFn = (route) => {
   const auth = inject(AutenticacaoStore);
   const router = inject(Router);
-  if (!auth.tokenValido()) return router.createUrlTree(['/login']);
+  if (!auth.tokenValido()) return router.createUrlTree(['/gestao/entrar']);
   const permission = route.data['permissao'];
   return typeof permission === 'string' && auth.permite(permission)
     ? true

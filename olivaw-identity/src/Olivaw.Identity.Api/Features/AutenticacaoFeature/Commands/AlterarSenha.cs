@@ -19,7 +19,7 @@ public sealed class AlterarSenhaValidator : AbstractValidator<AlterarSenhaComman
     public AlterarSenhaValidator()
     {
         RuleFor(item => item.SenhaAtual).NotEmpty().MaximumLength(128);
-        RuleFor(item => item.NovaSenha).NotEmpty().MinimumLength(12).MaximumLength(128);
+        RuleFor(item => item.NovaSenha).NotEmpty().MaximumLength(128);
     }
 }
 public sealed class AlterarSenhaHandler(AuthenticationService service, CurrentActor actor) : IRequestHandler<AlterarSenhaCommand, AlterarSenhaResponse>
