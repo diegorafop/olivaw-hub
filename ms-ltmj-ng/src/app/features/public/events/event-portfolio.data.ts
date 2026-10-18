@@ -17,7 +17,20 @@ export interface PortfolioEvent {
 }
 
 // Somente eventos reais, aprovados pelo cliente, com fotos autorizadas.
-export const PUBLISHED_EVENTS: PortfolioEvent[] = [];
+export const PUBLISHED_EVENTS: PortfolioEvent[] = [
+  {
+    id: 'churrasco-confraternizacao',
+    title: 'Churrasco de confraternização',
+    category: 'Confraternizações',
+    description:
+      'Um encontro ao redor do churrasco, com carnes na tábua, frango e pão de alho. Confira os registros compartilhados pela LTMJ.',
+    services: ['Churrasco'],
+    photos: Array.from({ length: 12 }, (_, index) => ({
+      src: `/assets/events/churrasco-confraternizacao/churrasco${String(index + 1).padStart(2, '0')}.jpeg`,
+      alt: `Churrasco de confraternização da LTMJ — registro ${index + 1}`,
+    })),
+  },
+];
 
 // Modelos de apresentação; não são eventos realizados ou clientes atendidos.
 export const PREVIEW_EVENTS: PortfolioEvent[] = [

@@ -42,6 +42,15 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Abrangência:** filtros do mural e seleção de serviços no orçamento, que compartilhavam o mesmo estilo.
 - **Estado:** ajuste implementado para revisão; não houve nova implantação.
 
+## 17/10/2026 — Primeiro evento: churrasco de confraternização
+
+- **Origem:** responsável pelo projeto indicou a categoria Confraternizações e forneceu 12 imagens em `image_tmp` e na pasta de WhatsApp em Downloads.
+- **Implementado:** primeiro evento real no mural, com galeria de 12 imagens e capa mostrando comida pronta.
+- **Arquivos:** `public/assets/events/churrasco-confraternizacao/churrasco01.jpeg` a `churrasco12.jpeg`. Para novos eventos, usar `public/assets/events/<identificador-do-evento>/`.
+- **Organização:** imagens de `image_tmp` movidas; imagens de Downloads copiadas e originais removidos a pedido do responsável, após conferir a integridade das cópias.
+- **Pendências:** data, local e contexto adicional do evento não informados; não foram deduzidos dos nomes dos arquivos.
+- **Estado:** conteúdo incluído a pedido do responsável; implantação não executada nesta alteração.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:

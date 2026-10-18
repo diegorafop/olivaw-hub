@@ -45,21 +45,23 @@ test('prepara orçamento revisável sem enviar dados à API', async ({ page, con
   await page.screenshot({ path: testInfo.outputPath('ltmj-desktop.png'), fullPage: true });
 });
 
-test('mural filtra ocasiões e abre detalhes identificados como modelos', async ({ page }) => {
+test('mural filtra ocasiões e apresenta o churrasco com fotos', async ({ page }) => {
   await page.goto('/');
   const mural = page.getByRole('region', { name: /Histórias servidas/ });
-  await expect(mural.getByText('Prévia do mural de eventos.', { exact: true })).toBeVisible();
-  await expect(mural.locator('article')).toHaveCount(4);
-  await mural.getByRole('button', { name: 'Aniversários', exact: true }).click();
   await expect(mural.locator('article')).toHaveCount(1);
-  const explore = mural.getByRole('button', { name: 'Explorar modelo' });
+  await mural.getByRole('button', { name: 'Aniversários', exact: true }).click();
+  await expect(mural.locator('article')).toHaveCount(0);
+  await mural.getByRole('button', { name: 'Confraternizações', exact: true }).click();
+  await expect(mural.locator('article')).toHaveCount(1);
+  const explore = mural.getByRole('button', { name: 'Ver fotos e detalhes' });
   await explore.click();
-  const dialog = page.getByRole('dialog', { name: 'Mais um motivo para brindar' });
+  const dialog = page.getByRole('dialog', { name: 'Churrasco de confraternização' });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText('não representa um evento realizado');
+  await expect(dialog.getByRole('status')).toHaveText('1 de 12');
+  await expect(dialog.getByRole('img')).toHaveAttribute('src', /churrasco01\.jpeg$/);
+  await dialog.getByRole('button', { name: 'Próxima foto' }).click();
+  await expect(dialog.getByRole('status')).toHaveText('2 de 12');
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(explore).toBeFocused();
-  await mural.getByRole('button', { name: 'Todos', exact: true }).click();
-  await expect(mural.locator('article')).toHaveCount(4);
 });
