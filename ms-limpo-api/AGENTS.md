@@ -18,12 +18,15 @@ Mps.Limpo.Tests ─────> Mps.Limpo.Api
 
 Os projetos consomem `Mps.OlivawCore` (núcleo), `Mps.OlivawCore.Dados` (EF Core) e `Mps.OlivawCore.Api` (infraestrutura ASP.NET Core) por `ProjectReference` no monorepo. Não recrie tipos compartilhados, helpers ou extensões locais que apenas dupliquem esses pacotes. O `Mps.Limpo` fica disponível para regras próprias do novo microservice.
 
+No projeto `src/Mps.Limpo`, mantenha sempre as pastas `Repositories/`, `Services/` e `Requests/`, cada uma com seu próprio `AGENTS.md`, inclusive quando ainda não houver código nelas. Elas são parte do esqueleto entregue aos microservices gerados por este template; siga as instruções locais antes de adicionar contratos.
+
 - O núcleo não referencia infraestrutura nem apresentação.
 - Dados não referencia a API.
 - Código de ASP.NET Core não deve vazar para o núcleo.
 - Código específico de banco pertence ao projeto do provedor.
 - Use injeção por construtor; não use service locator ou dependências estáticas.
 - Migrations pertencem ao projeto do provedor correspondente e não podem ser misturadas. Oracle não deve receber suporte presumido por similaridade.
+- Para CRUD e consultas comuns, use primeiro `IRepository<T>` com expressões de filtro e os métodos básicos disponíveis. Não crie repository/reader específico sem necessidade concreta; consultas especializadas podem ter implementação própria baseada em `IRepository<T>` ou no `Repository<T>` existente.
 
 ## Prioridades globais
 

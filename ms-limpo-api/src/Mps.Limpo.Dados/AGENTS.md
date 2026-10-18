@@ -11,7 +11,8 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 
 - Tabelas de domínio usam somente letras minúsculas, sem hífens ou underscores: `portfolioevent`, `portfoliophoto`. Não introduza snake_case em nomes de tabelas.
 
-- Reutilize `Repository<T>` para CRUD genérico; implemente contratos específicos do núcleo quando necessário.
+- Reutilize `IRepository<T>` e `Repository<T>` para CRUD e consultas comuns com filtros genéricos por expressão. Não crie uma classe repository/reader específica quando esses métodos atenderem.
+- Implemente um repository específico somente para uma consulta especializada ou uma otimização que os métodos genéricos não cubram. Nesse caso, mantenha contratos de núcleo em `Mps.Limpo/Repositories` quando forem necessários e estenda `Repository<T>` na camada de dados (por exemplo, `PortfolioRepository : Repository<PortfolioEvent>`), herdando `IRepository<PortfolioEvent>` sem reimplementar o CRUD.
 - Escritas (`Add`, `Update`, `Remove`) e `SaveChangesAsync` permanecem explícitas; o chamador controla a unidade de persistência.
 - Propague `CancellationToken` em toda operação assíncrona.
 - Evite tracking, dados e includes desnecessários, N+1 e materialização precoce. Paginação é obrigatória para coleções potencialmente grandes.

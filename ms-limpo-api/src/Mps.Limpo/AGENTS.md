@@ -25,9 +25,11 @@ Estas regras complementam o `AGENTS.md` da raiz para arquivos do núcleo `Mps.Li
 
 ## Estrutura de pastas
 
+- Mantenha `Repositories/`, `Services/` e `Requests/` como pastas permanentes do núcleo, mesmo quando vazias; cada uma tem instruções próprias em `AGENTS.md`.
 - `Domain/` contém entidades, value objects e regras de domínio; não coloque interfaces de serviços ou repositórios nessa pasta.
 - `Services/` contém interfaces de portas para recursos que não são persistência, como armazenamento de arquivos, APIs externas e mensageria.
 - `Repositories/` contém contratos específicos de leitura ou persistência. Reutilize `IRepository<T>` de `Mps.OlivawCore` para CRUD genérico; não crie outra interface equivalente.
+- `Requests/` contém contratos de transporte usados para enviar Commands/Queries a outros microservices, fora do contexto atual. Não coloque aqui requests e handlers MediatR das próprias features da API.
 - Implementações ficam nas camadas concretas, como `Mps.<Nome>.Api/Services` e `Mps.<Nome>.Dados/Repositories`.
 
 ## Tipos compartilhados e identidade

@@ -5,13 +5,21 @@ Template ASP.NET Core/.NET 10 para novos clientes do Olivaw Hub. O host mantém 
 ## Estrutura
 
 - `src/Mps.Limpo.Api`: host HTTP, composição, readiness e feature de exemplo.
-- `src/Mps.Limpo`: regras específicas do futuro cliente.
+- `src/Mps.Limpo`: regras e contratos específicos do futuro cliente, com as pastas permanentes `Repositories`, `Services` e `Requests`.
 - `src/Mps.Limpo.Dados`: contexto, repositório genérico e mapeamentos locais.
 - `src/Mps.Limpo.Dados.PostgreSql` e `.SqlServer`: projetos para migrations do cliente.
 - `src/Mps.Limpo.Client`: biblioteca base para um futuro cliente REST.
 - `tests/Mps.Limpo.Tests`: testes das funcionalidades do template.
 - `../olivaw-identity`: usuários, perfis, permissões, vínculos e autenticação compartilhados.
 - `../ms-olivaw-core-api`: contratos e infraestrutura genéricos.
+
+## Repositórios
+
+Use `IRepository<T>` para CRUD e consultas comuns com filtros por expressão. Não crie um repository ou reader específico quando os métodos genéricos atenderem. Para uma consulta realmente especializada, uma classe como `PortfolioRepository : Repository<PortfolioEvent>` pode acrescentar o comportamento necessário e herda o contrato genérico, aproveitando o código base.
+
+## Serviços e requests externos
+
+`Mps.Limpo/Services` guarda interfaces pequenas para capacidades externas que não são persistência, como armazenamento de arquivos, APIs de terceiros e mensageria; suas implementações ficam nas camadas concretas. `Mps.Limpo/Requests` guarda contratos de Commands/Queries enviados a outros microservices, organizados por serviço e feature. Requests e handlers MediatR das próprias features continuam em `Mps.Limpo.Api`.
 
 Oracle permanece reservado; não há integração Oracle validada. Os componentes compartilhados ficam fora da pasta do cliente e devem acompanhar o monorepo no build.
 
