@@ -13,7 +13,7 @@ public class PortfolioMappingTest
     [Theory]
     [InlineData("PostgreSql")]
     [InlineData("SqlServer")]
-    public void Model_should_map_event_and_owned_photos_for_supported_providers(string provider)
+    public void Model_should_map_event_and_related_photos_for_supported_providers(string provider)
     {
         var options = new DbContextOptionsBuilder<WriteDbContext>();
         if (provider == "PostgreSql") options.UseNpgsql("Host=localhost;Database=unused");
@@ -23,7 +23,11 @@ public class PortfolioMappingTest
         var entity = context.Model.FindEntityType(typeof(PortfolioEvent));
         Assert.NotNull(entity);
         Assert.Equal(150, entity.FindProperty(nameof(PortfolioEvent.Title))!.GetMaxLength());
-        Assert.True(entity.FindNavigation(nameof(PortfolioEvent.Photos))!.TargetEntityType.IsOwned());
-        Assert.Contains(entity.GetIndexes(), index => index.IsUnique && index.Properties.Any(property => property.Name == nameof(PortfolioEvent.IdExterno)));
+        var photos = entity.FindNavigation(nameof(PortfolioEvent.Photos))!.TargetEntityType;
+        Assert.False(photos.IsOwned());
+        Assert.Equal(typeof(int), photos.FindProperty(nameof(PortfolioPhoto.Id))!.ClrType);
+        Assert.Equal(typeof(int), photos.FindProperty(nameof(PortfolioPhoto.PortfolioEventId))!.ClrType);
+        Assert.Equal(entity, photos.FindNavigation(nameof(PortfolioPhoto.PortfolioEvent))!.ForeignKey.PrincipalEntityType);
+        Assert.Contains(entity.GetIndexes(), index => index.IsUnique && index.Properties.Any(property => property.Name == nameof(PortfolioEvent.ExternalId)));
     }
 }

@@ -23,11 +23,11 @@ public sealed class SelecionarAcessoAtualHandler(IIdentityStore store, CurrentAc
     {
         ArgumentNullException.ThrowIfNull(request);
         var id = actor.Id;
-        var usuario = await store.FindAsync<Usuario>(item => item.IdExterno == id, cancellationToken)
+        var usuario = await store.FindAsync<Usuario>(item => item.ExternalId == id, cancellationToken)
             ?? throw new IdentityFailure(401, "Autenticação obrigatória.");
         return new SelecionarAcessoAtualResponse
         {
-            UsuarioId = usuario.IdExterno,
+            UsuarioId = usuario.ExternalId,
             Nome = usuario.Nome,
             Root = usuario.Root,
             Autorizacoes = await store.PermissionsAsync(usuario.Id, cancellationToken)

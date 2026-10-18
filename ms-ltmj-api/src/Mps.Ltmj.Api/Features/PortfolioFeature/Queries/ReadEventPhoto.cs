@@ -24,9 +24,9 @@ public sealed class ReadEventPhotoHandler(IRepository<PortfolioEvent> repository
     public async Task<ReadEventPhotoResponse> Handle(ReadEventPhotoQuery request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        var item = await repository.GetFirstAsync(item => item.IdExterno == request.EventId &&
-            (item.IsVisible || request.CanManage) && item.Photos.Any(photo => photo.Id == request.PhotoId), cancellationToken);
-        var photo = item.Photos.Single(photo => photo.Id == request.PhotoId);
+        var item = await repository.GetFirstAsync(item => item.ExternalId == request.EventId &&
+            (item.IsVisible || request.CanManage) && item.Photos.Any(photo => photo.ExternalId == request.PhotoId), cancellationToken);
+        var photo = item.Photos.Single(photo => photo.ExternalId == request.PhotoId);
         return new ReadEventPhotoResponse { Content = await storage.OpenAsync(photo.StorageKey, cancellationToken), ContentType = photo.ContentType };
     }
 }

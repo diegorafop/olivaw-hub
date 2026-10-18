@@ -13,7 +13,7 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
 
     public async Task<T> FindAsync<T>(Guid id, CancellationToken cancellationToken) where T : Entity
     {
-        return await _store.FindAsync<T>(item => item.IdExterno == id, cancellationToken)
+        return await _store.FindAsync<T>(item => item.ExternalId == id, cancellationToken)
             ?? throw new IdentityFailure(404, "Registro não encontrado.");
     }
 
@@ -34,15 +34,15 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
 
     private static void Created(Entity entity, Guid actor)
     {
-        entity.IdExterno = Guid.NewGuid();
+        entity.ExternalId = Guid.NewGuid();
         entity.UsuarioLogadoId = actor;
-        entity.DataCadastro = DateTime.UtcNow;
+        entity.CreatedAt = DateTime.UtcNow;
     }
 
     private static void Updated(Entity entity, Guid actor)
     {
         entity.UsuarioLogadoId = actor;
-        entity.DataAtualizacao = DateTime.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
     }
 
     public async Task RemoveAsync<T>(Guid id, Guid actor, CancellationToken cancellationToken) where T : Entity
@@ -53,7 +53,7 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
             if (usuario.Root) throw new IdentityFailure(409, "O usuário root não pode ser removido.");
             usuario.VersaoSeguranca = Guid.NewGuid();
         }
-        entity.DataRemocao = DateTime.UtcNow;
+        entity.DeletedAt = DateTime.UtcNow;
         Updated(entity, actor);
         await _store.SaveAsync(cancellationToken);
     }
@@ -78,7 +78,7 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
         {
             if (normalized == "ROOT") throw new IdentityFailure(409, "O login root é reservado.");
         }
-        await EnsureUniqueAsync<Usuario>(item => item.LoginNormalizado == normalized && item.IdExterno != entity.IdExterno, cancellationToken);
+        await EnsureUniqueAsync<Usuario>(item => item.LoginNormalizado == normalized && item.ExternalId != entity.ExternalId, cancellationToken);
         entity.Login = login.Trim();
         entity.LoginNormalizado = normalized;
         entity.Nome = nome.Trim();
@@ -106,7 +106,7 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
             Created(entity, actor);
         }
         var normalized = nome.Trim().ToUpperInvariant();
-        await EnsureUniqueAsync<PerfilAcesso>(item => item.NomeNormalizado == normalized && item.IdExterno != entity.IdExterno, cancellationToken);
+        await EnsureUniqueAsync<PerfilAcesso>(item => item.NomeNormalizado == normalized && item.ExternalId != entity.ExternalId, cancellationToken);
         entity.Nome = nome.Trim();
         entity.NomeNormalizado = normalized;
         entity.Descricao = descricao;
@@ -127,7 +127,7 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
             Created(entity, actor);
         }
         chave = chave.Trim().ToLowerInvariant();
-        await EnsureUniqueAsync<Autorizacao>(item => item.Chave == chave && item.IdExterno != entity.IdExterno, cancellationToken);
+        await EnsureUniqueAsync<Autorizacao>(item => item.Chave == chave && item.ExternalId != entity.ExternalId, cancellationToken);
         entity.Chave = chave;
         entity.Nome = nome.Trim();
         entity.Descricao = descricao;
@@ -148,8 +148,8 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
             var previous = await _store.FindIncludingRemovedAsync<UsuarioPerfilAcesso>(item => item.UsuarioId == usuario.Id && item.PerfilAcessoId == perfil.Id, cancellationToken);
             if (previous is not null)
             {
-                if (previous.DataRemocao is null) throw new IdentityFailure(409, "Vínculo já cadastrado.");
-                previous.DataRemocao = null;
+                if (previous.DeletedAt is null) throw new IdentityFailure(409, "Vínculo já cadastrado.");
+                previous.DeletedAt = null;
                 Updated(previous, actor);
                 await _store.SaveAsync(cancellationToken);
                 return previous;
@@ -157,7 +157,7 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
             entity = new UsuarioPerfilAcesso();
             Created(entity, actor);
         }
-        await EnsureUniqueAsync<UsuarioPerfilAcesso>(item => item.UsuarioId == usuario.Id && item.PerfilAcessoId == perfil.Id && item.IdExterno != entity.IdExterno, cancellationToken);
+        await EnsureUniqueAsync<UsuarioPerfilAcesso>(item => item.UsuarioId == usuario.Id && item.PerfilAcessoId == perfil.Id && item.ExternalId != entity.ExternalId, cancellationToken);
         entity.Usuario = usuario;
         entity.UsuarioId = usuario.Id;
         entity.PerfilAcesso = perfil;
@@ -179,8 +179,8 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
             var previous = await _store.FindIncludingRemovedAsync<PerfilAcessoAutorizacao>(item => item.PerfilAcessoId == perfil.Id && item.AutorizacaoId == autorizacao.Id, cancellationToken);
             if (previous is not null)
             {
-                if (previous.DataRemocao is null) throw new IdentityFailure(409, "Vínculo já cadastrado.");
-                previous.DataRemocao = null;
+                if (previous.DeletedAt is null) throw new IdentityFailure(409, "Vínculo já cadastrado.");
+                previous.DeletedAt = null;
                 Updated(previous, actor);
                 await _store.SaveAsync(cancellationToken);
                 return previous;
@@ -188,7 +188,7 @@ public sealed partial class IdentityService(IIdentityStore store, IPasswordHashe
             entity = new PerfilAcessoAutorizacao();
             Created(entity, actor);
         }
-        await EnsureUniqueAsync<PerfilAcessoAutorizacao>(item => item.PerfilAcessoId == perfil.Id && item.AutorizacaoId == autorizacao.Id && item.IdExterno != entity.IdExterno, cancellationToken);
+        await EnsureUniqueAsync<PerfilAcessoAutorizacao>(item => item.PerfilAcessoId == perfil.Id && item.AutorizacaoId == autorizacao.Id && item.ExternalId != entity.ExternalId, cancellationToken);
         entity.PerfilAcesso = perfil;
         entity.PerfilAcessoId = perfil.Id;
         entity.Autorizacao = autorizacao;

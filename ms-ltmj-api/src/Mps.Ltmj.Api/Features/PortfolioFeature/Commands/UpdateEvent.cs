@@ -22,7 +22,7 @@ public sealed class UpdateEventHandler(IRepository<PortfolioEvent> repository) :
     public async Task<UpdateEventResponse> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        var item = await repository.GetFirstAsync(item => item.IdExterno == request.Id, cancellationToken);
+        var item = await repository.GetFirstAsync(item => item.ExternalId == request.Id, cancellationToken);
         item.Update(request.Title, request.Description, request.Category, request.UserId);
         await repository.SaveChangesAsync(cancellationToken);
         return new UpdateEventResponse();

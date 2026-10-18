@@ -1,8 +1,7 @@
 using FluentValidation;
 using MediatR;
 using Mps.OlivawCore.Api.Helpers;
-using Mps.OlivawCore.Domain;
-using Mps.OlivawCore.Repositories;
+using Mps.Ltmj.Dados;
 using Mps.OlivawCore.Services;
 using Mps.Ltmj.Api.Extensions.Https;
 
@@ -31,14 +30,14 @@ public class SelecionarReadyDetailQueryResponse
 
 public class SelecionarReadyQueryHandler
 (
-    IRepository<Example> repository,
+    WriteDbContext context,
     IProviderAuthentication provider,
     IConfiguration configuration
 ) : IRequestHandler<SelecionarReadyQuery,
     SelecionarReadyQueryResponse>
 {
-    private readonly IRepository<Example> _repository = repository
-        ?? throw new ArgumentNullException(nameof(repository));
+    private readonly WriteDbContext _context = context
+        ?? throw new ArgumentNullException(nameof(context));
 
     private readonly IProviderAuthentication _provider = provider
         ?? throw new ArgumentNullException(nameof(provider));
@@ -91,7 +90,7 @@ public class SelecionarReadyQueryHandler
         CancellationToken cancellationToken
     )
     {
-        var canConnect = await _repository.CanConnectAsync(cancellationToken);
+        var canConnect = await _context.CanConnectAsync(cancellationToken);
 
         return response.ToSelecionarReadyDetailPostgresSqlQueryResponse
         (

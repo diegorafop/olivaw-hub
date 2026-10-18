@@ -16,6 +16,7 @@ Estas regras complementam o [AGENTS.md da raiz](../../AGENTS.md).
 - `OnConfiguring` aplica convenções de nomes a partir de `PostgreSql`, `SqlServer` ou `Oracle`. Não registra o driver nem configura uma conexão por si só.
 - `GetDbContextHost` lê `DatabaseProvider` e `ConnectionStrings:DbContext`. Teste parsing, chaves esperadas e entradas inválidas quando alterar esse helper; nunca exponha a connection string em logs/erros.
 - `SetupConstraints` usa nomes em minúsculas, sufixos `_pk`, `_fk`, `_ix` e limite configurado de 63 caracteres. Não substitua isso por convenções de 30 caracteres copiadas de outro projeto.
+- `SetupConstraints` mapeia `Entity.ExternalId`, `CreatedAt`, `UpdatedAt` e `DeletedAt` para os nomes de coluna existentes `idexterno`, `datacadastro`, `dataatualizacao` e `dataremocao`; preserve esse mapeamento para não quebrar os schemas dos serviços consumidores.
 - Alterar convenções pode mudar o schema gerado pelos consumidores. Teste nomes longos, truncamento e colisões conforme o escopo e documente o impacto.
 - Não prometa suporte completo a um banco pela existência de uma ramificação em um helper. Integração específica exige driver, implementação e testes apropriados.
 

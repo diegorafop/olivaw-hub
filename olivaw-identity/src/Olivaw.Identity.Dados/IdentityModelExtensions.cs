@@ -47,8 +47,8 @@ public static class IdentityModelExtensions
         var entity = model.Entity<T>();
         entity.ToTable(typeof(T).Name.ToLowerInvariant());
         entity.HasKey(item => item.Id);
-        entity.HasIndex(item => item.IdExterno).IsUnique();
-        entity.HasQueryFilter(item => item.DataRemocao == null);
+        entity.HasIndex(item => item.ExternalId).IsUnique();
+        entity.HasQueryFilter(item => item.DeletedAt == null);
         return entity;
     }
 }

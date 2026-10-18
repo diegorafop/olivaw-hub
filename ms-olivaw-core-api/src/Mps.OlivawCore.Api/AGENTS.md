@@ -7,14 +7,14 @@ Estas regras complementam o [AGENTS.md da raiz](../../AGENTS.md).
 - Target: `net10.0`; pacote `Mps.OlivawCore.Api`, usando `Microsoft.NET.Sdk` como biblioteca.
 - Depende de `Mps.OlivawCore` e `Mps.OlivawCore.Dados`. Fornece componentes ASP.NET Core e integrações para hosts consumidores.
 - Organize funcionalidades nas pastas existentes: `Extensions/Generics`, `Extensions/Entities`, `Extensions/Contracts`, `Helpers`, `Services`, `Settings` e `Validation`.
-- Não há `Program.cs`, controllers, `Features`, `ExampleFeature` ou `ReadyFeature`. Não introduza uma aplicação executável ou scaffolding de negócio como parte de uma extensão compartilhada.
+- Não há `Program.cs`, controllers, `Features` ou `ReadyFeature`. Não introduza uma aplicação executável ou scaffolding de negócio como parte de uma extensão compartilhada.
 - O consumidor escolhe registros de DI, ordem do pipeline, endpoints, ambientes e políticas de segurança. `Properties/launchSettings.json` não torna a biblioteca executável; `dotnet run` não é o fluxo de uso deste projeto.
 
 ## Extensões e contratos públicos
 
 - Preserve nomes, namespaces, assinaturas e comportamento observável das extensões usadas pelos microservices.
 - Conversões genéricas ficam em `EntityExtensions`/`BaseContractExtensions`; regras específicas de negócio ficam no consumidor.
-- Alterações no mapeamento por reflexão exigem testes para nulabilidade, tipos compatíveis, coleções, identidade e auditoria. Considere o comportamento existente de `Id`/`IdExterno`, `TraceId` e datas em UTC.
+- Alterações no mapeamento por reflexão exigem testes para nulabilidade, tipos compatíveis, coleções, identidade e auditoria. Considere o comportamento existente de `Id`/`ExternalId`, `TraceId` e datas em UTC.
 - Helpers e extensões sem estado podem ser estáticos. Dependências externas devem ser injetadas; não crie estado global ou resolva serviços por service locator.
 - Métodos `internal` não são acessíveis ao consumidor do pacote. Só amplie a superfície pública quando isso fizer parte do requisito e estiver documentado/testado.
 

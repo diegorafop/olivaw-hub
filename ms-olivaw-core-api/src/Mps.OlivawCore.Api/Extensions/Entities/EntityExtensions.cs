@@ -38,9 +38,9 @@ public static class EntityExtensions
     {
         var entity = Convert<IBaseRequest, T>(from);
 
-        entity.IdExterno = Guid.NewGuid();
-        entity.DataCadastro = DateTime.UtcNow;
-        entity.DataAtualizacao = null;
+        entity.ExternalId = Guid.NewGuid();
+        entity.CreatedAt = DateTime.UtcNow;
+        entity.UpdatedAt = null;
 
         return entity;
     }
@@ -54,9 +54,9 @@ public static class EntityExtensions
     {
         var entity = Convert<F, T>(from);
 
-        entity.IdExterno = Guid.NewGuid();
-        entity.DataCadastro = DateTime.UtcNow;
-        entity.DataAtualizacao = null;
+        entity.ExternalId = Guid.NewGuid();
+        entity.CreatedAt = DateTime.UtcNow;
+        entity.UpdatedAt = null;
 
         return entity;
     }
@@ -71,9 +71,9 @@ public static class EntityExtensions
     {
         var entity = Convert<F, T>(from);
 
-        entity.IdExterno = Guid.NewGuid();
-        entity.DataCadastro = DateTime.UtcNow;
-        entity.DataAtualizacao = null;
+        entity.ExternalId = Guid.NewGuid();
+        entity.CreatedAt = DateTime.UtcNow;
+        entity.UpdatedAt = null;
         entity.UsuarioLogadoId = usuarioLogadoId;
 
         return entity;
@@ -87,9 +87,9 @@ public static class EntityExtensions
     {
         return new T()
         {
-            IdExterno = Guid.NewGuid(),
-            DataCadastro = DateTime.UtcNow,
-            DataAtualizacao = null,
+            ExternalId = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null,
             UsuarioLogadoId = usuarioLogadoId
         };
     }
@@ -103,9 +103,9 @@ public static class EntityExtensions
     {
         var clone = entity.Map<T>();
 
-        clone.IdExterno = Guid.NewGuid();
-        clone.DataCadastro = DateTime.UtcNow;
-        clone.DataAtualizacao = null;
+        clone.ExternalId = Guid.NewGuid();
+        clone.CreatedAt = DateTime.UtcNow;
+        clone.UpdatedAt = null;
         clone.UsuarioLogadoId = usuarioLogadoId;
 
         return clone;
@@ -117,7 +117,7 @@ public static class EntityExtensions
         Guid usuarioLogadoId
     )
     {
-        entity.DataAtualizacao = DateTime.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
         entity.UsuarioLogadoId = usuarioLogadoId;
     }
 
@@ -130,7 +130,7 @@ public static class EntityExtensions
     {
         Copy(request, entity);
 
-        entity.DataAtualizacao = DateTime.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
     }
 
     public static void Update<T>
@@ -143,7 +143,7 @@ public static class EntityExtensions
     {
         Copy(objeto, entity);
 
-        entity.DataAtualizacao = DateTime.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
         entity.UsuarioLogadoId = usuarioLogadoId;
     }
 
@@ -156,8 +156,8 @@ public static class EntityExtensions
     {
         var data = DateTime.UtcNow;
 
-        entity.DataRemocao = toggle ? null : data;
-        entity.DataAtualizacao = data;
+        entity.DeletedAt = toggle ? null : data;
+        entity.UpdatedAt = data;
         entity.UsuarioLogadoId = usuarioLogadoId;
     }
 
@@ -429,7 +429,10 @@ public static class EntityExtensions
     {
         return name switch
         {
-            "Id" => "IdExterno",
+            "Id" => "ExternalId",
+            "DataCadastro" => "CreatedAt",
+            "DataAtualizacao" => "UpdatedAt",
+            "DataRemocao" => "DeletedAt",
             _ => name,
         };
     }

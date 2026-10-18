@@ -38,7 +38,7 @@ Depois de preparar o schema:
 dotnet run --project ms-devops-api/src/Mps.Devops.Api/Mps.Devops.Api.csproj -c Release --no-launch-profile
 ```
 
-O projeto `Mps.Devops.Dados.PostgreSql` contém a migration inicial `DbCreate`, com as tabelas `usuario`, `perfilacesso`, `autorizacao`, `usuarioperfilacesso` e `perfilacessoautorizacao` (nomes em minúsculas das classes de domínio), além da tabela `example`. A conexão define o `SearchPath` para `ms_devops`; a migration não fixa o schema nas operações das tabelas. A database precisa existir antes: em produção, crie `olivaw_prd` no PostgreSQL da VM. A API aplica migrations em todo startup e o `.env.prd` habilita o bootstrap idempotente do usuário `root`; a senha inicial está configurada nesse arquivo.
+O projeto `Mps.Devops.Dados.PostgreSql` contém a migration inicial `DbCreate`, com as tabelas `usuario`, `perfilacesso`, `autorizacao`, `usuarioperfilacesso` e `perfilacessoautorizacao` (nomes em minúsculas das classes de domínio). A conexão define o `SearchPath` para `ms_devops`; a migration não fixa o schema nas operações das tabelas. A database precisa existir antes: em produção, crie `olivaw_prd` no PostgreSQL da VM. A migration `RemoveSampleTable` remove a antiga tabela demonstrativa dos bancos existentes. A API aplica migrations em todo startup e o `.env.prd` habilita o bootstrap idempotente do usuário `root`; a senha inicial está configurada nesse arquivo.
 
 ## Configuração de nuvem e Docker
 

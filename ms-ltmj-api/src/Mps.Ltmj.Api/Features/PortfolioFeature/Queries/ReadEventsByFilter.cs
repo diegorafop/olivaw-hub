@@ -40,16 +40,16 @@ public sealed class ReadEventsByFilterHandler(IRepository<PortfolioEvent> reposi
         Expression<Func<PortfolioEvent, bool>> filter = item => !request.PublicOnly || item.IsVisible;
         var items = await repository.GetAsync(filter, cancellationToken);
         var page = items
-            .OrderByDescending(item => item.DataCadastro)
+            .OrderByDescending(item => item.CreatedAt)
             .ThenBy(item => item.Id)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize);
 
         return new ReadEventsByFilterResponse { Items = page.Select(item => new EventResponse {
-            Id = item.IdExterno, Title = item.Title, Description = item.Description, Category = item.Category,
+            Id = item.ExternalId, Title = item.Title, Description = item.Description, Category = item.Category,
             IsVisible = item.IsVisible,
             Photos = item.Photos.OrderBy(photo => photo.Position).Select(photo => new EventPhotoResponse {
-                Id = photo.Id, Url = $"portfolio/events/{item.IdExterno}/photos/{photo.Id}"
+                Id = photo.ExternalId, Url = $"portfolio/events/{item.ExternalId}/photos/{photo.ExternalId}"
             }).ToArray()
         }).ToArray() };
     }

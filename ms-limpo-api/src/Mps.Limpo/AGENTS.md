@@ -12,7 +12,7 @@ Estas regras complementam o `AGENTS.md` da raiz para arquivos do núcleo `Mps.Li
 - Entidades persistidas derivam de `Entity`, que concentra identidade, auditoria e remoção lógica.
 - Entidades mantêm comportamento e invariantes; não devem ser DTOs moldados por controllers.
 - Para entidades e value objects com invariantes, prefira fábricas ou métodos de criação que garantam estado válido. Use `new` normalmente para DTOs e objetos sem invariantes.
-- Preserve `IdExterno`, `UsuarioLogadoId`, `DataCadastro`, `DataAtualizacao` e `DataRemocao` quando aplicáveis.
+- Preserve `ExternalId`, `UsuarioLogadoId`, `CreatedAt`, `UpdatedAt` e `DeletedAt` quando aplicáveis.
 - Não introduza tipos de transporte, atributos web ou detalhes de banco no domínio.
 
 ## Contratos e abstrações
@@ -35,5 +35,5 @@ Estas regras complementam o `AGENTS.md` da raiz para arquivos do núcleo `Mps.Li
 ## Tipos compartilhados e identidade
 
 - Use `Entity` e `IRepository<T>` diretamente de `Mps.OlivawCore`; não crie cópias ou subclasses vazias.
-- Distinga a chave interna `Id` da identidade pública `IdExterno`. Preserve os campos de auditoria nos contratos e conversões aplicáveis.
+- Distinga a chave interna `Id` da identidade pública `ExternalId`. Preserve os campos de auditoria nos contratos e conversões aplicáveis.
 - Expresse regras com decisões simples e métodos nomeados, conforme as diretrizes da raiz.

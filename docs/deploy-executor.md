@@ -89,11 +89,11 @@ Antes de subir, provisione os arquivos; o Compose base recusa criar diretórios 
 O worker encontra a raiz Git existente acima da pasta autorizada e executa `git fetch origin`, checkout e `git pull --ff-only origin <branch>` nessa raiz. Só depois verifica a pasta do serviço e seus arquivos de ambiente/Compose, e executa nela:
 
 ```bash
-docker compose --env-file docker/.env.dev \
+docker compose --project-name <servico>-<ambiente> --env-file docker/.env.dev \
   -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build
 ```
 
-O ambiente validado seleciona os arquivos `dev/qas/stg/rls/prd`. Para o primeiro projeto externo na VM, use `folder=lisierp` (nome exibido no console); não use o nome local `lisifin` sem conferir a pasta remota.
+O worker define o projeto Compose como `<nome-da-pasta-do-servico>-<ambiente>` para serviços dentro de `olivaw-hub`, por exemplo `ms-ltmj-api-prd`. Isso mantém containers, volumes e demais recursos do Compose no escopo correto. Na primeira implantação após essa mudança, ele remove apenas o container do serviço alvo que ainda pertença ao antigo projeto compartilhado `docker`; volumes não são removidos. Para `lisierp`, preserva o nome e o fluxo configurados no próprio Compose. O ambiente validado seleciona os arquivos `dev/qas/stg/rls/prd`. Para o primeiro projeto externo na VM, use `folder=lisierp` (nome exibido no console); não use o nome local `lisifin` sem conferir a pasta remota.
 
 `--build` é necessário para publicar as alterações de código obtidas pelo Git. A fila usa um lock único **na VM**, incluindo serviços do mesmo monorepo, evitando checkout concorrente. A API não mantém mais `DeploymentGate` local.
 

@@ -25,9 +25,9 @@ public sealed class RootBootstrap(IIdentityStore store, IPasswordHasher<Usuario>
         var id = Guid.NewGuid();
         var usuario = new Usuario
         {
-            IdExterno = id,
+            ExternalId = id,
             UsuarioLogadoId = id,
-            DataCadastro = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Login = "root",
             LoginNormalizado = "ROOT",
             Nome = "Root",

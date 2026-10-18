@@ -24,7 +24,7 @@ public sealed class CreateEventHandler(IRepository<PortfolioEvent> repository) :
         var item = PortfolioEvent.Create(request.Title, request.Description, request.Category, request.UserId);
         await repository.AddAsync(item, cancellationToken);
         await repository.SaveChangesAsync(cancellationToken);
-        return new CreateEventResponse { Id = item.IdExterno };
+        return new CreateEventResponse { Id = item.ExternalId };
     }
 }
 

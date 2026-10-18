@@ -50,7 +50,7 @@ public class ImplantacaoIntegrationTest
             ["masstransit:configured"] = "false", ["services:loki:configured"] = "false"
         });
         builder.AddSetups();
-        var user = new Usuario { Id = 1, IdExterno = Guid.NewGuid() };
+        var user = new Usuario { Id = 1, ExternalId = Guid.NewGuid() };
         var store = new Mock<IIdentityStore>();
         store.Setup(item => item.FindAsync(It.IsAny<Expression<Func<Usuario, bool>>>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
         IReadOnlyList<string> permissions = new[] { "devops.implantar" };
@@ -82,7 +82,7 @@ public class ImplantacaoIntegrationTest
         if (scenario != "anonymous")
         {
             var jwt = new JwtSecurityToken("deployment-tests", "deployment-tests",
-                new[] { new Claim("sub", user.IdExterno.ToString()), new Claim("stamp", user.VersaoSeguranca.ToString()) },
+                new[] { new Claim("sub", user.ExternalId.ToString()), new Claim("stamp", user.VersaoSeguranca.ToString()) },
                 expires: DateTime.UtcNow.AddMinutes(5), signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", new JwtSecurityTokenHandler().WriteToken(jwt));
         }

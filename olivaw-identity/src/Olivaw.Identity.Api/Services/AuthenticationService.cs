@@ -46,7 +46,7 @@ public sealed class AuthenticationService(IIdentityStore store, IPasswordHasher<
         var expires = DateTime.UtcNow.AddMinutes(options.TokenMinutes);
         var claims = new[]
         {
-            new Claim("sub", usuario.IdExterno.ToString()),
+            new Claim("sub", usuario.ExternalId.ToString()),
             new Claim("name", usuario.Nome),
             new Claim("stamp", usuario.VersaoSeguranca.ToString()),
             new Claim("jti", Guid.NewGuid().ToString())
@@ -58,7 +58,7 @@ public sealed class AuthenticationService(IIdentityStore store, IPasswordHasher<
 
     public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken)
     {
-        var usuario = await store.FindAsync<Usuario>(item => item.IdExterno == userId, cancellationToken)
+        var usuario = await store.FindAsync<Usuario>(item => item.ExternalId == userId, cancellationToken)
             ?? throw InvalidCredentials();
         if (!usuario.Ativo) throw InvalidCredentials();
         if (hasher.VerifyHashedPassword(usuario, usuario.SenhaHash, currentPassword) == PasswordVerificationResult.Failed)
@@ -66,17 +66,17 @@ public sealed class AuthenticationService(IIdentityStore store, IPasswordHasher<
         usuario.SenhaHash = hasher.HashPassword(usuario, newPassword);
         usuario.VersaoSeguranca = Guid.NewGuid();
         usuario.UsuarioLogadoId = userId;
-        usuario.DataAtualizacao = DateTime.UtcNow;
+        usuario.UpdatedAt = DateTime.UtcNow;
         await store.SaveAsync(cancellationToken);
     }
 
     public async Task LogoutAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var usuario = await store.FindAsync<Usuario>(item => item.IdExterno == userId, cancellationToken)
+        var usuario = await store.FindAsync<Usuario>(item => item.ExternalId == userId, cancellationToken)
             ?? throw InvalidCredentials();
         usuario.VersaoSeguranca = Guid.NewGuid();
         usuario.UsuarioLogadoId = userId;
-        usuario.DataAtualizacao = DateTime.UtcNow;
+        usuario.UpdatedAt = DateTime.UtcNow;
         await store.SaveAsync(cancellationToken);
     }
 

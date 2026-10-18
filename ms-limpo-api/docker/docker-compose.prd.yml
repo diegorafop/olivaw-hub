@@ -1,6 +1,7 @@
+name: ms-limpo-api-prd
 services:
   ms-limpo-api:
-    container_name: ms-limpo-api
+    container_name: ms-limpo-api-prd
     image: ms-limpo-api:prd
     environment:
       ASPNETCORE_ENVIRONMENT: Production

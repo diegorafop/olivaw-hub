@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Mps.OlivawCore.Domain;
 
 namespace Mps.OlivawCore.Dados.Extensions;
 
@@ -18,6 +19,9 @@ public static class ConstraintExtensions
     {
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
+            if (typeof(Entity).IsAssignableFrom(entity.ClrType))
+                ConfigureEntityColumns(entity);
+
             foreach (var key in entity.GetKeys())
                 key.SetName(PrimaryKeyName(entity).ToLower());
 
@@ -27,6 +31,14 @@ public static class ConstraintExtensions
             foreach (var key in entity.GetIndexes())
                 key.SetDatabaseName(IndexName(entity, key).ToLower());
         }
+    }
+
+    private static void ConfigureEntityColumns(IMutableEntityType entity)
+    {
+        entity.FindProperty(nameof(Entity.ExternalId))?.SetColumnName("idexterno");
+        entity.FindProperty(nameof(Entity.CreatedAt))?.SetColumnName("datacadastro");
+        entity.FindProperty(nameof(Entity.UpdatedAt))?.SetColumnName("dataatualizacao");
+        entity.FindProperty(nameof(Entity.DeletedAt))?.SetColumnName("dataremocao");
     }
 
     private static string PrimaryKeyName

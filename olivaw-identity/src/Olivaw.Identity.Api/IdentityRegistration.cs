@@ -95,7 +95,7 @@ public static class IdentityRegistration
             return;
         }
         var store = context.HttpContext.RequestServices.GetRequiredService<IIdentityStore>();
-        var usuario = await store.FindAsync<Usuario>(item => item.IdExterno == id, context.HttpContext.RequestAborted);
+        var usuario = await store.FindAsync<Usuario>(item => item.ExternalId == id, context.HttpContext.RequestAborted);
         if (usuario is null)
         {
             context.Fail("Token inválido.");

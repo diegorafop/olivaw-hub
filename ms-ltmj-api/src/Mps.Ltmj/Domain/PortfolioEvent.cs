@@ -14,7 +14,7 @@ public class PortfolioEvent : Entity
 
     public static PortfolioEvent Create(string title, string description, string category, Guid userId)
     {
-        var item = new PortfolioEvent { IdExterno = Guid.NewGuid(), DataCadastro = DateTime.UtcNow };
+        var item = new PortfolioEvent { ExternalId = Guid.NewGuid(), CreatedAt = DateTime.UtcNow };
         item.Update(title, description, category, userId);
         return item;
     }
@@ -28,26 +28,18 @@ public class PortfolioEvent : Entity
         Description = description.Trim();
         Category = category;
         UsuarioLogadoId = userId;
-        DataAtualizacao = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void SetVisibility(bool visible, Guid userId)
     {
         IsVisible = visible;
         UsuarioLogadoId = userId;
-        DataAtualizacao = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public static bool IsCategory(string category)
     {
         return category is "Casamentos" or "Aniversários" or "Confraternizações" or "Corporativos";
     }
-}
-
-public class PortfolioPhoto
-{
-    public Guid Id { get; set; }
-    public string StorageKey { get; set; } = string.Empty;
-    public string ContentType { get; set; } = string.Empty;
-    public int Position { get; set; }
 }

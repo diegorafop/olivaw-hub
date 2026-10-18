@@ -14,8 +14,8 @@ public sealed class PerfilAcessoResponse
     {
         return new PerfilAcessoResponse
         {
-            Id = entity.IdExterno,
-            DataCadastro = entity.DataCadastro,
+            Id = entity.ExternalId,
+            DataCadastro = entity.CreatedAt,
             Nome = entity.Nome,
             Descricao = entity.Descricao,
             Ativo = entity.Ativo

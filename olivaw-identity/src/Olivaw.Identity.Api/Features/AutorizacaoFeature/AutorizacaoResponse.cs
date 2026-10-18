@@ -14,8 +14,8 @@ public sealed class AutorizacaoResponse
     {
         return new AutorizacaoResponse
         {
-            Id = entity.IdExterno,
-            DataCadastro = entity.DataCadastro,
+            Id = entity.ExternalId,
+            DataCadastro = entity.CreatedAt,
             Chave = entity.Chave,
             Nome = entity.Nome,
             Descricao = entity.Descricao

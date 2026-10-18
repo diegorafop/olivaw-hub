@@ -20,7 +20,7 @@ public sealed class UpdateEventVisibilityHandler(IRepository<PortfolioEvent> rep
     public async Task<UpdateEventVisibilityResponse> Handle(UpdateEventVisibilityCommand request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        var item = await repository.GetFirstAsync(item => item.IdExterno == request.Id, cancellationToken);
+        var item = await repository.GetFirstAsync(item => item.ExternalId == request.Id, cancellationToken);
         item.SetVisibility(request.IsVisible, request.UserId);
         await repository.SaveChangesAsync(cancellationToken);
         return new UpdateEventVisibilityResponse();

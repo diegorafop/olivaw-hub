@@ -1,10 +1,10 @@
 # Migration inicial PostgreSQL — LTMJ
 
-Gerada a pedido do mantenedor: `20261018014627_InitialIdentityAndPortfolio`, em `src/Mps.Ltmj.Dados.PostgreSql/Migrations`, com arquivo de operações, designer e snapshot.
+Gerada a pedido do mantenedor: `InitialIdentityAndPortfolio`, em `src/Mps.Ltmj.Dados.PostgreSql/Migrations`, com arquivo de operações, designer e snapshot.
 
 ## Modelo e nomes
 
-Tabelas de domínio em lowercase, sem hífens ou underscores: `autorizacao`, `example`, `perfilacesso`, `portfolioevent`, `usuario`, `perfilacessoautorizacao`, `portfoliophoto` e `usuarioperfilacesso`. `example` pertence ao modelo herdado do template. Índices, constraints e a tabela técnica de histórico do EF mantêm as convenções de infraestrutura existentes.
+Tabelas de domínio em lowercase, sem hífens ou underscores: `autorizacao`, `perfilacesso`, `portfolioevent`, `usuario`, `perfilacessoautorizacao`, `portfoliophoto` e `usuarioperfilacesso`. Índices, constraints e a tabela técnica de histórico do EF mantêm as convenções de infraestrutura existentes.
 
 Os mapeamentos incorretos `portfolio_events` e `portfolio_photos` foram corrigidos antes da geração desta migration. O `Up` cria tabelas e índices; não contém exclusão ou transformação de dados. O `Down` reverte a criação e deve ser tratado como destrutivo.
 

@@ -21,7 +21,7 @@ public sealed class DeleteEventHandler(IRepository<PortfolioEvent> repository, I
     public async Task<DeleteEventResponse> Handle(DeleteEventCommand request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        var item = await repository.GetFirstAsync(item => item.IdExterno == request.Id, cancellationToken);
+        var item = await repository.GetFirstAsync(item => item.ExternalId == request.Id, cancellationToken);
         // Oculta antes da limpeza para não expor uma galeria parcialmente removida.
         item.SetVisibility(false, request.UserId);
         await repository.SaveChangesAsync(cancellationToken);

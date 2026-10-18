@@ -21,7 +21,7 @@ public class ReadEventsByFilterHandlerTest
         var item = PortfolioEventFakerBuilder.Build();
         item.SetVisibility(true, Guid.NewGuid());
         var photoId = Guid.NewGuid();
-        item.Photos.Add(new PortfolioPhoto { Id = photoId, Position = 0 });
+        item.Photos.Add(new PortfolioPhoto { ExternalId = photoId, Position = 0 });
         var repository = new Mock<IRepository<PortfolioEvent>>();
         using var source = new CancellationTokenSource();
         repository.Setup(service => service.GetAsync(
@@ -30,9 +30,9 @@ public class ReadEventsByFilterHandlerTest
             .ReturnsAsync(new[] { item });
         var result = await new ReadEventsByFilterHandler(repository.Object).Handle(new ReadEventsByFilterQuery(), source.Token);
         var response = Assert.Single(result.Items);
-        Assert.Equal(item.IdExterno, response.Id); Assert.Equal(item.Title, response.Title);
+        Assert.Equal(item.ExternalId, response.Id); Assert.Equal(item.Title, response.Title);
         Assert.Equal(item.Description, response.Description); Assert.Equal(item.Category, response.Category);
-        Assert.Equal($"portfolio/events/{item.IdExterno}/photos/{photoId}", Assert.Single(response.Photos).Url);
+        Assert.Equal($"portfolio/events/{item.ExternalId}/photos/{photoId}", Assert.Single(response.Photos).Url);
         repository.VerifyAll();
     }
     [Fact]

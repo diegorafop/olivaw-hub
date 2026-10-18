@@ -7,16 +7,13 @@ internal class FakerBuilder
 {
     public IConfiguration Configuration { get; set; }
 
-    public DomainFakerBuilder _DomainFakerBuilder { get; set; }
 
     public VersaoFeatureFakerBuilder _VersaoFeature { get; set; }
-    public ExampleFeatureFakerBuilder _ExampleFeature { get; set; }
 
     public FakerBuilder()
     {
         Configuration = GetConfiguration();
 
-        DomainFakerBuilder = null;
     }
 
     private static IConfiguration GetConfiguration()
@@ -45,16 +42,6 @@ internal class FakerBuilder
     }
 
 
-    public virtual DomainFakerBuilder DomainFakerBuilder
-    {
-        get
-        {
-            _DomainFakerBuilder ??= new DomainFakerBuilder();
-
-            return _DomainFakerBuilder;
-        }
-        set { _DomainFakerBuilder = value; }
-    }
 
     public virtual VersaoFeatureFakerBuilder VersaoFeature
     {
@@ -68,15 +55,4 @@ internal class FakerBuilder
         set { _VersaoFeature = value; }
     }
 
-    public virtual ExampleFeatureFakerBuilder ExampleFeature
-    {
-        get
-        {
-            _ExampleFeature ??= new ExampleFeatureFakerBuilder();
-
-            return _ExampleFeature;
-        }
-
-        set { _ExampleFeature = value; }
-    }
 }

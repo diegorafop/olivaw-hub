@@ -37,8 +37,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="ExampleFeatureTest\Commands\" />
-		<Folder Include="ExampleFeatureTest\Queries\" />
 	</ItemGroup>
 
 </Project>

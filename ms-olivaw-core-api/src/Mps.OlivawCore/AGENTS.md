@@ -12,11 +12,10 @@ Estas regras complementam o [AGENTS.md da raiz](../../AGENTS.md).
 
 ## Entidades e contratos
 
-- `Entity` concentra `Id`, `IdExterno`, `UsuarioLogadoId`, `DataCadastro`, `DataAtualizacao` e `DataRemocao`. Preserve os tipos e a semântica desses membros.
+- `Entity` concentra `Id`, `ExternalId`, `UsuarioLogadoId`, `CreatedAt`, `UpdatedAt` e `DeletedAt`. Preserve os tipos e a semântica desses membros.
 - `Entity` fornece campos compartilhados; persistência, auditoria e filtros de remoção lógica precisam ser aplicados pela implementação consumidora.
 - Preserve `BaseContract` e os contratos de requests/serialização. Mudanças de nome, tipo, nulabilidade ou atributos podem afetar mensagens e integrações já publicadas.
 - Não introduza entidades de negócio específicas de um microservice, tipos de ASP.NET Core ou detalhes de banco.
-- `Example` é uma classe pública usada pelos testes atuais. Não a trate como feature de referência nem a remova sem avaliar compatibilidade; novos tipos auxiliares exclusivos de testes pertencem ao projeto de testes.
 
 ## Interfaces compartilhadas
 

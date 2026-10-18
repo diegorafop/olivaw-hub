@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Mps.Limpo.Dados.Extensions.Tables;
 
 namespace Mps.Limpo.Dados.Extensions.Facades;
 
@@ -10,6 +9,5 @@ internal static class TableExtensionsFacade
         this ModelBuilder modelBuilder
     )
     {
-        modelBuilder.SetupExample();
     }
 }

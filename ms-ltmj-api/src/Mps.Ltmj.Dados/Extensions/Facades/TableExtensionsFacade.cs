@@ -10,7 +10,6 @@ internal static class TableExtensionsFacade
         this ModelBuilder modelBuilder
     )
     {
-        modelBuilder.SetupExample();
         modelBuilder.SetupPortfolio();
     }
 }

@@ -22,7 +22,7 @@ public class UpdateEventHandlerTest
         var repository = PortfolioTestData.Repository(item);
         using var source = new CancellationTokenSource();
         var token = source.Token;
-        var response = await new UpdateEventHandler(repository.Object).Handle(new UpdateEventCommand { Id = item.IdExterno, Title = "Novo título", Description = "Descrição", Category = "Casamentos" }, token);
+        var response = await new UpdateEventHandler(repository.Object).Handle(new UpdateEventCommand { Id = item.ExternalId, Title = "Novo título", Description = "Descrição", Category = "Casamentos" }, token);
         Assert.Equal("Novo título", item.Title);
         Assert.Equal("Casamentos", item.Category);
         repository.Verify(service => service.SaveChangesAsync(token), Times.Once);

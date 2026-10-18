@@ -9,15 +9,16 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 
 ## Entity Framework e repositórios
 
-- Tabelas de domínio usam somente letras minúsculas, sem hífens ou underscores: `portfolioevent`, `portfoliophoto`. Não introduza snake_case em nomes de tabelas.
+- Tabelas de domínio usam somente letras minúsculas, sem hífens ou underscores, por exemplo `cliente` e `clienteimagem`. Não introduza snake_case em nomes de tabelas.
 
 - Reutilize `IRepository<T>` e `Repository<T>` para CRUD e consultas comuns com filtros genéricos por expressão. Não crie uma classe repository/reader específica quando esses métodos atenderem.
-- Implemente um repository específico somente para uma consulta especializada ou uma otimização que os métodos genéricos não cubram. Nesse caso, mantenha contratos de núcleo em `Mps.Limpo/Repositories` quando forem necessários e estenda `Repository<T>` na camada de dados (por exemplo, `PortfolioRepository : Repository<PortfolioEvent>`), herdando `IRepository<PortfolioEvent>` sem reimplementar o CRUD.
+- Implemente um repository específico somente para uma consulta especializada ou uma otimização que os métodos genéricos não cubram. Nesse caso, mantenha contratos de núcleo em `Mps.Limpo/Repositories` quando forem necessários e estenda `Repository<T>` na camada de dados (por exemplo, `ClienteRepository : Repository<Cliente>`), herdando `IRepository<Cliente>` sem reimplementar o CRUD.
 - Escritas (`Add`, `Update`, `Remove`) e `SaveChangesAsync` permanecem explícitas; o chamador controla a unidade de persistência.
 - Propague `CancellationToken` em toda operação assíncrona.
 - Evite tracking, dados e includes desnecessários, N+1 e materialização precoce. Paginação é obrigatória para coleções potencialmente grandes.
 - Prefira LINQ/EF Core e Fluent API com lambdas. SQL bruto exige necessidade comprovada, parametrização e testes; nunca concatene entrada.
 - Novas entidades persistidas devem ter mapping em `Extensions/Tables` e registro em `TableExtensionsFacade`.
+- Entidades filhas que derivam de `Entity` e têm identidade própria devem ser mapeadas como entidades normais com PK `int`, FK `int` e navegações explícitas usando `HasMany`/`WithOne`/`HasForeignKey`. Reserve `OwnsMany` para objetos de valor sem identidade própria.
 - Preserve remoção lógica e auditoria definidas por `Entity`.
 - Não renomeie tabelas, colunas, chaves ou índices sem avaliar dados e implantação existentes.
 

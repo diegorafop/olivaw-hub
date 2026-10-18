@@ -23,7 +23,7 @@ public class IdentityIntegrationTest
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
             EnvironmentName = "Testing",
-            ApplicationName = typeof(Api.Features.ExampleFeature.ExampleController).Assembly.FullName
+            ApplicationName = typeof(Api.Extensions.Facades.WebApplicationBuilderFacadeExtensions).Assembly.FullName
         });
         builder.WebHost.UseTestServer();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>

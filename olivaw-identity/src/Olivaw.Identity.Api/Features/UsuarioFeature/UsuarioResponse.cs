@@ -15,8 +15,8 @@ public sealed class UsuarioResponse
     {
         return new UsuarioResponse
         {
-            Id = entity.IdExterno,
-            DataCadastro = entity.DataCadastro,
+            Id = entity.ExternalId,
+            DataCadastro = entity.CreatedAt,
             Login = entity.Login,
             Nome = entity.Nome,
             Email = entity.Email,

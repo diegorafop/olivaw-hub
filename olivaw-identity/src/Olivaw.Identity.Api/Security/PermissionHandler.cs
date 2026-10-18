@@ -12,7 +12,7 @@ public sealed class PermissionHandler(IIdentityStore store, IHttpContextAccessor
     {
         if (!Guid.TryParse(context.User.FindFirstValue("sub"), out var id)) return;
         var token = accessor.HttpContext?.RequestAborted ?? CancellationToken.None;
-        var usuario = await store.FindAsync<Usuario>(item => item.IdExterno == id, token);
+        var usuario = await store.FindAsync<Usuario>(item => item.ExternalId == id, token);
         if (usuario is null) return;
         if (!usuario.Ativo) return;
         if (context.User.FindFirstValue("stamp") != usuario.VersaoSeguranca.ToString()) return;

@@ -22,7 +22,7 @@ public class UpdateEventVisibilityHandlerTest
         var repository = PortfolioTestData.Repository(item);
         using var source = new CancellationTokenSource();
         var token = source.Token;
-        var response = await new UpdateEventVisibilityHandler(repository.Object).Handle(new UpdateEventVisibilityCommand { Id = item.IdExterno, IsVisible = true }, token);
+        var response = await new UpdateEventVisibilityHandler(repository.Object).Handle(new UpdateEventVisibilityCommand { Id = item.ExternalId, IsVisible = true }, token);
         Assert.True(item.IsVisible);
         repository.Verify(service => service.SaveChangesAsync(token), Times.Once);
     }

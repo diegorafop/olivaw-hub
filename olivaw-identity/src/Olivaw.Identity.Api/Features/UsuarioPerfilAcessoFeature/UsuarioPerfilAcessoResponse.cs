@@ -13,10 +13,10 @@ public sealed class UsuarioPerfilAcessoResponse
     {
         return new UsuarioPerfilAcessoResponse
         {
-            Id = entity.IdExterno,
-            DataCadastro = entity.DataCadastro,
-            UsuarioId = entity.Usuario?.IdExterno ?? Guid.Empty,
-            PerfilAcessoId = entity.PerfilAcesso?.IdExterno ?? Guid.Empty
+            Id = entity.ExternalId,
+            DataCadastro = entity.CreatedAt,
+            UsuarioId = entity.Usuario?.ExternalId ?? Guid.Empty,
+            PerfilAcessoId = entity.PerfilAcesso?.ExternalId ?? Guid.Empty
         };
     }
 }

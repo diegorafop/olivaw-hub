@@ -33,26 +33,6 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "example",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    permission = table.Column<bool>(type: "boolean", nullable: false),
-                    idexterno = table.Column<Guid>(type: "uuid", nullable: false),
-                    usuariologadoid = table.Column<Guid>(type: "uuid", nullable: false),
-                    datacadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    dataatualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    dataremocao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("example_pk", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "perfilacesso",
                 columns: table => new
                 {
@@ -156,11 +136,17 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
                 name: "portfoliophoto",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    portfolioeventid = table.Column<int>(type: "integer", nullable: false),
                     storagekey = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
                     contenttype = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     position = table.Column<int>(type: "integer", nullable: false),
-                    portfolioeventid = table.Column<int>(type: "integer", nullable: false)
+                    idexterno = table.Column<Guid>(type: "uuid", nullable: false),
+                    usuariologadoid = table.Column<Guid>(type: "uuid", nullable: false),
+                    datacadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    dataatualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    dataremocao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -211,18 +197,13 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "autorizacao_idexterno_ix",
+                name: "autorizacao_externalid_ix",
                 table: "autorizacao",
                 column: "idexterno",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "example_idexterno_ix",
-                table: "example",
-                column: "idexterno");
-
-            migrationBuilder.CreateIndex(
-                name: "perfilacesso_idexterno_ix",
+                name: "perfilacesso_externalid_ix",
                 table: "perfilacesso",
                 column: "idexterno",
                 unique: true);
@@ -239,7 +220,7 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
                 column: "autorizacaoid");
 
             migrationBuilder.CreateIndex(
-                name: "perfilacessoautorizacao_idexterno_ix",
+                name: "perfilacessoautorizacao_externalid_ix",
                 table: "perfilacessoautorizacao",
                 column: "idexterno",
                 unique: true);
@@ -251,8 +232,14 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "portfolioevent_idexterno_ix",
+                name: "portfolioevent_externalid_ix",
                 table: "portfolioevent",
+                column: "idexterno",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "portfoliophoto_externalid_ix",
+                table: "portfoliophoto",
                 column: "idexterno",
                 unique: true);
 
@@ -262,7 +249,7 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
                 column: "portfolioeventid");
 
             migrationBuilder.CreateIndex(
-                name: "usuario_idexterno_ix",
+                name: "usuario_externalid_ix",
                 table: "usuario",
                 column: "idexterno",
                 unique: true);
@@ -274,7 +261,7 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "usuarioperfilacesso_idexterno_ix",
+                name: "usuarioperfilacesso_externalid_ix",
                 table: "usuarioperfilacesso",
                 column: "idexterno",
                 unique: true);
@@ -294,9 +281,6 @@ namespace Mps.Ltmj.Dados.PostgreSql.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "example");
-
             migrationBuilder.DropTable(
                 name: "perfilacessoautorizacao");
 

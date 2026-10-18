@@ -6,20 +6,18 @@ namespace Mps.OlivawCore.Tests.HelperTest;
 
 public class MessageHelperTest
 {
-    private readonly Example _instance;
+    private sealed class MessageEntity : Entity { }
+    private readonly MessageEntity _instance;
 
     public MessageHelperTest()
     {
-        _instance = new Example
+        _instance = new MessageEntity
         {
-            Name = "name",
-            Description = "description",
-            Permission = true,
             Id = 1,
-            IdExterno = Guid.NewGuid(),
-            DataCadastro = DateTime.UtcNow,
-            DataAtualizacao = DateTime.UtcNow,
-            DataRemocao = null
+            ExternalId = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            DeletedAt = null
         };
     }
 
@@ -31,7 +29,7 @@ public class MessageHelperTest
         Assert.Contains
         (
             "não encontrado.",
-            MessageHelper.NotFoundFor(entity, item => item.IdExterno)
+            MessageHelper.NotFoundFor(entity, item => item.ExternalId)
         );
     }
 
@@ -43,7 +41,7 @@ public class MessageHelperTest
         Assert.Contains
         (
             "inválido.",
-            MessageHelper.InvalidFor(entity, item => item.IdExterno)
+            MessageHelper.InvalidFor(entity, item => item.ExternalId)
         );
     }
 
@@ -55,7 +53,7 @@ public class MessageHelperTest
         Assert.Contains
         (
             "já cadastrado.",
-            MessageHelper.DuplicateKeyFor(entity, item => item.IdExterno)
+            MessageHelper.DuplicateKeyFor(entity, item => item.ExternalId)
         );
     }
 
@@ -65,7 +63,7 @@ public class MessageHelperTest
         Assert.Contains
         (
             "está vazio.",
-            MessageHelper.EmptyFor<Example, Guid>(item => item.IdExterno)
+            MessageHelper.EmptyFor<MessageEntity, Guid>(item => item.ExternalId)
         );
     }
 
@@ -75,7 +73,7 @@ public class MessageHelperTest
         Assert.Contains
         (
             "é nulo.",
-            MessageHelper.NullFor<Example, Guid>(item => item.IdExterno)
+            MessageHelper.NullFor<MessageEntity, Guid>(item => item.ExternalId)
         );
     }
 
@@ -85,7 +83,7 @@ public class MessageHelperTest
         Assert.Contains
         (
             "é nulo.",
-            MessageHelper.NullFor<Example, int>(item => item.Id)
+            MessageHelper.NullFor<MessageEntity, int>(item => item.Id)
         );
     }
 
@@ -95,7 +93,7 @@ public class MessageHelperTest
         Assert.Contains
         (
             "está fora do intervalo",
-            MessageHelper.OutOfRange<Example, int>(item => item.Id, 1, 2)
+            MessageHelper.OutOfRange<MessageEntity, int>(item => item.Id, 1, 2)
         );
     }
 

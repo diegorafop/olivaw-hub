@@ -22,60 +22,6 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Mps.OlivawCore.Domain.Example", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dataatualizacao");
-
-                    b.Property<DateTime>("DataCadastro")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("datacadastro");
-
-                    b.Property<DateTime?>("DataRemocao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dataremocao");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("description");
-
-                    b.Property<Guid>("IdExterno")
-                        .HasColumnType("uuid")
-                        .HasColumnName("idexterno");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<bool>("Permission")
-                        .HasColumnType("boolean")
-                        .HasColumnName("permission");
-
-                    b.Property<Guid>("UsuarioLogadoId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("usuariologadoid");
-
-                    b.HasKey("Id")
-                        .HasName("example_pk");
-
-                    b.HasIndex("IdExterno")
-                        .HasDatabaseName("example_idexterno_ix");
-
-                    b.ToTable("example", (string)null);
-                });
-
             modelBuilder.Entity("Olivaw.Identity.Domain.Autorizacao", b =>
                 {
                     b.Property<int>("Id")
@@ -91,15 +37,11 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("chave");
 
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dataatualizacao");
-
-                    b.Property<DateTime>("DataCadastro")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("datacadastro");
 
-                    b.Property<DateTime?>("DataRemocao")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dataremocao");
 
@@ -108,7 +50,7 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("descricao");
 
-                    b.Property<Guid>("IdExterno")
+                    b.Property<Guid>("ExternalId")
                         .HasColumnType("uuid")
                         .HasColumnName("idexterno");
 
@@ -117,6 +59,10 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)")
                         .HasColumnName("nome");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dataatualizacao");
 
                     b.Property<Guid>("UsuarioLogadoId")
                         .HasColumnType("uuid")
@@ -129,9 +75,9 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .IsUnique()
                         .HasDatabaseName("autorizacao_chave_ix");
 
-                    b.HasIndex("IdExterno")
+                    b.HasIndex("ExternalId")
                         .IsUnique()
-                        .HasDatabaseName("autorizacao_idexterno_ix");
+                        .HasDatabaseName("autorizacao_externalid_ix");
 
                     b.ToTable("autorizacao", (string)null);
                 });
@@ -149,15 +95,11 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("ativo");
 
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dataatualizacao");
-
-                    b.Property<DateTime>("DataCadastro")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("datacadastro");
 
-                    b.Property<DateTime?>("DataRemocao")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dataremocao");
 
@@ -166,7 +108,7 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("descricao");
 
-                    b.Property<Guid>("IdExterno")
+                    b.Property<Guid>("ExternalId")
                         .HasColumnType("uuid")
                         .HasColumnName("idexterno");
 
@@ -182,6 +124,10 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("nomenormalizado");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dataatualizacao");
+
                     b.Property<Guid>("UsuarioLogadoId")
                         .HasColumnType("uuid")
                         .HasColumnName("usuariologadoid");
@@ -189,9 +135,9 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                     b.HasKey("Id")
                         .HasName("perfilacesso_pk");
 
-                    b.HasIndex("IdExterno")
+                    b.HasIndex("ExternalId")
                         .IsUnique()
-                        .HasDatabaseName("perfilacesso_idexterno_ix");
+                        .HasDatabaseName("perfilacesso_externalid_ix");
 
                     b.HasIndex("NomeNormalizado")
                         .IsUnique()
@@ -213,25 +159,25 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("autorizacaoid");
 
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dataatualizacao");
-
-                    b.Property<DateTime>("DataCadastro")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("datacadastro");
 
-                    b.Property<DateTime?>("DataRemocao")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dataremocao");
 
-                    b.Property<Guid>("IdExterno")
+                    b.Property<Guid>("ExternalId")
                         .HasColumnType("uuid")
                         .HasColumnName("idexterno");
 
                     b.Property<int>("PerfilAcessoId")
                         .HasColumnType("integer")
                         .HasColumnName("perfilacessoid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dataatualizacao");
 
                     b.Property<Guid>("UsuarioLogadoId")
                         .HasColumnType("uuid")
@@ -243,9 +189,9 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                     b.HasIndex("AutorizacaoId")
                         .HasDatabaseName("perfilacessoautorizacao_autorizacaoid_ix");
 
-                    b.HasIndex("IdExterno")
+                    b.HasIndex("ExternalId")
                         .IsUnique()
-                        .HasDatabaseName("perfilacessoautorizacao_idexterno_ix");
+                        .HasDatabaseName("perfilacessoautorizacao_externalid_ix");
 
                     b.HasIndex("PerfilAcessoId", "AutorizacaoId")
                         .IsUnique()
@@ -271,15 +217,11 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("bloqueadoate");
 
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dataatualizacao");
-
-                    b.Property<DateTime>("DataCadastro")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("datacadastro");
 
-                    b.Property<DateTime?>("DataRemocao")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dataremocao");
 
@@ -289,13 +231,13 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("character varying(254)")
                         .HasColumnName("email");
 
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("idexterno");
+
                     b.Property<int>("FalhasLogin")
                         .HasColumnType("integer")
                         .HasColumnName("falhaslogin");
-
-                    b.Property<Guid>("IdExterno")
-                        .HasColumnType("uuid")
-                        .HasColumnName("idexterno");
 
                     b.Property<string>("Login")
                         .IsRequired()
@@ -325,6 +267,10 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                         .HasColumnType("character varying(1024)")
                         .HasColumnName("senhahash");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dataatualizacao");
+
                     b.Property<Guid>("UsuarioLogadoId")
                         .HasColumnType("uuid")
                         .HasColumnName("usuariologadoid");
@@ -337,9 +283,9 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                     b.HasKey("Id")
                         .HasName("usuario_pk");
 
-                    b.HasIndex("IdExterno")
+                    b.HasIndex("ExternalId")
                         .IsUnique()
-                        .HasDatabaseName("usuario_idexterno_ix");
+                        .HasDatabaseName("usuario_externalid_ix");
 
                     b.HasIndex("LoginNormalizado")
                         .IsUnique()
@@ -357,25 +303,25 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("DataAtualizacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dataatualizacao");
-
-                    b.Property<DateTime>("DataCadastro")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("datacadastro");
 
-                    b.Property<DateTime?>("DataRemocao")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dataremocao");
 
-                    b.Property<Guid>("IdExterno")
+                    b.Property<Guid>("ExternalId")
                         .HasColumnType("uuid")
                         .HasColumnName("idexterno");
 
                     b.Property<int>("PerfilAcessoId")
                         .HasColumnType("integer")
                         .HasColumnName("perfilacessoid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dataatualizacao");
 
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer")
@@ -388,9 +334,9 @@ namespace Mps.Devops.Dados.PostgreSql.Migrations
                     b.HasKey("Id")
                         .HasName("usuarioperfilacesso_pk");
 
-                    b.HasIndex("IdExterno")
+                    b.HasIndex("ExternalId")
                         .IsUnique()
-                        .HasDatabaseName("usuarioperfilacesso_idexterno_ix");
+                        .HasDatabaseName("usuarioperfilacesso_externalid_ix");
 
                     b.HasIndex("PerfilAcessoId")
                         .HasDatabaseName("usuarioperfilacesso_perfilacessoid_ix");

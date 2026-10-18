@@ -21,7 +21,7 @@ public sealed class UploadEventPhotosHandler(IRepository<PortfolioEvent> reposit
     public async Task<UploadEventPhotosResponse> Handle(UploadEventPhotosCommand request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        var item = await repository.GetFirstAsync(item => item.IdExterno == request.Id, cancellationToken);
+        var item = await repository.GetFirstAsync(item => item.ExternalId == request.Id, cancellationToken);
         if (item.Photos.Count + request.Files.Count > 100)
             throw new ValidationException("Cada evento pode ter até 100 fotos.");
         // Valida o lote completo antes de gravar qualquer arquivo.
@@ -40,8 +40,17 @@ public sealed class UploadEventPhotosHandler(IRepository<PortfolioEvent> reposit
             {
                 await using var stream = request.Files[index].OpenReadStream();
                 var key = await storage.SaveAsync(stream, formats[index].Extension, cancellationToken);
-                added.Add(new PortfolioPhoto { Id = Guid.NewGuid(), StorageKey = key,
-                    ContentType = formats[index].ContentType, Position = item.Photos.Count + index });
+                added.Add(new PortfolioPhoto
+                {
+                    ExternalId = Guid.NewGuid(),
+                    UsuarioLogadoId = request.UserId,
+                    CreatedAt = DateTime.UtcNow,
+                    PortfolioEventId = item.Id,
+                    PortfolioEvent = item,
+                    StorageKey = key,
+                    ContentType = formats[index].ContentType,
+                    Position = item.Photos.Count + index
+                });
             }
             item.Photos.AddRange(added);
             item.Update(item.Title, item.Description, item.Category, request.UserId);

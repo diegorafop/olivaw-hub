@@ -24,7 +24,7 @@ public class DeleteEventHandlerTest
         var repository = PortfolioTestData.Repository(item);
         var storage = new Mock<IPhotoStorage>();
         using var source = new CancellationTokenSource();
-        await new DeleteEventHandler(repository.Object, storage.Object).Handle(new DeleteEventCommand { Id = item.IdExterno }, source.Token);
+        await new DeleteEventHandler(repository.Object, storage.Object).Handle(new DeleteEventCommand { Id = item.ExternalId }, source.Token);
         storage.Verify(service => service.DeleteAsync("photo.jpg", source.Token), Times.Once);
         repository.Verify(service => service.RemoveAsync(item, source.Token), Times.Once);
         repository.Verify(service => service.SaveChangesAsync(source.Token), Times.Exactly(2));

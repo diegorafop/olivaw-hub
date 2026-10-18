@@ -29,8 +29,7 @@ Mps.OlivawCore.Tests -> Mps.OlivawCore.Api
 
 - Implemente capacidades compartilhadas que possam ser usadas por diferentes microservices, com contratos pequenos e explícitos.
 - Antes de alterar, inspecione a implementação mais próxima, seus consumidores internos, testes, referências e metadados de pacote.
-- Solicitações como `new feature` devem ser interpretadas no contexto destas bibliotecas. Não aplique automaticamente scaffolding de CRUD, controllers, handlers CQS, `ExampleFeature`, facade de tabelas ou migrations copiado de outro repositório.
-- `Domain/Example.cs` é usado pelos testes atuais; sua presença não define um módulo de negócio nem autoriza ampliar o domínio compartilhado com entidades específicas de um serviço.
+- Solicitações como `new feature` devem ser interpretadas no contexto destas bibliotecas. Não aplique automaticamente scaffolding de CRUD, controllers, handlers CQS, facade de tabelas ou migrations copiado de outro repositório.
 - CQS e MediatR podem ser usados pelos consumidores. Aqui, mantenha a infraestrutura transversal correspondente, como o pipeline de validação.
 - Quando faltar informação que altere materialmente um contrato público, esclareça o requisito; para decisões locais, siga os padrões existentes e informe suposições relevantes.
 

@@ -185,9 +185,21 @@ class Executor:
                     self.run_cleanup(job)
                     return
                 repository = resolve_repository(self.config, job)
-                for label, arguments in commands(job['branch'], job['environment'], job['folder'] in self.config.get('sshOverrideFolders', [])):
+                project_name = None
+                if job['folder'].startswith('olivaw-hub/'):
+                    service_name = Path(job['folder']).name.lower()
+                    project_name = f'{service_name}-{job["environment"]}'
+                for label, arguments in commands(
+                    job['branch'],
+                    job['environment'],
+                    job['folder'] in self.config.get('sshOverrideFolders', []),
+                    project_name
+                ):
                     directory = repository
                     if label == 'Compose':
+                        if project_name:
+                            job['log'] += f'\nCompose project: {project_name}.'
+                            self.save(job)
                         job['log'] += '\nCompose: validating service directory after Git update.'
                         self.save(job)
                         directory = resolve_folder(self.config, job)
@@ -197,6 +209,21 @@ class Executor:
                                          f'docker/docker-compose.{job["environment"]}.yml']:
                             if not safe_path(directory / filename).is_file():
                                 raise ValueError('invalid_request')
+                        if project_name:
+                            job['log'] += '\nCompose: removing this service from the legacy shared project if present.'
+                            self.save(job)
+                            cleanup = compose_command(
+                                job['environment'], 'docker',
+                                job['folder'] in self.config.get('sshOverrideFolders', [])
+                            )
+                            cleanup.extend(['rm', '--stop', '--force'])
+                            result = run_step(
+                                cleanup, directory, int(self.config.get('stepTimeoutSeconds', 300))
+                            )
+                            job['log'] += f'\nLegacy Compose cleanup: exit code {result}.'
+                            self.save(job)
+                            if result != 0:
+                                raise RuntimeError('step_failed')
                     job['log'] += f'\n{label}: started.'
                     self.save(job)
                     result = run_step(arguments, directory, int(self.config.get('stepTimeoutSeconds', 300)))
@@ -239,11 +266,21 @@ def cleanup_commands():
     ]
 
 
-def commands(branch, environment, include_ssh=False):
-    compose = ['/usr/bin/docker', 'compose', '--env-file', f'docker/.env.{environment}',
-               '-f', 'docker/docker-compose.yml', '-f', f'docker/docker-compose.{environment}.yml']
+def compose_command(environment, project_name=None, include_ssh=False):
+    compose = ['/usr/bin/docker', 'compose']
+    if project_name:
+        compose.extend(['--project-name', project_name])
+    compose.extend([
+        '--env-file', f'docker/.env.{environment}',
+        '-f', 'docker/docker-compose.yml', '-f', f'docker/docker-compose.{environment}.yml'
+    ])
     if include_ssh:
         compose.extend(['-f', 'docker/docker-compose.ssh.yml'])
+    return compose
+
+
+def commands(branch, environment, include_ssh=False, project_name=None):
+    compose = compose_command(environment, project_name, include_ssh)
     compose.extend(['up', '-d', '--build'])
     return [
         ('Fetch', ['/usr/bin/git', 'fetch', 'origin']),

@@ -1,4 +1,4 @@
-# Diretrizes de desenvolvimento — Mps.Limpo
+﻿# Diretrizes de desenvolvimento — Mps.Limpo
 
 Este arquivo contém as regras globais do repositório. Os arquivos `AGENTS.md` das camadas complementam estas regras no respectivo diretório. Em caso de conflito, siga a instrução mais específica, preserve o comportamento existente e registre no PR decisões arquiteturais que extrapolem as diretrizes.
 
@@ -40,9 +40,9 @@ No projeto `src/Mps.Limpo`, mantenha sempre as pastas `Repositories/`, `Services
 
 Quando o usuário escrever `new feature <nome-do-objeto-de-dominio>` ou `codex new feature <nome-do-objeto-de-dominio>`, trate isso como solicitação para implementar uma feature CQS completa para o objeto informado. Exemplo: `codex new feature usuario` cria a feature `Usuario`.
 
-O comando pode conter um bloco opcional de propriedades no formato `{ campo: tipo, modificadores }`, por exemplo `codex new feature usuario { nome: string, obrigatório, max: 150; email: string, obrigatório, único, email, max: 254 }`. Interprete `obrigatório`, `opcional`, `único`, `email`, `max`, `min`, `filtro`, `sensível`, valores default e relacionamentos como requisitos do domínio, validator, mapping, queries, responses e testes, conforme aplicável. O bloco descreve apenas propriedades específicas do objeto; não duplique `Id`, `IdExterno`, `UsuarioLogadoId`, `DataCadastro`, `DataAtualizacao` ou `DataRemocao`, pois são herdados de `Entity`.
+O comando pode conter um bloco opcional de propriedades no formato `{ campo: tipo, modificadores }`, por exemplo `codex new feature usuario { nome: string, obrigatório, max: 150; email: string, obrigatório, único, email, max: 254 }`. Interprete `obrigatório`, `opcional`, `único`, `email`, `max`, `min`, `filtro`, `sensível`, valores default e relacionamentos como requisitos do domínio, validator, mapping, queries, responses e testes, conforme aplicável. O bloco descreve apenas propriedades específicas do objeto; não duplique `Id`, `ExternalId`, `UsuarioLogadoId`, `CreatedAt`, `UpdatedAt` ou `DeletedAt`, pois são herdados de `Entity`.
 
-Antes de implementar, inspecione a entidade e a feature completa mais próxima — atualmente `ExampleFeature` — e preserve os padrões atuais. Se o objeto ainda não existir e suas propriedades não forem informadas, procure contratos e linguagem já presentes no repositório; faça somente suposições conservadoras, informe-as durante o trabalho e peça definição quando a escolha alterar materialmente o contrato ou o schema.
+Antes de implementar, inspecione a entidade e a feature completa mais próxima e preserve os padrões atuais. Se o objeto ainda não existir e suas propriedades não forem informadas, procure contratos e linguagem já presentes no repositório; faça somente suposições conservadoras, informe-as durante o trabalho e peça definição quando a escolha alterar materialmente o contrato ou o schema.
 
 Por padrão, o comando inclui:
 

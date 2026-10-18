@@ -5,10 +5,10 @@ namespace Mps.OlivawCore.Domain;
 public abstract class Entity
 {
     public int Id { get; set; }
-    public Guid IdExterno { get; set; }
+    public Guid ExternalId { get; set; }
     public Guid UsuarioLogadoId { get; set; }
 
-    public DateTime DataCadastro { get; set; }
-    public DateTime? DataAtualizacao { get; set; }
-    public DateTime? DataRemocao { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

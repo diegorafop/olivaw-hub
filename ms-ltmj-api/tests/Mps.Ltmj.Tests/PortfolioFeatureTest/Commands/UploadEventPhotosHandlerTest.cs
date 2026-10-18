@@ -33,7 +33,7 @@ public class UploadEventPhotosHandlerTest
         storage.Setup(service => service.SaveAsync(It.IsAny<Stream>(), "jpg", It.IsAny<CancellationToken>())).ReturnsAsync("photo.jpg");
         using var source = new CancellationTokenSource();
         var result = await new UploadEventPhotosHandler(repository.Object, storage.Object).Handle(
-            new UploadEventPhotosCommand { Id = item.IdExterno, Files = [Photo(), Photo()] }, source.Token);
+            new UploadEventPhotosCommand { Id = item.ExternalId, Files = [Photo(), Photo()] }, source.Token);
         Assert.Equal(2, result.Count);
         Assert.Equal(new[] { 0, 1 }, item.Photos.Select(photo => photo.Position));
         storage.Verify(service => service.SaveAsync(It.IsAny<Stream>(), "jpg", source.Token), Times.Exactly(2));

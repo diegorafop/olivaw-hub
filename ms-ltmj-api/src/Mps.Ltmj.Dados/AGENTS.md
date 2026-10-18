@@ -18,6 +18,7 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 - Evite tracking, dados e includes desnecessários, N+1 e materialização precoce. Paginação é obrigatória para coleções potencialmente grandes.
 - Prefira LINQ/EF Core e Fluent API com lambdas. SQL bruto exige necessidade comprovada, parametrização e testes; nunca concatene entrada.
 - Novas entidades persistidas devem ter mapping em `Extensions/Tables` e registro em `TableExtensionsFacade`.
+- Entidades filhas que derivam de `Entity` e têm identidade própria devem ser mapeadas como entidades normais com PK `int`, FK `int` e navegações explícitas usando `HasMany`/`WithOne`/`HasForeignKey`. `PortfolioPhoto` se relaciona com `PortfolioEvent` por `PortfolioEventId`; reserve `OwnsMany` para objetos de valor sem identidade própria.
 - Preserve remoção lógica e auditoria definidas por `Entity`.
 - Não renomeie tabelas, colunas, chaves ou índices sem avaliar dados e implantação existentes.
 

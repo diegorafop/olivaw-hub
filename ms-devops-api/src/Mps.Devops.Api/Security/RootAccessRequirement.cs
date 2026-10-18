@@ -15,7 +15,7 @@ public sealed class RootAccessHandler(IIdentityStore store, IHttpContextAccessor
     {
         if (!Guid.TryParse(context.User.FindFirstValue("sub"), out var id)) return;
         var token = accessor.HttpContext?.RequestAborted ?? CancellationToken.None;
-        var user = await store.FindAsync<Usuario>(item => item.IdExterno == id, token);
+        var user = await store.FindAsync<Usuario>(item => item.ExternalId == id, token);
         if (user is null) return;
         if (!user.Ativo) return;
         if (!user.Root) return;
