@@ -9,6 +9,8 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 
 ## Entity Framework e repositórios
 
+- Tabelas de domínio usam somente letras minúsculas, sem hífens ou underscores: `portfolioevent`, `portfoliophoto`. Não introduza snake_case em nomes de tabelas.
+
 - Reutilize `Repository<T>` para CRUD genérico; implemente contratos específicos do núcleo quando necessário.
 - Escritas (`Add`, `Update`, `Remove`) e `SaveChangesAsync` permanecem explícitas; o chamador controla a unidade de persistência.
 - Propague `CancellationToken` em toda operação assíncrona.

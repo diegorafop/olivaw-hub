@@ -51,7 +51,7 @@ Listagens retornam `{ "items": [...] }`; fotos contêm `id` e `url` relativa à 
 
 ## Preparação antes de implantar
 
-1. Gerar, revisar e aplicar a migration do provedor real com autorização do mantenedor. O modelo inclui `portfolio_events` e a coleção própria `portfolio_photos`, além do contexto existente. Nenhuma migration foi gerada nem aplicada nesta tarefa, conforme AGENTS do backend.
+1. Revisar e aplicar a migration inicial PostgreSQL, gerada a pedido do mantenedor; detalhes em [migrations da API](../../ms-ltmj-api/docs/migrations.md). O modelo inclui `portfolioevent` e a coleção própria `portfoliophoto`, além do contexto existente. Os arquivos foram gerados; a aplicação remota não foi executada nesta alteração.
 2. Preparar identidade, usuários e perfil de autorização; revisar CORS para a origem do frontend.
 3. Publicar a API com o volume persistente e backup configurado; depois publicar o frontend.
 4. Importar o churrasco inicial, revisar e publicar pelo painel. Sem a API/banco preparados, o mural mostra erro de carregamento, sem simular sucesso.

@@ -150,3 +150,8 @@ A página pública inicial é prerenderizada; login e administração são rende
 ### Acesso administrativo dos clientes
 
 Root de cada cliente permanece exclusivo da operação Olivaw Hub. Contas entregues ao cliente recebem um perfil com permissões de negócio específicas; acesso ao portfólio não concede administração de identidade. A identidade fica na API e na base do próprio cliente. Chave de assinatura JWT, emissor e destinatário são exclusivos do serviço e ambiente; a senha de um usuário não é a chave de assinatura.
+
+
+### Nomes de tabelas de domínio
+
+Tabelas usam somente letras minúsculas, sem hífens ou underscores. Exemplos: `portfolioevent`, `portfoliophoto`, `perfilacesso`. Não usar snake_case nem kebab-case em tabelas novas. Mudanças em tabelas já implantadas exigem migration que preserve os dados.

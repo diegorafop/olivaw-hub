@@ -85,6 +85,15 @@ Registro cronológico de informações e decisões. Diferenciar resposta do clie
 - **Executado:** 33 arquivos MP4 da pasta LTMJ em Downloads removidos conforme solicitado. Os 91 arquivos de fotos recebidos continuam preservados no projeto.
 - **Escopo:** API e upload continuam aceitando somente JPEG, PNG e WebP. Não foram removidos arquivos de outros projetos.
 
+## 17/10/2026 — Migration inicial e nomes de tabelas
+
+- **Origem:** responsável solicitou gerar a migration e reafirmou lowercase sem hífens ou underscores nas tabelas.
+- **Corrigido:** nomes de domínio `portfolioevent` e `portfoliophoto` no mapeamento; regra documentada no cliente e template limpo.
+- **Gerado:** migration PostgreSQL `20261018014627_InitialIdentityAndPortfolio`, designer e snapshot. Contexto de design time permite gerar sem inicializar a API ou acessar a AWS.
+- **Conferido:** build sem erros/avisos e geração de SQL idempotente para revisão. Nenhuma migration aplicada remotamente.
+- **Conexão:** usuário PostgreSQL atual `postgres`, banco `ltmj_prd`, search path `ms_ltmj`. Não confundir o usuário PostgreSQL com as contas root e `ltmj` da aplicação.
+- **Pendência:** confirmar se já há tabelas antigas no banco antes de aplicar a migration inicial, configurar aplicação no startup e bootstrap do root, então concluir cadastro e vínculos da equipe.
+
 ## Modelo para próximas conversas
 
 Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:
