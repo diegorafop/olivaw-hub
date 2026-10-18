@@ -1,0 +1,16 @@
+services:
+  ms-ltmj-api:
+    container_name: ms-ltmj-api-qas
+    image: ms-ltmj-api:qas
+    environment:
+      ASPNETCORE_ENVIRONMENT: Quality
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-ltmj-api-qas.rule: Host(`${PUBLIC_HOST:-api.ltmj-qas.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-ltmj-api-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-ltmj-api-qas.tls: 'true'
+      traefik.http.routers.ms-ltmj-api-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-ltmj-api-qas.service: ms-ltmj-api-qas
+      traefik.http.services.ms-ltmj-api-qas.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-ltmj-api-qas.loadbalancer.server.scheme: http

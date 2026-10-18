@@ -1,5 +1,8 @@
 # Documentação do Olivaw Hub
 
+- [Protocolo de descoberta do cliente](protocolo-descoberta-cliente.md): questionário, análise de negócio e evolução por MVP.
+- [Protótipo navegável do briefing](prototipos/briefing-cliente.html): fluxo local com exemplo LTMJ e exportação de resumo.
+- [Briefing e MVP da LTMJ](../ms-ltmj-ng/docs/briefing-e-mvp.md): dados confirmados, redes consultadas, pendências e fases.
 - [Executor de deploy via SSH](deploy-executor.md): API assíncrona, script na VM, instalação e testes.
 - [Configuração AWS, DuckDNS e Traefik](cloud.md): ambientes, credenciais locais, redes e comandos de validação/subida.
 - [Git Flow e rastreabilidade](gitflow.md): features, releases, hotfixes, referências automáticas e conclusão das issues.

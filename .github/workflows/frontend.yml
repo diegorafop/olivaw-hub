@@ -4,11 +4,13 @@ on:
     paths:
       - "ms-limpo-ng/**"
       - "ms-olivaw-hub-ng/**"
+      - "ms-ltmj-ng/**"
       - ".github/workflows/frontend.yml"
   pull_request:
     paths:
       - "ms-limpo-ng/**"
       - "ms-olivaw-hub-ng/**"
+      - "ms-ltmj-ng/**"
       - ".github/workflows/frontend.yml"
   workflow_dispatch:
 permissions:
@@ -20,7 +22,7 @@ jobs:
   validar:
     strategy:
       matrix:
-        project: [ms-limpo-ng, ms-olivaw-hub-ng]
+        project: [ms-limpo-ng, ms-olivaw-hub-ng, ms-ltmj-ng]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -60,6 +62,6 @@ jobs:
             sleep 1
           done
           curl -fsS http://localhost:8081/config.json | grep -q 'https://api.ci.example.com'
-          curl -fsS http://localhost:8081/ | grep -q 'Olivaw'
+          curl -fsS http://localhost:8081/ | grep -q '<app-root'
           curl -fsS http://localhost:8081/admin | grep -q '<app-root'
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/ausente.js)" = 404

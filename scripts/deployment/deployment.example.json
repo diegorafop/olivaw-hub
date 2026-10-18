@@ -4,7 +4,9 @@
   "allowedFolders": [
     "olivaw-hub/ms-devops-api",
     "lisierp",
-    "olivaw-hub/ms-olivaw-hub-ng"
+    "olivaw-hub/ms-olivaw-hub-ng",
+    "olivaw-hub/ms-ltmj-ng",
+    "olivaw-hub/ms-ltmj-api"
   ],
   "stepTimeoutSeconds": 300,
   "sshOverrideFolders": [

@@ -16,6 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssh-client 
 WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
-COPY --from=tests /app/publish .
+COPY --from=tests --chown=app:app /app/publish .
 USER app
 ENTRYPOINT ["dotnet", "Mps.Devops.Api.dll"]

@@ -10,7 +10,14 @@ import { RouterLink } from '@angular/router';
         aria-label="Olivaw Hub — início"
         class="flex items-center gap-3 no-underline text-on-surface"
       >
-        <span class="brand-mark" aria-hidden="true">o<span>·</span></span>
+        <img
+          class="brand-mark"
+          src="assets/brand/olivaw-avatar-v1.png"
+          width="48"
+          height="48"
+          alt=""
+          aria-hidden="true"
+        />
         <span class="text-xl font-bold tracking-tight"
           >Olivaw <span class="font-normal">Hub</span></span
         >
@@ -52,19 +59,12 @@ import { RouterLink } from '@angular/router';
       color: var(--mat-sys-primary);
     }
     .brand-mark {
-      background: var(--brand-ink);
-      color: white;
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 0.8rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
-      font-weight: 700;
-    }
-    .brand-mark span {
-      color: var(--brand-accent);
+      display: block;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
     }
     .nav-cta {
       background: var(--brand-ink);

@@ -1,0 +1,223 @@
+<app-landing-header />
+<section id="inicio" class="hero">
+  <div
+    class="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-2 lg:px-12 lg:py-24"
+  >
+    <div>
+      <p class="eyebrow">Curitiba e região · Eventos personalizados</p>
+      <h1 class="mt-7">
+        Você vive<br />o momento.<br /><em>Nós cuidamos<br />do sabor.</em>
+      </h1>
+      <p class="mt-7 max-w-md text-lg leading-relaxed text-on-surface/75">
+        Gastronomia, bar e uma equipe para fazer parte da sua celebração. Do almoço entre amigos ao
+        dia mais esperado.
+      </p>
+      <div class="mt-9 flex flex-wrap items-center gap-5">
+        <a href="#orcamento" class="gold-button"
+          >Vamos imaginar seu evento <span aria-hidden="true">↗</span></a
+        ><a href="#servicos" class="text-sm underline underline-offset-4">Conheça a LTMJ</a>
+      </div>
+      <p class="mt-8 text-xs tracking-wider text-on-surface/60">
+        SABOR. ELEGÂNCIA. CUIDADO EM CADA DETALHE.
+      </p>
+    </div>
+    <app-ltmj-brand [portrait]="true" />
+  </div>
+</section>
+<div class="service-ribbon">
+  <div
+    class="mx-auto flex max-w-7xl flex-wrap justify-between gap-5 px-6 py-5 text-xs tracking-widest lg:px-12"
+  >
+    <span>BAR & DRINKS</span><span>BUFFET & GASTRONOMIA</span><span>CHURRASCO</span
+    ><span>GARÇONS & COZINHA</span>
+  </div>
+</div>
+<section id="servicos" class="section-space">
+  <div class="mx-auto max-w-7xl px-6 lg:px-12">
+    <div class="grid gap-6 md:grid-cols-2">
+      <div>
+        <p class="eyebrow">Um evento com a sua essência</p>
+        <h2>Do primeiro brinde<br />ao último detalhe.</h2>
+      </div>
+      <p class="section-intro">
+        Você escolhe o que faz sentido para a sua ocasião. Nós conversamos sobre o formato, os
+        sabores e a equipe para transformar sua ideia em uma proposta personalizada.
+      </p>
+    </div>
+    <div class="services-grid mt-12">
+      <article>
+        <span class="service-number">01</span>
+        <h3>Bar & drinks</h3>
+        <p>Um brinde bem servido para acompanhar os encontros e a energia da sua festa.</p>
+        <a href="#orcamento">Planejar meu bar <span aria-hidden="true">↗</span></a>
+      </article>
+      <article>
+        <span class="service-number">02</span>
+        <h3>Buffet & gastronomia</h3>
+        <p>
+          Almoços e jantares para reunir as pessoas em torno de uma boa mesa. Cardápio definido com
+          você.
+        </p>
+        <a href="#orcamento">Conversar sobre o cardápio <span aria-hidden="true">↗</span></a>
+      </article>
+      <article>
+        <span class="service-number">03</span>
+        <h3>Churrasco</h3>
+        <p>O sabor de uma celebração descontraída, com o cuidado que o seu momento merece.</p>
+        <a href="#orcamento">Organizar meu churrasco <span aria-hidden="true">↗</span></a>
+      </article>
+      <article>
+        <span class="service-number">04</span>
+        <h3>Equipe para servir</h3>
+        <p>Serviços de garçons e cozinha, alinhados ao formato e às necessidades do seu evento.</p>
+        <a href="#orcamento">Pensar na minha equipe <span aria-hidden="true">↗</span></a>
+      </article>
+    </div>
+  </div>
+</section>
+<section id="momentos" class="moments section-space">
+  <div class="mx-auto max-w-7xl px-6 lg:px-12">
+    <p class="eyebrow">Há sempre um bom motivo para celebrar</p>
+    <h2>Para os seus<br /><em>momentos especiais.</em></h2>
+    <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="occasion">
+        <span aria-hidden="true">✦</span>
+        <h3>Casamentos</h3>
+        <p>Um dia especial, com a identidade de vocês.</p>
+      </div>
+      <div class="occasion">
+        <span aria-hidden="true">✧</span>
+        <h3>Aniversários</h3>
+        <p>Novas histórias para celebrar ao redor da mesa.</p>
+      </div>
+      <div class="occasion">
+        <span aria-hidden="true">✦</span>
+        <h3>Confraternizações</h3>
+        <p>Encontros entre amigos, família e equipes.</p>
+      </div>
+      <div class="occasion">
+        <span aria-hidden="true">✧</span>
+        <h3>Corporativos</h3>
+        <p>Gastronomia e atendimento para reunir pessoas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<app-event-mural />
+<section id="como-funciona" class="section-space">
+  <div class="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-2 lg:px-12">
+    <div>
+      <p class="eyebrow">Seu evento começa com uma conversa</p>
+      <h2>Conte a ideia.<br />A gente constrói<br /><em>com você.</em></h2>
+      <p class="mt-6 max-w-md leading-relaxed text-on-surface/70">
+        Não precisa ter tudo decidido. Podemos começar pela ocasião e entender juntos o que não pode
+        faltar.
+      </p>
+    </div>
+    <ol class="process-list">
+      <li>
+        <span>01</span>
+        <div>
+          <h3>Fale sobre o seu momento</h3>
+          <p>Ocasião, cidade, data e quantidade aproximada de convidados já ajudam a começar.</p>
+        </div>
+      </li>
+      <li>
+        <span>02</span>
+        <div>
+          <h3>Escolha os serviços e sabores</h3>
+          <p>
+            Conversamos sobre preferências, cardápio e itens que você gostaria de incluir ou
+            retirar.
+          </p>
+        </div>
+      </li>
+      <li>
+        <span>03</span>
+        <div>
+          <h3>Receba uma proposta para avaliar</h3>
+          <p>
+            Valores, disponibilidade e detalhes são confirmados diretamente com a equipe, antes de
+            contratar.
+          </p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+<section class="faq-section section-space">
+  <div class="mx-auto grid max-w-7xl gap-10 px-6 md:grid-cols-2 lg:px-12">
+    <div>
+      <p class="eyebrow">Antes do primeiro contato</p>
+      <h2>Algumas respostas<br />para começar.</h2>
+    </div>
+    <div class="faq-list">
+      <details>
+        <summary>Como vocês definem o valor?</summary>
+        <p>
+          A proposta depende dos serviços, formato, local e quantidade de convidados. Conte sua
+          ideia para receber uma avaliação personalizada.
+        </p>
+      </details>
+      <details>
+        <summary>Posso acrescentar ou retirar itens?</summary>
+        <p>
+          Essa é uma das primeiras coisas que conversamos. Compartilhe suas preferências; a equipe
+          confirma as opções e condições na proposta.
+        </p>
+      </details>
+      <details>
+        <summary>Preciso saber o cardápio antes de pedir orçamento?</summary>
+        <p>
+          Não. Você pode contar o estilo do evento e pedir orientação. O cardápio e a
+          disponibilidade são combinados com a LTMJ.
+        </p>
+      </details>
+      <details>
+        <summary>Vocês atendem a minha região?</summary>
+        <p>
+          A apresentação pública da LTMJ indica Curitiba e região. Informe a cidade e o local para
+          confirmar atendimento e deslocamento.
+        </p>
+      </details>
+    </div>
+  </div>
+</section>
+<section id="orcamento" class="section-space quote-section">
+  <div class="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:px-12">
+    <div>
+      <p class="eyebrow">Vamos celebrar juntos?</p>
+      <h2>Seu próximo evento<br />começa <em>aqui.</em></h2>
+      <p class="mt-7 max-w-md text-lg leading-relaxed text-on-surface/75">
+        Conte um pouco do que você está imaginando. Vamos preparar um resumo para iniciar a conversa
+        com a equipe.
+      </p>
+      <div class="quote-note mt-8">
+        <strong>Uma proposta sob medida.</strong>
+        <p>
+          Sem preço automático ou reserva de data. Cada detalhe é confirmado pessoalmente com a
+          LTMJ.
+        </p>
+      </div>
+    </div>
+    <div class="quote-panel">
+      <h3 class="mb-7 text-2xl font-semibold">Como será o seu evento?</h3>
+      <app-quote-builder />
+    </div>
+  </div>
+</section>
+<footer class="border-t border-outline/30">
+  <div
+    class="mx-auto flex max-w-7xl flex-col justify-between gap-7 px-6 py-10 md:flex-row lg:px-12"
+  >
+    <div class="brand">
+      <app-ltmj-brand />
+      <p class="mt-4 text-xs text-on-surface/60">© {{ year }} LTMJ Eventos · Curitiba e região</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-6 text-sm">
+      <a [href]="contact.instagram" target="_blank" rel="noopener noreferrer">Instagram ↗</a
+      ><a [href]="contact.facebook" target="_blank" rel="noopener noreferrer">Facebook ↗</a
+      ><a href="#inicio">Voltar ao início ↑</a>
+    </div>
+  </div>
+</footer>

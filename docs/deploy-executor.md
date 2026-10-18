@@ -156,3 +156,7 @@ sudo install -o root -g root -m 0644 scripts/deployment/deploy.py /opt/olivaw/de
 ```
 
 Não é necessário reconstruir a API DevOps para essa alteração de script. A cópia em `/opt/olivaw` é usada pelos novos workers; o pull do monorepo sozinho não substitui o executor instalado. Atualize quando não houver implantação em andamento.
+
+## Permissões dos arquivos da API
+
+Os Dockerfiles do DevOps, template e API LTMJ copiam o publish com `--chown=app:app` e executam como `USER app`. Isso permite ler appsettings e assemblies mesmo quando o checkout do executor herda `umask 077`. O usuário Linux do container é `app`; ele não é o usuário root da aplicação nem o usuário SSH da VM. Se a API estiver fora do ar, reconstruir seu container diretamente pelo Compose na VM; o cliente HTTP de deploy depende de a API responder.
