@@ -105,6 +105,11 @@ if auth_url.scheme != "https" or not auth_url.netloc or auth_url.username or aut
 
 credentials = {}
 
+class ApiFailure(RuntimeError):
+    def __init__(self, status_code, path, detail):
+        self.status_code = status_code
+        super().__init__(f"HTTP {status_code} em {path}: {detail}")
+
 def request(path, payload=None, token=None, endpoint=None):
     headers = {"Accept": "application/json"}
     data = None
@@ -141,7 +146,7 @@ def request(path, payload=None, token=None, endpoint=None):
             if secret:
                 detail = detail.replace(secret, "[oculto]")
         detail = "".join(character for character in detail if character.isprintable())[:2000]
-        raise RuntimeError(f"HTTP {error.code} em {path}: {detail}") from None
+        raise ApiFailure(error.code, path, detail) from None
     except (urllib.error.URLError, TimeoutError, ValueError):
         raise RuntimeError(f"Falha de comunicação ou resposta inválida em {path}. Se o POST já foi enviado, confira o job antes de repetir.") from None
 
@@ -166,7 +171,20 @@ try:
     started = time.monotonic()
     heartbeat = started
     while time.monotonic() < deadline:
-        status = request(f"{job_path}/{job_id}", token=token)
+        try:
+            status = request(f"{job_path}/{job_id}", token=token)
+        except ApiFailure as error:
+            print(f"O job {job_id} foi aceito, mas a consulta do status retornou HTTP {error.status_code}.", flush=True)
+            print(f"O job pode continuar no executor. Acompanhe pelo ID: {base}{job_path}/{job_id}", flush=True)
+            if error.status_code == 403:
+                print("Confira a permissão devops.deploy:<pasta> e se o executor da EC2 retorna a pasta do job.", flush=True)
+            print("Não envie outro deploy para este mesmo trabalho.", flush=True)
+            sys.exit(2)
+        except RuntimeError as error:
+            print(f"O job {job_id} foi aceito, mas não consegui consultar o status: {error}", flush=True)
+            print(f"O job pode continuar no executor. Acompanhe pelo ID: {base}{job_path}/{job_id}", flush=True)
+            print("Não envie outro deploy para este mesmo trabalho.", flush=True)
+            sys.exit(2)
         state = status.get("status")
         log = status.get("log", "")
         if isinstance(log, str) and log != previous_log:
