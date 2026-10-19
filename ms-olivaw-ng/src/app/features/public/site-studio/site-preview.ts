@@ -2,6 +2,7 @@ import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   inject,
   Injector,
@@ -9,13 +10,14 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { animateSitePiece } from './site-piece-motion';
+import { StudioEmpty } from './studio-empty';
 import { StudioTable } from './studio-table';
-import { SiteArt } from './site-art';
 import { SiteBlock, SitePreset } from './site-studio-content';
 
 @Component({
   selector: 'app-site-preview',
-  imports: [SiteArt, StudioTable],
+  imports: [StudioTable, StudioEmpty],
   templateUrl: './site-preview.html',
   styleUrl: './site-preview.scss',
 })
@@ -43,6 +45,28 @@ export class SitePreview {
   });
   readonly openProduct = signal<number | null>(null);
   readonly contactOpen = signal(false);
+  readonly activeTab = signal<'home' | 'spreadsheet'>('home');
+  readonly assembling = signal(false);
+  readonly spreadsheetReady = signal(true);
+  private sequence = 0;
+  private stopMotion?: () => void;
+  private openTimer?: ReturnType<typeof setTimeout>;
+  private readonly destroyRef = inject(DestroyRef);
+  constructor() {
+    this.destroyRef.onDestroy(() => this.resetNavigation());
+  }
+  resetNavigation(): void {
+    this.sequence++;
+    this.stopMotion?.();
+    clearTimeout(this.openTimer);
+    this.assembling.set(false);
+    this.spreadsheetReady.set(true);
+    this.activeTab.set('home');
+  }
+  navigate(tab: 'home' | 'spreadsheet'): void {
+    this.activeTab.set(tab);
+    this.reveal('top');
+  }
   private readonly viewport = viewChild.required<ElementRef<HTMLDivElement>>('viewport');
   private readonly injector = inject(Injector);
 
@@ -72,28 +96,35 @@ export class SitePreview {
     );
   }
   flyPiece(block: SiteBlock): void {
-    const viewport = this.viewport().nativeElement;
-    const doc = viewport.ownerDocument;
-    if (doc.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const source = doc.activeElement?.getBoundingClientRect();
-    if (!source) return;
-    const destination = viewport.getBoundingClientRect();
-    const piece = doc.createElement('span');
-    piece.textContent = block === 'spreadsheet' ? '▦' : '✳';
-    Object.assign(piece.style, {
-      position: 'fixed', left: source.left + 'px', top: source.top + 'px',
-      width: '56px', height: '56px', display: 'grid', placeItems: 'center',
-      background: '#162c39', color: '#fff', borderRadius: '16px',
-      fontSize: '32px', zIndex: '1000', pointerEvents: 'none',
-      boxShadow: '0 12px 32px #162c3933',
+    this.resetNavigation();
+    if (block !== 'spreadsheet') {
+      this.stopMotion = animateSitePiece(this.viewport().nativeElement, false, () => {});
+      return;
+    }
+    const current = this.sequence;
+    this.assembling.set(true);
+    this.spreadsheetReady.set(false);
+    this.reveal('top');
+    this.stopMotion = animateSitePiece(this.viewport().nativeElement, true, () => {
+      if (current !== this.sequence || !this.has('spreadsheet')) {
+        this.assembling.set(false);
+        this.spreadsheetReady.set(true);
+        return;
+      }
+      this.spreadsheetReady.set(true);
+      const reduced = this.viewport().nativeElement.ownerDocument.defaultView?.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+      this.openTimer = setTimeout(
+        () => {
+          if (current !== this.sequence || !this.has('spreadsheet')) return;
+          this.activeTab.set('spreadsheet');
+          this.assembling.set(false);
+          this.reveal('top');
+        },
+        reduced ? 0 : 750,
+      );
     });
-    doc.body.append(piece);
-    const animation = piece.animate([
-      { transform: 'translate(0,0) scale(1)', opacity: 1 },
-      { transform: `translate(${destination.left + destination.width / 2 - source.left}px,${destination.top + 90 - source.top}px) scale(.45) rotate(12deg)`, opacity: 0 },
-    ], { duration: 650, easing: 'cubic-bezier(.22,.8,.25,1)' });
-    animation.onfinish = () => piece.remove();
-    animation.oncancel = () => piece.remove();
   }
   explore(): void {
     const first = this.primaryBlock();

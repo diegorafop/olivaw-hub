@@ -1,4 +1,5 @@
-export type SiteBlock = 'services' | 'gallery' | 'products' | 'questions' | 'contact' | 'spreadsheet';
+export type SiteBlock =
+  'services' | 'gallery' | 'products' | 'questions' | 'contact' | 'spreadsheet';
 export interface SitePreset {
   id: string;
   label: string;
@@ -16,10 +17,9 @@ export const sitePresets: readonly SitePreset[] = [
     subtitle: 'Uma página para começar bem',
     eyebrow: 'FEITO PARA QUEM QUER IR ALÉM',
     headline: 'Seu trabalho merece ser encontrado.',
-    description:
-      'Um espaço para apresentar o que você faz, mostrar seu diferencial e aproximar quem precisa de você.',
+    description: 'Um espaço para mostrar o que você faz.',
     cta: 'Conheça nossos serviços',
-    blocks: ['services', 'contact'],
+    blocks: ['services'],
   },
   {
     id: 'portfolio',
@@ -27,10 +27,9 @@ export const sitePresets: readonly SitePreset[] = [
     subtitle: 'Seu portfólio em destaque',
     eyebrow: 'IDEIAS QUE GANHAM VIDA',
     headline: 'O que você faz fala por você.',
-    description:
-      'Cada trabalho tem uma história. Aqui, suas melhores entregas encontram o espaço que merecem.',
+    description: 'Seus trabalhos em um espaço com a sua identidade.',
     cta: 'Explore os trabalhos',
-    blocks: ['gallery', 'contact'],
+    blocks: ['gallery'],
   },
   {
     id: 'catalog',
@@ -38,14 +37,17 @@ export const sitePresets: readonly SitePreset[] = [
     subtitle: 'Um catálogo para explorar',
     eyebrow: 'ESCOLHAS COM PERSONALIDADE',
     headline: 'Encontre algo que combina com você.',
-    description:
-      'Uma seleção dos seus produtos, com detalhes claros e um caminho simples para saber mais.',
+    description: 'Seus produtos, fáceis de conhecer.',
     cta: 'Conheça a seleção',
-    blocks: ['products', 'contact'],
+    blocks: ['products'],
   },
 ];
 export const siteBlocks: readonly { id: SiteBlock; label: string; description: string }[] = [
-  { id: 'spreadsheet', label: 'Uma planilha', description: 'Transforme linhas em uma tabela interativa.' },
+  {
+    id: 'spreadsheet',
+    label: 'Uma planilha',
+    description: 'Transforme linhas em uma tabela interativa.',
+  },
   { id: 'services', label: 'Meus serviços', description: 'Explique o que você oferece.' },
   { id: 'gallery', label: 'Meus trabalhos', description: 'Dê espaço ao que você já fez.' },
   { id: 'products', label: 'Meus produtos', description: 'Apresente uma seleção de produtos.' },

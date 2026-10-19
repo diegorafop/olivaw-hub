@@ -42,7 +42,10 @@
           <span
             ><strong>{{ block.label }}</strong
             ><small>{{ block.description }}</small></span
-          ><span class="toggle" aria-hidden="true"><span></span></span>
+          ><span class="selection-state"
+            ><span aria-hidden="true">{{ selectedBlocks().includes(block.id) ? '✓' : '+' }}</span
+            >{{ selectedBlocks().includes(block.id) ? 'Adicionado' : 'Adicionar' }}</span
+          >
         </button>
       }
     </div>

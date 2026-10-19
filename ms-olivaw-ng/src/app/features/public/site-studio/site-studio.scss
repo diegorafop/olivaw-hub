@@ -219,9 +219,6 @@ h2 {
   border-top: 1px solid #162c3917;
   font-size: 0.7rem;
 }
-.studio-footer > span {
-  opacity: 0.65;
-}
 
 @media (max-width: 1000px) {
   .workspace {
@@ -236,18 +233,11 @@ h2 {
   .studio-main {
     padding: 2rem 5%;
   }
-  .workspace {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .olivaw-brand > span {
     display: none;
   }
   .studio-intro {
     margin-bottom: 1.5rem;
-  }
-  .block-options {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5rem 1rem;
   }
   .care-grid {
     grid-template-columns: 1fr;
@@ -273,7 +263,7 @@ h2 {
   .workspace {
     display: flex;
     flex-direction: column;
-    --site-preview-height: 270px;
+    --site-preview-height: 340px;
   }
   app-site-controls {
     width: 100%;

@@ -36,3 +36,7 @@ Ações públicas usam tokens `--action-background`, `--action-background-hover`
 A entrada comercial passa a usar cartões para site, automação de tarefas, ferramenta para a rotina, melhoria de uma solução existente ou exploração sem uma necessidade definida. Cada caminho tem perguntas próprias. É possível voltar, corrigir respostas e explorar outro caminho. A sugestão considera o caminho e o contexto informado, como a existência de um site ou sistema atual, sem estimar preço, prazo ou prometer integrações.
 
 A Olivaw acompanha o fluxo visualmente com o avatar existente. O formulário Material aparece somente na revisão final. Os testes cobrem navegação em desktop/celular, foco, troca de caminho sem respostas incompatíveis, edição, cópia e ausência de chamadas à API nessa jornada.
+
+### Estúdio de ideias: montagem por peças
+
+A prévia começa vazia. As bases usam poucos blocos. A peça de planilha percorre uma animação de montagem, cria a página Produtos e estoque no menu e abre uma tabela com busca e ordenação de dados ilustrativos. Início preserva o conteúdo da base escolhida. A experiência respeita movimento reduzido e não envia dados.

@@ -28,6 +28,7 @@ export class SiteStudio {
   choosePreset(id: string): void {
     const preset = sitePresets.find((item) => item.id === id);
     if (!preset || preset.id === this.activePreset().id) return;
+    this.preview()?.resetNavigation();
     this.activePreset.set(preset);
     this.selectedBlocks.set([...preset.blocks]);
     this.preview()?.flyPiece(preset.blocks[0]);
@@ -42,9 +43,13 @@ export class SiteStudio {
     );
     const label = siteBlocks.find((block) => block.id === id)?.label ?? '';
     this.notice.set(`${label}: ${selected ? 'seção removida' : 'seção adicionada'} à sua prévia.`);
-    if (!selected) { this.preview()?.reveal(id); this.preview()?.flyPiece(id); }
+    if (!selected) {
+      if (id !== 'spreadsheet') this.preview()?.reveal(id);
+      this.preview()?.flyPiece(id);
+    }
   }
   reset(): void {
+    this.preview()?.resetNavigation();
     this.activePreset.set(sitePresets[0]);
     this.selectedBlocks.set([]);
     this.reviewing.set(false);

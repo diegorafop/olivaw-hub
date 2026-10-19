@@ -6,173 +6,214 @@
   aria-label="Prévia interativa do seu site"
 >
   @if (blocks().length === 0) {
-    <div class="empty-canvas"><span aria-hidden="true">＋</span><h2>Todo começo tem espaço.</h2><p>Escolha uma peça ao lado.<br />Seu site começa a nascer aqui.</p><small>Uma ideia de cada vez.</small></div>
+    <app-studio-empty />
   } @else {
-  @for (site of [preset()]; track site.id) {
-    <div class="site" animate.enter="site-arrive">
-      <div class="site-header" data-block="top">
-        <span class="site-brand"><span aria-hidden="true">✳</span> seu negócio</span>
-        <span class="example-label">EXEMPLO</span>
-        @if (has('contact')) {
-          <button type="button" (click)="reveal('contact')">Vamos conversar ↗</button>
-        }
-      </div>
-      @if (has('spreadsheet')) {
-        <section class="site-section" data-block="spreadsheet" animate.enter="block-arrive"><app-studio-table /></section>
-      }
-      <section
-        class="site-hero" 
-        [class.catalog]="site.id === 'catalog'"
-        [class.portfolio]="site.id === 'portfolio'"
-      >
-        <div class="hero-copy">
-          <p class="eyebrow">{{ site.eyebrow }}</p>
-          <h2>{{ site.headline }}</h2>
-          <p class="hero-description">{{ site.description }}</p>
-          <button
-            type="button"
-            class="demo-cta"
-            [disabled]="blocks().length === 0"
-            (click)="explore()"
-          >
-            {{ primaryLabel() }} <span aria-hidden="true">↗</span>
-          </button>
-          <span class="hero-footnote">Seu negócio. Seu jeito. Um novo começo.</span>
-        </div>
-        <app-site-art [variant]="site.id" />
-      </section>
-      @if (has('services')) {
-        <section
-          class="site-section"
-          data-block="services"
-          animate.enter="block-arrive"
-          animate.leave="block-leave"
-        >
-          <p class="eyebrow">O QUE PODEMOS FAZER POR VOCÊ</p>
-          <h3>Soluções com o seu jeito.</h3>
-          <div class="service-grid">
-            @for (
-              name of ['Um serviço especial', 'Cuidado em cada detalhe', 'Uma solução para você'];
-              track name;
-              let index = $index
-            ) {
-              <article>
-                <span class="item-number">0{{ index + 1 }}</span>
-                <h4>{{ name }}</h4>
-                <p>Aqui você apresenta o que oferece e como pode ajudar seu cliente.</p>
-              </article>
-            }
-          </div>
-        </section>
-      }
-      @if (has('gallery')) {
-        <section
-          class="site-section gallery-section"
-          data-block="gallery"
-          animate.enter="block-arrive"
-          animate.leave="block-leave"
-        >
-          <p class="eyebrow">UM POUCO DO QUE FAZEMOS</p>
-          <h3>Trabalhos que contam histórias.</h3>
-          <div class="gallery-grid">
-            @for (item of [1, 2, 3]; track item) {
-              <article>
-                <div class="example-art" [class.alt]="item === 2">
-                  <span aria-hidden="true">{{ item === 2 ? '◒' : '✳' }}</span>
-                </div>
-                <h4>Projeto de exemplo 0{{ item }}</h4>
-                <p>Um espaço para suas fotos e histórias.</p>
-              </article>
-            }
-          </div>
-        </section>
-      }
-      @if (has('products')) {
-        <section
-          class="site-section"
-          data-block="products"
-          animate.enter="block-arrive"
-          animate.leave="block-leave"
-        >
-          <p class="eyebrow">FEITO PARA FAZER PARTE</p>
-          <h3>Uma seleção para conhecer.</h3>
-          <div class="product-grid">
-            @for (item of [1, 2, 3]; track item) {
-              <article>
-                <div class="product-art" [class.alt]="item === 2">
-                  <span aria-hidden="true"></span>
-                </div>
-                <h4>Produto de exemplo 0{{ item }}</h4>
-                <button
-                  type="button"
-                  [attr.aria-expanded]="openProduct() === item"
-                  (click)="openProduct.set(openProduct() === item ? null : item)"
-                >
-                  Ver detalhes <span aria-hidden="true">↗</span>
-                </button>
-                @if (openProduct() === item) {
-                  <p class="product-detail">
-                    Aqui entram descrição, características e possibilidades de contato sobre o
-                    produto. Este é um exemplo para explorar.
-                  </p>
-                }
-              </article>
-            }
-          </div>
-        </section>
-      }
-      @if (has('questions')) {
-        <section
-          class="site-section faq-section"
-          data-block="questions"
-          animate.enter="block-arrive"
-          animate.leave="block-leave"
-        >
-          <p class="eyebrow">ANTES DE COMEÇAR</p>
-          <h3>Boas perguntas, respostas claras.</h3>
-          <details>
-            <summary>Como posso conhecer melhor o seu trabalho?</summary>
-            <p>
-              Uma resposta simples pode explicar os serviços, os trabalhos e como dar o próximo
-              passo.
-            </p>
-          </details>
-          <details>
-            <summary>Como funciona o primeiro contato?</summary>
-            <p>Aqui você explica o atendimento do seu negócio e os canais disponíveis.</p>
-          </details>
-        </section>
-      }
-      @if (has('contact')) {
-        <section
-          class="site-section site-contact"
-          data-block="contact"
-          animate.enter="block-arrive"
-          animate.leave="block-leave"
-        >
-          <p class="eyebrow">TODA BOA IDEIA COMEÇA COM UMA CONVERSA</p>
-          <h3>Vamos dar o próximo passo?</h3>
-          <p>Um caminho simples para quem quer conhecer seu negócio.</p>
-          <button
-            type="button"
-            class="demo-cta"
-            [attr.aria-expanded]="contactOpen()"
-            (click)="contactOpen.set(!contactOpen())"
-          >
-            Entrar em contato ↗
-          </button>
-          @if (contactOpen()) {
-            <p class="demo-feedback" role="status">
-              Aqui apareceria o canal de contato do seu negócio. Nesta prévia, nenhuma mensagem é
-              enviada.
-            </p>
+    @for (site of [preset()]; track site.id) {
+      <div class="site" animate.enter="site-arrive">
+        <div class="site-header" data-block="top">
+          <span class="site-brand"><span aria-hidden="true">✳</span> seu negócio</span>
+          <span class="example-label">EXEMPLO</span>
+          @if (has('contact')) {
+            <button type="button" (click)="reveal('contact')">Vamos conversar ↗</button>
           }
-        </section>
-      }
-      <footer class="site-footer">
-        <strong>seu negócio</strong><span>Um exemplo, muitas possibilidades.</span>
-      </footer>
-    </div>
-  }
+        </div>
+        <nav class="site-tabs" aria-label="Páginas do site de exemplo">
+          <button
+            type="button"
+            [attr.aria-current]="activeTab() === 'home' || !has('spreadsheet') ? 'page' : null"
+            (click)="navigate('home')"
+          >
+            Início
+          </button>
+          @if (has('spreadsheet') && spreadsheetReady()) {
+            <button
+              type="button"
+              class="new-tab"
+              animate.enter="tab-arrive"
+              [attr.aria-current]="activeTab() === 'spreadsheet' ? 'page' : null"
+              (click)="navigate('spreadsheet')"
+            >
+              <span aria-hidden="true">▦</span> Produtos e estoque
+            </button>
+          }
+        </nav>
+        @if (assembling()) {
+          <p class="assembly-status" role="status">
+            {{
+              spreadsheetReady()
+                ? 'Nova página criada. Abrindo Produtos e estoque…'
+                : 'Encaixando sua planilha no site…'
+            }}
+          </p>
+        }
+        <div [hidden]="activeTab() !== 'spreadsheet' || !has('spreadsheet') || !spreadsheetReady()">
+          @if (has('spreadsheet') && spreadsheetReady() && activeTab() === 'spreadsheet') {
+            <section
+              class="site-section table-page"
+              data-block="spreadsheet"
+              animate.enter="table-arrive"
+            >
+              <app-studio-table />
+            </section>
+          }
+        </div>
+        <div [hidden]="activeTab() === 'spreadsheet' && has('spreadsheet')">
+          <section
+            class="site-hero"
+            [class.catalog]="site.id === 'catalog'"
+            [class.portfolio]="site.id === 'portfolio'"
+          >
+            <div class="hero-copy">
+              <p class="eyebrow">{{ site.eyebrow }}</p>
+              <h2>{{ site.headline }}</h2>
+              <p class="hero-description">{{ site.description }}</p>
+              <button
+                type="button"
+                class="demo-cta"
+                [disabled]="blocks().length === 0"
+                (click)="explore()"
+              >
+                {{ primaryLabel() }} <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </section>
+          @if (has('services')) {
+            <section
+              class="site-section"
+              data-block="services"
+              animate.enter="block-arrive"
+              animate.leave="block-leave"
+            >
+              <p class="eyebrow">O QUE PODEMOS FAZER POR VOCÊ</p>
+              <h3>Soluções com o seu jeito.</h3>
+              <div class="service-grid">
+                @for (
+                  name of [
+                    'Um serviço especial',
+                    'Cuidado em cada detalhe',
+                    'Uma solução para você',
+                  ];
+                  track name;
+                  let index = $index
+                ) {
+                  <article>
+                    <span class="item-number">0{{ index + 1 }}</span>
+                    <h4>{{ name }}</h4>
+                    <p>Aqui você apresenta o que oferece e como pode ajudar seu cliente.</p>
+                  </article>
+                }
+              </div>
+            </section>
+          }
+          @if (has('gallery')) {
+            <section
+              class="site-section gallery-section"
+              data-block="gallery"
+              animate.enter="block-arrive"
+              animate.leave="block-leave"
+            >
+              <p class="eyebrow">UM POUCO DO QUE FAZEMOS</p>
+              <h3>Trabalhos que contam histórias.</h3>
+              <div class="gallery-grid">
+                @for (item of [1, 2]; track item) {
+                  <article>
+                    <div class="example-art" [class.alt]="item === 2">
+                      <span aria-hidden="true">{{ item === 2 ? '◒' : '✳' }}</span>
+                    </div>
+                    <h4>Projeto de exemplo 0{{ item }}</h4>
+                    <p>Um espaço para suas fotos e histórias.</p>
+                  </article>
+                }
+              </div>
+            </section>
+          }
+          @if (has('products')) {
+            <section
+              class="site-section"
+              data-block="products"
+              animate.enter="block-arrive"
+              animate.leave="block-leave"
+            >
+              <p class="eyebrow">FEITO PARA FAZER PARTE</p>
+              <h3>Uma seleção para conhecer.</h3>
+              <div class="product-grid">
+                @for (item of [1, 2]; track item) {
+                  <article>
+                    <div class="product-art" [class.alt]="item === 2">
+                      <span aria-hidden="true"></span>
+                    </div>
+                    <h4>Produto de exemplo 0{{ item }}</h4>
+                    <button
+                      type="button"
+                      [attr.aria-expanded]="openProduct() === item"
+                      (click)="openProduct.set(openProduct() === item ? null : item)"
+                    >
+                      Ver detalhes <span aria-hidden="true">↗</span>
+                    </button>
+                    @if (openProduct() === item) {
+                      <p class="product-detail">
+                        Aqui entram descrição, características e possibilidades de contato sobre o
+                        produto. Este é um exemplo para explorar.
+                      </p>
+                    }
+                  </article>
+                }
+              </div>
+            </section>
+          }
+          @if (has('questions')) {
+            <section
+              class="site-section faq-section"
+              data-block="questions"
+              animate.enter="block-arrive"
+              animate.leave="block-leave"
+            >
+              <p class="eyebrow">ANTES DE COMEÇAR</p>
+              <h3>Boas perguntas, respostas claras.</h3>
+              <details>
+                <summary>Como posso conhecer melhor o seu trabalho?</summary>
+                <p>
+                  Uma resposta simples pode explicar os serviços, os trabalhos e como dar o próximo
+                  passo.
+                </p>
+              </details>
+              <details>
+                <summary>Como funciona o primeiro contato?</summary>
+                <p>Aqui você explica o atendimento do seu negócio e os canais disponíveis.</p>
+              </details>
+            </section>
+          }
+          @if (has('contact')) {
+            <section
+              class="site-section site-contact"
+              data-block="contact"
+              animate.enter="block-arrive"
+              animate.leave="block-leave"
+            >
+              <p class="eyebrow">TODA BOA IDEIA COMEÇA COM UMA CONVERSA</p>
+              <h3>Vamos dar o próximo passo?</h3>
+              <p>Um caminho simples para quem quer conhecer seu negócio.</p>
+              <button
+                type="button"
+                class="demo-cta"
+                [attr.aria-expanded]="contactOpen()"
+                (click)="contactOpen.set(!contactOpen())"
+              >
+                Entrar em contato ↗
+              </button>
+              @if (contactOpen()) {
+                <p class="demo-feedback" role="status">
+                  Aqui apareceria o canal de contato do seu negócio. Nesta prévia, nenhuma mensagem
+                  é enviada.
+                </p>
+              }
+            </section>
+          }
+        </div>
+        <footer class="site-footer">
+          <strong>seu negócio</strong><span>Um exemplo, muitas possibilidades.</span>
+        </footer>
+      </div>
+    }
   }
 </div>

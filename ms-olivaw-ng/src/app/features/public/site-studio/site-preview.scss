@@ -50,10 +50,10 @@ button {
 }
 .site-hero {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   align-items: center;
-  padding: 3rem 5%;
+  padding: 1.6rem 5%;
   background: #fafbf8;
 }
 .eyebrow {
@@ -88,13 +88,7 @@ h2 {
   opacity: 0.5;
   cursor: default;
 }
-.hero-footnote {
-  display: block;
-  font-size: 0.5rem;
-  opacity: 0.6;
-  margin-top: 1rem;
-}
-.portfolio .catalog .site-section {
+.site-section {
   padding: 2.5rem 5%;
   border-top: 1px solid #162c390c;
 }
@@ -114,7 +108,7 @@ h4 {
 .gallery-grid,
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 article p,
@@ -132,7 +126,7 @@ details p,
 }
 .example-art,
 .product-art {
-  height: 120px;
+  height: 75px;
   background: #dceae3;
   display: grid;
   place-items: center;
@@ -191,13 +185,6 @@ summary {
 }
 .mobile {
   max-width: 375px;
-}
-.mobile .site-hero {
-  grid-template-columns: 1fr;
-  padding: 2rem 6%;
-}
-.mobile h2 {
-  font-size: 2rem;
 }
 .mobile .service-grid,
 .mobile .gallery-grid,
@@ -258,4 +245,46 @@ summary {
   }
 }
 
-.empty-canvas{min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(#d5dfdc 1px,transparent 1px);background-size:20px 20px;color:#48615c;padding:24px}.empty-canvas>span{font-size:3rem;color:#78968a}.empty-canvas h2{font-size:1.5rem}.empty-canvas p{line-height:1.8}.empty-canvas small{margin-top:24px}
+.site-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 5%;
+  border-bottom: 1px solid #e1e9e6;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.site-tabs button {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #456057;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+}
+.site-tabs button[aria-current='page'] {
+  background: #e4efe7;
+  color: #1a5138;
+  font-weight: 700;
+}
+.assembly-status {
+  padding: 12px 5%;
+  margin: 0;
+  background: #edf4ed;
+  font-size: 0.75rem;
+  color: #256347;
+}
+.table-page {
+  min-height: 300px;
+}
+.tab-arrive {
+  animation: construct 0.6s ease-out;
+}
+.table-arrive {
+  animation: construct 0.8s ease-out;
+}
+[hidden] {
+  display: none !important;
+}
