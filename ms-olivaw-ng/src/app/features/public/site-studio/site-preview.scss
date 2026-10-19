@@ -34,7 +34,7 @@
 }
 .example-label {
   font-size: 0.5rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.015em;
   opacity: 0.5;
 }
 button {
@@ -58,13 +58,13 @@ button {
 }
 .eyebrow {
   font-size: 0.5rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.015em;
   font-weight: 700;
   margin: 0 0 1rem;
 }
 h2 {
-  font-size: clamp(1.8rem, 3vw, 2.85rem);
-  letter-spacing: -0.06em;
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  letter-spacing: -0.025em;
   line-height: 1.06;
   font-weight: 700;
   margin: 0;
@@ -93,7 +93,7 @@ h2 {
   border-top: 1px solid #162c390c;
 }
 h3 {
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   letter-spacing: -0.04em;
   font-weight: 700;
   margin: 0 0 1.5rem;
@@ -287,4 +287,19 @@ summary {
 }
 [hidden] {
   display: none !important;
+}
+
+.piece-pending {
+  opacity: 0.25;
+  outline: 1px dashed #78968a;
+}
+.site-header .contact-link {
+  background: #162c39;
+  color: white;
+  border-radius: 24px;
+  padding: 10px 14px;
+}
+.site-tabs button:focus-visible {
+  outline: 2px solid #256347;
+  outline-offset: 2px;
 }

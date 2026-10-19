@@ -1,6 +1,6 @@
 <aside class="controls" aria-label="Monte seu site">
   <div class="control-heading">
-    <span>SEU PONTO DE PARTIDA</span
+    <span>Seu ponto de partida</span
     ><button type="button" (click)="resetRequested.emit()">Recomeçar</button>
   </div>
   @if (!reviewing()) {
@@ -54,7 +54,7 @@
     </button>
   } @else {
     <div class="recap" animate.enter="recap-arrive">
-      <p class="studio-eyebrow">SUA IDEIA ATÉ AQUI</p>
+      <p class="studio-eyebrow">Sua ideia até aqui</p>
       <h2>Já dá para imaginar, né?</h2>
       <p>
         Você começou com <strong>{{ activePreset().label.toLowerCase() }}</strong

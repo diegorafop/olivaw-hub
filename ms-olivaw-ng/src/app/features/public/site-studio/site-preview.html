@@ -12,9 +12,18 @@
       <div class="site" animate.enter="site-arrive">
         <div class="site-header" data-block="top">
           <span class="site-brand"><span aria-hidden="true">✳</span> seu negócio</span>
-          <span class="example-label">EXEMPLO</span>
+          <span class="example-label">Exemplo</span>
           @if (has('contact')) {
-            <button type="button" (click)="reveal('contact')">Vamos conversar ↗</button>
+            <button
+              type="button"
+              data-piece="contact"
+              class="contact-link"
+              [class.piece-pending]="pendingPiece() === 'contact'"
+              [disabled]="pendingPiece() === 'contact'"
+              (click)="openSection('contact')"
+            >
+              Vamos conversar ↗
+            </button>
           }
         </div>
         <nav class="site-tabs" aria-label="Páginas do site de exemplo">
@@ -25,10 +34,27 @@
           >
             Início
           </button>
-          @if (has('spreadsheet') && spreadsheetReady()) {
+          @for (block of menuBlocks; track block) {
+            @if (has(block)) {
+              <button
+                type="button"
+                [attr.data-piece]="block"
+                [class.piece-pending]="pendingPiece() === block"
+                [disabled]="pendingPiece() === block"
+                (click)="openSection(block)"
+                animate.enter="tab-arrive"
+              >
+                {{ pieceLabels[block] }}
+              </button>
+            }
+          }
+          @if (has('spreadsheet')) {
             <button
               type="button"
               class="new-tab"
+              data-piece="spreadsheet"
+              [class.piece-pending]="!spreadsheetReady()"
+              [disabled]="!spreadsheetReady()"
               animate.enter="tab-arrive"
               [attr.aria-current]="activeTab() === 'spreadsheet' ? 'page' : null"
               (click)="navigate('spreadsheet')"
@@ -39,11 +65,7 @@
         </nav>
         @if (assembling()) {
           <p class="assembly-status" role="status">
-            {{
-              spreadsheetReady()
-                ? 'Nova página criada. Abrindo Produtos e estoque…'
-                : 'Encaixando sua planilha no site…'
-            }}
+            {{ assemblyMessage() }}
           </p>
         }
         <div [hidden]="activeTab() !== 'spreadsheet' || !has('spreadsheet') || !spreadsheetReady()">
@@ -77,14 +99,14 @@
               </button>
             </div>
           </section>
-          @if (has('services')) {
+          @if (has('services') && pendingPiece() !== 'services') {
             <section
               class="site-section"
               data-block="services"
               animate.enter="block-arrive"
               animate.leave="block-leave"
             >
-              <p class="eyebrow">O QUE PODEMOS FAZER POR VOCÊ</p>
+              <p class="eyebrow">O que podemos fazer por você</p>
               <h3>Soluções com o seu jeito.</h3>
               <div class="service-grid">
                 @for (
@@ -105,14 +127,14 @@
               </div>
             </section>
           }
-          @if (has('gallery')) {
+          @if (has('gallery') && pendingPiece() !== 'gallery') {
             <section
               class="site-section gallery-section"
               data-block="gallery"
               animate.enter="block-arrive"
               animate.leave="block-leave"
             >
-              <p class="eyebrow">UM POUCO DO QUE FAZEMOS</p>
+              <p class="eyebrow">Um pouco do que fazemos</p>
               <h3>Trabalhos que contam histórias.</h3>
               <div class="gallery-grid">
                 @for (item of [1, 2]; track item) {
@@ -127,14 +149,14 @@
               </div>
             </section>
           }
-          @if (has('products')) {
+          @if (has('products') && pendingPiece() !== 'products') {
             <section
               class="site-section"
               data-block="products"
               animate.enter="block-arrive"
               animate.leave="block-leave"
             >
-              <p class="eyebrow">FEITO PARA FAZER PARTE</p>
+              <p class="eyebrow">Feito para fazer parte</p>
               <h3>Uma seleção para conhecer.</h3>
               <div class="product-grid">
                 @for (item of [1, 2]; track item) {
@@ -161,14 +183,14 @@
               </div>
             </section>
           }
-          @if (has('questions')) {
+          @if (has('questions') && pendingPiece() !== 'questions') {
             <section
               class="site-section faq-section"
               data-block="questions"
               animate.enter="block-arrive"
               animate.leave="block-leave"
             >
-              <p class="eyebrow">ANTES DE COMEÇAR</p>
+              <p class="eyebrow">Antes de começar</p>
               <h3>Boas perguntas, respostas claras.</h3>
               <details>
                 <summary>Como posso conhecer melhor o seu trabalho?</summary>
@@ -183,14 +205,14 @@
               </details>
             </section>
           }
-          @if (has('contact')) {
+          @if (has('contact') && pendingPiece() !== 'contact') {
             <section
               class="site-section site-contact"
               data-block="contact"
               animate.enter="block-arrive"
               animate.leave="block-leave"
             >
-              <p class="eyebrow">TODA BOA IDEIA COMEÇA COM UMA CONVERSA</p>
+              <p class="eyebrow">Toda boa ideia começa com uma conversa</p>
               <h3>Vamos dar o próximo passo?</h3>
               <p>Um caminho simples para quem quer conhecer seu negócio.</p>
               <button

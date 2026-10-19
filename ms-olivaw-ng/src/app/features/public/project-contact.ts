@@ -68,7 +68,7 @@ export class ProjectContact {
 
   choosePath(path: DiscoveryPath): void {
     if (path.id === 'website') {
-      void this.router.navigate(['/seu-site']);
+      void this.router.navigate(['/estudio']);
       return;
     }
     if (this.path()?.id !== path.id) {

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
+  { path: 'seu-site', redirectTo: 'estudio', pathMatch: 'full' },
   {
     path: '',
     pathMatch: 'full',
@@ -8,8 +9,8 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/public-page').then((m) => m.PublicPage),
   },
   {
-    path: 'seu-site',
-    title: 'Seu site, ganhando forma | Olivaw',
+    path: 'estudio',
+    title: 'Estúdio de ideias | Olivaw',
     loadComponent: () =>
       import('./features/public/site-studio/site-studio').then((m) => m.SiteStudio),
   },

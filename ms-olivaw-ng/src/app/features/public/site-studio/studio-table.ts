@@ -3,7 +3,7 @@ import { Component, computed, signal } from '@angular/core';
 @Component({
   selector: 'app-studio-table',
   template: `
-    <p class="eyebrow">SUA PLANILHA GANHOU VIDA</p>
+    <p class="eyebrow">Sua planilha ganhou vida</p>
     <h3>Uma rotina mais organizada.</h3>
     <p>Experimente buscar e ordenar. Os dados são exemplos.</p>
     <label

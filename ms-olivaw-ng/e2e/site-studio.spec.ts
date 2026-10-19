@@ -9,7 +9,7 @@ test('Quero um site abre um estúdio que transforma a prévia sem enviar dados',
   });
   await page.goto('/');
   await page.getByRole('button', { name: /Quero um site/ }).click();
-  await expect(page).toHaveURL(/\/seu-site$/);
+  await expect(page).toHaveURL(/\/estudio$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Sua ideia, ganhando forma.');
   const preview = page.getByRole('region', { name: 'Prévia interativa do seu site' });
   await expect(
@@ -40,7 +40,7 @@ test('estúdio funciona em celular, respeita movimento reduzido e permite recome
 }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/seu-site');
+  await page.goto('/estudio');
   await page.getByRole('button', { name: /Mostrar meus trabalhos/ }).click();
   await page.getByRole('button', { name: /Dúvidas frequentes/ }).click();
   await page.getByRole('button', { name: /Meus trabalhos/ }).click();

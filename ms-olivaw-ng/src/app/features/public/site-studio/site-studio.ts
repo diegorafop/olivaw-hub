@@ -27,7 +27,8 @@ export class SiteStudio {
 
   choosePreset(id: string): void {
     const preset = sitePresets.find((item) => item.id === id);
-    if (!preset || preset.id === this.activePreset().id) return;
+    if (!preset || (preset.id === this.activePreset().id && this.selectedBlocks().length > 0))
+      return;
     this.preview()?.resetNavigation();
     this.activePreset.set(preset);
     this.selectedBlocks.set([...preset.blocks]);
@@ -44,8 +45,9 @@ export class SiteStudio {
     const label = siteBlocks.find((block) => block.id === id)?.label ?? '';
     this.notice.set(`${label}: ${selected ? 'seção removida' : 'seção adicionada'} à sua prévia.`);
     if (!selected) {
-      if (id !== 'spreadsheet') this.preview()?.reveal(id);
       this.preview()?.flyPiece(id);
+    } else {
+      this.preview()?.resetNavigation();
     }
   }
   reset(): void {

@@ -40,3 +40,5 @@ A Olivaw acompanha o fluxo visualmente com o avatar existente. O formulário Mat
 ### Estúdio de ideias: montagem por peças
 
 A prévia começa vazia. As bases usam poucos blocos. A peça de planilha percorre uma animação de montagem, cria a página Produtos e estoque no menu e abre uma tabela com busca e ordenação de dados ilustrativos. Início preserva o conteúdo da base escolhida. A experiência respeita movimento reduzido e não envia dados.
+
+O endereço público do Estúdio é `/estudio`; `/seu-site` redireciona para ele. Cada peça adiciona um elemento identificável: serviços, trabalhos, produtos e dúvidas criam atalhos de menu; contato cria um botão; planilha cria a página Produtos e estoque. As peças percorrem uma animação até seu destino antes da apresentação do conteúdo.

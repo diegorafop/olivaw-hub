@@ -1,9 +1,19 @@
+import { SiteBlock } from './site-studio-content';
 /** Visual feedback for a user action; no upload or background work. */
 export function animateSitePiece(
   viewport: HTMLElement,
-  spreadsheet: boolean,
+  block: SiteBlock,
   done: () => void,
 ): () => void {
+  const spreadsheet = block === 'spreadsheet';
+  const labels: Record<SiteBlock, string> = {
+    spreadsheet: '▦ Minha planilha',
+    services: '✳ Meus serviços',
+    gallery: '▧ Meus trabalhos',
+    products: '◈ Meus produtos',
+    questions: '? Dúvidas frequentes',
+    contact: '☏ Vamos conversar',
+  };
   const doc = viewport.ownerDocument;
   const reduced = doc.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const source = doc.activeElement?.getBoundingClientRect();
@@ -15,7 +25,7 @@ export function animateSitePiece(
   const piece = doc.createElement('div');
   piece.setAttribute('aria-hidden', 'true');
   const title = doc.createElement('strong');
-  title.textContent = spreadsheet ? '▦  Minha planilha' : '✳  Sua ideia';
+  title.textContent = labels[block];
   Object.assign(title.style, {
     display: 'block',
     padding: '14px',
@@ -67,8 +77,11 @@ export function animateSitePiece(
     border: '1px solid #bdd3c3',
   });
   doc.body.append(piece);
-  const menu = viewport.querySelector<HTMLElement>('.site-tabs')?.getBoundingClientRect();
-  const landingLeft = (menu?.left ?? destination.left) + Math.min(100, destination.width / 4);
+  const menu = (
+    viewport.querySelector<HTMLElement>(`[data-piece="${block}"]`) ??
+    viewport.querySelector<HTMLElement>('.site-tabs')
+  )?.getBoundingClientRect();
+  const landingLeft = menu?.left ?? destination.left + 20;
   const landingTop =
     menu && menu.top >= destination.top && menu.top < destination.bottom
       ? menu.top + 6
@@ -99,7 +112,7 @@ export function animateSitePiece(
     });
   }
   const animation = piece.animate(frames, {
-    duration: spreadsheet ? 2600 : 1400,
+    duration: spreadsheet ? 2600 : 1900,
     easing: 'linear',
     fill: 'forwards',
   });

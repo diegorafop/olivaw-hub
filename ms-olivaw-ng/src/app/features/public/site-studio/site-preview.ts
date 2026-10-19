@@ -47,6 +47,26 @@ export class SitePreview {
   readonly contactOpen = signal(false);
   readonly activeTab = signal<'home' | 'spreadsheet'>('home');
   readonly assembling = signal(false);
+  readonly pendingPiece = signal<SiteBlock | null>(null);
+  readonly pieceLabels: Record<SiteBlock, string> = {
+    services: 'Serviços',
+    gallery: 'Trabalhos',
+    products: 'Produtos',
+    questions: 'Dúvidas',
+    contact: 'Vamos conversar',
+    spreadsheet: 'Produtos e estoque',
+  };
+  readonly menuBlocks: readonly SiteBlock[] = ['services', 'gallery', 'products', 'questions'];
+  readonly assemblyMessage = computed(() => {
+    const piece = this.pendingPiece();
+    return piece
+      ? `Encaixando ${this.pieceLabels[piece]} no site…`
+      : 'Novo menu criado. Abrindo Produtos e estoque…';
+  });
+  openSection(block: SiteBlock): void {
+    this.activeTab.set('home');
+    this.reveal(block);
+  }
   readonly spreadsheetReady = signal(true);
   private sequence = 0;
   private stopMotion?: () => void;
@@ -60,6 +80,7 @@ export class SitePreview {
     this.stopMotion?.();
     clearTimeout(this.openTimer);
     this.assembling.set(false);
+    this.pendingPiece.set(null);
     this.spreadsheetReady.set(true);
     this.activeTab.set('home');
   }
@@ -97,18 +118,22 @@ export class SitePreview {
   }
   flyPiece(block: SiteBlock): void {
     this.resetNavigation();
-    if (block !== 'spreadsheet') {
-      this.stopMotion = animateSitePiece(this.viewport().nativeElement, false, () => {});
-      return;
-    }
     const current = this.sequence;
     this.assembling.set(true);
-    this.spreadsheetReady.set(false);
+    this.pendingPiece.set(block);
+    if (block === 'spreadsheet') this.spreadsheetReady.set(false);
     this.reveal('top');
-    this.stopMotion = animateSitePiece(this.viewport().nativeElement, true, () => {
-      if (current !== this.sequence || !this.has('spreadsheet')) {
+    this.stopMotion = animateSitePiece(this.viewport().nativeElement, block, () => {
+      if (current !== this.sequence) return;
+      if (!this.has(block)) {
         this.assembling.set(false);
         this.spreadsheetReady.set(true);
+        return;
+      }
+      this.pendingPiece.set(null);
+      if (block !== 'spreadsheet') {
+        this.assembling.set(false);
+        this.openSection(block);
         return;
       }
       this.spreadsheetReady.set(true);
