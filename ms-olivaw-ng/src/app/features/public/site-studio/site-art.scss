@@ -1,0 +1,81 @@
+.hero-art {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  background: #dceae3;
+  border-radius: 6rem 6rem 1rem 1rem;
+}
+.hero-art {
+  border-radius: 1rem;
+  transform: rotate(2deg);
+}
+.hero-art {
+  border-radius: 8rem 8rem 0 0;
+  background: #e7e8dd;
+}
+.hero-art {
+  height: 170px;
+}
+.hero-art {
+  height: 170px;
+}
+.art-orbit {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border: 1px solid #162c392b;
+  border-radius: 50%;
+  top: 25px;
+  left: 25px;
+}
+.art-column {
+  position: absolute;
+  width: 80px;
+  height: 140px;
+  background: var(--brand-ink);
+  border-radius: 50px 50px 0 0;
+  bottom: 0;
+  left: 40px;
+  transform: rotate(-12deg);
+}
+.art-disc {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: #fafbf8;
+  border-radius: 50%;
+  right: 25px;
+  top: 48px;
+  box-shadow: 9px 12px #162c391c;
+}
+.art-note {
+  position: absolute;
+  bottom: 28px;
+  right: 15px;
+  background: #ffffffeb;
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.6rem;
+  line-height: 1.4;
+  transform: rotate(4deg);
+}
+.art-note > span:first-child {
+  font-size: 1.5rem;
+}
+.art-caption {
+  position: absolute;
+  bottom: 9px;
+  right: 16px;
+  font-size: 0.4rem;
+  letter-spacing: 0.08em;
+}
+@media (max-width: 650px) {
+  .hero-art {
+    height: 170px;
+  }
+}
+:host-context(.mobile) .hero-art {
+  height: 170px;
+}

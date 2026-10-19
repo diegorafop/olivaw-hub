@@ -65,8 +65,8 @@ import { RouterLink } from '@angular/router';
       flex-shrink: 0;
     }
     .nav-cta {
-      background: var(--brand-mist);
-      color: var(--brand-ink);
+      background: var(--action-background);
+      color: var(--action-foreground);
       border: 1px solid var(--action-border);
       min-height: 44px;
       box-sizing: border-box;
@@ -80,9 +80,9 @@ import { RouterLink } from '@angular/router';
       border-radius: 2rem;
     }
     .nav-cta:hover {
-      color: var(--brand-ink);
-      background: var(--action-background);
-      border-color: var(--brand-accent);
+      color: var(--action-foreground);
+      background: var(--action-background-hover);
+      border-color: var(--action-border);
     }
   `,
 })

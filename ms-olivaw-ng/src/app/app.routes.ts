@@ -8,6 +8,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/public-page').then((m) => m.PublicPage),
   },
   {
+    path: 'seu-site',
+    title: 'Seu site, ganhando forma | Olivaw',
+    loadComponent: () =>
+      import('./features/public/site-studio/site-studio').then((m) => m.SiteStudio),
+  },
+  {
     path: 'login',
     title: 'Entrar | Olivaw',
     loadComponent: () => import('./features/login/login-page').then((m) => m.LoginPage),

@@ -1,0 +1,98 @@
+<div class="studio">
+  <header class="studio-header">
+    <a routerLink="/" fragment="contato" class="olivaw-brand" aria-label="Voltar à Olivaw"
+      ><img src="assets/brand/olivaw-avatar-web-v2.png" alt="" width="38" height="38" /><strong
+        >Olivaw</strong
+      ><span>Estúdio de ideias</span></a
+    >
+    <a routerLink="/" fragment="contato" class="back-home">← Voltar ao site</a>
+  </header>
+  <main id="conteudo" class="studio-main">
+    <div class="studio-intro">
+      <div>
+        <p class="studio-eyebrow">SEU SITE COMEÇA COM UMA POSSIBILIDADE</p>
+        <h1>Sua ideia, <span>ganhando forma.</span></h1>
+        <p>Um espaço em branco. Suas ideias em peças. Clique para começar a construir.</p>
+      </div>
+      <span class="explore-badge"
+        ><span aria-hidden="true">✳</span> Um espaço para experimentar</span
+      >
+    </div>
+    <div class="workspace">
+      <app-site-controls
+        [activePreset]="activePreset()"
+        [selectedBlocks]="selectedBlocks()"
+        [reviewing]="reviewing()"
+        (presetChange)="choosePreset($event)"
+        (blockToggle)="toggleBlock($event)"
+        (resetRequested)="reset()"
+        (reviewChange)="reviewing.set($event)"
+      />
+      <div class="preview-column">
+        <div class="preview-heading">
+          <div>
+            <span class="live-dot" aria-hidden="true"></span><strong>Sua ideia em movimento</strong>
+          </div>
+          <div class="device-switch" role="group" aria-label="Formato da prévia">
+            <button type="button" [attr.aria-pressed]="!mobile()" (click)="mobile.set(false)">
+              Desktop</button
+            ><button type="button" [attr.aria-pressed]="mobile()" (click)="mobile.set(true)">
+              Celular
+            </button>
+          </div>
+        </div>
+        <div class="browser-frame">
+          <div class="browser-toolbar">
+            <div class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <span>seu-negocio.exemplo</span><span class="preview-label">PRÉVIA</span>
+          </div>
+          <div class="preview-stage" [class.mobile-stage]="mobile()">
+            <app-site-preview
+              [preset]="activePreset()"
+              [blocks]="selectedBlocks()"
+              [mobile]="mobile()"
+            />
+          </div>
+        </div>
+        <p class="change-notice" role="status" aria-live="polite">
+          <span aria-hidden="true">✓</span>{{ notice() }}
+        </p>
+        <p class="preview-note">
+          Textos e imagens ilustrativos. As escolhas mudam esta prévia, sem publicar um site ou
+          enviar informações.
+        </p>
+      </div>
+    </div>
+    <section class="care" aria-labelledby="care-title">
+      <div>
+        <p class="studio-eyebrow">DEPOIS DE CONSTRUIR, CONTINUAMOS POR PERTO</p>
+        <h2 id="care-title">Colocar no ar é só o começo.</h2>
+        <p>Seu negócio segue em frente. Seu site pode acompanhar.</p>
+      </div>
+      <div class="care-grid">
+        <article>
+          <span aria-hidden="true">↗</span>
+          <h3>Atualizações sem complicação</h3>
+          <p>Uma forma simples de pedir ajustes e acompanhar o que vai entrar no ar.</p>
+        </article>
+        <article>
+          <span aria-hidden="true">✳</span>
+          <h3>Cuidado com o funcionamento</h3>
+          <p>Manutenção e acompanhamento podem fazer parte da continuidade do projeto.</p>
+        </article>
+        <article>
+          <span aria-hidden="true">◎</span>
+          <h3>Publicação bem cuidada</h3>
+          <p>Ajudamos a planejar domínio, hospedagem e os cuidados para colocar seu site no ar.</p>
+        </article>
+      </div>
+      <p class="care-note">
+        Definimos juntos os cuidados e o que está incluído na proposta. Cada projeto tem seu ritmo e
+        suas necessidades.
+      </p>
+    </section>
+  </main>
+  <footer class="studio-footer">
+    <strong>Olivaw</strong><span>Uma boa ideia não precisa nascer pronta.</span>
+  </footer>
+</div>
