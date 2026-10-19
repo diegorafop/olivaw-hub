@@ -5,7 +5,7 @@
 - Projeto gerado pela collection Angular Schematics de `ms-limpo-ng`, preservando o HTML de inspiração. Este documento consolida as decisões atuais e substitui a proposta inicial de marca.
 - Padrão técnico herdado: standalone, Signals/SignalStore, Material, Tailwind, tema centralizado, prerender público e administração CSR.
 - O HTML de referência não é servido nem importado pela aplicação. Sua marca, sequência de apresentação e proposta de simplicidade inspiram o conteúdo.
-- Frontend e API são serviços separados. Domínios previstos: `olivaw-hub.duckdns.org` e `api.olivaw-hub.duckdns.org`.
+- Frontend e API são serviços separados. Domínios previstos: `olivaw.com.br` e `api.olivaw.com.br`.
 - A API será criada depois. A página pública e o resumo local não dependem dela; login e administração exigem a API.
 
 ## Conteúdo aplicado
@@ -16,7 +16,7 @@ O menu mobile é funcional, formulários usam Material com labels e validação 
 
 ## Contato pendente
 
-Telefone, e-mail e redes sociais serão confirmados pelo responsável. Enquanto isso, o formulário cria um resumo copiável localmente. Não envia, armazena ou registra dados, e informa esse comportamento ao visitante. Antes de lançar a captação comercial, substituir esse fluxo pelo canal real e definir o tratamento do contato com base na implementação escolhida.
+Telefone, e-mail e redes sociais serão confirmados pelo responsável. Enquanto isso, a descoberta guiada oferece cinco caminhos, duas perguntas por caminho e uma sugestão inicial por regras. O visitante vê a sugestão antes de abrir a revisão do resumo; o nome do negócio é opcional. As escolhas ficam em memória na página, sem envio, persistência ou recomendação por IA. O resumo pode ser editado e copiado, com alternativa manual se a área de transferência estiver indisponível. Antes de lançar a captação comercial, substituir esse fluxo pelo canal real e definir o tratamento do contato com base na implementação escolhida.
 
 DNS, TLS, API e implantação não são criados pela geração. O HTML público é atualizado por novo build. Não há CMS nem publicação de conteúdo por painel nesta etapa.
 
@@ -30,3 +30,15 @@ O cabeçalho e o ícone do navegador passam a usar `public/assets/brand/olivaw-a
 Avatar com transparência em `public/assets/brand/olivaw-avatar-web-v2.png`, aplicado ao cabeçalho, favicon e ícone para celular. A imagem original de WhatsApp permanece preservada. O fundo azul-marinho fazia parte do PNG v1; a v2 remove o fundo ao redor do símbolo.
 
 Ações públicas usam tokens `--action-background`, `--action-background-hover` e `--action-border`, com verde suave e texto na tinta da marca. O botão do cabeçalho tem superfície mais leve que o CTA principal, preservando a hierarquia. Validação visual em desktop e celular; sem implantação nesta alteração.
+
+## 18/10/2026 — Descoberta guiada
+
+A entrada comercial passa a usar cartões para site, automação de tarefas, ferramenta para a rotina, melhoria de uma solução existente ou exploração sem uma necessidade definida. Cada caminho tem perguntas próprias. É possível voltar, corrigir respostas e explorar outro caminho. A sugestão considera o caminho e o contexto informado, como a existência de um site ou sistema atual, sem estimar preço, prazo ou prometer integrações.
+
+A Olivaw acompanha o fluxo visualmente com o avatar existente. O formulário Material aparece somente na revisão final. Os testes cobrem navegação em desktop/celular, foco, troca de caminho sem respostas incompatíveis, edição, cópia e ausência de chamadas à API nessa jornada.
+
+### Estúdio de ideias: montagem por peças
+
+A prévia começa vazia. As bases usam poucos blocos. A peça de planilha percorre uma animação de montagem, cria a página Produtos e estoque no menu e abre uma tabela com busca e ordenação de dados ilustrativos. Início preserva o conteúdo da base escolhida. A experiência respeita movimento reduzido e não envia dados.
+
+O endereço público do Estúdio é `/estudio`; `/seu-site` redireciona para ele. Cada peça adiciona um elemento identificável: serviços, trabalhos, produtos e dúvidas criam atalhos de menu; contato cria um botão; planilha cria a página Produtos e estoque. As peças percorrem uma animação até seu destino antes da apresentação do conteúdo.

@@ -35,7 +35,11 @@ function collect(directory, prefix = '') {
 }
 function environmentHost(host, environment) {
   if (environment === 'prd') return host;
-  if (host === 'olivaw-hub.duckdns.org' || host.split('.').length === 2)
+  if (
+    host === 'olivaw.com.br' ||
+    host.split('.').length === 2 ||
+    (host.endsWith('.com.br') && host.split('.').length === 3)
+  )
     return `${environment}.${host}`;
   const [label, ...base] = host.split('.');
   return `${label}-${environment}.${base.join('.')}`;
@@ -68,7 +72,7 @@ function application(options) {
     if (siteDomain && !/^(?=.{1,253}$)[a-z0-9]+(?:[.-][a-z0-9]+)*\.[a-z]{2,}$/.test(siteDomain)) {
       throw new SchematicsException('siteDomain deve ser um DNS sem protocolo.');
     }
-    const publicHost = siteDomain ?? `${name.slice(3, -3)}.olivaw-hub.duckdns.org`;
+    const publicHost = siteDomain ?? `${name.slice(3, -3)}.olivaw.com.br`;
     const cloudApi = api.hostname === 'localhost' ? new URL(`https://api.${publicHost}`) : api;
     const target = path.resolve(process.cwd(), name);
     if (fs.existsSync(target) && fs.lstatSync(target).isSymbolicLink())
@@ -91,8 +95,8 @@ function application(options) {
         for (const environment of ['dev', 'qas', 'rls', 'stg', 'prd']) {
           const oldHost =
             environment === 'prd'
-              ? 'limpo.olivaw-hub.duckdns.org'
-              : `limpo-${environment}.olivaw-hub.duckdns.org`;
+              ? 'limpo.olivaw.com.br'
+              : `limpo-${environment}.olivaw.com.br`;
           const newHost = environmentHost(publicHost, environment);
           const apiForEnvironment = new URL(cloudApi.href);
           if (environment !== 'prd')

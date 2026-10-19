@@ -80,3 +80,13 @@ test('transporta apenas dotenv públicos conhecidos, excluindo ajustes locais', 
     fs.rmSync(fixture, { recursive: true });
   }
 });
+
+test('gera ambientes sem alterar o nome de um domínio raiz com.br', async () => {
+  const tree = await runner().runSchematic('application', {
+    name: 'ms-empresa-ng',
+    siteDomain: 'empresa.com.br',
+  });
+  assert.match(tree.readContent('/ms-empresa-ng/docker/.env.prd'), /PUBLIC_HOST=empresa\.com\.br/);
+  assert.match(tree.readContent('/ms-empresa-ng/docker/.env.stg'), /PUBLIC_HOST=stg\.empresa\.com\.br/);
+  assert.match(tree.readContent('/ms-empresa-ng/docker/.env.stg'), /API_URL=https:\/\/api\.stg\.empresa\.com\.br/);
+});

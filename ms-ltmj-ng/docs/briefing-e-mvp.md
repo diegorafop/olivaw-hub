@@ -71,7 +71,7 @@ Não haverá migração de banco, upload público, comentários abertos, pagamen
 
 ## Projetos e ambientes
 
-`ms-ltmj-ng` e `ms-ltmj-api` têm builds, imagens e implantações independentes, com `dev/qas/rls/stg/prd`. Domínios técnicos propostos: `ltmj.olivaw-hub.duckdns.org` e `api.ltmj.olivaw-hub.duckdns.org`. Não foram registrados ou publicados. Banco proposto por ambiente: `ltmj_<ambiente>`; schema `ms_ltmj`. Não foi criado banco, migration, usuário ou fila.
+`ms-ltmj-ng` e `ms-ltmj-api` têm builds, imagens e implantações independentes, com `dev/qas/rls/stg/prd`. Domínios técnicos propostos: `ltmj.olivaw.com.br` e `api.ltmj.olivaw.com.br`. Não foram registrados ou publicados. Banco proposto por ambiente: `ltmj_<ambiente>`; schema `ms_ltmj`. Não foi criado banco, migration, usuário ou fila.
 
 ## Mural de eventos
 

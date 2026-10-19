@@ -1,11 +1,18 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
+  { path: 'seu-site', redirectTo: 'estudio', pathMatch: 'full' },
   {
     path: '',
     pathMatch: 'full',
     title: 'Olivaw | Sites e sistemas para pequenos negócios',
     loadComponent: () => import('./features/public/public-page').then((m) => m.PublicPage),
+  },
+  {
+    path: 'estudio',
+    title: 'Estúdio de ideias | Olivaw',
+    loadComponent: () =>
+      import('./features/public/site-studio/site-studio').then((m) => m.SiteStudio),
   },
   {
     path: 'login',

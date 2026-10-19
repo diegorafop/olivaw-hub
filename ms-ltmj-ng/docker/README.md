@@ -11,7 +11,7 @@ O padrão acompanha as APIs do Olivaw: Compose base, override local e cinco over
 - `.env.dev`, `.env.qas`, `.env.rls`, `.env.stg`, `.env.prd`: configurações preenchidas dos cinco ambientes.
 - `30-runtime-config.sh`: prepara o JSON público antes de iniciar o Nginx, usando `API_URL`.
 
-Os overrides de nuvem usam `traefik-net`, `websecure` e o resolver `myresolver`, ajustáveis no dotenv. Não publicam portas no host. A produção usa `https://ltmj.olivaw-hub.duckdns.org`. Consulte cada `.env.<ambiente>` para os hosts adicionais; eles precisam resolver para a VM e receber certificados por hostname.
+Os overrides de nuvem usam `traefik-net`, `websecure` e o resolver `myresolver`, ajustáveis no dotenv. Não publicam portas no host. A produção usa `https://ltmj.olivaw.com.br`. Consulte cada `.env.<ambiente>` para os hosts adicionais; eles precisam resolver para a VM e receber certificados por hostname.
 
 ## Produção na AWS
 

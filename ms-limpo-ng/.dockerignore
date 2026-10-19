@@ -9,3 +9,5 @@ playwright-report
 test-results
 **/.env
 **/.env.*
+
+**/deployment/olivaw-credentials.env

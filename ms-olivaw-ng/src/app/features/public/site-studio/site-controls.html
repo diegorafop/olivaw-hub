@@ -1,0 +1,82 @@
+<aside class="controls" aria-label="Monte seu site">
+  <div class="control-heading">
+    <span>Seu ponto de partida</span
+    ><button type="button" (click)="resetRequested.emit()">Recomeçar</button>
+  </div>
+  @if (!reviewing()) {
+    <h2>Comece com uma ideia.</h2>
+    <p class="control-hint">Escolha uma base pronta ou construa com as peças abaixo.</p>
+    <div class="preset-list">
+      @for (preset of presets; track preset.id) {
+        <button
+          type="button"
+          class="preset-option"
+          [attr.aria-pressed]="activePreset().id === preset.id"
+          (click)="presetChange.emit(preset.id)"
+        >
+          <span class="choice-mark" aria-hidden="true">{{
+            activePreset().id === preset.id ? '●' : '○'
+          }}</span
+          ><span
+            ><strong>{{ preset.label }}</strong
+            ><small>{{ preset.subtitle }}</small></span
+          ><span aria-hidden="true">↗</span>
+        </button>
+      }
+    </div>
+    <div class="blocks-heading">
+      <span class="step-dot">+</span>
+      <div>
+        <h2>O que entra no seu site?</h2>
+        <p class="control-hint">Clique numa peça e veja ela ganhar vida.</p>
+      </div>
+    </div>
+    <div class="block-options">
+      @for (block of options; track block.id) {
+        <button
+          type="button"
+          class="block-option"
+          [attr.aria-pressed]="selectedBlocks().includes(block.id)"
+          (click)="blockToggle.emit(block.id)"
+        >
+          <span
+            ><strong>{{ block.label }}</strong
+            ><small>{{ block.description }}</small></span
+          ><span class="selection-state"
+            ><span aria-hidden="true">{{ selectedBlocks().includes(block.id) ? '✓' : '+' }}</span
+            >{{ selectedBlocks().includes(block.id) ? 'Adicionado' : 'Adicionar' }}</span
+          >
+        </button>
+      }
+    </div>
+    <button type="button" class="review-button" (click)="reviewChange.emit(true)">
+      Ver meu ponto de partida <span aria-hidden="true">↗</span>
+    </button>
+  } @else {
+    <div class="recap" animate.enter="recap-arrive">
+      <p class="studio-eyebrow">Sua ideia até aqui</p>
+      <h2>Já dá para imaginar, né?</h2>
+      <p>
+        Você começou com <strong>{{ activePreset().label.toLowerCase() }}</strong
+        >.
+      </p>
+      <ul>
+        @for (label of selectedLabels(); track label) {
+          <li><span aria-hidden="true">✓</span> {{ label }}</li>
+        } @empty {
+          <li>A apresentação inicial, para começar com o essencial.</li>
+        }
+      </ul>
+      <p>
+        Essa combinação é um ponto de partida para conversar sobre conteúdo, funcionamento e
+        próximos passos.
+      </p>
+      <button type="button" class="review-button" (click)="reviewChange.emit(false)">
+        Continuar construindo <span aria-hidden="true">↗</span>
+      </button>
+      <p class="recap-note">
+        Sua ideia permanece só nesta experiência. Nada foi enviado ou publicado.
+      </p>
+    </div>
+  }
+</aside>

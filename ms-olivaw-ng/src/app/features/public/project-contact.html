@@ -1,0 +1,149 @@
+<div class="discovery" role="region" aria-label="Descubra um caminho para seu projeto">
+  <div class="guide-header">
+    <div class="guide-identity">
+      <img src="assets/brand/olivaw-avatar-web-v2.png" width="40" height="40" alt="" />
+      <div><strong>Olivaw</strong><span>Um bom começo, juntos.</span></div>
+    </div>
+    <span class="step-count">{{ step() < 3 ? step() + 1 + ' de 3' : 'Seu caminho' }}</span>
+  </div>
+  <div class="progress" aria-hidden="true">
+    @for (index of [0, 1, 2]; track index) {
+      <span [class.complete]="step() >= index"></span>
+    }
+  </div>
+  <div class="question-body">
+    @if (step() > 0) {
+      <button type="button" class="back-link" (click)="back()">← Voltar</button>
+    }
+    <h3 #stepTitle tabindex="-1">{{ title() }}</h3>
+    @if (step() === 0) {
+      <p class="question-description">
+        Escolha o que faz sentido para você. A gente ajuda com o próximo passo.
+      </p>
+      <div class="path-grid">
+        @for (item of paths; track item.id) {
+          <button
+            type="button"
+            class="path-option"
+            [class.explore]="item.id === 'explore'"
+            [attr.aria-pressed]="path()?.id === item.id"
+            (click)="choosePath(item)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path [attr.d]="item.icon" />
+            </svg>
+            <span class="option-copy"
+              ><strong>{{ item.label }}</strong
+              ><span>{{ item.description }}</span></span
+            >
+            <span class="option-arrow" aria-hidden="true">↗</span>
+          </button>
+        }
+      </div>
+      <p class="quiet-note">Sem cadastro. Sem precisar saber de tecnologia.</p>
+    } @else if (step() < 3) {
+      <p class="question-description">
+        {{
+          step() === 1
+            ? 'Pode escolher uma prioridade para começar.'
+            : 'Isso ajuda a encontrar um começo mais próximo da sua realidade.'
+        }}
+      </p>
+      <div class="answer-list">
+        @for (option of choices(); track option.id) {
+          <button
+            type="button"
+            class="answer-option"
+            [attr.aria-pressed]="isSelected(option)"
+            (click)="chooseAnswer(option)"
+          >
+            <span>{{ option.label }}</span
+            ><span aria-hidden="true">→</span>
+          </button>
+        }
+      </div>
+      <p class="quiet-note">Ao escolher uma opção, você segue para a próxima etapa.</p>
+    } @else if (!reviewOpen()) {
+      @if (path(); as selected) {
+        <p class="question-description">
+          Uma sugestão inicial a partir das suas escolhas. Podemos ajustar tudo na conversa.
+        </p>
+        <div class="recommendation">
+          <span class="result-label">UM POSSÍVEL COMEÇO</span>
+          <h4>{{ selected.recommendation }}</h4>
+          <p>{{ selected.recommendationDescription }}</p>
+          @if (contextNote()) {
+            <p>{{ contextNote() }}</p>
+          }
+          <ul>
+            @for (item of selected.essentials; track item) {
+              <li><span aria-hidden="true">✓</span>{{ item }}</li>
+            }
+          </ul>
+        </div>
+        <dl class="your-choices">
+          <div>
+            <dt>Sua prioridade</dt>
+            <dd>{{ purpose()?.label }}</dd>
+          </div>
+          <div>
+            <dt>Seu momento</dt>
+            <dd>{{ context()?.label }}</dd>
+          </div>
+        </dl>
+        <button type="button" class="primary-action" (click)="prepareConversation()">
+          Preparar nossa conversa <span aria-hidden="true">↗</span>
+        </button>
+        <button type="button" class="restart-link" (click)="restart()">
+          Explorar outro caminho
+        </button>
+        <p class="quiet-note">
+          É um ponto de partida. Escopo, prazo e investimento vêm depois de entendermos seu projeto.
+        </p>
+      }
+    } @else {
+      <p class="question-description">
+        Revise o que escolheu e acrescente o que quiser. Você pode copiar e guardar seu resumo.
+      </p>
+      <form
+        [formGroup]="form"
+        (ngSubmit)="copy()"
+        aria-label="Resumo do projeto"
+        class="review-form"
+      >
+        <mat-form-field appearance="outline">
+          <mat-label>Nome do negócio (opcional)</mat-label>
+          <input matInput formControlName="business" maxlength="120" autocomplete="organization" />
+          <mat-error>Use até 120 caracteres.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Seu resumo — pode editar</mat-label>
+          <textarea
+            matInput
+            formControlName="summary"
+            rows="8"
+            maxlength="3000"
+            required
+          ></textarea>
+          <mat-error>Mantenha um resumo de até 3.000 caracteres.</mat-error>
+        </mat-form-field>
+        <button type="submit" class="primary-action">
+          Copiar resumo do projeto <span aria-hidden="true">↗</span>
+        </button>
+      </form>
+      <p class="quiet-note">
+        Nosso canal de atendimento será divulgado em breve. Por enquanto, nada é enviado ou salvo
+        pelo site. Suas escolhas ficam somente nesta página enquanto ela está aberta.
+      </p>
+    }
+    <p role="status" aria-live="polite" class="feedback">{{ message() }}</p>
+  </div>
+</div>

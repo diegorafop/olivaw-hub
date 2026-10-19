@@ -4,11 +4,11 @@ services:
     container_name: ms-olivaw-ng-qas
     image: ${FRONTEND_IMAGE:-ms-olivaw-ng:qas}
     environment:
-      API_URL: ${API_URL:-https://api.qas.olivaw-hub.duckdns.org}
+      API_URL: ${API_URL:-https://api.qas.olivaw.com.br}
     labels:
       traefik.enable: 'true'
       traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
-      traefik.http.routers.ms-olivaw-ng-qas.rule: Host(`${PUBLIC_HOST:-qas.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-ng-qas.rule: Host(`${PUBLIC_HOST:-qas.olivaw.com.br}`)
       traefik.http.routers.ms-olivaw-ng-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
       traefik.http.routers.ms-olivaw-ng-qas.tls: 'true'
       traefik.http.routers.ms-olivaw-ng-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}

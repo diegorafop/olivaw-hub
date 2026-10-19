@@ -134,3 +134,10 @@ Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:
 - **Estado:** confirmado, proposta, aprovado, recusado ou pendente.
 - **Impacto:** conteúdo, identidade, escopo, prazo, investimento ou operação.
 - **Próxima ação e responsável:** o que falta resolver e quem confirma.
+
+## 18/10/2026 — Domínio próprio da infraestrutura
+
+- **Origem:** instrução do mantenedor do Olivaw na issue 011, após compra do domínio e associação do Elastic IP.
+- **Decisão confirmada pelo mantenedor:** site em `ltmj.olivaw.com.br` e API em `api.ltmj.olivaw.com.br`, substituindo os hosts DuckDNS. Não representa aprovação comercial adicional da LTMJ.
+- **Impacto:** atualizar Compose, settings públicos, metadados e deploy; preservar `ltmj_prd` e o volume de fotos existente.
+- **Validação remota:** registrar o resultado em [migração dos serviços](../../docs/registrobr/migracao-servicos.md).

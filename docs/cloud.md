@@ -1,4 +1,4 @@
-# Configuração da VM AWS, DuckDNS e Traefik
+# Configuração da VM AWS, domínio e Traefik
 
 ## Referência e escopo
 
@@ -12,18 +12,18 @@ Nenhum banco, schema, usuário, fila, certificado ou recurso da AWS foi criado o
 
 | Serviço | URL de produção | Banco de produção | Schema |
 | --- | --- | --- | --- |
-| Template | `https://api.limpo.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_limpo` |
-| Olivaw API | `https://api.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_olivaw` |
-| DevOps | `https://api.devops.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_devops` |
-| LTMJ API | `https://api.ltmj.olivaw-hub.duckdns.org` | `ltmj_prd` | `ms_ltmj` |
+| Template | `https://api.limpo.olivaw.com.br` | `olivaw_prd` | `ms_limpo` |
+| Olivaw API | `https://api.olivaw.com.br` | `olivaw_prd` | `ms_olivaw` |
+| DevOps | `https://api.devops.olivaw.com.br` | `olivaw_prd` | `ms_devops` |
+| LTMJ API | `https://api.ltmj.olivaw.com.br` | `ltmj_prd` | `ms_ltmj` |
 
-Os bancos usam o sufixo do ambiente: `_dev`, `_qas`, `_rls`, `_stg` e `_prd`. O domínio de produção não tem sufixo; os demais usam, por exemplo, `api.devops-stg.olivaw-hub.duckdns.org`.
+Os bancos usam o sufixo do ambiente: `_dev`, `_qas`, `_rls`, `_stg` e `_prd`. O domínio de produção não tem sufixo; os demais usam, por exemplo, `api.devops-stg.olivaw.com.br`.
 
 Os routers Traefik usam hosts explícitos e solicitam certificados por hostname; não presumem um único certificado wildcard para todos os níveis de subdomínio.
 
 Os nomes de bancos e schemas usam somente minúsculas, números e sublinhados. Ao gerar `cloud-validacao`, o template produz `olivaw_dev` e `ms_cloud_validacao`, preservando os hífens em `ms-cloud-validacao-api` e no domínio.
 
-`olivaw-hub.duckdns.org` é a base aprovada para o Olivaw. O cadastro dessa base e o apontamento para a VM devem ser feitos no DuckDNS; a configuração local não registra o domínio. APIs usam `api.<serviço>.olivaw-hub.duckdns.org`; futuros frontends usam `<serviço>.olivaw-hub.duckdns.org`. Emissor e audiência JWT são identificadores explícitos por autoridade/ambiente e devem coincidir nos consumidores; o host HTTP é configurado separadamente.
+`olivaw.com.br` é a base aprovada e comprada no Registro.br. Seus registros A apontam para o Elastic IP `98.95.250.122`; a publicação DNS estava em transição durante a migração. Consulte [o roteiro e resultado da migração](registrobr/migracao-servicos.md). APIs usam `api.<serviço>.olivaw.com.br`; futuros frontends usam `<serviço>.olivaw.com.br`. Emissor e audiência JWT são identificadores explícitos por autoridade/ambiente e devem coincidir nos consumidores; o host HTTP é configurado separadamente.
 
 ## Governança dos dados e identidade
 
@@ -118,8 +118,12 @@ Referências: [roteamento Docker no Traefik](https://doc.traefik.io/traefik/refe
 
 `ms-limpo-ng` e `ms-olivaw-ng` seguem o mesmo padrão de cinco ambientes das APIs: Compose base sem portas públicas, override local em loopback e `docker-compose.<dev|qas|rls|stg|prd>.yml` para Traefik. Os dotenv públicos preenchidos são versionados e acompanham o clone, sem script de preparação. O Schematics personaliza os seis arquivos conhecidos (local e cinco de nuvem); os arquivos de ambiente acompanham o repositório privado até a futura migração para Key Vault. Cada ambiente tem projeto Compose, imagem, container e routers próprios.
 
-O site institucional de produção usa `olivaw-hub.duckdns.org`; a API futura usa `api.olivaw-hub.duckdns.org`. Os ambientes adicionais usam `<ambiente>.olivaw-hub.duckdns.org` e `api.<ambiente>.olivaw-hub.duckdns.org`. Para frontends de cliente com subdomínio, o gerador usa `<cliente>-<ambiente>.olivaw-hub.duckdns.org`, alinhado aos hosts das APIs. DNS e certificados desses hosts precisam ser conferidos na VM.
+O site institucional de produção usa `olivaw.com.br`; a API futura usa `api.olivaw.com.br`. Os ambientes adicionais usam `<ambiente>.olivaw.com.br` e `api.<ambiente>.olivaw.com.br`. Para frontends de cliente com subdomínio, o gerador usa `<cliente>-<ambiente>.olivaw.com.br`, alinhado aos hosts das APIs. DNS e certificados desses hosts precisam ser conferidos na VM.
 
 No container, `API_URL` do dotenv gera os settings públicos em runtime. O Nginx entrega arquivos do frontend e não faz proxy para a API. Não há configurações de banco, JWT secreto ou RabbitMQ no frontend. O contexto de build é somente a pasta do frontend. Consulte os comandos em [Docker do site](../ms-olivaw-ng/docker/README.md) e [Docker do template](../ms-limpo-ng/docker/README.md).
 
 A estrutura de arquivos passa a ser compatível com o comando do executor DevOps; o serviço ainda precisa ser autorizado na allowlist da VM. Não houve implantação nem alteração remota nesta preparação.
+
+## Migração aplicada — 18/10/2026
+
+O [registro da migração](registrobr/migracao-servicos.md) atualiza o estado histórico deste guia: banco administrativo renomeado com backup, checkout e executor atualizados e seis serviços publicados com os novos hosts. A validação por IP com Host/SNI confirmou HTTP 200 nos sete endereços; DNS público e certificados ainda aguardavam publicação.

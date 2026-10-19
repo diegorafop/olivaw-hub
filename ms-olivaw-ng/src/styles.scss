@@ -39,9 +39,10 @@ html {
   }
 }
 
-/* Ações públicas: superfícies suaves da identidade Olivaw. */
+/* Ações públicas: cor oficial da identidade Olivaw. */
 :root {
-  --action-background: #d7eee5;
-  --action-background-hover: #c4e6da;
-  --action-border: #a8cfc1;
+  --action-background: var(--brand-ink);
+  --action-background-hover: color-mix(in srgb, var(--brand-ink) 90%, black);
+  --action-border: var(--brand-ink);
+  --action-foreground: white;
 }

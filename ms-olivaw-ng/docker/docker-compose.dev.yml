@@ -4,11 +4,11 @@ services:
     container_name: ms-olivaw-ng-dev
     image: ${FRONTEND_IMAGE:-ms-olivaw-ng:dev}
     environment:
-      API_URL: ${API_URL:-https://api.dev.olivaw-hub.duckdns.org}
+      API_URL: ${API_URL:-https://api.dev.olivaw.com.br}
     labels:
       traefik.enable: 'true'
       traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
-      traefik.http.routers.ms-olivaw-ng-dev.rule: Host(`${PUBLIC_HOST:-dev.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-ng-dev.rule: Host(`${PUBLIC_HOST:-dev.olivaw.com.br}`)
       traefik.http.routers.ms-olivaw-ng-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
       traefik.http.routers.ms-olivaw-ng-dev.tls: 'true'
       traefik.http.routers.ms-olivaw-ng-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}

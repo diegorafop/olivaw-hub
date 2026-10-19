@@ -19,7 +19,7 @@ A alteração é local. Antes de publicar, preparar uma janela de manutenção e
 
 ## Domínio ao final
 
-A compra de `olivaw.com.br` ainda aguarda confirmação do fundador. Até essa confirmação, ficam preservados hosts DuckDNS, regras de roteamento por hostname, URLs públicas, CORS, canonical, sitemap, robots e URLs de API que usam esses hosts. Nenhuma configuração de DNS, certificado, hospedagem ou serviço remoto foi alterada.
+A compra de `olivaw.com.br` foi confirmada pelo fundador em 18/10/2026. O [registro da migração](registrobr/migracao-servicos.md) passa a documentar a aplicação dos novos hosts e os resultados na VM. O restante desta seção preserva o planejamento anterior à compra. Até essa confirmação, ficam preservados hosts DuckDNS, regras de roteamento por hostname, URLs públicas, CORS, canonical, sitemap, robots e URLs de API que usam esses hosts. Nenhuma configuração de DNS, certificado, hospedagem ou serviço remoto foi alterada.
 
 Após a compra, definir os subdomínios do site, da autoridade, da DevOps e dos clientes; então atualizar em conjunto DNS, TLS/Traefik, URLs de runtime, CORS e metadados públicos. O gerador Angular também conserva o domínio padrão atual até essa etapa.
 

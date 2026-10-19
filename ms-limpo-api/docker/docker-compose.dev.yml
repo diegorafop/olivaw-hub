@@ -8,7 +8,7 @@ services:
     labels:
       traefik.enable: 'true'
       traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
-      traefik.http.routers.ms-limpo-api-dev.rule: Host(`${PUBLIC_HOST:-api.limpo-dev.olivaw-hub.duckdns.org}`)
+      traefik.http.routers.ms-limpo-api-dev.rule: Host(`${PUBLIC_HOST:-api.limpo-dev.olivaw.com.br}`)
       traefik.http.routers.ms-limpo-api-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
       traefik.http.routers.ms-limpo-api-dev.tls: 'true'
       traefik.http.routers.ms-limpo-api-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
