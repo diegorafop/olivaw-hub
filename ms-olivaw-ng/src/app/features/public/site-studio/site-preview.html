@@ -5,237 +5,224 @@
   role="region"
   aria-label="Prévia interativa do seu site"
 >
-  @if (blocks().length === 0) {
-    <app-studio-empty />
-  } @else {
-    @for (site of [preset()]; track site.id) {
-      <div class="site" animate.enter="site-arrive">
-        <div class="site-header" data-block="top">
-          <span class="site-brand"><span aria-hidden="true">✳</span> seu negócio</span>
-          <span class="example-label">Exemplo</span>
-          @if (has('contact')) {
-            <button
-              type="button"
-              data-piece="contact"
-              class="contact-link"
-              [class.piece-pending]="pendingPiece() === 'contact'"
-              [disabled]="pendingPiece() === 'contact'"
-              (click)="openSection('contact')"
-            >
-              Vamos conversar ↗
-            </button>
-          }
-        </div>
-        <nav class="site-tabs" aria-label="Páginas do site de exemplo">
-          <button
-            type="button"
-            [attr.aria-current]="activeTab() === 'home' || !has('spreadsheet') ? 'page' : null"
-            (click)="navigate('home')"
-          >
-            Início
-          </button>
-          @for (block of menuBlocks; track block) {
-            @if (has(block)) {
-              <button
-                type="button"
-                [attr.data-piece]="block"
-                [class.piece-pending]="pendingPiece() === block"
-                [disabled]="pendingPiece() === block"
-                (click)="openSection(block)"
-                animate.enter="tab-arrive"
-              >
-                {{ pieceLabels[block] }}
+  @for (site of [preset()]; track site.id) {
+    <div class="site" [class.management]="site.id === 'management'" animate.enter="site-arrive">
+      <header class="site-header" data-block="top">
+        <span class="site-brand"
+          ><span aria-hidden="true">✳</span>
+          {{
+            site.id === 'catalog'
+              ? 'essencial / loja'
+              : site.id === 'management'
+                ? 'meu negócio / gestão'
+                : 'sua empresa'
+          }}</span
+        >
+        <span class="example-label">Exemplo da sua ideia</span>
+      </header>
+      @if (site.id === 'management') {
+        <nav class="site-tabs" aria-label="Áreas do sistema de exemplo">
+          <span>Visão geral</span>
+          @for (option of options; track option.id) {
+            @if (has(option.id)) {
+              <button type="button" (click)="reveal(option.id)" animate.enter="tab-arrive">
+                {{ option.label }}
               </button>
             }
           }
-          @if (has('spreadsheet')) {
-            <button
-              type="button"
-              class="new-tab"
-              data-piece="spreadsheet"
-              [class.piece-pending]="!spreadsheetReady()"
-              [disabled]="!spreadsheetReady()"
-              animate.enter="tab-arrive"
-              [attr.aria-current]="activeTab() === 'spreadsheet' ? 'page' : null"
-              (click)="navigate('spreadsheet')"
-            >
-              <span aria-hidden="true">▦</span> Produtos e estoque
-            </button>
-          }
         </nav>
-        @if (assembling()) {
-          <p class="assembly-status" role="status">
-            {{ assemblyMessage() }}
-          </p>
+      }
+      <section class="site-hero" [class.catalog]="site.id === 'catalog'">
+        <div class="hero-copy">
+          <p class="eyebrow">{{ site.eyebrow }}</p>
+          <h2>{{ site.headline }}</h2>
+          <p class="hero-description">{{ site.description }}</p>
+        </div>
+        @if (site.id === 'business') {
+          <div class="brand-art" aria-hidden="true">✳<span>Seu jeito de fazer.</span></div>
         }
-        <div [hidden]="activeTab() !== 'spreadsheet' || !has('spreadsheet') || !spreadsheetReady()">
-          @if (has('spreadsheet') && spreadsheetReady() && activeTab() === 'spreadsheet') {
-            <section
-              class="site-section table-page"
-              data-block="spreadsheet"
-              animate.enter="table-arrive"
-            >
-              <app-studio-table />
-            </section>
-          }
-        </div>
-        <div [hidden]="activeTab() === 'spreadsheet' && has('spreadsheet')">
-          <section
-            class="site-hero"
-            [class.catalog]="site.id === 'catalog'"
-            [class.portfolio]="site.id === 'portfolio'"
+        @if (site.id === 'management' && blocks().length === 0) {
+          <div class="work-placeholder">
+            <span aria-hidden="true">▦</span>
+            <p>Seu próximo passo começa aqui.</p>
+            <small>Experimente uma das quatro possibilidades ao lado.</small>
+          </div>
+        }
+      </section>
+      @if (site.id === 'catalog') {
+        @if (has('categories')) {
+          <nav
+            class="site-tabs"
+            data-block="categories"
+            aria-label="Categorias de produtos"
+            animate.enter="block-arrive"
           >
-            <div class="hero-copy">
-              <p class="eyebrow">{{ site.eyebrow }}</p>
-              <h2>{{ site.headline }}</h2>
-              <p class="hero-description">{{ site.description }}</p>
+            @for (name of ['Todos', 'Iluminação', 'Decoração']; track name) {
               <button
                 type="button"
-                class="demo-cta"
-                [disabled]="blocks().length === 0"
-                (click)="explore()"
+                [attr.aria-pressed]="category() === name"
+                (click)="category.set(name)"
               >
-                {{ primaryLabel() }} <span aria-hidden="true">↗</span>
+                {{ name }}
               </button>
-            </div>
-          </section>
-          @if (has('services') && pendingPiece() !== 'services') {
-            <section
-              class="site-section"
-              data-block="services"
-              animate.enter="block-arrive"
-              animate.leave="block-leave"
-            >
-              <p class="eyebrow">O que podemos fazer por você</p>
-              <h3>Soluções com o seu jeito.</h3>
-              <div class="service-grid">
-                @for (
-                  name of [
-                    'Um serviço especial',
-                    'Cuidado em cada detalhe',
-                    'Uma solução para você',
-                  ];
-                  track name;
-                  let index = $index
-                ) {
-                  <article>
-                    <span class="item-number">0{{ index + 1 }}</span>
-                    <h4>{{ name }}</h4>
-                    <p>Aqui você apresenta o que oferece e como pode ajudar seu cliente.</p>
-                  </article>
-                }
-              </div>
-            </section>
-          }
-          @if (has('gallery') && pendingPiece() !== 'gallery') {
-            <section
-              class="site-section gallery-section"
-              data-block="gallery"
-              animate.enter="block-arrive"
-              animate.leave="block-leave"
-            >
-              <p class="eyebrow">Um pouco do que fazemos</p>
-              <h3>Trabalhos que contam histórias.</h3>
-              <div class="gallery-grid">
-                @for (item of [1, 2]; track item) {
-                  <article>
-                    <div class="example-art" [class.alt]="item === 2">
-                      <span aria-hidden="true">{{ item === 2 ? '◒' : '✳' }}</span>
-                    </div>
-                    <h4>Projeto de exemplo 0{{ item }}</h4>
-                    <p>Um espaço para suas fotos e histórias.</p>
-                  </article>
-                }
-              </div>
-            </section>
-          }
-          @if (has('products') && pendingPiece() !== 'products') {
-            <section
-              class="site-section"
-              data-block="products"
-              animate.enter="block-arrive"
-              animate.leave="block-leave"
-            >
-              <p class="eyebrow">Feito para fazer parte</p>
-              <h3>Uma seleção para conhecer.</h3>
-              <div class="product-grid">
-                @for (item of [1, 2]; track item) {
-                  <article>
-                    <div class="product-art" [class.alt]="item === 2">
-                      <span aria-hidden="true"></span>
-                    </div>
-                    <h4>Produto de exemplo 0{{ item }}</h4>
-                    <button
-                      type="button"
-                      [attr.aria-expanded]="openProduct() === item"
-                      (click)="openProduct.set(openProduct() === item ? null : item)"
-                    >
-                      Ver detalhes <span aria-hidden="true">↗</span>
+            }
+          </nav>
+        }
+        <section class="site-section">
+          <div class="product-grid">
+            @for (item of [1, 2, 3]; track item) {
+              @if (
+                !has('categories') ||
+                category() === 'Todos' ||
+                (category() === 'Iluminação' ? item === 1 : item !== 1)
+              ) {
+                <article animate.enter="block-arrive">
+                  <div class="product-art" [class.alt]="item === 2">
+                    <span aria-hidden="true"></span>
+                  </div>
+                  <h4>
+                    {{
+                      item === 1
+                        ? 'Luminária Aurora'
+                        : item === 2
+                          ? 'Vaso Horizonte'
+                          : 'Objeto Essencial'
+                    }}
+                  </h4>
+                  <p>R$ {{ item === 1 ? '189' : item === 2 ? '89' : '59' }},00</p>
+                  @if (has('details')) {
+                    <p data-block="details" animate.enter="block-arrive">
+                      Design autoral, acabamento artesanal e cuidado em cada detalhe.
+                    </p>
+                  }
+                  @if (has('cart')) {
+                    <button type="button" (click)="cartCount.set(cartCount() + 1)">
+                      Adicionar ao carrinho +
                     </button>
-                    @if (openProduct() === item) {
-                      <p class="product-detail">
-                        Aqui entram descrição, características e possibilidades de contato sobre o
-                        produto. Este é um exemplo para explorar.
-                      </p>
-                    }
-                  </article>
-                }
-              </div>
-            </section>
-          }
-          @if (has('questions') && pendingPiece() !== 'questions') {
-            <section
-              class="site-section faq-section"
-              data-block="questions"
-              animate.enter="block-arrive"
-              animate.leave="block-leave"
-            >
-              <p class="eyebrow">Antes de começar</p>
-              <h3>Boas perguntas, respostas claras.</h3>
-              <details>
-                <summary>Como posso conhecer melhor o seu trabalho?</summary>
-                <p>
-                  Uma resposta simples pode explicar os serviços, os trabalhos e como dar o próximo
-                  passo.
-                </p>
-              </details>
-              <details>
-                <summary>Como funciona o primeiro contato?</summary>
-                <p>Aqui você explica o atendimento do seu negócio e os canais disponíveis.</p>
-              </details>
-            </section>
-          }
-          @if (has('contact') && pendingPiece() !== 'contact') {
-            <section
-              class="site-section site-contact"
-              data-block="contact"
-              animate.enter="block-arrive"
-              animate.leave="block-leave"
-            >
-              <p class="eyebrow">Toda boa ideia começa com uma conversa</p>
-              <h3>Vamos dar o próximo passo?</h3>
-              <p>Um caminho simples para quem quer conhecer seu negócio.</p>
-              <button
-                type="button"
-                class="demo-cta"
-                [attr.aria-expanded]="contactOpen()"
-                (click)="contactOpen.set(!contactOpen())"
-              >
-                Entrar em contato ↗
-              </button>
-              @if (contactOpen()) {
-                <p class="demo-feedback" role="status">
-                  Aqui apareceria o canal de contato do seu negócio. Nesta prévia, nenhuma mensagem
-                  é enviada.
-                </p>
+                  }
+                </article>
               }
-            </section>
-          }
-        </div>
-        <footer class="site-footer">
-          <strong>seu negócio</strong><span>Um exemplo, muitas possibilidades.</span>
-        </footer>
-      </div>
-    }
+            }
+          </div>
+        </section>
+      }
+      @for (option of options; track option.id) {
+        @if (has(option.id) && option.id !== 'categories' && option.id !== 'details') {
+          <section
+            class="site-section"
+            [attr.data-block]="option.id"
+            animate.enter="block-arrive"
+            animate.leave="block-leave"
+          >
+            @switch (option.id) {
+              @case ('services') {
+                <p class="eyebrow">Como podemos ajudar</p>
+                <h3>Soluções com o seu jeito.</h3>
+                <div class="service-grid">
+                  <article>
+                    <span class="item-number">01</span>
+                    <h4>Consultoria</h4>
+                    <p>Uma nova perspectiva para sua ideia.</p>
+                  </article>
+                  <article>
+                    <span class="item-number">02</span>
+                    <h4>Projetos sob medida</h4>
+                    <p>Cuidado do primeiro passo à entrega.</p>
+                  </article>
+                </div>
+              }
+              @case ('gallery') {
+                <h3>Trabalhos que contam histórias.</h3>
+                <div class="gallery-grid">
+                  @for (item of [1, 2]; track item) {
+                    <article>
+                      <div class="example-art" [class.alt]="item === 2">
+                        <span aria-hidden="true">{{ item === 1 ? '✳' : '◒' }}</span>
+                      </div>
+                      <h4>Projeto 0{{ item }}</h4>
+                    </article>
+                  }
+                </div>
+              }
+              @case ('testimonials') {
+                <h3>Quem já caminhou com a gente.</h3>
+                <blockquote>
+                  “Entenderam nossa ideia e cuidaram de cada detalhe.”
+                  <p>Marina · cliente de exemplo</p>
+                </blockquote>
+              }
+              @case ('contact') {
+                <h3>Uma boa conversa abre possibilidades.</h3>
+                <p>Seu canal de contato pode aparecer aqui.</p>
+                <span class="contact-example">oi&#64;suaempresa.exemplo ↗</span>
+              }
+              @case ('cart') {
+                <h3>Seu carrinho</h3>
+                <p role="status">
+                  {{ cartCount() }}
+                  {{ cartCount() === 1 ? 'produto escolhido' : 'produtos escolhidos' }}.
+                </p>
+                <p>Experimente adicionar um produto na vitrine.</p>
+              }
+              @case ('orders') {
+                <h3>Meus pedidos</h3>
+                <div class="data-row">
+                  <strong>Pedido #1042</strong><span>Em preparação</span
+                  ><span>Entrega prevista · sexta-feira</span>
+                </div>
+              }
+              @case ('spreadsheet') {
+                <app-studio-table />
+              }
+              @case ('dashboard') {
+                <h3>Seu negócio em um olhar.</h3>
+                <div class="metric-grid">
+                  <article><small>Vendas no mês</small><strong>R$ 12.480</strong></article>
+                  <article><small>Pedidos</small><strong>48</strong></article>
+                  <article><small>Novos clientes</small><strong>16</strong></article>
+                </div>
+                <div
+                  class="chart"
+                  aria-label="Vendas em crescimento nas últimas seis semanas"
+                  role="img"
+                >
+                  @for (height of [30, 48, 40, 68, 58, 90]; track $index) {
+                    <i [style.height.%]="height" [style.animation-delay.ms]="$index * 70"></i>
+                  }
+                </div>
+              }
+              @case ('payables') {
+                <h3>Contas a pagar</h3>
+                <div class="data-row">
+                  <strong>Fornecedor · materiais</strong><span>R$ 840,00 · vence amanhã</span
+                  ><button
+                    type="button"
+                    class="demo-cta"
+                    [disabled]="paid()"
+                    (click)="paid.set(true)"
+                  >
+                    {{ paid() ? 'Pagamento registrado ✓' : 'Registrar pagamento' }}
+                  </button>
+                </div>
+              }
+              @case ('inventory') {
+                <h3>Estoque sob controle.</h3>
+                <div class="data-row">
+                  <strong>Luminária Aurora</strong><span>12 unidades · disponível</span>
+                </div>
+                <div class="data-row">
+                  <strong>Cadeira Horizonte</strong
+                  ><span class="stock-alert">3 unidades · hora de repor</span>
+                </div>
+              }
+            }
+          </section>
+        }
+      }
+      <footer class="site-footer">
+        <strong>{{ site.id === 'management' ? 'Sua rotina, do seu jeito.' : 'Seu negócio' }}</strong
+        ><span>Uma ideia inicial. Seu projeto vai além.</span>
+      </footer>
+    </div>
   }
 </div>

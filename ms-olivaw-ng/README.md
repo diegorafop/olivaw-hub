@@ -37,3 +37,11 @@ Os E2E simulam a API futura; não dependem de esse domínio responder. A raiz é
 ## Ambientes AWS
 
 Docker segue o padrão `dev/qas/rls/stg/prd` das APIs, com configurações públicas por ambiente e Traefik em HTTPS. Consulte [Docker e ambientes](docker/README.md) para executar o deploy com os dotenv já versionados. A URL da API é configurada por `API_URL` no container; `public/config.json` é usado no desenvolvimento com Angular CLI.
+
+## Estúdio de ideias
+
+A rota `/estudio` demonstra três intenções: apresentar a empresa, vender produtos e organizar o negócio. Cada intenção começa com uma prévia simples e quatro possibilidades desmarcadas. As opções adicionam e removem partes da demonstração, com animações que respeitam movimento reduzido.
+
+“Quero criar do meu jeito” abre o resumo e um campo livre. O texto permanece somente na memória da tela; não há envio, upload ou análise de documentos nesta etapa.
+
+Validação específica: `npm run build` e `npm run e2e -- site-studio.spec.ts`, dentro de `ms-olivaw-ng`.

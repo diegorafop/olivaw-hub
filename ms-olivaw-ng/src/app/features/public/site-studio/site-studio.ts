@@ -17,7 +17,9 @@ export class SiteStudio {
   readonly selectedBlocks = signal<readonly SiteBlock[]>([]);
   readonly mobile = signal(false);
   readonly reviewing = signal(false);
-  readonly notice = signal('Seu espaço está em branco. Escolha a primeira peça.');
+  readonly notice = signal(
+    'Uma primeira ideia. Escolha uma possibilidade para vê-la ganhar forma.',
+  );
   readonly selectedLabels = computed(() =>
     siteBlocks
       .filter((block) => this.selectedBlocks().includes(block.id))
@@ -27,14 +29,14 @@ export class SiteStudio {
 
   choosePreset(id: string): void {
     const preset = sitePresets.find((item) => item.id === id);
-    if (!preset || (preset.id === this.activePreset().id && this.selectedBlocks().length > 0))
-      return;
+    if (!preset || preset.id === this.activePreset().id) return;
     this.preview()?.resetNavigation();
     this.activePreset.set(preset);
-    this.selectedBlocks.set([...preset.blocks]);
-    this.preview()?.flyPiece(preset.blocks[0]);
+    this.selectedBlocks.set([]);
     this.reviewing.set(false);
-    this.notice.set(`Nova base: ${preset.label}. Você pode personalizar as seções abaixo.`);
+    this.notice.set(
+      `Vamos explorar: ${preset.label.toLowerCase()}. Escolha o que faz sentido para você.`,
+    );
     this.preview()?.reveal('top');
   }
   toggleBlock(id: SiteBlock): void {

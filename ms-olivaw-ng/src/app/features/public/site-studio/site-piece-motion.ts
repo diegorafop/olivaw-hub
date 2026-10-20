@@ -6,12 +6,10 @@ export function animateSitePiece(
   done: () => void,
 ): () => void {
   const spreadsheet = block === 'spreadsheet';
-  const labels: Record<SiteBlock, string> = {
+  const labels: Partial<Record<SiteBlock, string>> = {
     spreadsheet: '▦ Minha planilha',
     services: '✳ Meus serviços',
     gallery: '▧ Meus trabalhos',
-    products: '◈ Meus produtos',
-    questions: '? Dúvidas frequentes',
     contact: '☏ Vamos conversar',
   };
   const doc = viewport.ownerDocument;
@@ -25,7 +23,7 @@ export function animateSitePiece(
   const piece = doc.createElement('div');
   piece.setAttribute('aria-hidden', 'true');
   const title = doc.createElement('strong');
-  title.textContent = labels[block];
+  title.textContent = labels[block] ?? block;
   Object.assign(title.style, {
     display: 'block',
     padding: '14px',

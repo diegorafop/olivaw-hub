@@ -5,18 +5,18 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    title: 'Olivaw | Sites e sistemas para pequenos negócios',
+    title: 'Olivaw Hub',
     loadComponent: () => import('./features/public/public-page').then((m) => m.PublicPage),
   },
   {
     path: 'estudio',
-    title: 'Estúdio de ideias | Olivaw',
+    title: 'Estúdio de ideias | Olivaw Hub',
     loadComponent: () =>
       import('./features/public/site-studio/site-studio').then((m) => m.SiteStudio),
   },
   {
     path: 'login',
-    title: 'Entrar | Olivaw',
+    title: 'Entrar | Olivaw Hub',
     loadComponent: () => import('./features/login/login-page').then((m) => m.LoginPage),
   },
   {
@@ -25,7 +25,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        title: 'Administração | Olivaw',
+        title: 'Administração | Olivaw Hub',
         loadComponent: () => import('./features/admin/admin-page').then((m) => m.AdminPage),
       },
     ],

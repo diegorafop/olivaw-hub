@@ -1,5 +1,16 @@
 export type SiteBlock =
-  'services' | 'gallery' | 'products' | 'questions' | 'contact' | 'spreadsheet';
+  | 'services'
+  | 'gallery'
+  | 'testimonials'
+  | 'contact'
+  | 'categories'
+  | 'details'
+  | 'cart'
+  | 'orders'
+  | 'spreadsheet'
+  | 'dashboard'
+  | 'payables'
+  | 'inventory';
 export interface SitePreset {
   id: string;
   label: string;
@@ -7,54 +18,56 @@ export interface SitePreset {
   eyebrow: string;
   headline: string;
   description: string;
-  cta: string;
   blocks: readonly SiteBlock[];
 }
 export const sitePresets: readonly SitePreset[] = [
   {
     id: 'business',
-    label: 'Apresentar meu negócio',
-    subtitle: 'Uma página para começar bem',
-    eyebrow: 'Feito para quem quer ir além',
+    label: 'Apresentar minha empresa',
+    subtitle: 'Uma página para sua história',
+    eyebrow: 'Prazer, somos seu negócio',
     headline: 'Seu trabalho merece ser encontrado.',
-    description: 'Um espaço para mostrar o que você faz.',
-    cta: 'Conheça nossos serviços',
-    blocks: ['services'],
-  },
-  {
-    id: 'portfolio',
-    label: 'Mostrar meus trabalhos',
-    subtitle: 'Seu portfólio em destaque',
-    eyebrow: 'Ideias que ganham vida',
-    headline: 'O que você faz fala por você.',
-    description: 'Seus trabalhos em um espaço com a sua identidade.',
-    cta: 'Explore os trabalhos',
-    blocks: ['gallery'],
+    description: 'Uma boa apresentação abre novas conversas.',
+    blocks: ['services', 'gallery', 'testimonials', 'contact'],
   },
   {
     id: 'catalog',
-    label: 'Divulgar produtos',
-    subtitle: 'Um catálogo para explorar',
-    eyebrow: 'Escolhas com personalidade',
-    headline: 'Encontre algo que combina com você.',
-    description: 'Seus produtos, fáceis de conhecer.',
-    cta: 'Conheça a seleção',
-    blocks: ['products'],
+    label: 'Vender meus produtos',
+    subtitle: 'Uma loja para suas ideias',
+    eyebrow: 'Coleção essencial',
+    headline: 'Escolhas que fazem parte do seu dia.',
+    description: 'Uma pequena vitrine. Muitas possibilidades.',
+    blocks: ['categories', 'details', 'cart', 'orders'],
+  },
+  {
+    id: 'management',
+    label: 'Organizar meu negócio',
+    subtitle: 'Um sistema para sua rotina',
+    eyebrow: 'Seu espaço de trabalho',
+    headline: 'Tudo encontra seu lugar.',
+    description: 'Escolha o que ajudaria no seu dia a dia.',
+    blocks: ['spreadsheet', 'dashboard', 'payables', 'inventory'],
   },
 ];
 export const siteBlocks: readonly { id: SiteBlock; label: string; description: string }[] = [
-  {
-    id: 'spreadsheet',
-    label: 'Uma planilha',
-    description: 'Transforme linhas em uma tabela interativa.',
-  },
-  { id: 'services', label: 'Meus serviços', description: 'Explique o que você oferece.' },
+  { id: 'services', label: 'Meus serviços', description: 'Mostre como você pode ajudar.' },
   { id: 'gallery', label: 'Meus trabalhos', description: 'Dê espaço ao que você já fez.' },
-  { id: 'products', label: 'Meus produtos', description: 'Apresente uma seleção de produtos.' },
+  { id: 'testimonials', label: 'Depoimentos', description: 'Histórias de quem já confia em você.' },
+  { id: 'contact', label: 'Fale comigo', description: 'Abra caminho para uma conversa.' },
+  { id: 'categories', label: 'Categorias', description: 'Organize a vitrine por interesses.' },
   {
-    id: 'questions',
-    label: 'Dúvidas frequentes',
-    description: 'Ajude quem está conhecendo seu negócio.',
+    id: 'details',
+    label: 'Detalhes do produto',
+    description: 'Mostre o que torna cada peça especial.',
   },
-  { id: 'contact', label: 'Um jeito de conversar', description: 'Facilite o próximo contato.' },
+  { id: 'cart', label: 'Carrinho', description: 'Uma escolha vira uma compra possível.' },
+  { id: 'orders', label: 'Meus pedidos', description: 'Acompanhe cada etapa da compra.' },
+  { id: 'spreadsheet', label: 'Uma planilha', description: 'Linhas e colunas ganham vida.' },
+  { id: 'dashboard', label: 'Um dashboard', description: 'Veja os números de um jeito claro.' },
+  { id: 'payables', label: 'Contas a pagar', description: 'Organize valores e vencimentos.' },
+  {
+    id: 'inventory',
+    label: 'Controle de estoque',
+    description: 'Saiba o que tem e o que precisa repor.',
+  },
 ];

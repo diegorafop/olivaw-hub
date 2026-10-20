@@ -1,11 +1,11 @@
-<aside class="controls" aria-label="Monte seu site">
+<aside class="controls" aria-label="Explore sua ideia">
   <div class="control-heading">
     <span>Seu ponto de partida</span
     ><button type="button" (click)="resetRequested.emit()">Recomeçar</button>
   </div>
   @if (!reviewing()) {
     <h2>Comece com uma ideia.</h2>
-    <p class="control-hint">Escolha uma base pronta ou construa com as peças abaixo.</p>
+    <p class="control-hint">O que você quer criar? Explore uma possibilidade.</p>
     <div class="preset-list">
       @for (preset of presets; track preset.id) {
         <button
@@ -27,12 +27,12 @@
     <div class="blocks-heading">
       <span class="step-dot">+</span>
       <div>
-        <h2>O que entra no seu site?</h2>
-        <p class="control-hint">Clique numa peça e veja ela ganhar vida.</p>
+        <h2>O que faria sentido para você?</h2>
+        <p class="control-hint">Experimente adicionar e remover possibilidades.</p>
       </div>
     </div>
     <div class="block-options">
-      @for (block of options; track block.id) {
+      @for (block of options(); track block.id) {
         <button
           type="button"
           class="block-option"
@@ -50,12 +50,12 @@
       }
     </div>
     <button type="button" class="review-button" (click)="reviewChange.emit(true)">
-      Ver meu ponto de partida <span aria-hidden="true">↗</span>
+      Quero criar do meu jeito <span aria-hidden="true">↗</span>
     </button>
   } @else {
     <div class="recap" animate.enter="recap-arrive">
       <p class="studio-eyebrow">Sua ideia até aqui</p>
-      <h2>Já dá para imaginar, né?</h2>
+      <h2>Você imagina. A Olivaw dá forma.</h2>
       <p>
         Você começou com <strong>{{ activePreset().label.toLowerCase() }}</strong
         >.
@@ -68,9 +68,17 @@
         }
       </ul>
       <p>
-        Essa combinação é um ponto de partida para conversar sobre conteúdo, funcionamento e
-        próximos passos.
+        Essas possibilidades são só o começo. Seu sistema será pensado para o jeito que sua empresa
+        funciona.
       </p>
+      <label class="idea-label" for="custom-idea">O que você gostaria de criar?</label>
+      <textarea
+        id="custom-idea"
+        rows="5"
+        placeholder="Conte sua ideia, mesmo que ela ainda não esteja organizada."
+        [value]="idea()"
+        (input)="idea.set($any($event.target).value)"
+      ></textarea>
       <button type="button" class="review-button" (click)="reviewChange.emit(false)">
         Continuar construindo <span aria-hidden="true">↗</span>
       </button>

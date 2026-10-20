@@ -41,13 +41,6 @@ button {
   font: inherit;
   cursor: pointer;
 }
-.site-header button {
-  margin-left: auto;
-  font-size: 0.65rem;
-  background: none;
-  border: 0;
-  color: inherit;
-}
 .site-hero {
   display: grid;
   grid-template-columns: 1fr;
@@ -161,15 +154,6 @@ details p,
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.faq-section details {
-  border-top: 1px solid #162c3922;
-  padding: 1rem 0;
-}
-summary {
-  cursor: pointer;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
 .site-contact {
   background: #eaf2ed;
 }
@@ -269,37 +253,147 @@ summary {
   color: #1a5138;
   font-weight: 700;
 }
-.assembly-status {
-  padding: 12px 5%;
-  margin: 0;
-  background: #edf4ed;
-  font-size: 0.75rem;
-  color: #256347;
-}
-.table-page {
-  min-height: 300px;
-}
 .tab-arrive {
   animation: construct 0.6s ease-out;
 }
-.table-arrive {
-  animation: construct 0.8s ease-out;
-}
-[hidden] {
-  display: none !important;
-}
 
-.piece-pending {
-  opacity: 0.25;
-  outline: 1px dashed #78968a;
-}
-.site-header .contact-link {
-  background: #162c39;
-  color: white;
-  border-radius: 24px;
-  padding: 10px 14px;
-}
 .site-tabs button:focus-visible {
   outline: 2px solid #256347;
   outline-offset: 2px;
+}
+.site-hero:has(.brand-art) {
+  grid-template-columns: 1.3fr 1fr;
+}
+.brand-art {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  background: #dceae3;
+  border-radius: 60px 8px;
+  font-size: 6rem;
+  color: #256347;
+}
+.brand-art span {
+  font-size: 0.65rem;
+  padding-bottom: 20px;
+}
+.catalog {
+  background: #f1eadd;
+}
+.product-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.management {
+  background: #f5f8f7;
+}
+.management .site-header {
+  background: #193e34;
+  color: white;
+}
+.management .site-hero {
+  background: transparent;
+}
+.work-placeholder {
+  border: 1px dashed #bbcdc4;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  color: #577166;
+}
+.work-placeholder > span {
+  font-size: 2rem;
+}
+.work-placeholder small {
+  font-size: 0.7rem;
+}
+.site-tabs > span {
+  padding: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.site-tabs button[aria-pressed='true'] {
+  background: #e4efe7;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.metric-grid article {
+  background: white;
+  border: 1px solid #e1e9e6;
+  border-radius: 10px;
+  padding: 14px 10px;
+}
+.metric-grid small {
+  display: block;
+  font-size: 0.6rem;
+}
+.metric-grid strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+.chart {
+  height: 100px;
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  padding: 20px 10px 0;
+  border-bottom: 1px solid #bbcdc4;
+}
+.chart i {
+  flex: 1;
+  background: #659a7d;
+  border-radius: 6px 6px 0 0;
+  transform-origin: bottom;
+  animation: grow 0.5s ease-out both;
+}
+.data-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #dce6df;
+  padding: 16px 0;
+  font-size: 0.75rem;
+}
+.data-row span {
+  color: #527263;
+}
+.data-row .stock-alert {
+  color: #946114;
+}
+blockquote {
+  margin: 0;
+  padding: 20px;
+  background: #eaf2ed;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+blockquote p,
+.contact-example {
+  font-size: 0.7rem;
+}
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.mobile .metric-grid {
+  grid-template-columns: 1fr;
+}
+.mobile .site-hero:has(.brand-art) {
+  grid-template-columns: 1fr;
+}
+@media (max-width: 650px) {
+  .metric-grid,
+  .product-grid,
+  .site-hero:has(.brand-art) {
+    grid-template-columns: 1fr;
+  }
 }
