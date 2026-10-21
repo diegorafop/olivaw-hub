@@ -132,13 +132,46 @@ Para experimentar uma versão antes da publicação, adicione o caminho absoluto
 
 No microservice, implemente as regras de negócio e a persistência, registre os serviços necessários e invoque as extensões de configuração aplicáveis. Instalar o pacote disponibiliza os componentes; não configura automaticamente o host, a autenticação, o broker ou o banco.
 
+## Migrations dos microservices consumidores
+
+O nome segue a issue da branch: `feature/issue013-logo-whatsapp` corresponde a `Issue013`. Se o nome já existir, use um sufixo descritivo sem reescrever o histórico, como `Issue013LeadIndex`. Sem issue identificável, confirme o nome antes de gerar. Gere somente os provedores solicitados.
+
+O Core fornece convenções de persistência, mas não possui banco ou migrations próprios. Gere cada migration no projeto do provedor da API consumidora. Os comandos abaixo partem da raiz do monorepo e usam a `Issue013` do `ms-olivaw-api`, criada na branch `feature/issue013-logo-whatsapp`, como exemplo para PostgreSQL.
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --no-restore -m:1
+
+dotnet ef migrations add Issue013 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --no-build
+```
+
+O `--no-restore` pressupõe dependências restauradas; o `--no-build` usa a compilação anterior, que deve refletir os mappings atuais. O projeto possui uma factory de design time: esses comandos não iniciam o host HTTP, não executam bootstrap e não aplicam alterações no banco.
+
+Para revisar o SQL da migration sem conectar a um banco, após compilar novamente o provedor com a migration gerada:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --no-restore -m:1
+
+dotnet ef migrations script 20261018111944_InitialSchema Issue013 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --no-build \
+  --output /tmp/olivaw-issue013.sql
+```
+
+A `Issue013` cria a tabela `lead` e seu índice único de `externalid`. Revise o arquivo da migration, seu designer, o snapshot e o SQL antes da publicação. No `ms-olivaw-api`, as migrations pendentes são aplicadas automaticamente no startup após o redeploy; gerar os arquivos não atualiza o ambiente publicado. Este exemplo não gera migrations de SQL Server ou Oracle.
+
+Para outros serviços e entregas, ajuste os projetos, o contexto, a migration anterior e o nome da nova migration. Consulte as [instruções de persistência](../ms-olivaw-api/src/Owh.Olivaw.Dados/AGENTS.md) e o [README da API Olivaw](../ms-olivaw-api/README.md).
+
 ## Desenvolvimento e testes
 
 Para desenvolvimento local, instale o SDK .NET 10 e execute na raiz:
 
 ```bash
 dotnet restore OlivawCore.sln
-dotnet build OlivawCore.sln -c Release --no-restore
+dotnet build OlivawCore.sln -c Release --no-restore -m:1
 dotnet test tests/Owh.OlivawCore.Tests/Owh.OlivawCore.Tests.csproj -c Release --no-build
 ```
 

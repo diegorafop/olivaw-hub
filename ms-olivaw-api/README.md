@@ -41,7 +41,7 @@ O Compose usa a raiz do monorepo como contexto Docker. Para a primeira publicaç
 - A entidade `Lead` usa tabela `lead`, PK interna `int`, `ExternalId` único e revisão como token de concorrência. Não altera a identidade corporativa.
 - Esta entrega prepara gravação e atualização. Painel administrativo de leads, notificações e políticas operacionais de retenção ficam para uma próxima etapa.
 
-A tabela exige migration própria de cada provedor antes de usar o endpoint. A geração aguarda autorização explícita conforme as instruções da persistência. Não houve aplicação em bancos locais ou remotos nesta implementação.
+A migration PostgreSQL `Issue013` cria a tabela `lead` e o índice único de `externalid`. Sua aplicação ocorre automaticamente no startup após publicar a API atualizada. Não houve aplicação em bancos locais ou remotos durante a geração. Migrations de outros provedores não foram geradas. Os comandos de geração e revisão do SQL estão no [README do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
 
 Validação, a partir da raiz do monorepo:
 

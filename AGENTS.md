@@ -44,3 +44,13 @@ A Action registra branches nas issues e fecha as issues referenciadas apenas ao 
 ## Security & Configuration
 
 Por decisão explícita do mantenedor, os arquivos `.env` de todos os projetos são versionados no repositório privado nesta etapa, incluindo as configurações de serviço já presentes nas APIs. Contas técnicas do Olivaw usadas exclusivamente para deployment também ficam em `deployment/olivaw-credentials.env` dentro de cada serviço; o arquivo deve ser excluído de contextos Docker. A migração para Key Vault está planejada para o futuro. Por exceção explícita adicional do mantenedor em 18/10/2026, os arquivos já presentes em `docs/secrets/`, incluindo `aws.dat`, `clients.dat`, `fintalk-key.pem` e `registrobr.dat`, também permanecem versionados temporariamente neste repositório privado até a migração para Key Vault. Não remova esses arquivos do índice nem acrescente a pasta ao `.gitignore` sem nova solicitação. A exceção fica limitada a esses arquivos e não autoriza incluir outros segredos ou dados de clientes. Não imprima senhas ou chaves nos logs, na documentação ou nas respostas.
+
+## Padronização de migrations
+
+- Gere migrations somente mediante pedido explícito; `new feature` não inclui essa etapa.
+- Confira a branch atual. Use a issue em PascalCase como nome: `feature/issue013-logo-whatsapp` corresponde a `Issue013`. Se já existir uma migration com esse nome, preserve o histórico e acrescente um sufixo descritivo, como `Issue013LeadIndex`. Sem issue identificável, confirme o nome com o mantenedor.
+- Gere somente para os provedores solicitados, no projeto do provedor da API consumidora. O Core não contém migrations. Não copie históricos entre serviços.
+- Use a factory de design time quando disponível, sem iniciar o host nem acessar bancos reais. Compile com `-m:1`; use `--no-build` no EF somente após compilar o modelo atual. `--no-restore` pressupõe dependências restauradas.
+- Revise migration, designer, snapshot e SQL entre a migration anterior e a nova. Preserve BOM UTF-8 e CRLF dos arquivos C#. Não altere migrations antigas já publicadas.
+- Gerar e revisar não autoriza `database update`, conexão a bancos reais ou redeploy. O startup das APIs aplica as migrations pendentes; registre essa consequência antes da publicação.
+- Documente comandos reproduzíveis no README da API e consulte os [comandos do Core](ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores). Informe as validações executadas e os provedores não contemplados.

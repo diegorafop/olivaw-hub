@@ -106,3 +106,13 @@ O fluxo Docker oficial de geração está no [README](README.md#gerar-pacotes-co
 - Commits devem ser pequenos, coerentes e descrever a intenção.
 - PRs devem explicar motivação, solução, pacotes e contratos afetados, compatibilidade, testes e riscos para os consumidores.
 - Prefira PRs com até 500 linhas adicionadas de lógica de produção e não ultrapasse 700. Testes não entram nessa contagem. Divida mudanças maiores ou justifique por que isso não é seguro.
+
+## Padronização de migrations
+
+- Gere migrations somente mediante pedido explícito; `new feature` não inclui essa etapa.
+- Confira a branch atual. Use a issue em PascalCase como nome: `feature/issue013-logo-whatsapp` corresponde a `Issue013`. Se já existir uma migration com esse nome, preserve o histórico e acrescente um sufixo descritivo, como `Issue013LeadIndex`. Sem issue identificável, confirme o nome com o mantenedor.
+- Gere somente para os provedores solicitados, no projeto do provedor da API consumidora. O Core não contém migrations. Não copie históricos entre serviços.
+- Use a factory de design time quando disponível, sem iniciar o host nem acessar bancos reais. Compile com `-m:1`; use `--no-build` no EF somente após compilar o modelo atual. `--no-restore` pressupõe dependências restauradas.
+- Revise migration, designer, snapshot e SQL entre a migration anterior e a nova. Preserve BOM UTF-8 e CRLF dos arquivos C#. Não altere migrations antigas já publicadas.
+- Gerar e revisar não autoriza `database update`, conexão a bancos reais ou redeploy. O startup das APIs aplica as migrations pendentes; registre essa consequência antes da publicação.
+- Documente comandos reproduzíveis no README da API e consulte os [comandos do Core](README.md#migrations-dos-microservices-consumidores). Informe as validações executadas e os provedores não contemplados.
