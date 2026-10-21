@@ -94,9 +94,7 @@ function application(options) {
       if (relative.startsWith('docker/')) {
         for (const environment of ['dev', 'qas', 'rls', 'stg', 'prd']) {
           const oldHost =
-            environment === 'prd'
-              ? 'limpo.olivaw.com.br'
-              : `limpo-${environment}.olivaw.com.br`;
+            environment === 'prd' ? 'limpo.olivaw.com.br' : `limpo-${environment}.olivaw.com.br`;
           const newHost = environmentHost(publicHost, environment);
           const apiForEnvironment = new URL(cloudApi.href);
           if (environment !== 'prd')

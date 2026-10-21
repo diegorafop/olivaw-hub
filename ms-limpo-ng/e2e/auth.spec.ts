@@ -14,7 +14,10 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
     expect(new URL(route.request().url()).origin).toBe('http://localhost:5137');
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/login')) {
-      expect(route.request().postDataJSON()).toEqual({ login: 'operador', password: 'password-exemplo' });
+      expect(route.request().postDataJSON()).toEqual({
+        login: 'operador',
+        password: 'password-exemplo',
+      });
       await route.fulfill({
         json: {
           accessToken: 'token-de-teste',

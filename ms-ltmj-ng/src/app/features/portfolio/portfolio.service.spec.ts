@@ -21,7 +21,12 @@ describe('API do portfólio', () => {
     TestBed.inject(AutenticacaoStore).iniciar({
       accessToken: 'token',
       expiresAt: new Date(Date.now() + 60000).toISOString(),
-      usuario: { userProfileId: '1', name: 'Equipe', isRoot: false, permissions: ['portfolio.manage'] },
+      usuario: {
+        userProfileId: '1',
+        name: 'Equipe',
+        isRoot: false,
+        permissions: ['portfolio.manage'],
+      },
     });
   });
   afterEach(() => requests.verify());

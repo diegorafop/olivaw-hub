@@ -36,16 +36,16 @@ Para migrar uma seleção: abrir **Migrar conteúdo inicial do protótipo**, esc
 
 Base: URL absoluta de `ms-ltmj-api`, configurada em `public/config.json`.
 
-| Método e recurso | Uso | Acesso |
-| --- | --- | --- |
-| `GET portfolio/events?page=1&pageSize=12` | Eventos publicados | Público |
-| `GET portfolio/events/management?page=1&pageSize=12` | Eventos visíveis e ocultos | `portfolio.manage` |
-| `POST portfolio/events` | Criar rascunho: `title`, `description`, `category` | `portfolio.manage` |
-| `PUT portfolio/events/{id}` | Editar os mesmos campos | `portfolio.manage` |
-| `PATCH portfolio/events/{id}/visibility` | Body `{ "isVisible": true }` ou `false` | `portfolio.manage` |
-| `POST portfolio/events/{id}/photos` | Upload multipart de várias fotos | `portfolio.manage` |
-| `DELETE portfolio/events/{id}` | Apagar evento e arquivos | `portfolio.manage` |
-| `GET portfolio/events/{eventId}/photos/{photoId}` | Ler imagem | Público se visível; gestão se oculto |
+| Método e recurso                                     | Uso                                                | Acesso                               |
+| ---------------------------------------------------- | -------------------------------------------------- | ------------------------------------ |
+| `GET portfolio/events?page=1&pageSize=12`            | Eventos publicados                                 | Público                              |
+| `GET portfolio/events/management?page=1&pageSize=12` | Eventos visíveis e ocultos                         | `portfolio.manage`                   |
+| `POST portfolio/events`                              | Criar rascunho: `title`, `description`, `category` | `portfolio.manage`                   |
+| `PUT portfolio/events/{id}`                          | Editar os mesmos campos                            | `portfolio.manage`                   |
+| `PATCH portfolio/events/{id}/visibility`             | Body `{ "isVisible": true }` ou `false`            | `portfolio.manage`                   |
+| `POST portfolio/events/{id}/photos`                  | Upload multipart de várias fotos                   | `portfolio.manage`                   |
+| `DELETE portfolio/events/{id}`                       | Apagar evento e arquivos                           | `portfolio.manage`                   |
+| `GET portfolio/events/{eventId}/photos/{photoId}`    | Ler imagem                                         | Público se visível; gestão se oculto |
 
 Listagens retornam `{ "items": [...] }`; fotos contêm `id` e `url` relativa à API. IDs expostos são os identificadores externos. Auditoria é obtida do usuário autenticado, nunca do body. Leituras usam queries `ReadEventsByFilter` e `ReadEventPhoto`, seguindo Create/Read/Update/Delete; HTTP mantém seus verbos próprios.
 

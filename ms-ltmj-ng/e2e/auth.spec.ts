@@ -14,39 +14,36 @@ test('rota pública e acesso direto protegido', async ({ page }) => {
 
 test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
   let logout = false;
-  await page.route(
-    'https://api.ltmj.olivaw.com.br/identity/authentication/**',
-    async (route) => {
-      expect(new URL(route.request().url()).origin).toBe('https://api.ltmj.olivaw.com.br');
-      const path = new URL(route.request().url()).pathname;
-      if (path.endsWith('/login')) {
-        expect(route.request().postDataJSON()).toEqual({
-          login: 'operador',
-          password: 'password-exemplo',
-        });
-        await route.fulfill({
-          json: {
-            accessToken: 'token-de-teste',
-            expiresAt: new Date(Date.now() + 60000).toISOString(),
-          },
-        });
-      } else if (path.endsWith('/acesso')) {
-        expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
-        await route.fulfill({
-          json: {
-            userProfileId: 'exemplo',
-            name: 'Operador',
-            isRoot: false,
-            permissions: ['portfolio.manage'],
-          },
-        });
-      } else if (path.endsWith('/logout')) {
-        expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
-        logout = true;
-        await route.fulfill({ json: {} });
-      } else await route.abort();
-    },
-  );
+  await page.route('https://api.ltmj.olivaw.com.br/identity/authentication/**', async (route) => {
+    expect(new URL(route.request().url()).origin).toBe('https://api.ltmj.olivaw.com.br');
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith('/login')) {
+      expect(route.request().postDataJSON()).toEqual({
+        login: 'operador',
+        password: 'password-exemplo',
+      });
+      await route.fulfill({
+        json: {
+          accessToken: 'token-de-teste',
+          expiresAt: new Date(Date.now() + 60000).toISOString(),
+        },
+      });
+    } else if (path.endsWith('/acesso')) {
+      expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
+      await route.fulfill({
+        json: {
+          userProfileId: 'exemplo',
+          name: 'Operador',
+          isRoot: false,
+          permissions: ['portfolio.manage'],
+        },
+      });
+    } else if (path.endsWith('/logout')) {
+      expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
+      logout = true;
+      await route.fulfill({ json: {} });
+    } else await route.abort();
+  });
   await page.route('**/portfolio/events/management?*', (route) =>
     route.fulfill({ json: { items: [] } }),
   );

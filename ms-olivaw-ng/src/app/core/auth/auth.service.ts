@@ -16,9 +16,13 @@ export class AuthService {
   async login(request: LoginRequest): Promise<void> {
     this.clear();
     const result = await firstValueFrom(
-      this.http.post<LoginResponse>(this.config.endpoint('identity/authentication/login'), request, {
-        context: new HttpContext().set(SKIP_AUTH, true).set(LOCAL_ERROR, true),
-      }),
+      this.http.post<LoginResponse>(
+        this.config.endpoint('identity/authentication/login'),
+        request,
+        {
+          context: new HttpContext().set(SKIP_AUTH, true).set(LOCAL_ERROR, true),
+        },
+      ),
     );
     const remaining = Date.parse(result.expiresAt) - Date.now();
     if (!result.accessToken || !Number.isFinite(remaining) || remaining <= 0)
