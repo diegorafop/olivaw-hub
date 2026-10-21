@@ -224,31 +224,33 @@
               <p role="status" aria-live="polite">{{ copied() }}</p>
             </div>
           }
-          <form class="summary-panel" (submit)="$event.preventDefault(); draft.submit()">
+          <form
+            class="summary-panel contact-submit"
+            novalidate
+            aria-label="Enviar sua ideia para a Olivaw"
+            (submit)="$event.preventDefault(); draft.submit()"
+          >
             <h3>Pronto para conversar sobre sua ideia?</h3>
-            <label for="lead-email">Seu e-mail para contato</label>
-            <input
-              id="lead-email"
-              type="email"
-              autocomplete="email"
-              maxlength="254"
-              required
-              [value]="draft.email()"
-              (input)="draft.email.set($any($event.target).value)"
+            <app-contact-fields
+              prefix="lead"
+              [email]="draft.email()"
+              [whatsapp]="draft.whatsapp()"
+              [attempted]="draft.contactAttempted()"
+              (emailChange)="draft.editEmail($event)"
+              (whatsappChange)="draft.editWhatsapp($event)"
             />
-            <p class="small">
-              Ao enviar, você compartilha suas escolhas, o texto da ideia e seu e-mail com a equipe
-              Olivaw para analisar o projeto e conversar sobre os próximos passos.
-            </p>
-            <button type="submit" class="primary" [disabled]="draft.sending() || draft.sent()">
-              {{
-                draft.sending()
-                  ? 'Enviando…'
-                  : draft.sent()
-                    ? 'Ideia enviada ✓'
-                    : 'Enviar para análise da Olivaw'
-              }}
-            </button>
+            <div class="contact-submit-footer">
+              <app-contact-welcome />
+              <button type="submit" class="primary" [disabled]="draft.sending() || draft.sent()">
+                {{
+                  draft.sending()
+                    ? 'Enviando…'
+                    : draft.sent()
+                      ? 'Ideia enviada ✓'
+                      : 'Enviar para análise da Olivaw'
+                }}
+              </button>
+            </div>
             <p role="status" aria-live="polite">{{ draft.deliveryMessage() }}</p>
           </form>
           <p class="small privacy-note">

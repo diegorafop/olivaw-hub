@@ -36,9 +36,9 @@ for (const mobile of [false, true]) {
       fullPage: true,
     });
     await page.getByRole('button', { name: 'Próximo: Sua pasta' }).click();
-    await expect(page.getByLabel('Seu e-mail para contato')).toBeVisible();
+    await expect(page.getByLabel('Seu e-mail')).toBeVisible();
     await page.reload();
-    await expect(page.getByLabel('Seu e-mail para contato')).toBeVisible();
+    await expect(page.getByLabel('Seu e-mail')).toBeVisible();
     await nav.getByRole('button', { name: /Sua ideia/ }).click();
     await expect(page.getByLabel('Como se chama seu negócio?')).toHaveValue('Minha empresa');
     await page.getByLabel('O que você gostaria de fazer acontecer?').fill('');
@@ -75,6 +75,13 @@ test('efeitos são graduais e não atrasam o próximo passo', async ({ page }, t
     .toBe(1);
   await page.screenshot({ path: testInfo.outputPath('services-in-motion.png'), fullPage: true });
   await page.getByRole('button', { name: 'Próximo: Primeira entrega' }).click();
+  const mvp = page.locator('.timeline > li.mvp');
+  await expect(mvp).toHaveCSS('animation-name', /connect-mvp$/);
+  await mvp.evaluate((card) => card.getAnimations().forEach((animation) => animation.finish()));
+  await expect(mvp).toHaveCSS('background-color', 'rgb(25, 62, 52)');
+  await expect(mvp).toHaveCSS('color', 'rgb(255, 255, 255)');
+  await expect(mvp.locator('p')).toHaveCSS('color', 'rgb(214, 231, 223)');
+  await page.screenshot({ path: testInfo.outputPath('mvp-contrast.png'), fullPage: true });
   await page.getByRole('button', { name: 'Próximo: Nossa parceria' }).click();
   await expect(page.locator('app-project-plans .energy-line i')).toHaveCSS(
     'animation-duration',
@@ -82,3 +89,58 @@ test('efeitos são graduais e não atrasam o próximo passo', async ({ page }, t
   );
   await expect(page.getByRole('button', { name: 'Próximo: Sua pasta' })).toBeEnabled();
 });
+
+for (const mobile of [false, true]) {
+  test(`envio final com WhatsApp ${mobile ? 'mobile' : 'desktop'} preserva a ideia sem repetir perguntas`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width: mobile ? 390 : 1440, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const payloads: { email: string; whatsapp: string; business: string; requirements: string }[] =
+      [];
+    await page.route('**/leads/*', (route) => {
+      payloads.push(route.request().postDataJSON());
+      return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    });
+    await page.goto('/projeto');
+    await page.getByLabel('Como se chama seu negócio?').fill('Pastelaria');
+    await page.getByLabel('O que você gostaria de fazer acontecer?').fill('Quero receber pedidos');
+    for (let index = 0; index < 4; index++)
+      await page.getByRole('button', { name: /^Próximo:/ }).click();
+    const form = page.getByRole('form', { name: 'Enviar sua ideia para a Olivaw' });
+    await expect(form.locator('textarea')).toHaveCount(0);
+    await form.getByRole('button', { name: 'Enviar para análise da Olivaw' }).click();
+    await expect(
+      form.getByText('Preencha seu e-mail ou WhatsApp para podermos responder.'),
+    ).toBeVisible();
+    expect(payloads).toHaveLength(0);
+    await form.getByLabel('Seu WhatsApp com DDD').pressSequentially('11987654321');
+    await expect(form.getByLabel('Seu WhatsApp com DDD')).toHaveValue('(11) 98765-4321');
+    // Aguarda a persistência local antes de recarregar, sem enviar à API.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => JSON.parse(sessionStorage.getItem('olivaw.lead.v1') ?? '{}').snapshot?.whatsapp,
+        ),
+      )
+      .toBe('11987654321');
+    await page.reload();
+    await expect(form.getByLabel('Seu WhatsApp com DDD')).toHaveValue('(11) 98765-4321');
+    await expect(form.locator('app-contact-welcome img')).toBeVisible();
+    await form.screenshot({
+      path: testInfo.outputPath(`final-contact-${mobile ? 'mobile' : 'desktop'}.png`),
+    });
+    await form.getByRole('button', { name: 'Enviar para análise da Olivaw' }).click();
+    await expect(form.getByRole('status')).toContainText('Ideia recebida');
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]).toMatchObject({
+      email: '',
+      whatsapp: '11987654321',
+      business: 'Pastelaria',
+      requirements: 'Quero receber pedidos',
+    });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      mobile ? 390 : 1440,
+    );
+  });
+}

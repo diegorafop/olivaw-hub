@@ -1,5 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { contactValid, whatsappDigits } from '../contact-details';
 import { LeadGateway } from './lead-gateway';
 
 export interface ProjectSeed {
@@ -48,6 +49,8 @@ export class ProjectDraft {
   readonly requirements = signal('');
   readonly business = signal('');
   readonly email = signal('');
+  readonly whatsapp = signal('');
+  readonly contactAttempted = signal(false);
   readonly excluded = signal<readonly string[]>([]);
   readonly plan = signal<string | null>(null);
   readonly stage = signal<LeadSnapshot['stage']>('exploring');
@@ -116,14 +119,28 @@ export class ProjectDraft {
       requirements: this.requirements(),
       business: this.business(),
       email: this.email(),
+      ...(this.whatsapp() ? { whatsapp: whatsappDigits(this.whatsapp()) } : {}),
       plan: this.plan(),
       events: this.events(),
     };
   }
+  editEmail(value: string): void {
+    this.email.set(value);
+    this.sent.set(false);
+    this.deliveryMessage.set('');
+  }
+  editWhatsapp(value: string): void {
+    this.whatsapp.set(whatsappDigits(value).slice(0, 11));
+    this.sent.set(false);
+    this.deliveryMessage.set('');
+  }
   async submit(): Promise<void> {
     if (this.sending()) return;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email().trim())) {
-      this.deliveryMessage.set('Informe um e-mail válido para a equipe conversar com você.');
+    this.contactAttempted.set(true);
+    if (!contactValid(this.email(), this.whatsapp())) {
+      this.deliveryMessage.set(
+        'Informe um e-mail ou WhatsApp válido para a equipe conversar com você.',
+      );
       return;
     }
     this.enter(this.seed()?.source ?? 'discovery');
@@ -221,7 +238,9 @@ export class ProjectDraft {
         !data.excluded.every((item) => typeof item === 'string') ||
         typeof data.requirements !== 'string' ||
         typeof data.business !== 'string' ||
-        typeof data.email !== 'string'
+        typeof data.email !== 'string' ||
+        (data.whatsapp !== undefined &&
+          (typeof data.whatsapp !== 'string' || !/^[0-9]{0,11}$/.test(data.whatsapp)))
       )
         return;
       this.journeyStep.set(
@@ -238,6 +257,7 @@ export class ProjectDraft {
       this.requirements.set(data.requirements);
       this.business.set(data.business);
       this.email.set(data.email);
+      this.whatsapp.set(data.whatsapp ?? '');
       this.excluded.set(data.excluded);
       this.plan.set(data.plan);
       this.stage.set(data.stage);

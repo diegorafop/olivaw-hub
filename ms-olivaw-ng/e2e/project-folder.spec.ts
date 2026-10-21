@@ -83,7 +83,7 @@ test('envia o lead apenas na confirmação e permite repetir falha sem duplicar 
   await page.getByLabel('Como se chama seu negócio?').fill('Minha loja');
   for (let index = 0; index < 4; index++)
     await page.getByRole('button', { name: /^Próximo:/ }).click();
-  await page.getByLabel('Seu e-mail para contato').fill('lead@example.test');
+  await page.getByLabel('Seu e-mail').fill('lead@example.test');
   expect(payloads).toHaveLength(0);
   await page.getByRole('button', { name: 'Enviar para análise da Olivaw' }).click();
   await expect(page.getByText(/Não foi possível enviar agora/)).toBeVisible();

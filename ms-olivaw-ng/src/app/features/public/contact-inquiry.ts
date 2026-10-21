@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, signal } from '@angular/core';
+import { emailValid, whatsappValid, contactValid, formatWhatsapp } from './contact-details';
 import { LeadGateway } from './project-folder/lead-gateway';
 import type { LeadSnapshot } from './project-folder/project-draft';
 
@@ -19,15 +20,11 @@ export class ContactInquiry {
   private startedAt = '';
   private revision = 0;
   private fingerprint = '';
-  readonly emailValid = () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email().trim());
-  readonly whatsappValid = () => /^[1-9][0-9]9[0-9]{8}$/.test(this.whatsappDigits());
+  readonly emailValid = () => emailValid(this.email());
+  readonly whatsappValid = () => whatsappValid(this.whatsapp());
   readonly contactsMissing = () => !this.email().trim() && !this.whatsapp();
-  readonly ready = () => {
-    if (this.contactsMissing()) return false;
-    if (this.email().trim() && !this.emailValid()) return false;
-    if (this.whatsapp() && !this.whatsappValid()) return false;
-    return Boolean(this.message().trim());
-  };
+  readonly ready = () =>
+    contactValid(this.email(), this.whatsapp()) && Boolean(this.message().trim());
   touch(field: 'email' | 'whatsapp' | 'message'): void {
     this.touched.update((value) => ({ ...value, [field]: true }));
   }
@@ -50,12 +47,7 @@ export class ContactInquiry {
     return JSON.stringify([this.email().trim(), this.whatsappDigits(), this.message().trim()]);
   }
   editWhatsapp(value: string): void {
-    const digits = value.replace(/\D/g, '').slice(0, 11);
-    let formatted = digits;
-    if (digits.length > 2) formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    if (digits.length > 7)
-      formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-    this.whatsapp.set(formatted);
+    this.whatsapp.set(formatWhatsapp(value));
     this.sent.set(false);
     this.feedback.set('');
   }

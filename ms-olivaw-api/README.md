@@ -33,7 +33,7 @@ O Compose usa a raiz do monorepo como contexto Docker. Para a primeira publicaç
 
 `PUT /leads/{externalId}` recebe o snapshot versionado da pasta de projeto. O navegador reúne os dados desde a entrada na jornada e só envia ao confirmar a análise, com ao menos um contato válido (e-mail ou WhatsApp). O corpo contém `schemaVersion`, `revision`, `startedAt`, `entry`, `stage`, `project`, `excluded`, `requirements`, `business`, `email`, `whatsapp`, `plan` e `events`. Os contratos públicos ficam em `Owh.Olivaw.Client/Features/LeadFeature/Commands`.
 
-- `email` é opcional quando há `whatsapp` válido. O WhatsApp usa DDD e celular brasileiro: 11 dígitos sem máscara, como `11987654321`. Se os dois contatos forem preenchidos, ambos devem ser válidos. O contato direto oferece as duas opções; a jornada do Estúdio mantém o e-mail. O novo campo fica no snapshot JSON e não exige migration adicional.
+- `email` é opcional quando há `whatsapp` válido. O WhatsApp usa DDD e celular brasileiro: 11 dígitos sem máscara, como `11987654321`. Se os dois contatos forem preenchidos, ambos devem ser válidos. O contato direto e a última etapa da jornada do Estúdio oferecem as duas opções, exigindo ao menos uma válida. O novo campo fica no snapshot JSON e não exige migration adicional.
 - O header `X-Lead-Key` leva uma chave aleatória de 32 bytes, exclusiva da jornada; o banco guarda apenas SHA-256. Não confundir com credenciais administrativas.
 - A rota é deliberadamente pública para envio, sem leitura pública. Não fornece acesso a outros leads nem retorna o conteúdo enviado.
 - Repetir o mesmo snapshot e revisão confirma o registro existente. Revisões antigas, mudanças na mesma revisão e concorrência retornam `409`; chave diferente retorna `403`.

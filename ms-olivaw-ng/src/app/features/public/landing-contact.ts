@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { ContactInquiry } from './contact-inquiry';
+import { ContactFields } from './contact-fields';
+import { ContactWelcome } from './contact-welcome';
 import { ProjectContact } from './project-contact';
 
 @Component({
   selector: 'app-landing-contact',
-  imports: [ProjectContact],
+  imports: [ProjectContact, ContactFields, ContactWelcome],
   template: `
     <div class="contact-heading">
       <div>
@@ -52,61 +54,14 @@ import { ProjectContact } from './project-contact';
           <h3>O que você gostaria de conversar?</h3>
           <p>Não precisa saber de tecnologia nem ter uma ideia pronta.</p>
         </div>
-        <fieldset aria-describedby="contact-help contact-error">
-          <legend>
-            Como podemos responder? <span class="required" aria-hidden="true">*</span>
-          </legend>
-          <p id="contact-help" class="field-help">
-            Preencha ao menos um contato: e-mail ou WhatsApp. Se preencher os dois, ambos precisam
-            ser válidos.
-          </p>
-          <div class="contact-fields">
-            <div>
-              <label for="contact-email">Seu e-mail</label>
-              <input
-                id="contact-email"
-                type="email"
-                maxlength="254"
-                autocomplete="email"
-                placeholder="voce@seunegocio.com.br"
-                [value]="inquiry.email()"
-                [attr.aria-invalid]="inquiry.emailError() || inquiry.contactError()"
-                aria-describedby="contact-email-error contact-help contact-error"
-                (blur)="inquiry.touch('email')"
-                (input)="inquiry.editEmail($any($event.target).value)"
-              />
-              <p id="contact-email-error" class="field-error" [hidden]="!inquiry.emailError()">
-                Digite um e-mail válido, como voce@empresa.com.br.
-              </p>
-            </div>
-            <div>
-              <label for="contact-whatsapp">Seu WhatsApp com DDD</label>
-              <input
-                id="contact-whatsapp"
-                type="tel"
-                inputmode="tel"
-                maxlength="15"
-                autocomplete="tel-national"
-                placeholder="(11) 99999-9999"
-                [value]="inquiry.whatsapp()"
-                [attr.aria-invalid]="inquiry.whatsappError() || inquiry.contactError()"
-                aria-describedby="contact-whatsapp-error contact-help contact-error"
-                (blur)="inquiry.touch('whatsapp')"
-                (input)="inquiry.editWhatsapp($any($event.target).value)"
-              />
-              <p
-                id="contact-whatsapp-error"
-                class="field-error"
-                [hidden]="!inquiry.whatsappError()"
-              >
-                Informe DDD e celular com 9 dígitos: (11) 99999-9999.
-              </p>
-            </div>
-          </div>
-          <p id="contact-error" class="field-error" [hidden]="!inquiry.contactError()">
-            Preencha seu e-mail ou WhatsApp para podermos responder.
-          </p>
-        </fieldset>
+        <app-contact-fields
+          prefix="contact"
+          [email]="inquiry.email()"
+          [whatsapp]="inquiry.whatsapp()"
+          [attempted]="inquiry.touched().email"
+          (emailChange)="inquiry.editEmail($event)"
+          (whatsappChange)="inquiry.editWhatsapp($event)"
+        />
         <label for="contact-message"
           >Sua mensagem <span class="required" aria-hidden="true">*</span></label
         ><textarea
@@ -125,15 +80,7 @@ import { ProjectContact } from './project-contact';
           Escreva uma mensagem para continuar.
         </p>
         <div class="form-footer">
-          <div class="contact-reassurance">
-            <img
-              src="assets/brand/reactions/olivaw-message-welcome-v1.webp"
-              alt=""
-              width="80"
-              height="80"
-            />
-            <p>Pode mandar sua ideia. A Olivaw entra em contato com você.</p>
-          </div>
+          <app-contact-welcome />
           <button type="submit" [disabled]="inquiry.sending() || inquiry.sent()">
             {{
               inquiry.sending()

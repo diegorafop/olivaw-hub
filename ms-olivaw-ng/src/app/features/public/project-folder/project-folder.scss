@@ -595,7 +595,7 @@ h2:focus {
   }
 }
 
-.journey-active .timeline > .mvp {
+.journey-active .timeline > li.mvp {
   animation-name: connect-mvp;
 }
 @keyframes connect-mvp {
@@ -606,5 +606,27 @@ h2:focus {
   to {
     background-color: #193e34;
     border-color: #69c7b1;
+  }
+}
+
+.contact-submit > h3 {
+  margin-bottom: 24px;
+}
+.contact-submit-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.contact-submit-footer button {
+  flex-shrink: 0;
+}
+@media (max-width: 760px) {
+  .contact-submit-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .contact-submit-footer button {
+    width: 100%;
   }
 }
