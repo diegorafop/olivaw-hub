@@ -59,3 +59,16 @@ O menu oferece “Clientes” e “Contato” no desktop e no celular. A seção
 A seção de contato começa pelo formulário direto de e-mail e mensagem. “Quero organizar minha ideia” abre a descoberta guiada, preservando suas opções. Digitação e troca de caminho não enviam dados. “Enviar mensagem” usa o mesmo contrato `PUT /leads/{id}`, com identificação própria, sem sobrescrever o rascunho do estúdio. O recebimento é confirmado apenas após resposta da API; falhas mantêm a mensagem e permitem repetir a tentativa sem criar outro lead. Nenhum telefone ou e-mail da Olivaw foi inventado ou exposto.
 
 Validação específica: `npm run e2e -- clients-contact.spec.ts landing.spec.ts`. O envio é interceptado nos testes, sem gravação em API remota. A persistência em banco continua dependendo das migrations documentadas na API.
+
+## Imagem de compartilhamento
+
+As tags Open Graph e Twitter apontam para `public/assets/brand/olivaw-share-v1.jpg`, uma cópia JPEG de 720 × 720 do avatar atual, com fundo claro. É um arquivo separado: logos, imagens da interface, favicon e apple-touch-icon permanecem nas referências anteriores.
+
+Para regenerar a prévia com os mesmos pixels de origem, sem redesenhar o robô:
+
+```bash
+node scripts/generate-social-preview.mjs
+npm run build
+```
+
+O script usa o Chromium do Playwright já instalado no projeto e limita a saída a 150 KB. Após publicar, conferir se a URL da imagem responde como `image/jpeg` e testar um novo compartilhamento. O nome separado diferencia o asset da imagem antiga, mas não garante atualização imediata do cache do WhatsApp para a página. Alterações locais não atualizam a prévia publicada.
