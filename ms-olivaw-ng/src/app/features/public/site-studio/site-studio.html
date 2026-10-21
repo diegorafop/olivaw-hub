@@ -25,11 +25,10 @@
       <app-site-controls
         [activePreset]="activePreset()"
         [selectedBlocks]="selectedBlocks()"
-        [reviewing]="reviewing()"
         (presetChange)="choosePreset($event)"
         (blockToggle)="toggleBlock($event)"
         (resetRequested)="reset()"
-        (reviewChange)="reviewing.set($event)"
+        (continueRequested)="openProject()"
       />
       <div class="preview-column">
         <div class="preview-heading">

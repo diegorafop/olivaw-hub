@@ -31,10 +31,19 @@ test('três intenções começam simples e oferecem quatro possibilidades indepe
   await preview.getByRole('button', { name: 'Adicionar ao carrinho +' }).first().click();
   await expect(preview.getByText('1 produto escolhido.')).toBeAttached();
   await controls.getByRole('button', { name: 'Quero criar do meu jeito' }).click();
-  await controls.getByRole('textbox').fill('Quero controlar minhas entregas');
-  await controls.getByRole('button', { name: 'Continuar construindo' }).click();
+  await expect(page).toHaveURL(/\/projeto$/);
+  await page
+    .getByLabel('O que você gostaria de fazer acontecer?')
+    .fill('Quero controlar minhas entregas');
+  await page.getByRole('link', { name: 'Voltar às ideias' }).click();
+  await expect(controls.getByRole('button', { name: /Carrinho/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   await controls.getByRole('button', { name: 'Quero criar do meu jeito' }).click();
-  await expect(controls.getByRole('textbox')).toHaveValue('Quero controlar minhas entregas');
+  await expect(page.getByLabel('O que você gostaria de fazer acontecer?')).toHaveValue(
+    'Quero controlar minhas entregas',
+  );
   expect(requests).toBe(0);
 });
 

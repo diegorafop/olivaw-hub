@@ -1,10 +1,16 @@
+import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ProjectDraft } from './project-folder/project-draft';
+import { Router, provideRouter } from '@angular/router';
 import { ProjectContact } from './project-contact';
 
 describe('Descoberta de projeto', () => {
   async function setup() {
-    TestBed.configureTestingModule({ imports: [ProjectContact], providers: [provideRouter([])] });
+    sessionStorage.clear();
+    TestBed.configureTestingModule({
+      imports: [ProjectContact],
+      providers: [provideRouter([]), provideHttpClient()],
+    });
     const fixture = TestBed.createComponent(ProjectContact);
     await fixture.whenStable();
     return fixture;
@@ -24,10 +30,6 @@ describe('Descoberta de projeto', () => {
     component.choosePath(component.paths[1]);
     component.chooseAnswer(component.paths[1].choices[0]);
     component.chooseAnswer(component.paths[1].contexts[0]);
-    component.prepareConversation();
-    expect(component.form.controls.summary.value).toContain(
-      'Copiar informações de um lugar para outro',
-    );
     component.back();
     component.back();
     component.back();
@@ -36,25 +38,23 @@ describe('Descoberta de projeto', () => {
     await fixture.whenStable();
     expect(component.purpose()).toBeNull();
     expect(component.context()).toBeNull();
-    expect(component.form.controls.summary.value).toBe('');
     expect(fixture.nativeElement.textContent).toContain(
       'O que você gostaria de cuidar com essa ferramenta?',
     );
   });
 
-  it('preserva a revisão editada ao voltar da revisão para a sugestão', async () => {
+  it('leva prioridade e contexto para a pasta sem enviar dados', async () => {
     const fixture = await setup();
     const component = fixture.componentInstance;
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     const path = component.paths[1];
     component.choosePath(path);
     component.chooseAnswer(path.choices[2]);
-    component.chooseAnswer(path.contexts[3]);
-    component.prepareConversation();
-    component.form.controls.summary.setValue('Minha ideia revisada.');
-    component.back();
-    component.prepareConversation();
-    await fixture.whenStable();
-    expect(component.form.controls.summary.value).toBe('Minha ideia revisada.');
-    expect(component.form.valid).toBe(true);
+    component.chooseAnswer(path.contexts[0]);
+    component.openProject();
+    const draft = TestBed.inject(ProjectDraft);
+    expect(draft.seed()?.choices).toEqual([path.choices[2].label, path.contexts[0].label]);
+    expect(navigate).toHaveBeenCalledWith(['/projeto']);
   });
 });
