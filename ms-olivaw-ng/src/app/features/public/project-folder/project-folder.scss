@@ -296,9 +296,6 @@ details p {
   font-size: 0.75rem;
   margin: 18px 0 10px;
 }
-.summary-panel > p {
-  margin-top: 15px;
-}
 .privacy-note {
   margin: 0;
 }
@@ -380,13 +377,6 @@ footer span {
   cursor: default;
   opacity: 0.6;
 }
-.summary-panel input + p {
-  margin-top: 12px;
-}
-.summary-panel button + p {
-  margin-top: 14px;
-}
-
 [hidden] {
   display: none !important;
 }

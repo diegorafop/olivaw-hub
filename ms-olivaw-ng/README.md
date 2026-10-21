@@ -52,6 +52,18 @@ Somente “Enviar para análise da Olivaw”, com e-mail, persiste o snapshot na
 
 Validação específica: `npm run build` e `npm run e2e -- site-studio.spec.ts project-folder.spec.ts project-wizard.spec.ts landing.spec.ts`, dentro de `ms-olivaw-ng`.
 
+## Dashboard interno da Olivaw
+
+`/admin` apresenta a primeira versão visual da operação: navegação responsiva, identificação do operador, menu lateral recolhível para ícones no desktop, acolhimento com o mini Olivaw e regiões para clientes, sistemas, atendimento, prioridades e histórico. O título é `Olivaw - Operação`.
+
+Nesta versão, a entrada exige sessão válida e `isRoot` retornado pela identidade interna. Contas autenticadas sem root seguem para acesso negado. A delegação por permissões específicas será definida antes de habilitar outros operadores e endpoints operacionais. O guard de interface não substitui autorização na API; este dashboard ainda não consulta dados operacionais protegidos nem oferece ações remotas.
+
+Não há contadores ou gráficos simulados. As áreas deixam explícito que cadastros, monitoramento, solicitações e histórico ainda não foram integrados. O ambiente aparece como “Ambiente não informado”, pois não existe configuração pública verificada para esse contexto; a URL da API não é usada para inferir o ambiente.
+
+Login, saída e expiração mantêm o fluxo existente, sem persistência do token. Falha na revogação informa a limitação e conclui a saída local. Atalhos apontam somente para a própria visão geral e para o site público.
+
+Validação: `npm run build`, `npm run lint` e `npm run e2e -- auth.spec.ts admin-dashboard.spec.ts`. Testes de navegador simulam a identidade, sem credenciais ou chamadas à API real. Ver [escopo da primeira feature](../docs/features/painel-olivaw/01-dashboard-administrativo.md).
+
 ## Clientes e contato
 
 O menu oferece “Clientes” e “Contato” no desktop e no celular. A seção de clientes fica após soluções, em uma faixa compacta e clara, com a marca tipográfica da LTMJ Eventos em cinza e link externo para `https://ltmj.olivaw.com.br/`. A marca segue o lettering usado no cabeçalho do próprio cliente. A LTMJ foi confirmada pelo mantenedor; não há logos fictícios ou vagas de clientes simuladas. As capturas reais em `public/assets/clients/ltmj-desktop.jpg` e `ltmj-mobile.jpg`, realizadas em 20/10/2026, ficam preservadas como material de referência e não são exibidas na faixa.

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth.guard';
+import { operationGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   {
     path: 'projeto',
@@ -27,11 +27,11 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    canMatch: [authGuard],
+    canMatch: [operationGuard],
     children: [
       {
         path: '',
-        title: 'Olivaw - Administração',
+        title: 'Olivaw - Operação',
         loadComponent: () => import('./features/admin/admin-page').then((m) => m.AdminPage),
       },
     ],
