@@ -1,0 +1,263 @@
+<div class="folder-page">
+  <header class="page-header">
+    <a routerLink="/" class="brand"
+      ><img src="assets/brand/olivaw-avatar-web-v2.png" width="38" height="38" alt="" /><strong
+        >Olivaw Hub</strong
+      ></a
+    >
+    <a
+      [routerLink]="draft.seed()?.source === 'studio' ? '/estudio' : '/'"
+      [fragment]="draft.seed()?.source === 'studio' ? undefined : 'contato'"
+      >← Voltar às ideias</a
+    >
+  </header>
+  <main id="conteudo">
+    <div class="intro" animate.enter="arrive">
+      <div>
+        <p class="eyebrow">DA POSSIBILIDADE AO SEU PROJETO</p>
+        <h1>Você traz a ideia.<br /><span>A gente cuida do caminho.</span></h1>
+        <p class="lead">
+          Um primeiro passo possível hoje. Um sistema que pode crescer com você amanhã.
+        </p>
+      </div>
+    </div>
+    <app-project-journey
+      [step]="step()"
+      [furthest]="furthest()"
+      [ready]="ready()"
+      (navigate)="goTo($event)"
+    >
+      <div #journeyContent class="journey-panels">
+        <div class="project-board">
+          <section
+            data-step="0"
+            [hidden]="step() !== 0"
+            [class.journey-active]="step() === 0"
+            class="idea-card"
+            aria-labelledby="idea-title"
+          >
+            <div class="folder-tab">01 / SUA IDEIA</div>
+            <div class="card-content">
+              <p class="eyebrow">NOSSO PONTO DE PARTIDA</p>
+              <h2 tabindex="-1" id="idea-title">
+                {{ draft.seed()?.title ?? 'Toda boa ideia merece um começo.' }}
+              </h2>
+              <p>
+                {{
+                  draft.seed()?.context ||
+                    'Ainda não precisa ter tudo resolvido. Conte o que gostaria de tornar mais simples.'
+                }}
+              </p>
+              @if (choices().length) {
+                <fieldset>
+                  <legend>O que você quer levar adiante?</legend>
+                  <div class="choice-list">
+                    @for (choice of choices(); track choice) {
+                      <label
+                        ><input
+                          type="checkbox"
+                          [checked]="!draft.excluded().includes(choice)"
+                          (change)="toggle(choice)"
+                        /><span>{{ choice }}</span></label
+                      >
+                    }
+                  </div>
+                </fieldset>
+                <p class="small">
+                  Explorar uma opção não é assumir um compromisso. Ajuste suas pistas iniciais.
+                </p>
+              }
+              <label class="field-label" for="business-name"
+                >Como se chama seu negócio? <span>Pode ser provisório</span></label
+              >
+              <input
+                id="business-name"
+                required
+                maxlength="120"
+                autocomplete="organization"
+                placeholder="Sua empresa ou sua ideia"
+                [value]="draft.business()"
+                (input)="draft.business.set($any($event.target).value)"
+              />
+              <label class="field-label" for="requirements"
+                >O que você gostaria de fazer acontecer?</label
+              >
+              <textarea
+                id="requirements"
+                required
+                rows="6"
+                maxlength="3000"
+                placeholder="Hoje faço os pedidos por mensagem e me perco nas entregas. Queria reunir tudo em um lugar…"
+                [value]="draft.requirements()"
+                (input)="draft.requirements.set($any($event.target).value)"
+              ></textarea>
+              <p class="small">
+                Pode escrever do seu jeito. O que dá trabalho hoje? Quem usaria o sistema? O que
+                precisa funcionar primeiro?
+              </p>
+              <div class="draft-stamp">
+                <span aria-hidden="true">✎</span> Em construção, junto com você.
+              </div>
+            </div>
+          </section>
+          <section
+            data-step="1"
+            [hidden]="step() !== 1"
+            [class.journey-active]="step() === 1"
+            class="olivaw-side"
+            aria-labelledby="services-title"
+          >
+            <p class="eyebrow">02 / O QUE SOMAMOS À SUA IDEIA</p>
+            <h2 tabindex="-1" id="services-title">Muito além das telas.</h2>
+            <p>
+              Você acompanha as decisões. A Olivaw conecta as partes para o seu sistema funcionar.
+            </p>
+            <div class="service-cards">
+              @for (service of services; track service.title; let index = $index) {
+                <article [style.--card-index]="index">
+                  <span class="connection-check" aria-hidden="true">✓</span>
+                  <span class="service-icon" aria-hidden="true">{{ service.icon }}</span>
+                  <h3>{{ service.title }}</h3>
+                  <p>{{ service.text }}</p>
+                  <details>
+                    <summary>O que está por trás <span aria-hidden="true">+</span></summary>
+                    <p>{{ service.detail }}</p>
+                  </details>
+                </article>
+              }
+            </div>
+          </section>
+        </div>
+        <section
+          data-step="2"
+          [hidden]="step() !== 2"
+          [class.journey-active]="step() === 2"
+          class="roadmap"
+          aria-labelledby="roadmap-title"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">03 / UM PASSO DE CADA VEZ</p>
+              <h2 tabindex="-1" id="roadmap-title">
+                O essencial funcionando.<br />O próximo passo, bem pensado.
+              </h2>
+            </div>
+            <p>
+              A equipe Olivaw analisa os requisitos com você e separa a entrega em etapas. O
+              objetivo é colocar uma primeira versão útil nas suas mãos o quanto antes.
+            </p>
+          </div>
+          <ol class="timeline energy-track">
+            <li class="energy-line" aria-hidden="true"><i>→</i></li>
+            <li style="--card-index: 0">
+              <span class="stage">ANTES DE CONSTRUIR</span>
+              <h3>Entender e priorizar</h3>
+              <p>
+                Revisamos sua ideia, identificamos dependências e combinamos escopo, prazo e
+                investimento.
+              </p>
+            </li>
+            <li class="mvp" style="--card-index: 1">
+              <span class="stage">MVP / PRIMEIRA VERSÃO</span>
+              <h3>Resolver o principal</h3>
+              <p>
+                Uma versão enxuta que já ajuda na rotina. Você usa, acompanha e traz o que aprendeu.
+              </p>
+            </li>
+            <li style="--card-index: 2">
+              <span class="stage">E01 / EVOLUÇÃO</span>
+              <h3>Melhorar com o uso</h3>
+              <p>
+                Ajustamos o caminho e planejamos as próximas funcionalidades a partir de
+                necessidades reais.
+              </p>
+            </li>
+            <li style="--card-index: 3">
+              <span class="stage">E02 / PRÓXIMAS ETAPAS</span>
+              <h3>Crescer com direção</h3>
+              <p>
+                Novas integrações e possibilidades entram conforme a prioridade e o momento do seu
+                negócio.
+              </p>
+            </li>
+          </ol>
+        </section>
+        <section
+          data-step="3"
+          [hidden]="step() !== 3"
+          [class.journey-active]="step() === 3"
+          id="parceria"
+          class="partnership"
+          aria-labelledby="plans-title"
+        >
+          <app-project-plans [active]="step() === 3" />
+        </section>
+        <section
+          data-step="4"
+          [hidden]="step() !== 4"
+          [class.journey-active]="step() === 4"
+          class="next-step"
+          aria-labelledby="next-title"
+        >
+          <div>
+            <p class="eyebrow">SUA IDEIA JÁ TEM UM PONTO DE PARTIDA</p>
+            <h2 tabindex="-1" id="next-title">Vamos organizar nossa conversa?</h2>
+            <p>
+              Reúna suas escolhas e o que escreveu em um resumo. A análise de requisitos, a proposta
+              e o planejamento das etapas vêm com a equipe Olivaw.
+            </p>
+          </div>
+          <button type="button" class="primary" (click)="reviewing.set(true)">
+            Revisar minha pasta <span aria-hidden="true">↗</span>
+          </button>
+          @if (reviewing()) {
+            <div class="summary-panel" animate.enter="arrive">
+              <h3>Sua pasta, pronta para uma conversa.</h3>
+              <label for="project-summary">Resumo do projeto</label
+              ><textarea id="project-summary" readonly rows="14" [value]="summary()"></textarea
+              ><button type="button" class="primary" (click)="copy()">
+                Copiar resumo do projeto
+              </button>
+              <p class="small">
+                Se preferir, guarde seu resumo. Copiar a pasta não envia uma solicitação à equipe.
+              </p>
+              <p role="status" aria-live="polite">{{ copied() }}</p>
+            </div>
+          }
+          <form class="summary-panel" (submit)="$event.preventDefault(); draft.submit()">
+            <h3>Pronto para conversar sobre sua ideia?</h3>
+            <label for="lead-email">Seu e-mail para contato</label>
+            <input
+              id="lead-email"
+              type="email"
+              autocomplete="email"
+              maxlength="254"
+              required
+              [value]="draft.email()"
+              (input)="draft.email.set($any($event.target).value)"
+            />
+            <p class="small">
+              Ao enviar, você compartilha suas escolhas, o texto da ideia e seu e-mail com a equipe
+              Olivaw para analisar o projeto e conversar sobre os próximos passos.
+            </p>
+            <button type="submit" class="primary" [disabled]="draft.sending() || draft.sent()">
+              {{
+                draft.sending()
+                  ? 'Enviando…'
+                  : draft.sent()
+                    ? 'Ideia enviada ✓'
+                    : 'Enviar para análise da Olivaw'
+              }}
+            </button>
+            <p role="status" aria-live="polite">{{ draft.deliveryMessage() }}</p>
+          </form>
+          <p class="small privacy-note">
+            Sem cadastro ou envio de arquivos. O rascunho fica nesta aba, inclusive ao recarregar.
+            Os dados só vão para a Olivaw quando você clicar em enviar.
+          </p>
+        </section>
+      </div>
+    </app-project-journey>
+  </main>
+  <footer><strong>Olivaw Hub</strong><span>Uma boa ideia não precisa nascer pronta.</span></footer>
+</div>

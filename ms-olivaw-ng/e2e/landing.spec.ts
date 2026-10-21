@@ -25,6 +25,7 @@ test('descoberta oferece sugestão antes dos dados e copia sem envio à API', as
     if (request.url().startsWith('https://api.olivaw.com.br')) apiRequests++;
   });
   await page.goto('/');
+  await page.getByRole('button', { name: /Quero organizar minha ideia/ }).click();
   const guide = page.getByRole('region', { name: 'Descubra um caminho para seu projeto' });
   await expect(guide.getByRole('textbox')).toHaveCount(0);
   await guide.screenshot({ path: testInfo.outputPath('discovery-desktop.png') });
@@ -34,19 +35,28 @@ test('descoberta oferece sugestão antes dos dados e copia sem envio à API', as
   await guide.getByRole('button', { name: /Faço tudo manualmente/ }).click();
   await expect(guide.getByRole('heading', { level: 4 })).toContainText('Uma tarefa repetida');
   await expect(guide.getByRole('textbox')).toHaveCount(0);
-  await guide.getByRole('button', { name: 'Preparar nossa conversa' }).click();
-  await guide.getByLabel('Nome do negócio (opcional)', { exact: true }).fill('Empresa de eventos');
-  const summary = guide.getByLabel('Seu resumo — pode editar', { exact: true });
-  await expect(summary).toHaveValue(/Copiar informações de um lugar para outro/);
-  await summary.fill((await summary.inputValue()) + '\nQuero destacar os eventos que já fiz.');
-  await guide.getByRole('button', { name: 'Copiar resumo do projeto' }).click();
-  await expect(guide.getByRole('status')).toContainText('Resumo copiado');
+  await guide.getByRole('button', { name: 'Explorar meu projeto com a Olivaw' }).click();
+  await expect(page).toHaveURL(/\/projeto$/);
+  await page.getByLabel('Como se chama seu negócio?').fill('Empresa de eventos');
+  await page
+    .getByLabel('O que você gostaria de fazer acontecer?')
+    .fill('Quero destacar os eventos que já fiz.');
+  await expect(
+    page.getByRole('checkbox', { name: 'Copiar informações de um lugar para outro' }),
+  ).toBeChecked();
+  for (let index = 0; index < 4; index++)
+    await page.getByRole('button', { name: /^Próximo:/ }).click();
+  await page.getByRole('button', { name: 'Revisar minha pasta' }).click();
+  await page.getByRole('button', { name: 'Copiar resumo do projeto' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Resumo copiado' })).toBeVisible();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   expect(copied).toContain('Empresa de eventos');
   expect(copied).toContain('Quero destacar os eventos que já fiz.');
   expect(apiRequests).toBe(0);
-  await guide.getByRole('button', { name: 'Voltar' }).click();
-  await guide.screenshot({ path: testInfo.outputPath('discovery-result.png') });
+  await page.screenshot({
+    path: testInfo.outputPath('project-folder-discovery.png'),
+    fullPage: true,
+  });
 });
 
 test('descoberta mobile troca de caminho sem respostas incompatíveis', async ({
@@ -54,6 +64,7 @@ test('descoberta mobile troca de caminho sem respostas incompatíveis', async ({
 }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
+  await page.getByRole('button', { name: /Quero organizar minha ideia/ }).click();
   const guide = page.getByRole('region', { name: 'Descubra um caminho para seu projeto' });
   await guide.screenshot({ path: testInfo.outputPath('discovery-mobile.png') });
   await guide.getByRole('button', { name: /Quero automatizar tarefas/ }).click();
@@ -71,10 +82,10 @@ test('descoberta mobile troca de caminho sem respostas incompatíveis', async ({
     'Encontrar uma oportunidade',
   );
   await expect(guide).not.toContainText('Enviar avisos e lembretes');
-  await guide.getByRole('button', { name: 'Preparar nossa conversa' }).click();
-  await expect(guide.getByLabel('Seu resumo — pode editar')).toHaveValue(
-    /Só quero conhecer as possibilidades/,
-  );
+  await guide.getByRole('button', { name: 'Explorar meu projeto com a Olivaw' }).click();
+  await expect(
+    page.getByRole('checkbox', { name: 'Só quero conhecer as possibilidades' }),
+  ).toBeChecked();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
@@ -87,9 +98,10 @@ for (const viewport of [
     await page.emulateMedia({ reducedMotion: 'reduce' });
     for (const [name, id] of [
       ['Soluções', 'solucoes'],
+      ['Clientes', 'clientes'],
       ['Como funciona', 'como-funciona'],
       ['Sobre nós', 'sobre'],
-      ['Vamos conversar', 'contato'],
+      ['Contato', 'contato'],
     ]) {
       await page.goto('/');
       if (viewport.name === 'mobile') {

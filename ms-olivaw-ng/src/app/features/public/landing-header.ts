@@ -20,14 +20,14 @@ import { RouterLink } from '@angular/router';
         />
         <span class="text-xl font-bold tracking-tight">Olivaw</span>
       </a>
-      <nav aria-label="Navegação principal" class="hidden items-center gap-8 text-sm md:flex">
-        <a href="#solucoes">Soluções</a><a href="#como-funciona">Como funciona</a
-        ><a href="#sobre">Sobre nós</a>
-        <a href="#contato" class="nav-cta">Vamos conversar <span aria-hidden="true">↗</span></a>
+      <nav aria-label="Navegação principal" class="hidden items-center gap-8 text-sm lg:flex">
+        <a href="#solucoes">Soluções</a><a href="#clientes">Clientes</a
+        ><a href="#como-funciona">Como funciona</a><a href="#sobre">Sobre nós</a>
+        <a href="#contato" class="nav-cta">Contato <span aria-hidden="true">↗</span></a>
       </nav>
       <button
         type="button"
-        class="rounded-lg border border-outline/30 bg-transparent px-4 py-2 text-sm md:hidden"
+        class="rounded-lg border border-outline/30 bg-transparent px-4 py-2 text-sm lg:hidden"
         aria-controls="menu-mobile"
         [attr.aria-expanded]="open()"
         (click)="open.set(!open())"
@@ -39,12 +39,13 @@ import { RouterLink } from '@angular/router';
       <nav
         id="menu-mobile"
         aria-label="Navegação mobile"
-        class="flex flex-col gap-5 border-t border-outline/20 px-6 py-6 md:hidden"
+        class="flex flex-col gap-5 border-t border-outline/20 px-6 py-6 lg:hidden"
       >
         <a href="#solucoes" (click)="open.set(false)">Soluções</a
+        ><a href="#clientes" (click)="open.set(false)">Clientes</a
         ><a href="#como-funciona" (click)="open.set(false)">Como funciona</a>
         <a href="#sobre" (click)="open.set(false)">Sobre nós</a
-        ><a href="#contato" (click)="open.set(false)">Vamos conversar</a>
+        ><a href="#contato" (click)="open.set(false)">Contato</a>
       </nav>
     }
   </header>`,

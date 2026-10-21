@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { LandingHeader } from './landing-header';
-import { ProjectContact } from './project-contact';
+import { LandingContact } from './landing-contact';
+import { LandingClients } from './landing-clients';
 @Component({
   selector: 'app-public-page',
-  imports: [LandingHeader, ProjectContact],
+  imports: [LandingHeader, LandingContact, LandingClients],
   templateUrl: './public-page.html',
   styleUrl: './public-page.scss',
 })

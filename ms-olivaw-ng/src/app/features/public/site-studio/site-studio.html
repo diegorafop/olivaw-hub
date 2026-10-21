@@ -2,7 +2,7 @@
   <header class="studio-header">
     <a routerLink="/" fragment="contato" class="olivaw-brand" aria-label="Voltar à Olivaw"
       ><img src="assets/brand/olivaw-avatar-web-v2.png" alt="" width="38" height="38" /><strong
-        >Olivaw</strong
+        >Olivaw Hub</strong
       ><span>Estúdio de ideias</span></a
     >
     <a routerLink="/" fragment="contato" class="back-home">← Voltar ao site</a>
@@ -10,9 +10,12 @@
   <main id="conteudo" class="studio-main">
     <div class="studio-intro">
       <div>
-        <p class="studio-eyebrow">Seu site começa com uma possibilidade</p>
+        <p class="studio-eyebrow">Você imagina. A Olivaw dá forma.</p>
         <h1>Sua ideia, <span>ganhando forma.</span></h1>
-        <p>Um espaço em branco. Suas ideias em peças. Clique para começar a construir.</p>
+        <p>
+          Explore algumas possibilidades. Seu sistema será pensado para o jeito que sua empresa
+          funciona.
+        </p>
       </div>
       <span class="explore-badge"
         ><span aria-hidden="true">✳</span> Um espaço para experimentar</span
@@ -22,11 +25,10 @@
       <app-site-controls
         [activePreset]="activePreset()"
         [selectedBlocks]="selectedBlocks()"
-        [reviewing]="reviewing()"
         (presetChange)="choosePreset($event)"
         (blockToggle)="toggleBlock($event)"
         (resetRequested)="reset()"
-        (reviewChange)="reviewing.set($event)"
+        (continueRequested)="openProject()"
       />
       <div class="preview-column">
         <div class="preview-heading">
@@ -58,8 +60,7 @@
           <span aria-hidden="true">✓</span>{{ notice() }}
         </p>
         <p class="preview-note">
-          Textos e imagens ilustrativos. As escolhas mudam esta prévia, sem publicar um site ou
-          enviar informações.
+          Exemplos para inspirar. Sua ideia pode ir muito além destas possibilidades.
         </p>
       </div>
     </div>
@@ -67,7 +68,7 @@
       <div>
         <p class="studio-eyebrow">Depois de construir, continuamos por perto</p>
         <h2 id="care-title">Colocar no ar é só o começo.</h2>
-        <p>Seu negócio segue em frente. Seu site pode acompanhar.</p>
+        <p>Seu negócio segue em frente. Seu sistema pode acompanhar.</p>
       </div>
       <div class="care-grid">
         <article>
@@ -93,6 +94,6 @@
     </section>
   </main>
   <footer class="studio-footer">
-    <strong>Olivaw</strong><span>Uma boa ideia não precisa nascer pronta.</span>
+    <strong>Olivaw Hub</strong><span>Uma boa ideia não precisa nascer pronta.</span>
   </footer>
 </div>

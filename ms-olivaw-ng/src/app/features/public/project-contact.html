@@ -71,7 +71,7 @@
         }
       </div>
       <p class="quiet-note">Ao escolher uma opção, você segue para a próxima etapa.</p>
-    } @else if (!reviewOpen()) {
+    } @else {
       @if (path(); as selected) {
         <p class="question-description">
           Uma sugestão inicial a partir das suas escolhas. Podemos ajustar tudo na conversa.
@@ -99,8 +99,8 @@
             <dd>{{ context()?.label }}</dd>
           </div>
         </dl>
-        <button type="button" class="primary-action" (click)="prepareConversation()">
-          Preparar nossa conversa <span aria-hidden="true">↗</span>
+        <button type="button" class="primary-action" (click)="openProject()">
+          Explorar meu projeto com a Olivaw <span aria-hidden="true">↗</span>
         </button>
         <button type="button" class="restart-link" (click)="restart()">
           Explorar outro caminho
@@ -109,41 +109,6 @@
           É um ponto de partida. Escopo, prazo e investimento vêm depois de entendermos seu projeto.
         </p>
       }
-    } @else {
-      <p class="question-description">
-        Revise o que escolheu e acrescente o que quiser. Você pode copiar e guardar seu resumo.
-      </p>
-      <form
-        [formGroup]="form"
-        (ngSubmit)="copy()"
-        aria-label="Resumo do projeto"
-        class="review-form"
-      >
-        <mat-form-field appearance="outline">
-          <mat-label>Nome do negócio (opcional)</mat-label>
-          <input matInput formControlName="business" maxlength="120" autocomplete="organization" />
-          <mat-error>Use até 120 caracteres.</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Seu resumo — pode editar</mat-label>
-          <textarea
-            matInput
-            formControlName="summary"
-            rows="8"
-            maxlength="3000"
-            required
-          ></textarea>
-          <mat-error>Mantenha um resumo de até 3.000 caracteres.</mat-error>
-        </mat-form-field>
-        <button type="submit" class="primary-action">
-          Copiar resumo do projeto <span aria-hidden="true">↗</span>
-        </button>
-      </form>
-      <p class="quiet-note">
-        Nosso canal de atendimento será divulgado em breve. Por enquanto, nada é enviado ou salvo
-        pelo site. Suas escolhas ficam somente nesta página enquanto ela está aberta.
-      </p>
     }
-    <p role="status" aria-live="polite" class="feedback">{{ message() }}</p>
   </div>
 </div>

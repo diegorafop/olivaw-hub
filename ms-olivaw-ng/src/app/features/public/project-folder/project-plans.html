@@ -1,0 +1,50 @@
+<div [class.journey-active]="active()">
+  <div class="section-heading">
+    <div class="brand-presence" aria-hidden="true">
+      <img src="assets/brand/olivaw-avatar-web-v2.png" width="200" height="200" alt="" />
+    </div>
+    <div>
+      <p class="eyebrow">04 / UMA PARCERIA PARA DURAR</p>
+      <h2 tabindex="-1" id="plans-title">
+        Previsibilidade para começar.<br />Espaço para crescer.
+      </h2>
+    </div>
+  </div>
+  <div class="plans-caption">
+    <strong>Um plano para cada momento.</strong>
+  </div>
+  <div class="plan-grid energy-track">
+    <span class="energy-line" aria-hidden="true"><i>→</i></span>
+    @for (plan of plans; track plan.name; let index = $index) {
+      <article
+        [style.--card-index]="index"
+        class="plan"
+        [class.chosen]="draft.plan() === plan.name"
+      >
+        <p class="plan-note">{{ plan.note }}</p>
+        <h3>{{ plan.name }}</h3>
+        <p>{{ plan.text }}</p>
+        <ul>
+          @for (feature of plan.features; track feature) {
+            <li><span aria-hidden="true">✓</span>{{ feature }}</li>
+          }
+        </ul>
+        <button
+          type="button"
+          [attr.aria-pressed]="draft.plan() === plan.name"
+          (click)="draft.plan.set(draft.plan() === plan.name ? null : plan.name)"
+        >
+          {{
+            draft.plan() === plan.name
+              ? 'Interesse registrado nesta pasta ✓'
+              : 'Quero entender este plano'
+          }}
+        </button>
+      </article>
+    }
+  </div>
+  <p class="small plan-disclaimer">
+    Capacidades, valores, frequência dos backups, atendimento e franquias de alterações serão
+    definidos na proposta. Indicar interesse ajuda a conversa; não seleciona nem contrata um plano.
+  </p>
+</div>

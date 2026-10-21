@@ -226,3 +226,25 @@ button:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+.idea-label {
+  display: block;
+  margin: 24px 0 10px;
+  font-weight: 600;
+}
+textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #bbcdc4;
+  border-radius: 12px;
+  padding: 14px;
+  font: inherit;
+  line-height: 1.6;
+  background: white;
+  color: #162c39;
+}
+textarea:focus-visible {
+  outline: 2px solid #256347;
+  outline-offset: 2px;
+}
