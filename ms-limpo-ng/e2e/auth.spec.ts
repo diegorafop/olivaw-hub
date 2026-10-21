@@ -10,9 +10,11 @@ test('rota pública e acesso direto protegido', async ({ page }) => {
 
 test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
   let logout = false;
+  const authenticationCalls: string[] = [];
   await page.route('http://localhost:5137/identity/authentication/**', async (route) => {
     expect(new URL(route.request().url()).origin).toBe('http://localhost:5137');
     const path = new URL(route.request().url()).pathname;
+    authenticationCalls.push(path);
     if (path.endsWith('/login')) {
       expect(route.request().postDataJSON()).toEqual({
         login: 'operador',
@@ -24,7 +26,7 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
           expiresAt: new Date(Date.now() + 60000).toISOString(),
         },
       });
-    } else if (path.endsWith('/acesso')) {
+    } else if (path.endsWith('/access')) {
       expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
       await route.fulfill({
         json: { userProfileId: 'exemplo', name: 'Operador', isRoot: false, permissions: [] },
@@ -44,6 +46,11 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
   await page.getByRole('button', { name: 'Sair', exact: true }).click();
   await expect(page).toHaveURL(/\/login$/);
   expect(logout).toBe(true);
+  expect(authenticationCalls).toEqual([
+    '/identity/authentication/login',
+    '/identity/authentication/access',
+    '/identity/authentication/logout',
+  ]);
 });
 
 test('erro de credenciais aparece uma única vez', async ({ page }) => {
