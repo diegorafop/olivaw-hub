@@ -3,6 +3,7 @@
 - [Apresentação da Olivaw](approach/apresentacao-olivaw.md): versões resumida, média e completa, com adaptações para cada conversa.
 - [Abordagem — Rodrigo / Impressão](approach/rodrigo-impressao.md): sequência de conversa, catálogo e possíveis etapas para o negócio de impressão.
 - [Abordagem — Cavalcanti Terraplanagem](approach/cavalcanti-terraplanagem.md): divulgação da frota, locações e organização interna por etapas.
+- [Abordagem — Andrea / Vendas](approach/andrea-vendas.md): conversa sobre gestão comercial, necessidades pontuais e indicações para a Olivaw.
 - [Protocolo de descoberta do cliente](protocolo-descoberta-cliente.md): questionário, análise de negócio e evolução por MVP.
 - [Protótipo navegável do briefing](prototipos/briefing-cliente.html): fluxo local com exemplo LTMJ e exportação de resumo.
 - [Briefing e MVP da LTMJ](../ms-ltmj-ng/docs/briefing-e-mvp.md): dados confirmados, redes consultadas, pendências e fases.
