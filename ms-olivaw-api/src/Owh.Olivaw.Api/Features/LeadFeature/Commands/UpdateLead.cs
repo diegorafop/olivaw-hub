@@ -83,6 +83,12 @@ public sealed class UpdateLeadHandler(IRepository<Lead> repository) : IRequestHa
 
 public sealed class UpdateLeadValidator : AbstractValidator<UpdateLeadCommand>
 {
+    private static bool HasContact(UpdateLeadCommand item)
+    {
+        if (!string.IsNullOrWhiteSpace(item.Email)) return true;
+        return !string.IsNullOrWhiteSpace(item.Whatsapp);
+    }
+
     public UpdateLeadValidator()
     {
         RuleFor(item => item.SchemaVersion).Equal(1);
@@ -90,7 +96,12 @@ public sealed class UpdateLeadValidator : AbstractValidator<UpdateLeadCommand>
         RuleFor(item => item.StartedAt).NotEmpty();
         RuleFor(item => item.Entry).Must(value => value is "studio" or "discovery");
         RuleFor(item => item.Stage).Equal("submitted");
-        RuleFor(item => item.Email).NotEmpty().MaximumLength(254).EmailAddress();
+        RuleFor(item => item.Email).MaximumLength(254).EmailAddress()
+            .When(item => !string.IsNullOrWhiteSpace(item.Email));
+        RuleFor(item => item.Whatsapp).Matches("^[1-9][0-9]9[0-9]{8}$")
+            .When(item => !string.IsNullOrEmpty(item.Whatsapp));
+        RuleFor(item => item).Must(HasContact)
+            .WithMessage("Informe ao menos um contato: e-mail ou WhatsApp com DDD.");
         RuleFor(item => item.Business).NotNull().MaximumLength(120);
         RuleFor(item => item.Requirements).NotNull().MaximumLength(3000);
         RuleFor(item => item.Plan).Must(value => value is null or "Bronze" or "Prata" or "Ouro" or "Diamante");

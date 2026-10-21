@@ -20,7 +20,7 @@ it('não chama a API ao escrever nem envia um contato incompleto', async () => {
   inquiry.editMessage('Tenho uma pergunta');
   await inquiry.send();
   http.expectNone(() => true);
-  expect(inquiry.feedback()).toContain('Informe seu e-mail');
+  expect(inquiry.feedback()).toContain('Informe um e-mail ou WhatsApp');
 });
 
 it('repete a mesma revisão após falha sem alterar a pasta de projeto', async () => {
@@ -67,4 +67,36 @@ it('impede envio simultâneo e identifica alterações feitas enquanto envia', a
   expect(inquiry.sent()).toBe(false);
   expect(inquiry.feedback()).toContain('novas alterações');
   expect(inquiry.message()).toBe('Uma nova pergunta');
+});
+
+it('envia WhatsApp com máscara normalizado e sem e-mail', async () => {
+  const { inquiry, http } = setup();
+  inquiry.editWhatsapp('(11) 98765-4321');
+  inquiry.editMessage('Quero conversar sobre minha pastelaria.');
+  expect(inquiry.ready()).toBe(true);
+  const sending = inquiry.send();
+  const request = http.expectOne((item) => item.method === 'PUT');
+  expect(request.request.body.email).toBe('');
+  expect(request.request.body.whatsapp).toBe('11987654321');
+  request.flush({});
+  await sending;
+  expect(inquiry.sent()).toBe(true);
+});
+it('explica erros e bloqueia contato inválido mesmo com outro válido', async () => {
+  const { inquiry, http } = setup();
+  await inquiry.send();
+  expect(inquiry.contactError()).toBe(true);
+  expect(inquiry.messageError()).toBe(true);
+  inquiry.editEmail('pastelaria');
+  inquiry.editWhatsapp('11987654321');
+  inquiry.editMessage('Olá');
+  expect(inquiry.emailError()).toBe(true);
+  expect(inquiry.ready()).toBe(false);
+  await inquiry.send();
+  http.expectNone(() => true);
+  inquiry.editEmail('');
+  expect(inquiry.ready()).toBe(true);
+  inquiry.editWhatsapp('1198');
+  expect(inquiry.whatsappError()).toBe(true);
+  expect(inquiry.ready()).toBe(false);
 });

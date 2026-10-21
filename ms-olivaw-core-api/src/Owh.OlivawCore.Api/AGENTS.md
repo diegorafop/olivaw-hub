@@ -41,3 +41,7 @@ Estas regras complementam o [AGENTS.md da raiz](../../AGENTS.md).
 - Teste o comportamento público dos componentes afetados, registros de DI e configuração quando pertinente; não crie controllers de negócio apenas para testar a biblioteca.
 - Valide build/testes e, quando mudar distribuição ou dependências, o pacote NuGet e o uso por um host consumidor.
 - Não adicione `appsettings`, Docker Compose, portas ou ambientes de implantação de um microservice a esta biblioteca. O Dockerfile da raiz gera pacotes e relatórios.
+
+## Limite do domínio
+
+Não crie pasta `Domain` neste projeto `.Api`. Tipos de domínio compartilhados pertencem ao núcleo `Owh.OlivawCore`; entidades e invariantes específicas pertencem ao domínio de cada consumidor. Tipos de infraestrutura permanecem nas pastas correspondentes desta biblioteca.

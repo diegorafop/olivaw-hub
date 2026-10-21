@@ -83,3 +83,10 @@ Features/<Nome>Feature/
 - Se um cliente REST for criado, mantenha payloads públicos planos e independentes de MediatR. A API pode recebê-los por composição em adaptadores internos, mantendo auditoria fora do body HTTP.
 - Migre controllers, handlers, validators, mapeadores e testes junto aos contratos expostos. Preserve rotas, status, JSON e nomes públicos dos erros de validação.
 - Não aplique regras específicas do `Owh.Auth.Client` a este template sem conferir a implementação existente e o escopo solicitado.
+
+## Limite do domínio
+
+- Não crie pasta `Domain` neste projeto `.Api`. Entidades, objetos de valor e invariantes de negócio pertencem exclusivamente a [`Owh.Olivaw/Domain`](../Owh.Olivaw/Domain/AGENTS.md).
+- Modelos internos da apresentação e dos casos de uso ficam junto à feature; quando necessário, use `Features/<Recurso>Feature/Internals`. Mantenha tipos pequenos, nomes e propriedades em inglês, sem dependências de banco.
+- Commands e queries permanecem em `Features/<Recurso>Feature/Commands` e `Queries`, com verbos `Create`, `Read`, `Update` e `Delete`. Payloads públicos pertencem ao projeto cliente quando existente; não duplique entidades ou mappings EF na API.
+- Interfaces de integrações pertencem a `Owh.Olivaw/Services`; contratos de outros microservices ficam em `Owh.Olivaw/Requests`. Mappings EF pertencem à camada Dados.

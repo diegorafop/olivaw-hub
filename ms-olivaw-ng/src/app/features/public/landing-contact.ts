@@ -44,6 +44,7 @@ import { ProjectContact } from './project-contact';
     </div>
     <div id="direct-contact" [hidden]="mode() !== 'direct'">
       <form
+        novalidate
         (submit)="$event.preventDefault(); inquiry.send()"
         aria-label="Contato direto com a Olivaw"
       >
@@ -51,36 +52,89 @@ import { ProjectContact } from './project-contact';
           <h3>O que você gostaria de conversar?</h3>
           <p>Não precisa saber de tecnologia nem ter uma ideia pronta.</p>
         </div>
-        <label for="contact-email">Seu e-mail para respondermos</label
-        ><input
-          id="contact-email"
-          type="email"
-          required
-          maxlength="254"
-          autocomplete="email"
-          placeholder="voce@seunegocio.com.br"
-          [value]="inquiry.email()"
-          (input)="inquiry.editEmail($any($event.target).value)"
-        />
-        <label for="contact-message">Sua mensagem</label
+        <fieldset aria-describedby="contact-help contact-error">
+          <legend>
+            Como podemos responder? <span class="required" aria-hidden="true">*</span>
+          </legend>
+          <p id="contact-help" class="field-help">
+            Preencha ao menos um contato: e-mail ou WhatsApp. Se preencher os dois, ambos precisam
+            ser válidos.
+          </p>
+          <div class="contact-fields">
+            <div>
+              <label for="contact-email">Seu e-mail</label>
+              <input
+                id="contact-email"
+                type="email"
+                maxlength="254"
+                autocomplete="email"
+                placeholder="voce@seunegocio.com.br"
+                [value]="inquiry.email()"
+                [attr.aria-invalid]="inquiry.emailError() || inquiry.contactError()"
+                aria-describedby="contact-email-error contact-help contact-error"
+                (blur)="inquiry.touch('email')"
+                (input)="inquiry.editEmail($any($event.target).value)"
+              />
+              <p id="contact-email-error" class="field-error" [hidden]="!inquiry.emailError()">
+                Digite um e-mail válido, como voce@empresa.com.br.
+              </p>
+            </div>
+            <div>
+              <label for="contact-whatsapp">Seu WhatsApp com DDD</label>
+              <input
+                id="contact-whatsapp"
+                type="tel"
+                inputmode="tel"
+                maxlength="15"
+                autocomplete="tel-national"
+                placeholder="(11) 99999-9999"
+                [value]="inquiry.whatsapp()"
+                [attr.aria-invalid]="inquiry.whatsappError() || inquiry.contactError()"
+                aria-describedby="contact-whatsapp-error contact-help contact-error"
+                (blur)="inquiry.touch('whatsapp')"
+                (input)="inquiry.editWhatsapp($any($event.target).value)"
+              />
+              <p
+                id="contact-whatsapp-error"
+                class="field-error"
+                [hidden]="!inquiry.whatsappError()"
+              >
+                Informe DDD e celular com 9 dígitos: (11) 99999-9999.
+              </p>
+            </div>
+          </div>
+          <p id="contact-error" class="field-error" [hidden]="!inquiry.contactError()">
+            Preencha seu e-mail ou WhatsApp para podermos responder.
+          </p>
+        </fieldset>
+        <label for="contact-message"
+          >Sua mensagem <span class="required" aria-hidden="true">*</span></label
         ><textarea
           id="contact-message"
           rows="4"
+          [attr.aria-invalid]="inquiry.messageError()"
+          aria-describedby="contact-message-error"
+          (blur)="inquiry.touch('message')"
           required
           maxlength="3000"
           placeholder="Conte o que está pensando ou pergunte o que quiser…"
           [value]="inquiry.message()"
           (input)="inquiry.editMessage($any($event.target).value)"
         ></textarea>
+        <p id="contact-message-error" class="field-error" [hidden]="!inquiry.messageError()">
+          Escreva uma mensagem para continuar.
+        </p>
         <div class="form-footer">
-          <p>
-            Usaremos o e-mail para responder à sua mensagem. Os dados só são enviados quando você
-            confirmar abaixo.
-          </p>
-          <button
-            type="submit"
-            [disabled]="!inquiry.ready() || inquiry.sending() || inquiry.sent()"
-          >
+          <div class="contact-reassurance">
+            <img
+              src="assets/brand/reactions/olivaw-message-welcome-v1.webp"
+              alt=""
+              width="80"
+              height="80"
+            />
+            <p>Pode mandar sua ideia. A Olivaw entra em contato com você.</p>
+          </div>
+          <button type="submit" [disabled]="inquiry.sending() || inquiry.sent()">
             {{
               inquiry.sending()
                 ? 'Enviando…'

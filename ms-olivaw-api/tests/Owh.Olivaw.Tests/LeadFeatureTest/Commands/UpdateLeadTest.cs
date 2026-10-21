@@ -124,4 +124,28 @@ public class UpdateLeadTest
         }
         Assert.False(new UpdateLeadMediatorValidator().Validate(request).IsValid);
     }
+    [Theory]
+    [InlineData("", "11987654321", true)]
+    [InlineData("", null, false)]
+    [InlineData("", "", false)]
+    [InlineData("", "1198", false)]
+    [InlineData("invalid", "11987654321", false)]
+    [InlineData("lead@example.test", "1198", false)]
+    [InlineData("lead@example.test", "11987654321", true)]
+    [InlineData("", "(11) 98765-4321", false)]
+    public void Validator_should_require_one_valid_contact_and_validate_both_when_present(string email, string? whatsapp, bool expected)
+    {
+        var request = LeadFeatureFakerBuilder.Create();
+        request.Payload.Email = email;
+        request.Payload.Whatsapp = whatsapp;
+        Assert.Equal(expected, new UpdateLeadMediatorValidator().Validate(request).IsValid);
+    }
+    [Fact]
+    public void Snapshot_should_preserve_legacy_serialization_when_whatsapp_is_absent()
+    {
+        var request = LeadFeatureFakerBuilder.Create();
+        var json = System.Text.Json.JsonSerializer.Serialize(request.Payload, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        using var document = System.Text.Json.JsonDocument.Parse(json);
+        Assert.False(document.RootElement.TryGetProperty("whatsapp", out _));
+    }
 }

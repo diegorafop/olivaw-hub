@@ -54,3 +54,9 @@ Por decisão explícita do mantenedor, os arquivos `.env` de todos os projetos s
 - Revise migration, designer, snapshot e SQL entre a migration anterior e a nova. Preserve BOM UTF-8 e CRLF dos arquivos C#. Não altere migrations antigas já publicadas.
 - Gerar e revisar não autoriza `database update`, conexão a bancos reais ou redeploy. O startup das APIs aplica as migrations pendentes; registre essa consequência antes da publicação.
 - Documente comandos reproduzíveis no README da API e consulte os [comandos do Core](ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores). Informe as validações executadas e os provedores não contemplados.
+
+## Localização do domínio
+
+- Projetos com sufixo `.Api` não podem conter pasta `Domain`. Entidades, objetos de valor e invariantes ficam no projeto de domínio correspondente, como `Owh.Olivaw/Domain` ou `Owh.Ltmj/Domain`.
+- Modelos internos da API ficam junto às features, em `Internals` quando necessário; contratos públicos ficam no projeto cliente quando existente. Preserve interfaces de domínio nas pastas `Repositories`, `Services` e `Requests` do núcleo.
+- O template `ms-limpo-api` e os serviços gerados devem preservar essa organização.

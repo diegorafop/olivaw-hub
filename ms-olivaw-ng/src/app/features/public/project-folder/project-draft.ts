@@ -26,6 +26,7 @@ export interface LeadSnapshot {
   requirements: string;
   business: string;
   email: string;
+  whatsapp?: string;
   plan: string | null;
   events: readonly JourneyEvent[];
 }
