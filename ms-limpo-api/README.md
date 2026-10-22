@@ -45,6 +45,35 @@ O bootstrap é idempotente: se root já existir, preserva sua senha e seu cadast
 
 Os arquivos de migrations precisam acompanhar o projeto. O startup aplica arquivos existentes; geração de novas migrations é uma etapa de desenvolvimento. O contexto de design time PostgreSQL permite gerar arquivos sem inicializar a API nem acessar a AWS.
 
+### Gerar e revisar migrations PostgreSQL
+
+As migrations seguem a issue da branch: `feature/issue013-descricao` gera `Issue013`. Se já existir, acrescente um sufixo descritivo; não reescreva o histórico. Gere somente os provedores solicitados e mediante pedido explícito.
+
+Exemplo a partir da raiz do monorepo; substitua `Issue013` pela issue da entrega:
+
+```bash
+dotnet build ms-limpo-api/src/Owh.Limpo.Dados.PostgreSql --no-restore -m:1
+
+dotnet ef migrations add Issue013 \
+  --project ms-limpo-api/src/Owh.Limpo.Dados.PostgreSql \
+  --startup-project ms-limpo-api/src/Owh.Limpo.Dados.PostgreSql \
+  --context WriteDbContext --no-build
+```
+
+O `--no-restore` exige dependências restauradas. A factory de design time evita iniciar o host e não aplica alterações no banco. Depois de gerar, compile novamente o provedor e revise migration, designer e snapshot. Gere o SQL substituindo `MIGRATION_ANTERIOR` pelo identificador real da migration anterior, ou `0` se for a primeira:
+
+```bash
+dotnet build ms-limpo-api/src/Owh.Limpo.Dados.PostgreSql --no-restore -m:1
+
+dotnet ef migrations script MIGRATION_ANTERIOR Issue013 \
+  --project ms-limpo-api/src/Owh.Limpo.Dados.PostgreSql \
+  --startup-project ms-limpo-api/src/Owh.Limpo.Dados.PostgreSql \
+  --context WriteDbContext --no-build \
+  --output /tmp/limpo-issue013.sql
+```
+
+Esses comandos não conectam ao banco nem autorizam aplicação manual ou redeploy. A API aplica migrations pendentes ao iniciar após a publicação. Para APIs geradas, ajuste os caminhos para o novo serviço; não reutilize o histórico de outro cliente. Veja a [padronização no Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
+
 ## Configuração de nuvem e Docker
 
 Os appsettings por ambiente e overrides Compose seguem os endereços de infraestrutura usados pelo FinTalk. O template usa banco `olivaw_prd`, schema `ms_limpo` e domínio de produção `https://api.limpo.olivaw.com.br`. Outros ambientes têm nomes próprios, documentados no [guia de nuvem](../docs/cloud.md).

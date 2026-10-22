@@ -1,5 +1,6 @@
+import { customerDraftGuard } from './features/admin/customers/customer-draft.guard';
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth.guard';
+import { operationGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   {
     path: 'projeto',
@@ -27,11 +28,42 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    canMatch: [authGuard],
+    canMatch: [operationGuard],
+    loadComponent: () => import('./features/admin/admin-frame').then((m) => m.AdminFrame),
     children: [
       {
+        path: 'customers',
+        title: 'Olivaw - Clientes',
+        loadComponent: () =>
+          import('./features/admin/customers/customers-page').then((m) => m.CustomersPage),
+      },
+      {
+        path: 'customers/new',
+        title: 'Olivaw - Novo cliente',
+        canDeactivate: [customerDraftGuard],
+        loadComponent: () =>
+          import('./features/admin/customers/customer-editor').then((m) => m.CustomerEditor),
+      },
+      {
+        path: 'customers/:id',
+        title: 'Olivaw - Cliente',
+        canDeactivate: [customerDraftGuard],
+        loadComponent: () =>
+          import('./features/admin/customers/customer-editor').then((m) => m.CustomerEditor),
+      },
+      {
+        path: 'leads',
+        title: 'Olivaw - Leads',
+        loadComponent: () => import('./features/admin/leads/leads-page').then((m) => m.LeadsPage),
+      },
+      {
+        path: 'leads/:id',
+        title: 'Olivaw - Lead',
+        loadComponent: () => import('./features/admin/leads/leads-page').then((m) => m.LeadsPage),
+      },
+      {
         path: '',
-        title: 'Olivaw - Administração',
+        title: 'Olivaw - Operação',
         loadComponent: () => import('./features/admin/admin-page').then((m) => m.AdminPage),
       },
     ],

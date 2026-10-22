@@ -90,3 +90,10 @@ Features/<Nome>Feature/
 ## Execução remota de implantações
 
 A API envia somente o protocolo JSON pelo transporte SSH; não execute Git ou Docker localmente no container. O executor instalado na VM controla allowlist, caminhos, lock e jobs persistidos. Não aceite comandos remotos arbitrários nem desabilite a verificação de host SSH. Consulte [o guia do executor](../../../docs/deploy-executor.md). A consulta de status é somente leitura; falhas do job pertencem ao status, enquanto falhas de transporte passam pela validação centralizada.
+
+## Limite do domínio
+
+- Não crie pasta `Domain` neste projeto `.Api`. Entidades, objetos de valor e invariantes de negócio pertencem exclusivamente a [`Owh.Devops/Domain`](../Owh.Devops/Domain/AGENTS.md).
+- Modelos internos da apresentação e dos casos de uso ficam junto à feature; quando necessário, use `Features/<Recurso>Feature/Internals`. Mantenha tipos pequenos, nomes e propriedades em inglês, sem dependências de banco.
+- Commands e queries permanecem em `Features/<Recurso>Feature/Commands` e `Queries`, com verbos `Create`, `Read`, `Update` e `Delete`. Payloads públicos pertencem ao projeto cliente quando existente; não duplique entidades ou mappings EF na API.
+- Interfaces de integrações pertencem a `Owh.Devops/Services`; contratos de outros microservices ficam em `Owh.Devops/Requests`. Mappings EF pertencem à camada Dados.

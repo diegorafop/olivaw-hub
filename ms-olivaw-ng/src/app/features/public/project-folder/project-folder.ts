@@ -10,13 +10,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ContactFields } from '../contact-fields';
+import { ContactWelcome } from '../contact-welcome';
 import { ProjectPlans } from './project-plans';
 import { ProjectJourney } from './project-journey';
 import { ProjectDraft } from './project-draft';
 
 @Component({
   selector: 'app-project-folder',
-  imports: [RouterLink, ProjectJourney, ProjectPlans],
+  imports: [RouterLink, ProjectJourney, ProjectPlans, ContactFields, ContactWelcome],
   templateUrl: './project-folder.html',
   styleUrl: './project-folder.scss',
 })

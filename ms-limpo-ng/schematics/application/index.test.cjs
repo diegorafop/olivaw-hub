@@ -87,6 +87,12 @@ test('gera ambientes sem alterar o nome de um domínio raiz com.br', async () =>
     siteDomain: 'empresa.com.br',
   });
   assert.match(tree.readContent('/ms-empresa-ng/docker/.env.prd'), /PUBLIC_HOST=empresa\.com\.br/);
-  assert.match(tree.readContent('/ms-empresa-ng/docker/.env.stg'), /PUBLIC_HOST=stg\.empresa\.com\.br/);
-  assert.match(tree.readContent('/ms-empresa-ng/docker/.env.stg'), /API_URL=https:\/\/api\.stg\.empresa\.com\.br/);
+  assert.match(
+    tree.readContent('/ms-empresa-ng/docker/.env.stg'),
+    /PUBLIC_HOST=stg\.empresa\.com\.br/,
+  );
+  assert.match(
+    tree.readContent('/ms-empresa-ng/docker/.env.stg'),
+    /API_URL=https:\/\/api\.stg\.empresa\.com\.br/,
+  );
 });

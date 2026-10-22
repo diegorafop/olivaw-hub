@@ -1,0 +1,112 @@
+:host {
+  display: block;
+  color: #162c39;
+  font-family: Arial, sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #627366;
+}
+h2 {
+  font-size: 23px;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+  margin: 12px 0;
+}
+header > p:last-child,
+small,
+.update {
+  color: #627366;
+  font-size: 11px;
+  line-height: 1.7;
+}
+section {
+  border-top: 1px solid #e5ebe3;
+  padding: 20px 0;
+}
+h3 {
+  font-size: 12px;
+  margin: 0 0 12px;
+  color: #3e5c48;
+}
+p {
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.idea {
+  white-space: pre-wrap;
+}
+.contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+a {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #245c43;
+  overflow-wrap: anywhere;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  text-decoration: none;
+}
+.choices {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.choices > span {
+  font-size: 11px;
+  color: #3f634b;
+  background: #edf4ec;
+  padding: 6px 9px;
+  border-radius: 7px;
+}
+details {
+  margin-top: 12px;
+  font-size: 12px;
+}
+summary {
+  cursor: pointer;
+  color: #526e59;
+  padding: 5px 0;
+}
+ol {
+  padding: 0;
+  list-style: none;
+}
+li {
+  display: flex;
+  gap: 12px;
+  border-left: 1px solid #dce6da;
+  padding: 8px 12px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+li time {
+  color: #627366;
+  white-space: nowrap;
+}
+li span {
+  overflow-wrap: anywhere;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+:where(a, summary):focus-visible {
+  outline: 2px solid #256347;
+  outline-offset: 4px;
+}

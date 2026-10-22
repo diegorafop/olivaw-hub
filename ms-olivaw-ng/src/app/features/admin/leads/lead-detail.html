@@ -1,0 +1,92 @@
+@let data = lead();
+@let draft = snapshot();
+<header>
+  <p class="eyebrow">PASTA DO LEAD</p>
+  <h2>{{ draft?.business || draft?.project?.title || 'Contato recebido' }}</h2>
+  <p>Recebido em {{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+</header>
+@if (data.contentUnavailable || !draft) {
+  <p role="status">O conteúdo deste registro não pôde ser lido.</p>
+} @else {
+  <p>
+    <a routerLink="/admin/customers/new" [queryParams]="{ lead: data.externalId }"
+      >Cadastrar como cliente ↗</a
+    >
+  </p>
+  <section aria-label="Contato">
+    <h3>Vamos conversar</h3>
+    <div class="contacts">
+      @if (draft.email) {
+        <a [href]="emailUrl()">{{ draft.email }} <span aria-hidden="true">↗</span></a>
+      }
+      @if (whatsappUrl(); as url) {
+        <a [href]="url" target="_blank" rel="noopener"
+          >WhatsApp · {{ formatPhone(draft.whatsapp || '') }} <span aria-hidden="true">↗</span
+          ><span class="sr-only"> (nova aba)</span></a
+        >
+      }
+      @if (!draft.email && !draft.whatsapp) {
+        <p>Contato não informado.</p>
+      }
+    </div>
+  </section>
+  <section>
+    <h3>O que gostaria de fazer</h3>
+    <p class="idea">{{ draft.requirements || 'Nenhum texto adicional informado.' }}</p>
+  </section>
+  <section>
+    <h3>Ponto de partida</h3>
+    <p>{{ draft.project?.title || 'Não informado' }}</p>
+    @if (draft.project?.context) {
+      <p>{{ draft.project.context }}</p>
+    }
+    <div class="choices">
+      @for (choice of included(); track choice) {
+        <span>{{ choice }}</span>
+      }
+    </div>
+    @if (draft.excluded.length) {
+      <details>
+        <summary>Opções retiradas da ideia</summary>
+        @for (choice of draft.excluded; track choice) {
+          <p>{{ choice }}</p>
+        }
+      </details>
+    }
+  </section>
+  <section>
+    <h3>Interesse em plano</h3>
+    <p>{{ draft.plan || 'A avaliar com a equipe' }}</p>
+    <small>Interesse informado na jornada. Não representa contratação.</small>
+  </section>
+  <section>
+    <h3>Jornada registrada</h3>
+    <p>
+      {{ draft.entry === 'studio' ? 'Estúdio de ideias' : 'Descoberta / contato' }} · Iniciada em
+      {{ draft.startedAt | date: 'dd/MM/yyyy HH:mm' }}
+    </p>
+    @if (draft.events.length) {
+      <details>
+        <summary>Ver {{ draft.events.length }} eventos</summary>
+        <ol>
+          @for (event of draft.events; track $index) {
+            <li>
+              <time>{{ event.at | date: 'dd/MM HH:mm' }}</time
+              ><span
+                >{{ eventNames[event.name] || event.name }}
+                @if (event.value) {
+                  · {{ event.value }}
+                }
+              </span>
+            </li>
+          }
+        </ol>
+      </details>
+    } @else {
+      <small>Nenhum evento adicional informado.</small>
+    }
+  </section>
+  @if (data.updatedAt) {
+    <p class="update">Último envio: {{ data.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+  }
+}

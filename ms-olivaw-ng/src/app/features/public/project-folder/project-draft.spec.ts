@@ -51,7 +51,7 @@ it('não envia um e-mail inválido', async () => {
   draft.email.set('invalido');
   await draft.submit();
   http.expectNone(() => true);
-  expect(draft.deliveryMessage()).toContain('e-mail válido');
+  expect(draft.deliveryMessage()).toContain('e-mail ou WhatsApp válido');
 });
 
 it('restaura o JSON da aba após recriar o estado', async () => {
@@ -84,4 +84,41 @@ it('não confirma como enviada uma alteração feita durante o envio', async () 
   expect(draft.sent()).toBe(false);
   expect(draft.deliveryMessage()).toContain('novas alterações');
   expect(draft.requirements()).toBe('Ideia atualizada durante o envio');
+});
+
+it('envia WhatsApp sem e-mail e restaura o contato após recarregar', async () => {
+  const { draft, http } = setup();
+  draft.start({ source: 'studio', title: 'Pastelaria', choices: ['Categorias'], context: '' });
+  draft.business.set('Pastelaria');
+  draft.requirements.set('Quero receber pedidos');
+  draft.editWhatsapp('(11) 98765-4321');
+  const send = draft.submit();
+  const request = http.expectOne((item) => item.method === 'PUT');
+  expect(request.request.body.whatsapp).toBe('11987654321');
+  expect(request.request.body.email).toBe('');
+  expect(request.request.body.business).toBe('Pastelaria');
+  request.flush({});
+  await send;
+  expect(draft.sent()).toBe(true);
+  draft.editWhatsapp('21987654321');
+  expect(draft.sent()).toBe(false);
+  // Envio persiste a última versão do rascunho antes de chamar a API.
+  const update = draft.submit();
+  http.expectOne((item) => item.method === 'PUT').flush({});
+  await update;
+  TestBed.resetTestingModule();
+  expect(setup().draft.whatsapp()).toBe('21987654321');
+});
+it('bloqueia ausência de contato e ambos os campos quando algum está inválido', async () => {
+  const { draft, http } = setup();
+  await draft.submit();
+  expect(draft.contactAttempted()).toBe(true);
+  draft.editWhatsapp('11987654321');
+  draft.editEmail('pastelaria');
+  await draft.submit();
+  http.expectNone(() => true);
+  draft.editEmail('lead@example.test');
+  draft.editWhatsapp('11');
+  await draft.submit();
+  http.expectNone(() => true);
 });

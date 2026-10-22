@@ -16,6 +16,8 @@ public static class ServiceCollectionExtensions
     )
     {
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped<Owh.Olivaw.Repositories.IRepositoryLead, RepositoryLead>();
+        services.AddScoped<Owh.Olivaw.Repositories.IRepositoryCustomer, RepositoryCustomer>();
     }
 
     public static void AddDbContext

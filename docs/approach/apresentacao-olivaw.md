@@ -79,7 +79,7 @@ Usar um exemplo curto no lugar da enumeração genérica. A necessidade ainda de
 - **Serviços:** “Uma página pode reunir o que você faz, trabalhos recentes e um caminho direto para quem quer conversar.”
 - **Rotina administrativa:** “Podemos entender um controle que vocês usam hoje e avaliar uma consulta mais simples, com busca, filtros e acesso para a equipe.”
 
-Roteiros específicos: [Rodrigo / Impressão](rodrigo-impressao.md) e [Cavalcanti Terraplanagem](cavalcanti-terraplanagem.md).
+Roteiros específicos: [Rodrigo / Impressão](rodrigo-impressao.md), [Cavalcanti Terraplanagem](cavalcanti-terraplanagem.md) e [Andrea / Vendas e indicações](andrea-vendas.md).
 
 ## Referência de trabalho real
 

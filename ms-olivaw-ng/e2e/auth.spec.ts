@@ -27,7 +27,7 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
     } else if (path.endsWith('/access')) {
       expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');
       await route.fulfill({
-        json: { userProfileId: 'exemplo', name: 'Operador', isRoot: false, permissions: [] },
+        json: { userProfileId: 'exemplo', name: 'Operador', isRoot: true, permissions: [] },
       });
     } else if (path.endsWith('/logout')) {
       expect(route.request().headers()['authorization']).toBe('Bearer token-de-teste');

@@ -1,0 +1,119 @@
+<main class="customer-content" id="operation-content" tabindex="-1">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">OLIVAW / RELACIONAMENTOS</p>
+      <h1>Clientes</h1>
+      <p>Empresas, pessoas e o próximo passo de cada parceria.</p>
+    </div>
+    <a class="primary" routerLink="/admin/customers/new"
+      >Novo cliente <span aria-hidden="true">＋</span></a
+    >
+  </header>
+  <form class="filters panel" [formGroup]="form" (ngSubmit)="apply()">
+    <label
+      >Buscar cliente<input
+        formControlName="search"
+        maxlength="100"
+        placeholder="Empresa, razão social ou CNPJ"
+    /></label>
+    <label
+      >Situação<select formControlName="status">
+        <option value="">Todas as situações</option>
+        @for (status of statuses; track status.value) {
+          <option [value]="status.value">{{ status.label }}</option>
+        }
+      </select></label
+    >
+    <button class="primary" type="submit">Filtrar</button
+    ><button class="subtle" type="button" (click)="clear()">Limpar</button>
+  </form>
+  @let result = state();
+  @if (result.loading) {
+    <section class="panel empty" role="status">Consultando clientes…</section>
+  } @else if (result.error) {
+    <section class="panel empty" role="alert">
+      <h2>Vamos tentar de novo?</h2>
+      <p>{{ result.error }}</p>
+      <button type="button" (click)="reload()">Tentar novamente</button>
+    </section>
+  } @else if (result.data; as data) {
+    <section class="panel results" aria-label="Lista de clientes">
+      <div class="list-heading">
+        <h2>{{ data.total }} {{ data.total === 1 ? 'cliente' : 'clientes' }}</h2>
+        <span>Cadastro da operação</span>
+      </div>
+      @if (!data.items.length) {
+        <div class="empty">
+          <img
+            src="assets/brand/reactions/olivaw-message-welcome-v2.webp"
+            width="80"
+            height="80"
+            alt=""
+          />
+          <h2>
+            {{
+              form.value.search || form.value.status
+                ? 'Nenhum cliente por aqui.'
+                : 'Toda parceria começa com uma conversa.'
+            }}
+          </h2>
+          <p>
+            {{
+              form.value.search || form.value.status
+                ? 'Experimente outros filtros.'
+                : 'Cadastre a primeira empresa ou traga um lead para esta etapa.'
+            }}
+          </p>
+          <a routerLink="/admin/leads">Ver leads ↗</a>
+        </div>
+      } @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Empresa</th>
+                <th>Situação</th>
+                <th>Responsável Olivaw</th>
+                <th>Desde</th>
+                <th><span class="sr-only">Ficha</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (customer of data.items; track customer.externalId) {
+                <tr>
+                  <td>
+                    <a class="business" [routerLink]="['/admin/customers', customer.externalId]">{{
+                      customer.business
+                    }}</a>
+                  </td>
+                  <td>
+                    <span class="status" [attr.data-status]="customer.status">{{
+                      label(customer.status)
+                    }}</span>
+                  </td>
+                  <td>{{ customer.owner || 'A definir' }}</td>
+                  <td>{{ customer.createdAt | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <a
+                      [routerLink]="['/admin/customers', customer.externalId]"
+                      [attr.aria-label]="'Abrir ficha de ' + customer.business"
+                      >Abrir ↗</a
+                    >
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <nav class="pagination" aria-label="Paginação dos clientes">
+          <button type="button" [disabled]="data.page <= 1" (click)="go(data.page - 1)">
+            Anterior</button
+          ><span>Página {{ data.page }} de {{ pageCount() }}</span
+          ><button type="button" [disabled]="data.page >= pageCount()" (click)="go(data.page + 1)">
+            Próxima
+          </button>
+        </nav>
+      }
+    </section>
+  }
+</main>

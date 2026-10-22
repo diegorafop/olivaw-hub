@@ -1,0 +1,82 @@
+<div class="dashboard-content" id="operation-content" tabindex="-1">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">OLIVAW / OPERAÇÃO</p>
+      <h1>Visão geral</h1>
+      <p class="greeting">Olá, {{ store.usuario()?.name }}.</p>
+    </div>
+    <span class="environment">Ambiente não informado</span>
+  </div>
+  <section class="welcome" aria-labelledby="welcome-title">
+    <div class="welcome-copy">
+      <span class="welcome-label"><span aria-hidden="true">✳</span> SEU PONTO DE PARTIDA</span>
+      <h2 id="welcome-title">Sua operação,<br />em um só lugar.</h2>
+      <p>Um olhar para os clientes, os sistemas e as conversas que a Olivaw acompanha.</p>
+    </div>
+    <div class="avatar-scene" aria-hidden="true">
+      <span class="orbit orbit-one"></span><span class="orbit orbit-two"></span
+      ><img
+        src="assets/brand/reactions/olivaw-operations-coordinator-v2.webp"
+        width="180"
+        height="180"
+        alt=""
+      />
+    </div>
+  </section>
+  <app-lead-overview />
+  <app-customer-overview />
+  <section class="overview" aria-labelledby="overview-title">
+    <div class="section-heading">
+      <h2 id="overview-title">O espaço da sua operação</h2>
+      <span>Uma base para os próximos passos</span>
+    </div>
+    <div class="area-grid">
+      @for (area of areas; track area.title) {
+        <app-admin-area-card [area]="area" />
+      }
+    </div>
+  </section>
+  <div class="detail-grid">
+    <section class="detail-panel" aria-labelledby="attention-title">
+      <div class="panel-heading">
+        <h2 id="attention-title">O que pede sua atenção</h2>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m12 3 10 18H2L12 3ZM12 9v4M12 17h.01" />
+        </svg>
+      </div>
+      <div class="empty-state">
+        <span class="empty-icon" aria-hidden="true"
+          ><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 9h8M8 13h5M8 17h3" /></svg
+        ></span>
+        <h3>As prioridades terão lugar aqui.</h3>
+        <p>
+          Quando alertas e solicitações estiverem conectados, você verá o que precisa de
+          acompanhamento.
+        </p>
+        <span class="empty-caption">Sem fontes conectadas</span>
+      </div>
+    </section>
+    <section class="detail-panel" aria-labelledby="activity-title">
+      <div class="panel-heading">
+        <h2 id="activity-title">Últimas movimentações</h2>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2" />
+        </svg>
+      </div>
+      <div class="empty-state">
+        <span class="empty-icon" aria-hidden="true"
+          ><svg viewBox="0 0 24 24">
+            <path d="M12 3v18M5 7h14M5 17h14" />
+            <circle cx="12" cy="7" r="2" />
+            <circle cx="12" cy="17" r="2" /></svg
+        ></span>
+        <h3>Cada passo, com contexto.</h3>
+        <p>
+          Cadastros, publicações e atualizações formarão o histórico da operação à medida que forem
+          integrados.
+        </p>
+        <span class="empty-caption">Histórico ainda não conectado</span>
+      </div>
+    </section>
+  </div>
+</div>

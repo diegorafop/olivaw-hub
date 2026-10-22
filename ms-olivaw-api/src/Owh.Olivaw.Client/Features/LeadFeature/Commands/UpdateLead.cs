@@ -12,6 +12,8 @@ public sealed class UpdateLeadCommand
     public string Requirements { get; set; } = string.Empty;
     public string Business { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? Whatsapp { get; set; }
     public string? Plan { get; set; }
     public LeadJourneyEvent[] Events { get; set; } = [];
 }

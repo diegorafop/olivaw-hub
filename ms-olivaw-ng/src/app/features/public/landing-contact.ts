@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { ContactInquiry } from './contact-inquiry';
+import { ContactFields } from './contact-fields';
+import { ContactWelcome } from './contact-welcome';
 import { ProjectContact } from './project-contact';
 
 @Component({
   selector: 'app-landing-contact',
-  imports: [ProjectContact],
+  imports: [ProjectContact, ContactFields, ContactWelcome],
   template: `
     <div class="contact-heading">
       <div>
@@ -44,6 +46,7 @@ import { ProjectContact } from './project-contact';
     </div>
     <div id="direct-contact" [hidden]="mode() !== 'direct'">
       <form
+        novalidate
         (submit)="$event.preventDefault(); inquiry.send()"
         aria-label="Contato direto com a Olivaw"
       >
@@ -51,36 +54,34 @@ import { ProjectContact } from './project-contact';
           <h3>O que você gostaria de conversar?</h3>
           <p>Não precisa saber de tecnologia nem ter uma ideia pronta.</p>
         </div>
-        <label for="contact-email">Seu e-mail para respondermos</label
-        ><input
-          id="contact-email"
-          type="email"
-          required
-          maxlength="254"
-          autocomplete="email"
-          placeholder="voce@seunegocio.com.br"
-          [value]="inquiry.email()"
-          (input)="inquiry.editEmail($any($event.target).value)"
+        <app-contact-fields
+          prefix="contact"
+          [email]="inquiry.email()"
+          [whatsapp]="inquiry.whatsapp()"
+          [attempted]="inquiry.touched().email"
+          (emailChange)="inquiry.editEmail($event)"
+          (whatsappChange)="inquiry.editWhatsapp($event)"
         />
-        <label for="contact-message">Sua mensagem</label
+        <label for="contact-message"
+          >Sua mensagem <span class="required" aria-hidden="true">*</span></label
         ><textarea
           id="contact-message"
           rows="4"
+          [attr.aria-invalid]="inquiry.messageError()"
+          aria-describedby="contact-message-error"
+          (blur)="inquiry.touch('message')"
           required
           maxlength="3000"
           placeholder="Conte o que está pensando ou pergunte o que quiser…"
           [value]="inquiry.message()"
           (input)="inquiry.editMessage($any($event.target).value)"
         ></textarea>
+        <p id="contact-message-error" class="field-error" [hidden]="!inquiry.messageError()">
+          Escreva uma mensagem para continuar.
+        </p>
         <div class="form-footer">
-          <p>
-            Usaremos o e-mail para responder à sua mensagem. Os dados só são enviados quando você
-            confirmar abaixo.
-          </p>
-          <button
-            type="submit"
-            [disabled]="!inquiry.ready() || inquiry.sending() || inquiry.sent()"
-          >
+          <app-contact-welcome />
+          <button type="submit" [disabled]="inquiry.sending() || inquiry.sent()">
             {{
               inquiry.sending()
                 ? 'Enviando…'

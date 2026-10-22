@@ -1,0 +1,133 @@
+<div class="leads-content" id="operation-content" tabindex="-1">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">OLIVAW / PRIMEIRAS CONVERSAS</p>
+      <h1>Leads</h1>
+      <p>Ideias de quem quer construir com a gente.</p>
+    </div>
+    <button type="button" class="secondary" (click)="reload()">Atualizar</button>
+  </header>
+  <form [formGroup]="form" (ngSubmit)="apply()" aria-label="Filtrar leads">
+    <div class="search-field">
+      <label for="lead-search">Buscar contato ou negócio</label
+      ><input
+        id="lead-search"
+        formControlName="search"
+        type="search"
+        maxlength="100"
+        placeholder="Nome, título, e-mail ou WhatsApp"
+      />
+    </div>
+    <div>
+      <label for="lead-origin">Origem</label
+      ><select id="lead-origin" formControlName="entry">
+        <option value="">Todas</option>
+        <option value="studio">Estúdio</option>
+        <option value="discovery">Descoberta / contato</option>
+      </select>
+    </div>
+    <div>
+      <label for="lead-from">Recebido de</label
+      ><input id="lead-from" type="date" formControlName="from" />
+    </div>
+    <div>
+      <label for="lead-until">Até</label
+      ><input id="lead-until" type="date" formControlName="until" />
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="primary">Filtrar</button
+      ><button type="button" class="quiet" (click)="clear()">Limpar</button>
+    </div>
+    @if (formError()) {
+      <p class="error" role="alert">{{ formError() }}</p>
+    }
+  </form>
+  <div class="results-grid" [class.has-selection]="selected()">
+    <section class="results" aria-labelledby="results-title" [attr.aria-busy]="list().loading">
+      <div class="results-heading">
+        <h2 id="results-title">Contatos recebidos</h2>
+        @if (list().data; as data) {
+          <span>{{ data.total }} {{ data.total === 1 ? 'lead' : 'leads' }}</span>
+        }
+      </div>
+      @if (list().loading) {
+        <p class="empty" role="status">Buscando as primeiras conversas…</p>
+      } @else if (list().error) {
+        <div class="empty">
+          <p role="status">{{ list().error }}</p>
+          <button type="button" class="secondary" (click)="reload()">Tentar novamente</button>
+        </div>
+      } @else if (list().data; as data) {
+        @if (data.items.length) {
+          <ul class="lead-list">
+            @for (lead of data.items; track lead.externalId) {
+              <li>
+                <a
+                  [routerLink]="['/admin/leads', lead.externalId]"
+                  [queryParams]="queryParams()"
+                  [attr.aria-current]="selected() === lead.externalId ? 'true' : null"
+                >
+                  <div>
+                    <strong>{{ lead.business || lead.title || 'Contato recebido' }}</strong>
+                    <p>{{ lead.email || formatPhone(lead.whatsapp) || 'Contato não informado' }}</p>
+                    @if (lead.business && lead.title) {
+                      <small>{{ lead.title }}</small>
+                    }
+                  </div>
+                  <div class="lead-meta">
+                    <span>{{ lead.entry === 'studio' ? 'Estúdio' : 'Descoberta / contato' }}</span
+                    ><time>{{ lead.createdAt | date: 'dd/MM/yyyy HH:mm' }}</time>
+                  </div>
+                  <span class="arrow" aria-hidden="true">↗</span>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="empty">
+            <h3>Nenhum lead neste recorte.</h3>
+            <p>
+              Experimente outros filtros. Novos envios aparecerão aqui quando recebidos pela API.
+            </p>
+          </div>
+        }
+        <footer class="pagination">
+          <small>Consulta de {{ data.asOf | date: 'dd/MM/yyyy HH:mm' }}</small>
+          <div>
+            <button
+              type="button"
+              aria-label="Página anterior"
+              [disabled]="data.page <= 1"
+              (click)="go(data.page - 1)"
+            >
+              ←</button
+            ><span>Página {{ data.page }} de {{ pageCount() || 1 }}</span
+            ><button
+              type="button"
+              aria-label="Próxima página"
+              [disabled]="data.page >= pageCount()"
+              (click)="go(data.page + 1)"
+            >
+              →
+            </button>
+          </div>
+        </footer>
+      }
+    </section>
+    @if (selected()) {
+      <aside #detailPanel tabindex="-1" class="detail-panel" aria-label="Detalhes do lead">
+        <a routerLink="/admin/leads" [queryParams]="queryParams()" class="close-detail"
+          >← Voltar à lista</a
+        >
+        @if (detail().loading) {
+          <p role="status">Abrindo a pasta…</p>
+        } @else if (detail().error) {
+          <p role="status">{{ detail().error }}</p>
+          <button type="button" class="secondary" (click)="reload()">Tentar novamente</button>
+        } @else if (detail().data; as data) {
+          <app-lead-detail [lead]="data" />
+        }
+      </aside>
+    }
+  </div>
+</div>

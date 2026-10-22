@@ -180,3 +180,17 @@ textarea {
     transition: none !important;
   }
 }
+
+.required,
+.field-error {
+  color: #a33636;
+}
+.field-error {
+  font-size: 0.75rem;
+  line-height: 1.7;
+  margin: 0 0 16px;
+}
+textarea[aria-invalid='true'] {
+  border-color: #a33636;
+  background: #fff8f7;
+}

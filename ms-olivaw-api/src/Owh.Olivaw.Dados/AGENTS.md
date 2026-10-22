@@ -37,3 +37,20 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 - `GetFirstAsync` valida ausência; `GetFirstOrDefaultAsync` permite ausência. Preserve essa diferença nos handlers e testes.
 - `RemoveAsync` usa `DbSet.Remove` na implementação atual. Confirme o fluxo da entidade antes de assumir remoção lógica.
 - Ao simplificar filtros, preserve a tradução pelo EF e a combinação lógica dos predicados.
+
+## Padronização de migrations
+
+- Gere migrations somente mediante pedido explícito; `new feature` não inclui essa etapa.
+- Confira a branch atual. Use a issue em PascalCase como nome: `feature/issue013-logo-whatsapp` corresponde a `Issue013`. Se já existir uma migration com esse nome, preserve o histórico e acrescente um sufixo descritivo, como `Issue013LeadIndex`. Sem issue identificável, confirme o nome com o mantenedor.
+- Gere somente para os provedores solicitados, no projeto do provedor da API consumidora. O Core não contém migrations. Não copie históricos entre serviços.
+- Use a factory de design time quando disponível, sem iniciar o host nem acessar bancos reais. Compile com `-m:1`; use `--no-build` no EF somente após compilar o modelo atual. `--no-restore` pressupõe dependências restauradas.
+- Revise migration, designer, snapshot e SQL entre a migration anterior e a nova. Preserve BOM UTF-8 e CRLF dos arquivos C#. Não altere migrations antigas já publicadas.
+- Gerar e revisar não autoriza `database update`, conexão a bancos reais ou redeploy. O startup das APIs aplica as migrations pendentes; registre essa consequência antes da publicação.
+- Documente comandos reproduzíveis no README da API e consulte os [comandos do Core](../../../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores). Informe as validações executadas e os provedores não contemplados.
+
+## Nome e necessidade de repositório específico
+
+- Consultas comuns devem injetar `IRepository<Entidade>` diretamente no QueryHandler. Não crie abstração apenas para encapsular um filtro.
+- Somente quando a consulta exigir recursos não oferecidos pelo contrato genérico, use o prefixo `IRepository` seguido do nome da entidade: por exemplo, `IRepositoryLead` (sem parâmetros genéricos) e implementação `RepositoryLead`. Não use `ILeadReader`, `LeadReader` ou `ILeadRepository`.
+- A interface específica deve estender `IRepository<Lead>` e a implementação deve herdar de `Repository<Lead>` quando aplicável. Declare apenas os métodos especializados adicionais.
+- Justifique a necessidade junto da entrega. No caso de leads, projeção de campos JSON, contagem e paginação no banco exigem operações ausentes na interface genérica atual; leitura por ID continua genérica.

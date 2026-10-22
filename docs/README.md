@@ -3,6 +3,7 @@
 - [Apresentação da Olivaw](approach/apresentacao-olivaw.md): versões resumida, média e completa, com adaptações para cada conversa.
 - [Abordagem — Rodrigo / Impressão](approach/rodrigo-impressao.md): sequência de conversa, catálogo e possíveis etapas para o negócio de impressão.
 - [Abordagem — Cavalcanti Terraplanagem](approach/cavalcanti-terraplanagem.md): divulgação da frota, locações e organização interna por etapas.
+- [Abordagem — Andrea / Vendas](approach/andrea-vendas.md): conversa sobre gestão comercial, necessidades pontuais e indicações para a Olivaw.
 - [Protocolo de descoberta do cliente](protocolo-descoberta-cliente.md): questionário, análise de negócio e evolução por MVP.
 - [Protótipo navegável do briefing](prototipos/briefing-cliente.html): fluxo local com exemplo LTMJ e exportação de resumo.
 - [Briefing e MVP da LTMJ](../ms-ltmj-ng/docs/briefing-e-mvp.md): dados confirmados, redes consultadas, pendências e fases.
@@ -13,6 +14,8 @@
 - [Organização e desenvolvimento do monorepo](desenvolvimento.md): pastas, projetos, soluções, referências, geração de clientes, testes e publicação independente.
 - [Extração da identidade](identidade.md): decisão arquitetural, funcionalidades implementadas, verificações e limites da validação.
 - [Guia de Olivaw Identity](../olivaw-identity/README.md): configuração, rotas, policies, persistência e bootstrap de root.
+- [Épica — Administração e portal do cliente](features/painel-administrativo-e-portal-do-cliente.md): índice de 16 features com escopos, dependências e critérios de aceite.
+- [Primeira entrega — Dashboard administrativo Olivaw](features/painel-olivaw/01-dashboard-administrativo.md): estrutura da operação interna, navegação e estados iniciais, sem depender dos módulos seguintes.
 - [Custos e planos da jornada comercial](features/custos-e-planos.md): cálculo pendente e informações a detalhar na etapa de parceria.
 - [Site institucional](../ms-olivaw-ng/README.md): frontend derivado, domínios e pendências de contato.
 - [Template Angular](../ms-limpo-ng/README.md): site público prerenderizado, administração, autenticação, tema, testes e Docker.
