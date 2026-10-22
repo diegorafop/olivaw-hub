@@ -49,3 +49,19 @@ A versão fina foi estendida ao símbolo principal e ao gesto da carta a pedido 
 - Favicon PNG de 48 × 48, Apple Touch de 180 × 180 e `public/favicon.ico` (16/32/48) derivados do símbolo principal.
 - Compartilhamento: `public/assets/brand/olivaw-share-v2.jpg`, gerado pelo script `scripts/generate-social-preview.mjs`.
 - Geração dos dois originais: ferramenta integrada `imagegen`. Prompt: “Change only the white outer orbital frame to match the approved coordinator v2 reference: approximately 20 percent thinner lateral bands, increased transparent separation. Preserve the target character, face, expression, pose, pearl white/navy/cyan materials, circular lamp and genuinely transparent background. For the base icon, preserve head only; for the contact reaction, preserve waving hand and envelope. Do not introduce tablet, text or watermark.”
+
+## Família atual: arco de energia
+
+Após teste em um avatar e aprovação do mantenedor, a lâmpada circular foi substituída por um arco de luz ciano embutido na órbita fina. Aplicado no site, jornada, administração, contato, favicon e compartilhamento. As versões anteriores permanecem como histórico.
+
+| Original nesta pasta | Asset publicado | Uso |
+| --- | --- | --- |
+| `olivaw-avatar-arc-v4.png` | `public/assets/brand/olivaw-avatar-web-v4.png` | Símbolo principal, 768 × 768 |
+| `olivaw-message-welcome-v3.png` | `public/assets/brand/reactions/olivaw-message-welcome-v3.webp` | Carta e aceno, 256 × 256 |
+| `olivaw-operations-coordinator-v3.png` | `public/assets/brand/reactions/olivaw-operations-coordinator-v3.webp` | Coordenador com tablet, 384 × 384 |
+
+Favicon PNG `olivaw-favicon-v4.png` (48 × 48), Apple Touch `olivaw-apple-touch-v4.png` (180 × 180) e `public/favicon.ico` (16/32/48) derivam do símbolo principal. A prévia social atual é `olivaw-share-v3.jpg`, regenerada por `scripts/generate-social-preview.mjs`. Os novos nomes atualizam as referências de cache dos assets.
+
+Gerado com a ferramenta integrada `imagegen`. Prompt aprovado: “Replace only the oversized circular cyan lamp and housing at the upper right of the thin white orbital frame with a slim flush cyan LED arc, following the orbital curve for about 12 percent of its perimeter. Keep the band smooth and continuous. Preserve character identity, face, expression, pose, proportions, pearl white/navy/cyan materials and genuinely transparent background. Keep the base icon head-only; preserve envelope and wave for the contact reaction; preserve tablet for the coordinator. No text or watermark.”
+
+`olivaw-operations-coordinator-arc-test-v1.png` conserva o teste que originou esta aprovação.

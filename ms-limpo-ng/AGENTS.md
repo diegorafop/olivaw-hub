@@ -19,3 +19,9 @@ Use dois espaços, Prettier, ESLint e mensagens/documentação em português. No
 Os comandos estão no README. Testes unitários ficam em `*.spec.ts` próximos ao código; E2E usam Playwright em `e2e/`. Simule contratos HTTP nos testes sem credenciais reais. Alterações de infraestrutura devem preservar fallback CSR, HTML público prerenderizado, 404 para assets ausentes e configuração sem cache persistente.
 
 Não publique imagens, implante, faça finish ou push como efeito da validação local.
+
+## Atualização de dependências
+
+Preserve compatibilidade entre Angular, CLI, Material/CDK, TypeScript e Node. Angular 22.2 requer TypeScript 6.0.x; não instalar TypeScript 7 apenas por ser a versão latest. Os tipos do Node acompanham o runtime 24 usado pelo projeto. Atualize também o lockfile e valide build, lint, testes unitários e E2E.
+
+O `overrides.vite` fixa o patch 8.3.5 para corrigir avisos da versão 8.3.2 exigida pelo Angular Build 22.2.3. Reavalie o override em futuras atualizações e remova quando a cadeia oficial incorporar uma versão corrigida equivalente; não mantenha um pin antigo sem consultar auditoria e compatibilidade.

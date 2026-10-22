@@ -86,7 +86,7 @@ Validação específica: `npm run e2e -- clients-contact.spec.ts landing.spec.ts
 
 ## Imagem de compartilhamento
 
-As tags Open Graph e Twitter apontam para `public/assets/brand/olivaw-share-v2.jpg`, uma cópia JPEG de 720 × 720 do avatar atual, com fundo claro. A família visual agora usa a órbita mais fina: símbolo `olivaw-avatar-web-v3.png`, reação da carta `olivaw-message-welcome-v2.webp`, coordenador administrativo `olivaw-operations-coordinator-v2.webp`, favicon PNG/ICO e Apple Touch dedicados. Originais e prompts ficam em [Mini Olivaws](design/brand/avatars/README.md).
+As tags Open Graph e Twitter apontam para `public/assets/brand/olivaw-share-v3.jpg`, uma cópia JPEG de 720 × 720 do avatar atual, com fundo claro. A família visual agora usa a órbita mais fina com arco ciano no lugar da lâmpada circular: símbolo `olivaw-avatar-web-v4.png`, reação da carta `olivaw-message-welcome-v3.webp`, coordenador administrativo `olivaw-operations-coordinator-v3.webp`, favicon PNG/ICO e Apple Touch dedicados. Originais e prompts ficam em [Mini Olivaws](design/brand/avatars/README.md).
 
 Para regenerar a prévia com os mesmos pixels de origem, sem redesenhar o robô:
 
