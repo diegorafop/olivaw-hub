@@ -28,7 +28,18 @@ export const routes: Routes = [
   {
     path: 'admin',
     canMatch: [operationGuard],
+    loadComponent: () => import('./features/admin/admin-frame').then((m) => m.AdminFrame),
     children: [
+      {
+        path: 'leads',
+        title: 'Olivaw - Leads',
+        loadComponent: () => import('./features/admin/leads/leads-page').then((m) => m.LeadsPage),
+      },
+      {
+        path: 'leads/:id',
+        title: 'Olivaw - Lead',
+        loadComponent: () => import('./features/admin/leads/leads-page').then((m) => m.LeadsPage),
+      },
       {
         path: '',
         title: 'Olivaw - Operação',

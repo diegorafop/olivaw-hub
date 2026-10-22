@@ -1,30 +1,15 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { AdminLayout } from './admin-layout';
+import { Component, inject } from '@angular/core';
 import { AdminAreaCard } from './admin-area-card';
-import { AuthService } from '../../core/auth/auth.service';
+import { LeadOverview } from './leads/lead-overview';
 import { AutenticacaoStore } from '../../core/auth/autenticacao.store';
-import { apiErrorMessage } from '../../core/http/api-error';
-import { HttpState } from '../../core/http/http-state';
 @Component({
   selector: 'app-admin-page',
-  imports: [AdminLayout, AdminAreaCard],
+  imports: [AdminAreaCard, LeadOverview],
   templateUrl: './admin-page.html',
   styleUrl: './admin-page.scss',
 })
 export class AdminPage {
   readonly store = inject(AutenticacaoStore);
-  private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
-  readonly pending = signal(false);
-  readonly initials = computed(() => {
-    const names = this.store.usuario()?.name.trim().split(/\s+/) ?? [];
-    return names
-      .slice(0, 2)
-      .map((name) => name[0])
-      .join('')
-      .toUpperCase();
-  });
   readonly areas = [
     {
       number: '01',
@@ -48,28 +33,4 @@ export class AdminPage {
       icon: 'M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z',
     },
   ];
-  private readonly http = inject(HttpState);
-  constructor() {
-    effect(() => {
-      if (!this.store.autenticacao()) {
-        void this.router.navigateByUrl('/login');
-        return;
-      }
-      if (!this.store.usuario()?.isRoot) void this.router.navigateByUrl('/acesso-negado');
-    });
-  }
-  async logout(): Promise<void> {
-    if (this.pending()) return;
-    this.pending.set(true);
-    try {
-      await this.auth.logout();
-    } catch (error) {
-      this.http.error.set(
-        `${apiErrorMessage(error)} A saída local foi concluída, mas a revogação no servidor não foi confirmada.`,
-      );
-    } finally {
-      this.pending.set(false);
-      await this.router.navigateByUrl('/login');
-    }
-  }
 }

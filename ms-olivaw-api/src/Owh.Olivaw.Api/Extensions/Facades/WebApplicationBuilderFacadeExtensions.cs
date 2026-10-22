@@ -15,7 +15,8 @@ public static class WebApplicationBuilderFacadeExtensions
 {
     public static void AddSetups(this WebApplicationBuilder builder)
     {
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthorization(options => options.AddPolicy("olivaw.root", policy =>
+            policy.RequireAuthenticatedUser().RequireClaim("root", "true")));
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

@@ -47,3 +47,10 @@ Estas regras complementam o `AGENTS.md` da raiz para persistência compartilhada
 - Revise migration, designer, snapshot e SQL entre a migration anterior e a nova. Preserve BOM UTF-8 e CRLF dos arquivos C#. Não altere migrations antigas já publicadas.
 - Gerar e revisar não autoriza `database update`, conexão a bancos reais ou redeploy. O startup das APIs aplica as migrations pendentes; registre essa consequência antes da publicação.
 - Documente comandos reproduzíveis no README da API e consulte os [comandos do Core](../../../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores). Informe as validações executadas e os provedores não contemplados.
+
+## Nome e necessidade de repositório específico
+
+- Consultas comuns devem injetar `IRepository<Entidade>` diretamente no QueryHandler. Não crie abstração apenas para encapsular um filtro.
+- Somente quando a consulta exigir recursos não oferecidos pelo contrato genérico, use o prefixo `IRepository` seguido do nome da entidade: por exemplo, `IRepositoryLead` (sem parâmetros genéricos) e implementação `RepositoryLead`. Não use `ILeadReader`, `LeadReader` ou `ILeadRepository`.
+- A interface específica deve estender `IRepository<Lead>` e a implementação deve herdar de `Repository<Lead>` quando aplicável. Declare apenas os métodos especializados adicionais.
+- Justifique a necessidade junto da entrega. No caso de leads, projeção de campos JSON, contagem e paginação no banco exigem operações ausentes na interface genérica atual; leitura por ID continua genérica.

@@ -56,13 +56,25 @@ Validação específica: `npm run build` e `npm run e2e -- site-studio.spec.ts p
 
 `/admin` apresenta a primeira versão visual da operação: navegação responsiva, identificação do operador, menu lateral recolhível para ícones no desktop, acolhimento com o mini Olivaw e regiões para clientes, sistemas, atendimento, prioridades e histórico. O título é `Olivaw - Operação`.
 
-Nesta versão, a entrada exige sessão válida e `isRoot` retornado pela identidade interna. Contas autenticadas sem root seguem para acesso negado. A delegação por permissões específicas será definida antes de habilitar outros operadores e endpoints operacionais. O guard de interface não substitui autorização na API; este dashboard ainda não consulta dados operacionais protegidos nem oferece ações remotas.
+Nesta versão, a entrada exige sessão válida e `isRoot` retornado pela identidade interna. Contas autenticadas sem root seguem para acesso negado. A delegação por permissões específicas será definida antes de habilitar outros operadores e endpoints operacionais. O guard de interface não substitui autorização na API; a consulta de leads descrita abaixo já é autorizada na API; o dashboard não oferece ações remotas.
 
-Não há contadores ou gráficos simulados. As áreas deixam explícito que cadastros, monitoramento, solicitações e histórico ainda não foram integrados. O ambiente aparece como “Ambiente não informado”, pois não existe configuração pública verificada para esse contexto; a URL da API não é usada para inferir o ambiente.
+Não há contadores ou gráficos simulados. O resumo de leads usa a API real. As áreas deixam explícito que cadastros de clientes, monitoramento, solicitações e histórico operacional ainda não foram integrados. O ambiente aparece como “Ambiente não informado”, pois não existe configuração pública verificada para esse contexto; a URL da API não é usada para inferir o ambiente.
 
 Login, saída e expiração mantêm o fluxo existente, sem persistência do token. Falha na revogação informa a limitação e conclui a saída local. Atalhos apontam somente para a própria visão geral e para o site público.
 
 Validação: `npm run build`, `npm run lint` e `npm run e2e -- auth.spec.ts admin-dashboard.spec.ts`. Testes de navegador simulam a identidade, sem credenciais ou chamadas à API real. Ver [escopo da primeira feature](../docs/features/painel-olivaw/01-dashboard-administrativo.md).
+
+## Leads administrativos
+
+`/admin/leads` lista os contatos recebidos pelo Estúdio e pelo formulário direto, com pesquisa por negócio/título/e-mail/WhatsApp, origem e datas de recebimento. A paginação é executada pela API, com 20 itens por página. Selecionar um lead abre sua ficha e preserva o recorte na navegação. No celular, a ficha vem antes da lista. Datas são escolhidas no fuso do navegador e enviadas como instantes com limites inclusivo/exclusivo à API.
+
+A ficha apresenta ideia, possibilidades incluídas/excluídas, plano de interesse e histórico, aceitando contatos antigos sem WhatsApp. Links de e-mail e WhatsApp apenas abrem o canal por ação do operador; não enviam mensagens automaticamente. Não há status comercial, responsável, notas, exportação ou conversão em cliente neste recorte.
+
+O dashboard consulta `GET /leads/summary`, exibindo totais recebidos e dos últimos sete dias, com data de consulta. Não são contadores de não lidos. Se a API não estiver disponível/atualizada, aparece falha com nova tentativa, sem números demonstrativos. O layout e o encerramento da sessão ficam no componente pai das rotas administrativas, mantendo o menu recolhido ao navegar entre páginas.
+
+A API exige root também no servidor. Para avaliar os registros já publicados, publique a API com as novas consultas; somente atualizar o site não basta. Nenhuma migration adicional é necessária. Ver [contratos da API](../ms-olivaw-api/README.md#consulta-administrativa-de-leads) e [estado da feature](../docs/features/painel-olivaw/02-leads-administrativos.md).
+
+Verificação: `npm run build`, `npm run lint` e `npm run e2e -- admin-leads.spec.ts admin-dashboard.spec.ts auth.spec.ts`. Os testes usam dados simulados e não acessam leads reais ou a API remota.
 
 ## Clientes e contato
 

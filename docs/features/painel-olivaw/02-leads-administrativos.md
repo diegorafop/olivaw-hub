@@ -2,7 +2,7 @@
 
 ## Estado e objetivo
 
-Planejada; não implementada por este documento. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
+Recorte de consulta implementado no código para avaliação. Acompanhamento comercial ainda planejado. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
 
 Dar à equipe acesso aos JSONs recebidos pela jornada e pelo contato direto. É a primeira fonte comercial útil para o dashboard, sem transformar automaticamente um interessado em cliente.
 
@@ -35,3 +35,31 @@ Dar à equipe acesso aos JSONs recebidos pela jornada e pelo contato direto. É 
 
 - Permissões de leitura e acompanhamento; estados comerciais e responsável.
 - Retenção, arquivamento, necessidade de exportação e separação entre snapshot recebido e acompanhamento interno.
+
+## Recorte implementado
+
+A página `/admin/leads` oferece lista paginada, busca por negócio/título/e-mail/WhatsApp, filtros de origem e período, atualização manual e ficha em `/admin/leads/:id`. A ficha traduz o snapshot para contato, ideia, escolhas incluídas/excluídas, interesse em plano e eventos. No celular, os detalhes aparecem antes da lista. A identidade do operador e o menu recolhível permanecem compartilhados entre as páginas.
+
+O dashboard consulta contagens reais de leads recebidos e recebidos nos últimos sete dias. Elas não representam leads não lidos nem pendências comerciais, pois esses estados ainda não existem. Erro e ausência de resultados são distintos, sem contagens simuladas.
+
+A API oferece `GET /leads`, `GET /leads/{externalId}` e `GET /leads/summary`, somente para root autenticado da identidade interna. O envio público `PUT` continua separado. Respostas não incluem chave/hash de escrita, PK interna ou auditoria interna da entidade; usam `Cache-Control: no-store`.
+
+A paginação e os filtros são executados no banco, extraindo campos do JSON. A consulta usa `IRepositoryLead` / `RepositoryLead`, herdando `IRepository<Lead>` / `Repository<Lead>`, porque o contrato genérico não fornece paginação/contagem nem projeção JSON. Leitura por ID e filtros comuns continuam usando `IRepository<Lead>` diretamente no handler. PostgreSQL e SQL Server possuem projeções próprias; os valores dos filtros são parametrizados pelo EF Core. A busca cobre negócio, título, e-mail e WhatsApp, não o texto completo dos requisitos.
+
+Não houve alteração de entidade persistida, schema, migration ou dados existentes. O novo código requer publicação da API; atualizar apenas o frontend não disponibiliza as consultas. Nenhum deploy ou acesso a banco real foi feito durante a implementação.
+
+## Acompanhamento comercial pendente
+
+Status novo/em conversa/arquivado, responsável e notas internas continuam fora deste recorte de consulta. Precisam de um modelo separado do snapshot enviado pelo visitante, com auditoria, concorrência, permissões e retenção definidos. Não usar `Stage` da jornada como status comercial nem alterar o snapshot para registrar notas: isso confundiria o contrato público e a idempotência.
+
+Não há botão de acompanhamento fictício, filtro comercial sem persistência, exportação, notificação automática ou conversão em cliente. Ao implementar a persistência comercial, gerar migrations somente após solicitação explícita do mantenedor.
+
+## Validação deste recorte
+
+- Compilação da API e do frontend, lint e formatação dos arquivos modificados.
+- Testes CQS de listagem, detalhes, resumo, filtros, limites e compatibilidade de contatos.
+- HTTP em memória verificando 401 sem sessão, 403 sem root, 200 com root, 404 para lead ausente e ausência de campos internos nas respostas.
+- Tradução SQL de filtros e paginação para PostgreSQL e SQL Server, sem conexão real. Isso não substitui uma verificação de execução no banco do ambiente após a publicação.
+- Testes de navegador com fontes simuladas para lista, detalhes, origem, período, paginação, falhas, contatos e layout desktop/celular.
+
+Comandos e contratos no [README da API](../../../ms-olivaw-api/README.md#consulta-administrativa-de-leads) e no [README do frontend](../../../ms-olivaw-ng/README.md#leads-administrativos).

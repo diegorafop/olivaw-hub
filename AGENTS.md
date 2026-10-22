@@ -23,6 +23,11 @@ python3 -m unittest discover -s scripts/deployment/tests -v
 
 Read each module's `AGENTS.md` before modifying it. Generate API services through `bash ms-limpo-api/scripts/new-microservice.sh`; generated clients must have independent identity secrets. Document commands alongside changes and keep relative links valid.
 
+## Repositórios de aplicação
+
+- Leituras e filtros comuns devem usar `IRepository<Entidade>` diretamente no QueryHandler, por exemplo `IRepository<UserProfile>`. Não criar repositório específico para encapsular uma consulta comum.
+- Criar uma interface específica somente quando a consulta exigir operações ausentes no contrato genérico, como projeção JSON com paginação e contagem no banco. O nome deve seguir o prefixo `IRepository` e a entidade: `IRepositoryLead`, implementada por `RepositoryLead`, herdando os contratos e a implementação genéricos quando aplicável.
+
 ## Coding Style & Naming Conventions
 
 Keep existing project documentation in Portuguese and preserve the **Olivaw** brand name. Use concise Markdown headings, short paragraphs, and hyphenated bullet lists. Wrap commands and paths in backticks, and use relative links for repository documents.

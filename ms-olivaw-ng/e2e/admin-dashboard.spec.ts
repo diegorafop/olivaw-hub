@@ -31,6 +31,15 @@ async function signIn(
         return route.fulfill({ status: 503, json: { title: 'Serviço indisponível.' } });
       return route.fulfill({ json: {} });
     }
+    if (path === '/leads/summary')
+      return route.fulfill({
+        json: {
+          total: 0,
+          recent: 0,
+          since: new Date(Date.now() - 7 * 86400000).toISOString(),
+          asOf: new Date().toISOString(),
+        },
+      });
     await route.abort();
   });
   await page.goto('/login');
@@ -52,7 +61,7 @@ for (const mobile of [false, true]) {
     await expect(page.getByRole('heading', { level: 1, name: 'Visão geral' })).toBeVisible();
     await expect(page.getByText('Olá, Operador Olivaw.')).toBeVisible();
     const nav = page.getByRole('navigation', { name: 'Navegação da operação' });
-    await expect(nav.getByRole('link')).toHaveCount(1);
+    await expect(nav.getByRole('link')).toHaveCount(2);
     await expect(nav.getByRole('link', { name: 'Visão geral' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -75,7 +84,11 @@ for (const mobile of [false, true]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       mobile ? 390 : 1440,
     );
-    expect(calls).toEqual(['/identity/authentication/login', '/identity/authentication/access']);
+    expect(calls).toEqual([
+      '/identity/authentication/login',
+      '/identity/authentication/access',
+      '/leads/summary',
+    ]);
     const skip = page.getByRole('link', { name: 'Ir para o conteúdo', exact: true });
     await skip.focus();
     await page.keyboard.press('Enter');
