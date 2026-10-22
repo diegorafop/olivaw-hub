@@ -34,3 +34,13 @@ Criar a fronteira de acesso do portal de relacionamento antes de apresentar dado
 
 - Autoridade/host e contrato de API, convite, recuperação de acesso, papéis e revogação de sessões.
 - Vínculos múltiplos, responsável por conceder acesso e trilha de auditoria.
+
+## Perfis iniciais propostos em 22/10/2026
+
+- **Root:** acesso global da operação Olivaw, reservado ao mantenedor e à Elisiane conforme informado. Não depende de permissões atribuídas a access profiles; autenticação e auditoria continuam obrigatórias.
+- **Administrador Olivaw:** perfil interno com permissões explícitas para administrar clientes, serviços, recursos e acompanhamento. Escopo global da operação; ações remotas e comerciais seguem as autorizações próprias de cada fluxo.
+- **Gestor da Empresa:** perfil externo vinculado explicitamente a empresas. Consulta seus dados, serviços, recursos, disponibilidade e métricas quando disponíveis; pode criar e acompanhar solicitações. Não administra infraestrutura nem altera diretamente plano, capacidade ou dados de outras empresas.
+
+Os dois nomes de access profiles são uma proposta, ainda sem criação ou seed. Perfil define ações; vínculo define quais empresas podem ser acessadas. Não modelar isolamento apenas como uma hierarquia em que um perfil herda dados de outro. Usuário externo sem vínculo válido não recebe acesso a empresa alguma. Tráfego e disponibilidade dependem de fontes reais das features 05 e 07.
+
+A possibilidade de login do cliente na plataforma foi solicitada; emissor, audiência e host continuam como decisões arquiteturais pendentes. Isso não autoriza reutilizar tokens dos aplicativos dos clientes.

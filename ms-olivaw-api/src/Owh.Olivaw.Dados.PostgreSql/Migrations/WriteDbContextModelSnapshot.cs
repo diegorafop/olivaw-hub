@@ -17,7 +17,7 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -609,6 +609,25 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("externalid");
 
+                    b.Property<long>("FollowUpRevision")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L)
+                        .HasColumnName("followuprevision");
+
+                    b.Property<string>("FollowUpStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("new")
+                        .HasColumnName("followupstatus");
+
+                    b.Property<DateTime?>("FollowUpUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("followupupdatedat");
+
                     b.Property<long>("Revision")
                         .IsConcurrencyToken()
                         .HasColumnType("bigint")
@@ -643,7 +662,85 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .IsUnique()
                         .HasDatabaseName("lead_externalid_ix");
 
+                    b.HasIndex("FollowUpStatus")
+                        .HasDatabaseName("lead_followupstatus_ix");
+
                     b.ToTable("lead", (string)null);
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.LeadChange", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("actorname");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<int>("LeadId")
+                        .HasColumnType("integer")
+                        .HasColumnName("leadid");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("PreviousStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("previousstatus");
+
+                    b.Property<long>("Revision")
+                        .HasColumnType("bigint")
+                        .HasColumnName("revision");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("leadchange_pk");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("leadchange_externalid_ix");
+
+                    b.HasIndex("LeadId", "Revision")
+                        .IsUnique()
+                        .HasDatabaseName("leadchange_leadid_ix");
+
+                    b.ToTable("leadchange", (string)null);
                 });
 
             modelBuilder.Entity("Olivaw.Identity.Domain.AccessProfileAuthorization", b =>
@@ -721,6 +818,18 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasConstraintName("customer_customercontact_customerid_fk");
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.LeadChange", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.Lead", "Lead")
+                        .WithMany()
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("lead_leadchange_leadid_fk");
+
+                    b.Navigation("Lead");
                 });
 
             modelBuilder.Entity("Owh.Olivaw.Domain.Customer", b =>

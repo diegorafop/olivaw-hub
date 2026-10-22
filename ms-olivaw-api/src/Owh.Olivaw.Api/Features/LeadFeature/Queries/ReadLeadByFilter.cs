@@ -18,7 +18,7 @@ public sealed class ReadLeadByFilterHandler(IRepositoryLead repository) : IReque
         var payload = request.Payload;
         var result = await repository.ReadAsync(new LeadReadFilter
         {
-            Page = payload.Page, PageSize = payload.PageSize, Search = payload.Search, Entry = payload.Entry,
+            Page = payload.Page, PageSize = payload.PageSize, Search = payload.Search, Entry = payload.Entry, FollowUpStatus = payload.FollowUpStatus,
             From = payload.From?.UtcDateTime, Until = payload.Until?.UtcDateTime
         }, cancellationToken);
         return new ReadLeadByFilterResponse
@@ -27,7 +27,7 @@ public sealed class ReadLeadByFilterHandler(IRepositoryLead repository) : IReque
             Items = result.Items.Select(item => new LeadListItem
             {
                 ExternalId = item.ExternalId, CreatedAt = item.CreatedAt, UpdatedAt = item.UpdatedAt,
-                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Whatsapp = item.Whatsapp
+                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus
             }).ToList()
         };
     }
@@ -38,6 +38,7 @@ public sealed class ReadLeadByFilterValidator : AbstractValidator<ReadLeadByFilt
     {
         RuleFor(item => item.Page).InclusiveBetween(1, 100000);
         RuleFor(item => item.PageSize).InclusiveBetween(1, 100);
+        RuleFor(item => item.FollowUpStatus).Must(value => string.IsNullOrEmpty(value) || Owh.Olivaw.Domain.Lead.IsFollowUpStatus(value));
         RuleFor(item => item.Search).MaximumLength(100);
         RuleFor(item => item.Entry).Must(value => value is null or "" or "studio" or "discovery");
         RuleFor(item => item.Until).GreaterThan(item => item.From)

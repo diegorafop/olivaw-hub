@@ -2,7 +2,7 @@
 
 ## Estado e objetivo
 
-Recorte de consulta concluído. O [acompanhamento comercial](../painel-olivaw/02-acompanhamento-comercial-de-leads.md) permanece planejado em documento próprio. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
+Recorte de consulta concluído. O [acompanhamento comercial](02-acompanhamento-comercial-de-leads.md) foi implementado posteriormente em recorte próprio. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
 
 Dar à equipe acesso aos JSONs recebidos pela jornada e pelo contato direto. É a primeira fonte comercial útil para o dashboard, sem transformar automaticamente um interessado em cliente.
 
@@ -49,9 +49,9 @@ Não houve alteração de entidade persistida, schema, migration ou dados existe
 
 ## Evolução separada: acompanhamento comercial
 
-Status novo/em conversa/arquivado, responsável e notas internas continuam fora deste recorte de consulta. Precisam de um modelo separado do snapshot enviado pelo visitante, com auditoria, concorrência, permissões e retenção definidos. Não usar `Stage` da jornada como status comercial nem alterar o snapshot para registrar notas: isso confundiria o contrato público e a idempotência.
+Etapas livres, notas internas, histórico, concorrência e autorização delegada foram entregues posteriormente na [feature 02b](02-acompanhamento-comercial-de-leads.md). A implementação preserva o snapshot e a revisão pública. Não há responsável atribuído. Os contratos e permissões descritos acima registram a entrega original de consulta; a feature 02b amplia o acesso para operadores com `leads.manage` e documenta a migration/publicação pendente.
 
-Não há botão de acompanhamento fictício, filtro comercial sem persistência, exportação ou notificação automática. A conversão explícita de lead foi entregue posteriormente no [cadastro de clientes](03-cadastro-de-clientes.md). Ao implementar a persistência comercial, gerar migrations somente após solicitação explícita do mantenedor.
+A conversão explícita de lead foi entregue no [cadastro de clientes](03-cadastro-de-clientes.md). Exportações e notificações automáticas continuam fora dessas entregas.
 
 ## Validação deste recorte
 

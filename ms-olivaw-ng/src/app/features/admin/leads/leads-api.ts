@@ -13,6 +13,7 @@ export interface LeadItem {
   entry: string;
   email: string;
   whatsapp: string;
+  followUpStatus: string;
 }
 export interface LeadPage {
   page: number;
@@ -27,10 +28,14 @@ export interface LeadDetailData {
   updatedAt: string | null;
   snapshot: LeadSnapshot | null;
   contentUnavailable: boolean;
+  followUpStatus: string;
+  followUpRevision: number;
+  followUpUpdatedAt: string | null;
 }
 export interface LeadSummary {
   total: number;
   recent: number;
+  byStatus: Record<string, number>;
   since: string;
   asOf: string;
 }
@@ -38,8 +43,22 @@ export interface LeadFilters {
   page: number;
   search: string;
   entry: string;
+  followUpStatus: string;
   from: string;
   until: string;
+}
+export interface LeadHistoryItem {
+  externalId: string;
+  revision: number;
+  previousStatus: string;
+  status: string;
+  note: string;
+  actorName: string;
+  createdAt: string;
+}
+export interface LeadHistory {
+  items: LeadHistoryItem[];
+  nextBeforeRevision: number | null;
 }
 @Injectable({ providedIn: 'root' })
 export class LeadsApi {
@@ -59,6 +78,25 @@ export class LeadsApi {
   detail(id: string) {
     return this.http
       .get<LeadDetailData>(this.config.endpoint(`leads/${encodeURIComponent(id)}`), {
+        context: this.context(),
+      })
+      .pipe(timeout(15000));
+  }
+  updateFollowUp(id: string, payload: { revision: number; status: string; note: string }) {
+    return this.http
+      .put<{ revision: number }>(
+        this.config.endpoint(`leads/${encodeURIComponent(id)}/follow-up`),
+        payload,
+        { context: this.context() },
+      )
+      .pipe(timeout(15000));
+  }
+  history(id: string, beforeRevision: number | null) {
+    let params = new HttpParams();
+    if (beforeRevision !== null) params = params.set('beforeRevision', beforeRevision);
+    return this.http
+      .get<LeadHistory>(this.config.endpoint(`leads/${encodeURIComponent(id)}/history`), {
+        params,
         context: this.context(),
       })
       .pipe(timeout(15000));

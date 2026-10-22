@@ -18,6 +18,7 @@ public sealed class LeadReadFilter
     public int PageSize { get; set; }
     public string? Search { get; set; }
     public string? Entry { get; set; }
+    public string? FollowUpStatus { get; set; }
     public DateTime? From { get; set; }
     public DateTime? Until { get; set; }
 }
@@ -31,6 +32,7 @@ public sealed class LeadReadItem
     public string Entry { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Whatsapp { get; set; } = string.Empty;
+    public string FollowUpStatus { get; set; } = "new";
 }
 public sealed class LeadReadPage
 {
@@ -41,4 +43,5 @@ public sealed class LeadReadSummary
 {
     public long Total { get; set; }
     public long Recent { get; set; }
+    public Dictionary<string, long> ByStatus { get; set; } = new();
 }

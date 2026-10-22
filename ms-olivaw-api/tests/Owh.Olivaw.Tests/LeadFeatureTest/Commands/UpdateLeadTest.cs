@@ -52,7 +52,10 @@ public class UpdateLeadTest
         var request = LeadFeatureFakerBuilder.Create();
         await handler.Handle(request, CancellationToken.None);
         repository.Setup(item => item.GetFirstOrDefaultAsync(It.IsAny<Expression<Func<Lead, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<Lead, object>>[]>())).ReturnsAsync(() => saved!);
+        saved!.UpdateFollowUp("development", "Nota interna", LeadFollowUpFakerBuilder.Actor, "Operador", LeadFollowUpFakerBuilder.Now);
         var result = await handler.Handle(request, CancellationToken.None);
+        Assert.Equal("development", saved.FollowUpStatus);
+        Assert.Equal(1, saved.FollowUpRevision);
         Assert.Equal(LeadWriteOutcome.Saved, result.Outcome);
         repository.Verify(item => item.AddAsync(It.IsAny<Lead>(), It.IsAny<CancellationToken>()), Times.Once);
         repository.Verify(item => item.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);

@@ -10,6 +10,7 @@ const item = {
   entry: 'studio',
   email: '',
   whatsapp: '11987654321',
+  followUpStatus: 'new',
 };
 const snapshot = {
   schemaVersion: 1,
@@ -33,24 +34,53 @@ const snapshot = {
 };
 async function setup(
   page: Page,
-  options: { failFirst?: boolean; paginated?: boolean; detailFails?: boolean } = {},
+  options: {
+    failFirst?: boolean;
+    paginated?: boolean;
+    detailFails?: boolean;
+    admin?: boolean;
+    conflict?: boolean;
+  } = {},
 ) {
   let listCount = 0;
   const reads: URL[] = [];
+  let followUpStatus = 'new';
+  let revision = 0;
+  const history: {
+    externalId: string;
+    revision: number;
+    previousStatus: string;
+    status: string;
+    note: string;
+    actorName: string;
+    createdAt: string;
+  }[] = [];
   await page.route('https://api.olivaw.com.br/**', (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname.endsWith('/logout')) return route.fulfill({ json: {} });
     if (url.pathname.endsWith('/login'))
       return route.fulfill({
         json: { accessToken: 'test', expiresAt: new Date(Date.now() + 120000).toISOString() },
       });
     if (url.pathname.endsWith('/access'))
       return route.fulfill({
-        json: { name: 'Operador', isRoot: true, permissions: [], userProfileId: 'test' },
+        json: {
+          name: 'Operador',
+          isRoot: !options.admin,
+          permissions: options.admin ? ['leads.manage'] : [],
+          userProfileId: 'test',
+        },
       });
     expect(route.request().headers()['authorization']).toBe('Bearer test');
     if (url.pathname === '/leads/summary')
       return route.fulfill({
-        json: { total: 2, recent: 1, since: '2026-10-14T10:00:00Z', asOf: createdAt },
+        json: {
+          total: 2,
+          recent: 1,
+          byStatus: { [followUpStatus]: 2 },
+          since: '2026-10-14T10:00:00Z',
+          asOf: createdAt,
+        },
       });
     if (url.pathname === '/leads') {
       reads.push(url);
@@ -86,10 +116,37 @@ async function setup(
         },
       });
     }
+    if (url.pathname === `/leads/${id}/follow-up`) {
+      const payload = route.request().postDataJSON();
+      if (options.conflict || payload.revision !== revision)
+        return route.fulfill({ status: 409, json: {} });
+      history.unshift({
+        externalId: String(++revision),
+        revision,
+        previousStatus: followUpStatus,
+        status: payload.status,
+        note: payload.note,
+        actorName: 'Operador',
+        createdAt,
+      });
+      followUpStatus = payload.status;
+      return route.fulfill({ json: { revision } });
+    }
+    if (url.pathname === `/leads/${id}/history`)
+      return route.fulfill({ json: { items: history, nextBeforeRevision: null } });
     if (url.pathname === `/leads/${id}`) {
       if (options.detailFails) return route.fulfill({ status: 404, json: {} });
       return route.fulfill({
-        json: { externalId: id, createdAt, updatedAt: null, snapshot, contentUnavailable: false },
+        json: {
+          externalId: id,
+          createdAt,
+          updatedAt: null,
+          snapshot,
+          contentUnavailable: false,
+          followUpStatus,
+          followUpRevision: revision,
+          followUpUpdatedAt: null,
+        },
       });
     }
     return route.abort();
@@ -98,7 +155,8 @@ async function setup(
   await page.getByLabel('Login', { exact: true }).fill('root');
   await page.getByLabel('Senha', { exact: true }).fill('test-password');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
-  await expect(page).toHaveURL(/\/admin$/);
+  if (options.admin) await expect(page).toHaveURL(/\/admin\/leads$/);
+  else await expect(page).toHaveURL(/\/admin$/);
   return reads;
 }
 for (const mobile of [false, true]) {
@@ -169,4 +227,59 @@ test('lead não encontrado preserva lista e permite voltar', async ({ page }) =>
   await expect(page.getByRole('link', { name: /Pastelaria Aurora/ })).toBeVisible();
   await page.getByRole('link', { name: 'Voltar à lista' }).click();
   await expect(page.getByRole('complementary', { name: 'Detalhes do lead' })).toHaveCount(0);
+});
+
+for (const mobile of [false, true]) {
+  test(`acompanhamento ${mobile ? 'mobile' : 'desktop'} salva etapa e nota e mantém login no reload`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: mobile ? 390 : 1440, height: 1000 });
+    await setup(page);
+    await page.goto(`/admin/leads/${id}`);
+    const detail = page.getByRole('complementary', { name: 'Detalhes do lead' });
+    await detail.getByLabel('Etapa', { exact: true }).selectOption('development');
+    await detail.getByLabel('Nota interna').fill('Cliente enviou as fotos.');
+    await detail.getByRole('button', { name: 'Salvar acompanhamento' }).click();
+    await expect(detail.getByText('Cliente enviou as fotos.', { exact: true })).toBeVisible();
+    await expect(detail.getByText('Novo contato → Em desenvolvimento')).toBeVisible();
+    await expect(detail.getByText('Quero organizar pedidos e entregas.')).toBeVisible();
+    // Recarregamento com cache desabilitado equivale ao novo bootstrap de Ctrl+F5.
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
+    await page.reload();
+    await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}$`));
+    await expect(detail.getByText('Cliente enviou as fotos.', { exact: true })).toBeVisible();
+    await expect(detail.getByLabel('Etapa', { exact: true })).toHaveValue('development');
+    await detail.getByLabel('Etapa', { exact: true }).selectOption('new');
+    await detail.getByRole('button', { name: 'Salvar acompanhamento' }).click();
+    await expect(detail.getByText('Em desenvolvimento → Novo contato')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      mobile ? 390 : 1440,
+    );
+    await page.getByRole('button', { name: 'Sair', exact: true }).click();
+    await expect(page).toHaveURL(/\/login$/);
+    await page.reload();
+    await expect(page).toHaveURL(/\/login$/);
+  });
+}
+test('conflito conserva a nota e impede sobrescrever sem recarregar', async ({ page }) => {
+  await setup(page, { conflict: true });
+  await page.goto(`/admin/leads/${id}`);
+  const detail = page.getByRole('complementary', { name: 'Detalhes do lead' });
+  await detail.getByLabel('Nota interna').fill('Minha anotação');
+  await detail.getByRole('button', { name: 'Salvar acompanhamento' }).click();
+  await expect(detail.getByRole('alert')).toContainText('Outra pessoa atualizou');
+  await expect(detail.getByLabel('Nota interna')).toHaveValue('Minha anotação');
+  await expect(detail.getByRole('button', { name: 'Salvar acompanhamento' })).toBeDisabled();
+});
+test('administrador com permissão acessa leads sem ganhar acesso a clientes', async ({ page }) => {
+  await setup(page, { admin: true });
+  await expect(page.getByRole('heading', { level: 1, name: 'Leads' })).toBeVisible();
+  await expect(
+    page.getByRole('navigation').getByRole('link', { name: 'Clientes', exact: true }),
+  ).toHaveCount(0);
+  await page.goto(`/admin/leads/${id}`);
+  await expect(page.getByRole('heading', { name: 'Acompanhamento', exact: true })).toBeVisible();
+  await page.goto('/admin/customers');
+  await expect(page).toHaveURL(/\/acesso-negado$/);
 });

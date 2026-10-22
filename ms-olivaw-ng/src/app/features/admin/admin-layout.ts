@@ -30,6 +30,7 @@ export class AdminLayout {
         ? 'Leads'
         : 'Visão geral',
   );
+  readonly isRoot = input(true);
   readonly collapsed = signal(false);
   readonly operator = input.required<string>();
   readonly initials = input('');

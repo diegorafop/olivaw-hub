@@ -5,14 +5,17 @@
   <h2>{{ draft?.business || draft?.project?.title || 'Contato recebido' }}</h2>
   <p>Recebido em {{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
 </header>
+<app-lead-follow-up [lead]="data" (saved)="saved.emit()" (reload)="reload.emit()" />
 @if (data.contentUnavailable || !draft) {
   <p role="status">O conteúdo deste registro não pôde ser lido.</p>
 } @else {
-  <p>
-    <a routerLink="/admin/customers/new" [queryParams]="{ lead: data.externalId }"
-      >Cadastrar como cliente ↗</a
-    >
-  </p>
+  @if (auth.usuario()?.isRoot) {
+    <p>
+      <a routerLink="/admin/customers/new" [queryParams]="{ lead: data.externalId }"
+        >Cadastrar como cliente ↗</a
+      >
+    </p>
+  }
   <section aria-label="Contato">
     <h3>Vamos conversar</h3>
     <div class="contacts">

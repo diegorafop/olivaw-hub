@@ -17,7 +17,7 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
         if (_database.IsNpgsql())
         {
             sql = """
-                SELECT externalid AS "ExternalId", createdat AS "CreatedAt", updatedat AS "UpdatedAt",
+                SELECT externalid AS "ExternalId", createdat AS "CreatedAt", updatedat AS "UpdatedAt", followupstatus AS "FollowUpStatus",
                     COALESCE(snapshot::jsonb ->> 'business', '') AS "Business",
                     COALESCE(snapshot::jsonb -> 'project' ->> 'title', '') AS "Title",
                     COALESCE(snapshot::jsonb ->> 'entry', '') AS "Entry",
@@ -29,7 +29,7 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
         else if (_database.IsSqlServer())
         {
             sql = """
-                SELECT externalid AS [ExternalId], createdat AS [CreatedAt], updatedat AS [UpdatedAt],
+                SELECT externalid AS [ExternalId], createdat AS [CreatedAt], updatedat AS [UpdatedAt], followupstatus AS [FollowUpStatus],
                     COALESCE(JSON_VALUE(snapshot, '$.business'), '') AS [Business],
                     COALESCE(JSON_VALUE(snapshot, '$.project.title'), '') AS [Title],
                     COALESCE(JSON_VALUE(snapshot, '$.entry'), '') AS [Entry],
@@ -53,6 +53,7 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
             var term = filter.Search.ToLowerInvariant();
             query = query.Where(item => (item.Business + " " + item.Title + " " + item.Email + " " + item.Whatsapp).ToLower().Contains(term));
         }
+        if (!string.IsNullOrEmpty(filter.FollowUpStatus)) query = query.Where(item => item.FollowUpStatus == filter.FollowUpStatus);
         if (!string.IsNullOrEmpty(filter.Entry)) query = query.Where(item => item.Entry == filter.Entry);
         if (filter.From.HasValue) query = query.Where(item => item.CreatedAt >= filter.From.Value);
         if (filter.Until.HasValue) query = query.Where(item => item.CreatedAt < filter.Until.Value);
@@ -62,7 +63,7 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
             .Select(item => new LeadReadItem
             {
                 ExternalId = item.ExternalId, CreatedAt = item.CreatedAt, UpdatedAt = item.UpdatedAt,
-                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Whatsapp = item.Whatsapp
+                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus
             }).ToListAsync(cancellationToken);
         return new LeadReadPage { Total = total, Items = items };
     }
@@ -72,7 +73,9 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
         var leads = _context.Set<Lead>().AsNoTracking().Where(item => item.DeletedAt == null);
         var total = await leads.LongCountAsync(cancellationToken);
         var recent = await leads.LongCountAsync(item => item.CreatedAt >= since, cancellationToken);
-        return new LeadReadSummary { Total = total, Recent = recent };
+        var byStatus = await leads.GroupBy(item => item.FollowUpStatus).Select(group => new { Status = group.Key, Total = group.LongCount() })
+            .ToDictionaryAsync(item => item.Status, item => item.Total, cancellationToken);
+        return new LeadReadSummary { Total = total, Recent = recent, ByStatus = byStatus };
     }
 }
 
@@ -85,5 +88,6 @@ public sealed class LeadReadRow
     [Column("Title")] public string Title { get; set; } = string.Empty;
     [Column("Entry")] public string Entry { get; set; } = string.Empty;
     [Column("Email")] public string Email { get; set; } = string.Empty;
+    [Column("FollowUpStatus")] public string FollowUpStatus { get; set; } = "new";
     [Column("Whatsapp")] public string Whatsapp { get; set; } = string.Empty;
 }

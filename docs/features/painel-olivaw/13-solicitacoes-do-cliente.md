@@ -13,6 +13,9 @@ Permitir que o cliente abra e acompanhe pedidos com suas palavras, conectando-os
 ## Escopo da entrega
 
 - Ações Preciso de ajuda, Quero uma melhoria e Tenho uma dúvida, com perguntas textuais curtas.
+- Solicitar alterações nos aplicativos, mais armazenamento, aumento de recursos e troca de plano, conforme pedido do mantenedor em 22/10/2026. Registrar serviço afetado, descrição e capacidade/plano desejado quando pertinente.
+- Equipe avalia viabilidade, impacto, preço e prazo e registra a proposta antes de executar. Criar pedido não altera infraestrutura, contrato ou cobrança.
+- Vincular solicitações atendidas às [entregas e notas de versão](18-historico-de-entregas.md) da própria empresa.
 - Contexto de empresa, usuário e sistemas permitido pelo servidor; impacto relatado orienta triagem sem conceder prioridade ilimitada.
 - Protocolo, comentários públicos, estados e histórico compreensível. Distinguir resumo de entrega de promessa de prazo.
 - Acompanhar solicitação, responder perguntas e relatar persistência de problema com regras de reabertura.

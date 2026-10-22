@@ -32,7 +32,8 @@ public sealed class ReadLeadByIdHandler(IRepository<Lead> repository) : IRequest
         return new ReadLeadByIdResponse
         {
             ExternalId = lead.ExternalId, CreatedAt = lead.CreatedAt, UpdatedAt = lead.UpdatedAt,
-            Snapshot = snapshot, ContentUnavailable = snapshot == null
+            Snapshot = snapshot, ContentUnavailable = snapshot == null,
+            FollowUpStatus = lead.FollowUpStatus, FollowUpRevision = lead.FollowUpRevision, FollowUpUpdatedAt = lead.FollowUpUpdatedAt
         };
     }
 }

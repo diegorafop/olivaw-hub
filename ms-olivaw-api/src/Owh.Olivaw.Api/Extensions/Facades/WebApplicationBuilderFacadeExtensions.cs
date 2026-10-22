@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using System.Threading.RateLimiting;
 using Olivaw.Identity.Api;
+using Olivaw.Identity.Api.Security;
 using Owh.Olivaw.Dados;
 using MediatR;
 using Owh.OlivawCore.Api.Extensions.Hostings;
@@ -17,6 +18,8 @@ public static class WebApplicationBuilderFacadeExtensions
     {
         builder.Services.AddAuthorization(options => options.AddPolicy("olivaw.root", policy =>
             policy.RequireAuthenticatedUser().RequireClaim("root", "true")));
+        builder.Services.AddAuthorization(options => options.AddPolicy("leads.manage", policy =>
+            policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement("leads.manage"))));
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

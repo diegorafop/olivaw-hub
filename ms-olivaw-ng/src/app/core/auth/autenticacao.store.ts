@@ -1,4 +1,5 @@
-import { computed } from '@angular/core';
+import { SessionStorage } from './session-storage';
+import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { Sessao } from './auth.models';
 
@@ -8,11 +9,13 @@ export const AutenticacaoStore = signalStore(
   withComputed(({ autenticacao }) => ({
     usuario: computed(() => autenticacao()?.usuario ?? null),
   })),
-  withMethods((store) => ({
+  withMethods((store, storage = inject(SessionStorage)) => ({
     iniciar(sessao: Sessao): void {
+      storage.save(sessao);
       patchState(store, { autenticacao: sessao });
     },
     limpar(): void {
+      storage.clear();
       patchState(store, { autenticacao: null });
     },
     tokenValido(): string | null {

@@ -1,6 +1,12 @@
 # Documentação do Olivaw
 
+- [Planejamento — Serviços e clientes](features/painel-olivaw/04a-cadastro-de-servicos.md): cadastro de serviços técnicos e vínculos com empresas para a evolução do inventário.
+
+- [Histórico de entregas e notas de versão](features/painel-olivaw/18-historico-de-entregas.md): planejamento da linha do tempo por cliente e serviço.
+- [Solicitações do cliente](features/painel-olivaw/13-solicitacoes-do-cliente.md): planejamento de pedidos de alterações, capacidade e plano.
+
 - [Dependências e limites de atualização](dependencias.md): versões verificadas, restrições de licenciamento, auditoria e comandos de validação.
+- [Acompanhamento comercial de leads](features/done/02-acompanhamento-comercial-de-leads.md): etapas, notas internas, histórico e migration PostgreSQL revisada; publicação pendente.
 - [Features concluídas](features/done/README.md): entregas implementadas, com pendências de ambiente preservadas nos documentos.
 
 - [Apresentação da Olivaw](approach/apresentacao-olivaw.md): versões resumida, média e completa, com adaptações para cada conversa.

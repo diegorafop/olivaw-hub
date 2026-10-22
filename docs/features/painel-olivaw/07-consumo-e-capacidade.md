@@ -19,6 +19,12 @@ Medir o primeiro consumo útil por cliente e permitir avaliar crescimento, separ
 - Separar consumo técnico, estimativa de custo interno e plano contratado; proteger custos por permissão.
 - Ampliar métricas e reconciliar com provedores em incrementos posteriores desta feature, sem exigir todos os conectores na primeira entrega.
 
+## Relação com o inventário por cliente
+
+Usar a identidade dos recursos, implantações e vínculos com vigência definidos na [feature 04](04-inventario-de-recursos.md). Distinguir capacidade física/contratada, reserva de uma aplicação e uso medido. Um volume alcançado por API e banco é o mesmo recurso; suas amostras não são duplicadas porque existem vários caminhos até ele.
+
+Separações lógicas precisam de fonte e qualidade conhecidas. Tamanho do banco não determina sozinho CPU/memória atribuíveis ao cliente; prefixo Redis não comprova isolamento ou quota; fila RabbitMQ pode ocupar memória/disco, mas sua atribuição depende da coleta disponível. Cada medição informa recurso, unidade, período, origem e qualidade, como medida, estimada ou informada manualmente. A capacidade ainda sem atribuição permanece explícita.
+
 ## Fora desta entrega
 
 - Cobrança variável automática, suspensão, upgrade e alteração contratual por consumo.

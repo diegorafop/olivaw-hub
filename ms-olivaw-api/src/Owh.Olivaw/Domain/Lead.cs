@@ -10,6 +10,25 @@ public sealed class Lead : Entity
     public string Snapshot { get; private set; } = string.Empty;
     public string Stage { get; private set; } = string.Empty;
 
+    public string FollowUpStatus { get; private set; } = "new";
+    public long FollowUpRevision { get; private set; }
+    public DateTime? FollowUpUpdatedAt { get; private set; }
+
+    public static bool IsFollowUpStatus(string status) => status is "new" or "conversation" or "analysis" or "development" or "validation" or "delivered" or "discontinued";
+
+    public LeadChange UpdateFollowUp(string status, string note, Guid actor, string actorName, DateTime now)
+    {
+        if (!IsFollowUpStatus(status)) throw new ArgumentException("Etapa inválida.", nameof(status));
+        if (note == null || note.Length > 3000) throw new ArgumentException("Nota inválida.", nameof(note));
+        if (actor == Guid.Empty || string.IsNullOrWhiteSpace(actorName) || actorName.Length > 120) throw new ArgumentException("Operador inválido.", nameof(actor));
+        if (status == FollowUpStatus && string.IsNullOrWhiteSpace(note)) throw new ArgumentException("Informe uma nota ou altere a etapa.", nameof(note));
+        var previous = FollowUpStatus;
+        FollowUpStatus = status;
+        FollowUpRevision++;
+        FollowUpUpdatedAt = now;
+        return LeadChange.Create(this, previous, note, actor, actorName, now);
+    }
+
     private Lead() { }
 
     public static Lead Create(Guid externalId, string writeKeyHash, long revision, string snapshot, DateTime now)

@@ -25,14 +25,20 @@ O painel inicial estará concluído quando um operador autorizado puder entrar, 
 
 ## Features da operação interna
 
-As entregas implementadas estão em [features concluídas](done/README.md). A consulta de leads foi encerrada como recorte próprio; [acompanhamento comercial](painel-olivaw/02-acompanhamento-comercial-de-leads.md) continua planejado. A organização em `done` não substitui publicação nem validação na AWS.
+**Prioridade anterior de planejamento:** [04a — Cadastro de serviços e vínculo com clientes](painel-olivaw/04a-cadastro-de-servicos.md). Primeiro registrar quais serviços atendem cada empresa; depois avançar no inventário de ambientes/recursos e retomar o acompanhamento comercial de leads. A numeração original identifica os documentos e não representa mais uma fila estrita de implementação.
+
+Em 22/10/2026, a feature 02b de acompanhamento de leads foi implementada e validada localmente a pedido do mantenedor. O cadastro de serviços permanece como próxima entrega planejada.
+
+As entregas implementadas estão em [features concluídas](done/README.md). A consulta de leads foi encerrada como recorte próprio; [acompanhamento comercial](done/02-acompanhamento-comercial-de-leads.md) foi implementado e validado localmente, com publicação pendente. A organização em `done` não substitui publicação nem validação na AWS.
 
 | Ordem sugerida | Feature | Resultado próprio | Dependência principal |
 | --- | --- | --- | --- |
 | 01 | [Dashboard administrativo](done/01-dashboard-administrativo.md) | Estrutura visual e entrada da operação | Autenticação existente e autorização interna |
 | 02 | [Leads administrativos](done/02-leads-administrativos.md) | Consultar e acompanhar contatos recebidos | Dashboard e persistência de leads |
+| 02b | [Acompanhamento comercial](done/02-acompanhamento-comercial-de-leads.md) | Etapas, notas internas e histórico | Consulta de leads |
 | 03 | [Cadastro de clientes](done/03-cadastro-de-clientes.md) | Empresas, contatos e responsáveis | Dashboard; leads apenas para conversão |
-| 04 | [Inventário de recursos](painel-olivaw/04-inventario-de-recursos.md) | Projetos, sistemas, ambientes e dependências | Clientes |
+| 04a | [Cadastro de serviços](painel-olivaw/04a-cadastro-de-servicos.md) | Serviços técnicos e seus vínculos com clientes; próxima entrega | Clientes |
+| 04 | [Inventário de recursos](painel-olivaw/04-inventario-de-recursos.md) | Recursos dedicados/compartilhados, ambientes e vínculos por cliente, preparando atribuição de custos | Clientes e serviços |
 | 05 | [Coleta e saúde](painel-olivaw/05-coleta-e-saude.md) | Primeira verificação real e seus limites | Inventário e fonte autorizada |
 | 06 | [Alertas e incidentes](painel-olivaw/06-alertas-e-incidentes.md) | Impacto, responsável, avaliação e recuperação | Inventário e coleta |
 | 07 | [Consumo e capacidade](painel-olivaw/07-consumo-e-capacidade.md) | Primeira medida atribuível e histórico | Inventário e coleta confiável |
@@ -55,6 +61,10 @@ A ordem é uma proposta de prioridade, não uma cadeia rígida. Clientes podem c
 
 A feature 15 pode começar com atendimentos registrados pela equipe, sem depender do portal. A feature 16 exige uma política própria de execução e revisão; não é uma consequência automática de ligar a triagem.
 
+## Histórico de entregas
+
+[18 — Histórico de entregas e notas de versão](painel-olivaw/18-historico-de-entregas.md) registra funcionalidades implementadas por empresa e serviço e prevê uma linha do tempo no portal. As [solicitações do cliente](painel-olivaw/13-solicitacoes-do-cliente.md) também contemplam alterações nos aplicativos, capacidade e plano, sujeitas à avaliação da equipe. Ambas continuam planejadas.
+
 ## Financeiro
 
 [17 — Financeiro da Olivaw](painel-olivaw/17-financeiro.md) reúne o planejamento de custos da operação, contas a pagar e receber, fluxo de caixa, resultado, impostos e precificação. Foi dividido em quatro entregas propostas, ainda sem implementação. Prevê também uma consulta futura de cobranças e pagamentos no portal, com isolamento por empresa e sem exposição dos custos ou margens internos.
@@ -65,7 +75,8 @@ A feature 15 pode começar com atendimentos registrados pela equipe, sem depende
 flowchart TD
     A[01 Dashboard interno] --> B[02 Leads]
     A --> C[03 Clientes]
-    C --> D[04 Inventário]
+    C --> S[04a Serviços e vínculos]
+    S --> D[04 Inventário]
     D --> E[05 Saúde]
     E --> F[06 Incidentes]
     E --> G[07 Consumo]

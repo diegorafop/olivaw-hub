@@ -27,6 +27,10 @@ Separar orçamento, estimativa, obrigação, pagamento e custo medido. Consumo t
 - Atribuir custos diretos ao cliente/projeto e aplicar rateios versionados aos compartilhados. Mostrar parcela não atribuída e evitar contar a mesma despesa duas vezes.
 - Comparar estimativa com gasto efetivamente confirmado. Uma fatura da AWS não é uma medição individual de cada cliente.
 
+Reutilizar a [modelagem de recursos e consumidores da feature 04](04-inventario-de-recursos.md#preparação-para-projetar-custos): um recurso pode atender vários clientes e ser alcançado por vários serviços, sem duplicar sua despesa. Cada item de custo tem origem, moeda, período e vigência. VM, disco, tráfego e IP são itens separados apenas quando o contrato/fatura assim os identificar; componentes já incluídos em um pacote não são somados novamente.
+
+Banco lógico, namespace, subdomínio ou container podem servir à atribuição sem constituir uma cobrança adicional. Renovação anual de domínio pode ter referência mensal para projeção, preservando o desembolso real no fluxo de caixa. Rateio por capacidade reservada, medição, participação fixa ou outro critério depende de política aprovada e versionada; não assumir divisão igual ou percentuais pela simples existência do vínculo. Atribuições preservam histórico e deixam a parcela de plataforma/ociosidade/não atribuída visível.
+
 ### 17.2 — Contas a pagar e receber
 
 - Registrar fornecedores, despesas operacionais, mensalidades, criação de projetos e outras receitas aprovadas.

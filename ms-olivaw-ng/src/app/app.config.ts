@@ -10,6 +10,7 @@ import pt from '@angular/common/locales/pt';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { AuthService } from './core/auth/auth.service';
 import { routes } from './app.routes';
 import { RuntimeConfig } from './core/config/runtime-config';
 import { authInterceptor, errorInterceptor, loadingInterceptor } from './core/http/interceptors';
@@ -31,6 +32,10 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([authInterceptor, errorInterceptor, loadingInterceptor]),
     ),
-    provideAppInitializer(() => inject(RuntimeConfig).load()),
+    provideAppInitializer(() => {
+      const config = inject(RuntimeConfig);
+      const auth = inject(AuthService);
+      return config.load().then(() => auth.restore());
+    }),
   ],
 };

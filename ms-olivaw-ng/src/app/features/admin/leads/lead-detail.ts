@@ -1,15 +1,20 @@
+import { LeadFollowUp } from './lead-follow-up';
+import { AutenticacaoStore } from '../../../core/auth/autenticacao.store';
 import { formatWhatsapp } from '../../public/contact-details';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import type { LeadDetailData } from './leads-api';
 @Component({
   selector: 'app-lead-detail',
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, LeadFollowUp],
   templateUrl: './lead-detail.html',
   styleUrl: './lead-detail.scss',
 })
 export class LeadDetail {
+  readonly auth = inject(AutenticacaoStore);
+  readonly saved = output<void>();
+  readonly reload = output<void>();
   readonly formatPhone = formatWhatsapp;
   readonly lead = input.required<LeadDetailData>();
   readonly snapshot = computed(() => this.lead().snapshot);

@@ -19,7 +19,7 @@ npm run e2e
 
 Settings públicos: `public/config.json`. Tema: `src/theme/_brand.scss`. Site: https://olivaw.com.br. API: https://api.olivaw.com.br.
 
-Docker: `docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up --build -d`. Configure CORS na API para a origem do frontend. Não há proxy de API, refresh token nem persistência da sessão. Consulte o [template](../ms-limpo-ng/README.md) para os padrões compartilhados. Arquivos existentes no destino são preservados; a geração recusa conflitos e não atualiza projetos já gerados.
+Docker: `docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up --build -d`. Configure CORS na API para a origem do frontend. Não há proxy de API nem refresh token. A sessão é preservada no `sessionStorage` da aba até expirar, com revalidação na API ao recarregar. Consulte o [template](../ms-limpo-ng/README.md) para os padrões compartilhados. Arquivos existentes no destino são preservados; a geração recusa conflitos e não atualiza projetos já gerados.
 
 ## Landing page institucional
 
@@ -56,11 +56,11 @@ Validação específica: `npm run build` e `npm run e2e -- site-studio.spec.ts p
 
 `/admin` apresenta a primeira versão visual da operação: navegação responsiva, identificação do operador, menu lateral recolhível para ícones no desktop, acolhimento com o mini Olivaw e regiões para clientes, sistemas, atendimento, prioridades e histórico. O título é `Olivaw - Operação`.
 
-Nesta versão, a entrada exige sessão válida e `isRoot` retornado pela identidade interna. Contas autenticadas sem root seguem para acesso negado. A delegação por permissões específicas será definida antes de habilitar outros operadores e endpoints operacionais. O guard de interface não substitui autorização na API; a consulta de leads descrita abaixo já é autorizada na API; o dashboard não oferece ações remotas.
+A entrada exige sessão válida da identidade interna e root ou a permissão `leads.manage`. Operadores com essa permissão entram diretamente em Leads; Clientes e Visão geral continuam exclusivos de root. Contas sem ambas as autorizações seguem para acesso negado. O guard de interface não substitui autorização na API; a consulta de leads descrita abaixo já é autorizada na API; o dashboard não oferece ações remotas.
 
 Não há contadores ou gráficos simulados. O resumo de leads usa a API real. As áreas deixam explícito que cadastros de clientes, monitoramento, solicitações e histórico operacional ainda não foram integrados. O ambiente aparece como “Ambiente não informado”, pois não existe configuração pública verificada para esse contexto; a URL da API não é usada para inferir o ambiente.
 
-Login, saída e expiração mantêm o fluxo existente, sem persistência do token. Falha na revogação informa a limitação e conclui a saída local. Atalhos apontam somente para a própria visão geral e para o site público.
+O login armazena somente token e expiração no `sessionStorage`, com chave própria por URL de API. O bootstrap carrega a configuração e consulta `/identity/authentication/access` antes de restaurar a sessão e suas permissões atuais. Recarregar, inclusive com cache desabilitado, preserva o login durante a validade do token. Falha na revalidação encerra a sessão local; não existe renovação automática. Logout, expiração e respostas 401 autenticadas removem o token armazenado. Falha na revogação informa a limitação e conclui a saída local. Atalhos apontam somente para a própria visão geral e para o site público.
 
 Validação: `npm run build`, `npm run lint` e `npm run e2e -- auth.spec.ts admin-dashboard.spec.ts`. Testes de navegador simulam a identidade, sem credenciais ou chamadas à API real. Ver [escopo da primeira feature](../docs/features/done/01-dashboard-administrativo.md).
 
@@ -68,11 +68,11 @@ Validação: `npm run build`, `npm run lint` e `npm run e2e -- auth.spec.ts admi
 
 `/admin/leads` lista os contatos recebidos pelo Estúdio e pelo formulário direto, com pesquisa por negócio/título/e-mail/WhatsApp, origem e datas de recebimento. A paginação é executada pela API, com 20 itens por página. Selecionar um lead abre sua ficha e preserva o recorte na navegação. No celular, a ficha vem antes da lista. Datas são escolhidas no fuso do navegador e enviadas como instantes com limites inclusivo/exclusivo à API.
 
-A ficha apresenta ideia, possibilidades incluídas/excluídas, plano de interesse e histórico, aceitando contatos antigos sem WhatsApp. Links de e-mail e WhatsApp apenas abrem o canal por ação do operador; não enviam mensagens automaticamente. Não há status comercial, responsável, notas, exportação ou conversão em cliente neste recorte.
+A ficha apresenta ideia, possibilidades incluídas/excluídas, plano de interesse e histórico, aceitando contatos antigos sem WhatsApp. Links de e-mail e WhatsApp apenas abrem o canal por ação do operador; não enviam mensagens automaticamente. Etapas e notas internas foram acrescentadas no acompanhamento descrito adiante. Não há responsável atribuído ou exportação; a conversão manual em cliente está disponível para root.
 
 O dashboard consulta `GET /leads/summary`, exibindo totais recebidos e dos últimos sete dias, com data de consulta. Não são contadores de não lidos. Se a API não estiver disponível/atualizada, aparece falha com nova tentativa, sem números demonstrativos. O layout e o encerramento da sessão ficam no componente pai das rotas administrativas, mantendo o menu recolhido ao navegar entre páginas.
 
-A API exige root também no servidor. Para avaliar os registros já publicados, publique a API com as novas consultas; somente atualizar o site não basta. Nenhuma migration adicional é necessária. Ver [contratos da API](../ms-olivaw-api/README.md#consulta-administrativa-de-leads) e [estado da feature](../docs/features/done/02-leads-administrativos.md).
+A API exige root ou `leads.manage` vigente também no servidor. O acompanhamento exige a API atualizada e a migration PostgreSQL `Issue017`; somente atualizar o site não basta. Ver [contratos da API](../ms-olivaw-api/README.md#consulta-administrativa-de-leads) e [estado da feature](../docs/features/done/02-leads-administrativos.md).
 
 Verificação: `npm run build`, `npm run lint` e `npm run e2e -- admin-leads.spec.ts admin-dashboard.spec.ts auth.spec.ts`. Os testes usam dados simulados e não acessam leads reais ou a API remota.
 
@@ -112,3 +112,15 @@ npm run e2e -- admin-customers.spec.ts admin-dashboard.spec.ts admin-leads.spec.
 ```
 
 Os testes interceptam a API e não cadastram empresas reais, enviam convites ou criam usuários.
+
+## Acompanhamento de leads
+
+A ficha oferece Novo contato, Em conversa, Em análise, Em desenvolvimento, Em validação, Entregue e Sem continuidade. Todas as transições são livres e não há responsável atribuído. A lista compacta ocupa cerca de 30% do espaço ao abrir uma ficha no desktop; os detalhes recebem o restante. Em telas menores, os detalhes ficam antes da lista.
+
+Notas internas de até 3.000 caracteres entram no histórico com autor e data; não podem ser editadas ou excluídas pela interface. O histórico é consultado em blocos de 20 alterações, com navegação para anteriores e retorno às mais recentes. Não são notas de versão públicas.
+
+Revisão própria evita sobrescrever uma alteração concorrente. Em conflito, a interface mantém a nota digitada e exige recarregar/conferir a ficha antes de salvar novamente. Filtro por etapa e contagens gerais usam estados persistidos; as contagens gerais não acompanham os filtros da lista. Snapshot, etapa pública e revisão do visitante são independentes do acompanhamento.
+
+Root e operadores internos com `leads.manage` podem consultar e atualizar o acompanhamento. A permissão é conferida no servidor usando a identidade existente; nenhum perfil ou usuário externo é criado automaticamente. O portal e os perfis propostos continuam no planejamento.
+
+Validação local desta entrega: `npm test`, `npm run lint`, `npm run build` e `npm run e2e -- e2e/admin-leads.spec.ts e2e/admin-dashboard.spec.ts e2e/admin-customers.spec.ts`. O navegador usa contratos simulados, sem gravar dados remotos. A API e sua migration PostgreSQL precisam ser publicadas antes de usar o acompanhamento no ambiente.

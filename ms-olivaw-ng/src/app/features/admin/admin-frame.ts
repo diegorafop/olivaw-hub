@@ -14,6 +14,7 @@ import { HttpState } from '../../core/http/http-state';
     [operator]="store.usuario()?.name ?? ''"
     [initials]="initials()"
     [pending]="pending()"
+    [isRoot]="!!store.usuario()?.isRoot"
     (signOut)="logout()"
     ><router-outlet
   /></app-admin-layout>`,
@@ -37,7 +38,7 @@ export class AdminFrame {
         void this.router.navigateByUrl('/login');
         return;
       }
-      if (!this.store.usuario()?.isRoot) void this.router.navigateByUrl('/acesso-negado');
+      if (!this.store.permite('leads.manage')) void this.router.navigateByUrl('/acesso-negado');
     });
   }
   async logout(): Promise<void> {

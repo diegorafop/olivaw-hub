@@ -3,7 +3,11 @@
 >
 <div class="workspace" [class.is-collapsed]="collapsed()">
   <aside id="operation-sidebar" class="sidebar" aria-label="Área da operação">
-    <a class="brand" routerLink="/admin" aria-label="Olivaw Hub — Operação">
+    <a
+      class="brand"
+      [routerLink]="isRoot() ? '/admin' : '/admin/leads'"
+      aria-label="Olivaw Hub — Operação"
+    >
       <img
         src="assets/brand/reactions/olivaw-message-welcome-v3.webp"
         width="44"
@@ -17,20 +21,22 @@
     <div class="sidebar-section">
       <p class="nav-label">ESPAÇO DE TRABALHO</p>
       <nav aria-label="Navegação da operação">
-        <a
-          routerLinkActive="nav-active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          routerLink="/admin"
-          ariaCurrentWhenActive="page"
-          aria-label="Visão geral"
-          title="Visão geral"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
-          </svg>
-          <span class="menu-label">Visão geral</span>
-          <span class="menu-label nav-arrow" aria-hidden="true">↗</span>
-        </a>
+        @if (isRoot()) {
+          <a
+            routerLinkActive="nav-active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/admin"
+            ariaCurrentWhenActive="page"
+            aria-label="Visão geral"
+            title="Visão geral"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
+            </svg>
+            <span class="menu-label">Visão geral</span>
+            <span class="menu-label nav-arrow" aria-hidden="true">↗</span>
+          </a>
+        }
         <a
           routerLink="/admin/leads"
           routerLinkActive="nav-active"
@@ -42,20 +48,22 @@
           <span class="menu-label">Leads</span
           ><span class="menu-label nav-arrow" aria-hidden="true">↗</span>
         </a>
-        <a
-          routerLink="/admin/customers"
-          routerLinkActive="nav-active"
-          ariaCurrentWhenActive="page"
-          aria-label="Clientes"
-          title="Clientes"
-          ><svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M3 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M18 8a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-2-3.5"
-            />
-            <circle cx="10" cy="7" r="4" /></svg
-          ><span class="menu-label">Clientes</span
-          ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
-        >
+        @if (isRoot()) {
+          <a
+            routerLink="/admin/customers"
+            routerLinkActive="nav-active"
+            ariaCurrentWhenActive="page"
+            aria-label="Clientes"
+            title="Clientes"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M3 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M18 8a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-2-3.5"
+              />
+              <circle cx="10" cy="7" r="4" /></svg
+            ><span class="menu-label">Clientes</span
+            ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
+          >
+        }
       </nav>
     </div>
     <div class="sidebar-bottom">
@@ -70,11 +78,11 @@
         <span class="menu-label">Abrir site Olivaw</span> <span aria-hidden="true">↗</span
         ><span class="sr-only"> (nova aba)</span>
       </a>
-      <div class="operator" [attr.title]="operator() + ' — Administrador root'">
+      <div class="operator" [attr.title]="operator() + ' — Operação Olivaw'">
         <span class="user-avatar" aria-hidden="true">{{ initials() }}</span>
         <div class="menu-label">
           <strong>{{ operator() }}</strong
-          ><small>Administrador root</small>
+          ><small>{{ isRoot() ? 'Administrador root' : 'Administrador Olivaw' }}</small>
         </div>
       </div>
       <button

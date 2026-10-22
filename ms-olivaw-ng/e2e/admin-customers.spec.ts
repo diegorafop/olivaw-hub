@@ -56,6 +56,8 @@ async function setup(page: Page, options: { conflict?: boolean; failList?: boole
           asOf: '2026-10-21T00:00:00Z',
         },
       });
+    if (path === `/leads/${leadId}/history`)
+      return route.fulfill({ json: { items: [], nextBeforeRevision: null } });
     if (path === `/leads/${leadId}`)
       return route.fulfill({
         json: {

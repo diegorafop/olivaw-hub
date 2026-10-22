@@ -1,3 +1,4 @@
+import { LEAD_STATUSES } from './lead-status';
 import { formatWhatsapp } from '../../public/contact-details';
 import { Component, computed, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
@@ -14,6 +15,8 @@ import { LeadDetail } from './lead-detail';
   styleUrl: './leads-page.scss',
 })
 export class LeadsPage {
+  readonly statuses = LEAD_STATUSES;
+  readonly statusOptions = Object.entries(LEAD_STATUSES);
   readonly formatPhone = formatWhatsapp;
   private readonly detailPanel = viewChild<ElementRef<HTMLElement>>('detailPanel');
   constructor() {
@@ -29,6 +32,7 @@ export class LeadsPage {
   readonly form = new FormGroup({
     search: new FormControl('', { nonNullable: true }),
     entry: new FormControl('', { nonNullable: true }),
+    followUpStatus: new FormControl('', { nonNullable: true }),
     from: new FormControl('', { nonNullable: true }),
     until: new FormControl('', { nonNullable: true }),
   });
@@ -45,12 +49,14 @@ export class LeadsPage {
           page: Number(params.get('page') ?? 1),
           search: params.get('search') ?? '',
           entry: params.get('entry') ?? '',
+          followUpStatus: params.get('followUpStatus') ?? '',
           from: params.get('from') ?? '',
           until: params.get('until') ?? '',
         };
         this.form.reset({
           search: filters.search,
           entry: filters.entry,
+          followUpStatus: filters.followUpStatus,
           from: this.datePart(filters.from),
           until: this.datePart(filters.until, true),
         });
@@ -69,6 +75,11 @@ export class LeadsPage {
       }),
     ),
     { initialValue: { loading: true, data: null as LeadPage | null, error: '' } },
+  );
+  readonly summary = toSignal(
+    toObservable(this.refresh).pipe(
+      switchMap(() => this.api.summary().pipe(catchError(() => of(null)))),
+    ),
   );
   readonly detail = toSignal(
     combineLatest([this.route.paramMap, toObservable(this.refresh)]).pipe(
@@ -121,6 +132,7 @@ export class LeadsPage {
         page: 1,
         search: values.search.trim() || null,
         entry: values.entry || null,
+        followUpStatus: values.followUpStatus || null,
         from: boundary(values.from) || null,
         until: boundary(values.until, true) || null,
       },

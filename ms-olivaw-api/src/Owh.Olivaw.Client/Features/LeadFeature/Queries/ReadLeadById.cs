@@ -15,5 +15,8 @@ public sealed class ReadLeadByIdResponse
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public UpdateLeadCommand? Snapshot { get; set; }
+    public string FollowUpStatus { get; set; } = "new";
+    public long FollowUpRevision { get; set; }
+    public DateTime? FollowUpUpdatedAt { get; set; }
     public bool ContentUnavailable { get; set; }
 }

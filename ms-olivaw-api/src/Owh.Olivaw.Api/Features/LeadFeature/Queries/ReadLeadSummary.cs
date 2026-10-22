@@ -18,7 +18,7 @@ public sealed class ReadLeadSummaryHandler(IRepositoryLead repository) : IReques
         var now = DateTimeOffset.UtcNow;
         var since = now.AddDays(-7);
         var result = await repository.ReadSummaryAsync(since.UtcDateTime, cancellationToken);
-        return new ReadLeadSummaryResponse { Total = result.Total, Recent = result.Recent, Since = since, AsOf = now };
+        return new ReadLeadSummaryResponse { Total = result.Total, Recent = result.Recent, ByStatus = result.ByStatus, Since = since, AsOf = now };
     }
 }
 public sealed class ReadLeadSummaryMediatorValidator : AbstractValidator<ReadLeadSummaryMediatorQuery>

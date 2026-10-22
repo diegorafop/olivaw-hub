@@ -53,6 +53,7 @@ Por decisão explícita do mantenedor, os arquivos `.env` de todos os projetos s
 ## Padronização de migrations
 
 - Gere migrations somente mediante pedido explícito; `new feature` não inclui essa etapa.
+- Prefira uma única migration por issue, gerada ao final após estabilizar o modelo e validar a feature. Preserve migrations já publicadas; não consolide nem reescreva históricos existentes para cumprir essa preferência.
 - Confira a branch atual. Use a issue em PascalCase como nome: `feature/issue013-logo-whatsapp` corresponde a `Issue013`. Se já existir uma migration com esse nome, preserve o histórico e acrescente um sufixo descritivo, como `Issue013LeadIndex`. Sem issue identificável, confirme o nome com o mantenedor.
 - Gere somente para os provedores solicitados, no projeto do provedor da API consumidora. O Core não contém migrations. Não copie históricos entre serviços.
 - Use a factory de design time quando disponível, sem iniciar o host nem acessar bancos reais. Compile com `-m:1`; use `--no-build` no EF somente após compilar o modelo atual. `--no-restore` pressupõe dependências restauradas.

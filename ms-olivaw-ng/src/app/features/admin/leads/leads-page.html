@@ -27,6 +27,15 @@
       </select>
     </div>
     <div>
+      <label for="lead-status">Etapa</label>
+      <select id="lead-status" formControlName="followUpStatus">
+        <option value="">Todas</option>
+        @for (option of statusOptions; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select>
+    </div>
+    <div>
       <label for="lead-from">Recebido de</label
       ><input id="lead-from" type="date" formControlName="from" />
     </div>
@@ -42,6 +51,18 @@
       <p class="error" role="alert">{{ formError() }}</p>
     }
   </form>
+  @if (summary(); as counts) {
+    @if (counts.byStatus) {
+      <section class="status-summary" aria-label="Leads por etapa">
+        @for (option of statusOptions; track option[0]) {
+          <span
+            >{{ option[1] }}: <strong>{{ counts.byStatus[option[0]] || 0 }}</strong></span
+          >
+        }
+        <small>Contagem geral por etapa, independente dos filtros.</small>
+      </section>
+    }
+  }
   <div class="results-grid" [class.has-selection]="selected()">
     <section class="results" aria-labelledby="results-title" [attr.aria-busy]="list().loading">
       <div class="results-heading">
@@ -75,10 +96,13 @@
                     }
                   </div>
                   <div class="lead-meta">
+                    <span>{{ statuses[lead.followUpStatus] || 'Novo contato' }}</span>
                     <span>{{ lead.entry === 'studio' ? 'Estúdio' : 'Descoberta / contato' }}</span
                     ><time>{{ lead.createdAt | date: 'dd/MM/yyyy HH:mm' }}</time>
                   </div>
-                  <span class="arrow" aria-hidden="true">↗</span>
+                  @if (!selected()) {
+                    <span class="arrow" aria-hidden="true">↗</span>
+                  }
                 </a>
               </li>
             }
@@ -125,7 +149,7 @@
           <p role="status">{{ detail().error }}</p>
           <button type="button" class="secondary" (click)="reload()">Tentar novamente</button>
         } @else if (detail().data; as data) {
-          <app-lead-detail [lead]="data" />
+          <app-lead-detail [lead]="data" (saved)="reload()" (reload)="reload()" />
         }
       </aside>
     }

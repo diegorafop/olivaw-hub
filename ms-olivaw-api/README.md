@@ -58,7 +58,7 @@ A organização dos projetos de testes e a expansão para integração e E2E est
 
 ## Consulta administrativa de leads
 
-Consultas disponíveis somente com JWT válido da identidade interna e claim `root=true`, pela policy `olivaw.root`. O painel usa a identidade atual; contas comuns, técnicas e a chave pública `X-Lead-Key` não concedem leitura administrativa. Não há nova tabela ou migration nesta entrega.
+Consultas disponíveis com JWT válido da identidade interna e root ou permissão vigente `leads.manage`, pela policy homônima. A chave pública `X-Lead-Key` não concede leitura administrativa. O recorte original de consulta não alterou o schema; o acompanhamento acrescenta a migration `Issue017`, descrita adiante.
 
 | Operação | Contrato |
 | --- | --- |
@@ -66,11 +66,11 @@ Consultas disponíveis somente com JWT válido da identidade interna e claim `ro
 | `GET /leads/{externalId}` | Ficha com o snapshot público recebido, identificação externa e datas; 404 se ausente ou removido |
 | `GET /leads/summary` | Total recebido e total nos últimos sete dias, com início da janela e instante da consulta |
 
-Filtros de lista: `page` (1 a 100000, padrão 1), `pageSize` (1 a 100, padrão 20), `search` (até 100 caracteres), `entry` (`studio` ou `discovery`), `from` (inclusivo) e `until` (exclusivo). Datas aceitam ISO 8601 com fuso e são comparadas em UTC. A interface converte os dias escolhidos no fuso local em limites de instantes; horários são apresentados no fuso do navegador. A origem `discovery` inclui descoberta e contato direto, conforme os snapshots existentes.
+Filtros de lista: `page` (1 a 100000, padrão 1), `pageSize` (1 a 100, padrão 20), `search` (até 100 caracteres), `entry` (`studio` ou `discovery`), `from` (inclusivo), `until` (exclusivo) e `followUpStatus` (uma das etapas do acompanhamento). Datas aceitam ISO 8601 com fuso e são comparadas em UTC. A interface converte os dias escolhidos no fuso local em limites de instantes; horários são apresentados no fuso do navegador. A origem `discovery` inclui descoberta e contato direto, conforme os snapshots existentes.
 
 A busca é insensível a maiúsculas/minúsculas nos campos negócio, título, e-mail e WhatsApp. O telefone é pesquisado pelos dígitos armazenados, sem máscara. Não pesquisa todo o texto dos requisitos. A lista ordena por recebimento decrescente e identificador externo como desempate. Somente registros sem remoção lógica entram na leitura e nos totais. As projeções JSON usam PostgreSQL ou SQL Server e paginação no banco, sem carregar toda a base na API.
 
-Respostas não expõem `WriteKeyHash`, PK interna ou `ActorUserId` da entidade. As rotas desabilitam cache HTTP e limitam logs a método, caminho e status, sem corpo, contatos ou query de busca. Resumos não representam leads novos/não lidos: não existe estado comercial persistido nesta entrega. Status, responsável e notas deverão ter persistência própria, sem modificar o snapshot ou sua revisão pública.
+Respostas não expõem `WriteKeyHash`, PK interna ou `ActorUserId` da entidade. As rotas desabilitam cache HTTP e limitam logs a método, caminho e status, sem corpo, contatos ou query de busca. Os totais de recebimento não representam não lidos nem pendências. O acompanhamento possui estado persistido próprio e contagens por etapa em `byStatus`, conforme o contrato adiante, preservando snapshot e revisão pública. Não existe responsável atribuído.
 
 Os snapshots gravados pelo endpoint público são JSON válido. Registros antigos sem WhatsApp são aceitos; dados externos que alterem manualmente o formato do JSON estão fora do contrato de persistência. Detalhes com JSON ilegível informam `contentUnavailable`, sem expor o texto bruto.
 
@@ -140,3 +140,51 @@ Validação local, sem banco real:
 dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -c Release -m:1
 dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client/Owh.Olivaw.Client.csproj -c Release --no-build -o /tmp/olivaw-customer-pack
 ```
+
+## Acompanhamento comercial de leads
+
+Implementado em 22/10/2026, ainda sem publicação ou validação contra banco real. Os endpoints administrativos de leads exigem root ou a permissão `leads.manage`, conferida pelo `PermissionHandler` da identidade local a cada autorização. Remover a permissão impede o acesso mesmo quando um token antigo ainda contém a claim. Clientes e seus endpoints continuam exclusivos de root. Não foram criados perfis/usuários ou vínculos de portal.
+
+- `PUT /leads/{externalId}/follow-up`: recebe `{ "revision": 0, "status": "conversation", "note": "Aguardando fotos." }`; retorna a nova `revision`. `revision` é a revisão esperada do acompanhamento e começa em zero. Uma nota é obrigatória quando a etapa não muda. Notas aceitam até 3.000 caracteres; autor e data vêm do servidor, sem edição/exclusão de histórico.
+- `GET /leads/{externalId}/history?beforeRevision=21`: histórico em ordem de revisão decrescente, limitado a 20 itens. A primeira página omite `beforeRevision`; `nextBeforeRevision` indica a página anterior ou é nulo quando terminou.
+- `GET /leads`: filtro opcional `followUpStatus` e etapa de acompanhamento em cada item.
+- `GET /leads/{externalId}`: acrescenta `followUpStatus`, `followUpRevision` e `followUpUpdatedAt`, separados dos dados públicos.
+- `GET /leads/summary`: acrescenta `byStatus`, com contagens gerais por etapa, independentes dos filtros da lista; estados ausentes representam zero. `total` e `recent` mantêm seu significado de recebimento.
+
+Etapas persistidas: `new` (Novo contato), `conversation` (Em conversa), `analysis` (Em análise), `development` (Em desenvolvimento), `validation` (Em validação), `delivered` (Entregue) e `discontinued` (Sem continuidade). Transições são livres; não existe responsável atribuído. Nenhuma movimentação publica aplicações, cria clientes ou altera contratos.
+
+`Lead.FollowUpRevision` e a revisão pública são tokens de concorrência no EF. A atualização do lead e a inclusão do histórico são salvas na mesma unidade transacional; conflito retorna HTTP 409. As respostas usam `Cache-Control: no-store`. Movimentações internas preservam `Stage`, `Revision`, `Snapshot` e a data do envio público. Reenvios públicos mantêm a idempotência e preservam o acompanhamento; seu contrato não recebe notas internas.
+
+### Migration Issue017
+
+Uma única migration PostgreSQL, `20261022232507_Issue017`, gerada ao final após estabilizar o modelo. Acrescenta os três campos de acompanhamento em `lead`, índice de etapa e tabela `leadchange` com FK interna restritiva e índices únicos de `externalid` e `(leadid, revision)`. Leads existentes começam em Novo contato, revisão zero, sem criar histórico fictício. Nenhum prazo de expurgo automático foi definido.
+
+Migration, designer, snapshot e SQL entre `Issue013Customers` e `Issue017` foram revisados. Não alteram tabelas de identidade/clientes, nem snapshots existentes. `has-pending-model-changes` confirmou sincronização. **O startup aplica migrations pendentes após publicar a API**; não houve aplicação, conexão a banco real ou redeploy nesta entrega. SQL Server teve mapeamento e tradução SQL verificados sem conexão, mas não recebeu migration; Oracle não foi contemplado.
+
+Comandos reproduzíveis na raiz do monorepo; a geração já foi executada e não deve ser repetida no mesmo checkout:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations add Issue017 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations script Issue013Customers Issue017 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build \
+  --output /tmp/olivaw-issue017.sql
+
+dotnet ef migrations has-pending-model-changes \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+```
+
+Esses comandos usam a factory de design time, sem iniciar o host. Ferramenta EF 10.0.12 emitiu aviso de patch inferior ao runtime 10.0.13; não houve atualização de dependências nesta tarefa. Consulte também os [comandos do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
+
+Validação: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1` (125 testes), build Release, tradução SQL/modelo PostgreSQL e SQL Server e testes HTTP em memória de autenticação, revogação de permissão, validação e conflito. Execução real do SQL e smoke test após publicação continuam pendentes.

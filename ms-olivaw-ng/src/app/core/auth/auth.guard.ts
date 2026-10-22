@@ -17,12 +17,23 @@ export const permissionGuard: CanActivateFn = (route) => {
     : router.createUrlTree(['/acesso-negado']);
 };
 
-// A operação inicial é exclusiva do root da identidade interna Olivaw.
-// Dados operacionais futuros exigem autorização própria no servidor.
+// Cada funcionalidade mantém sua autorização no servidor.
 export const operationGuard: CanMatchFn = () => {
   const auth = inject(AutenticacaoStore);
   const router = inject(Router);
   if (!auth.tokenValido()) return router.createUrlTree(['/login']);
-  if (auth.usuario()?.isRoot) return true;
+  if (auth.permite('leads.manage')) return true;
   return router.createUrlTree(['/acesso-negado']);
+};
+
+export const rootGuard: CanMatchFn = () => {
+  const auth = inject(AutenticacaoStore);
+  if (auth.tokenValido() && auth.usuario()?.isRoot) return true;
+  return inject(Router).createUrlTree(['/acesso-negado']);
+};
+
+export const operationHomeGuard: CanMatchFn = () => {
+  const auth = inject(AutenticacaoStore);
+  if (auth.usuario()?.isRoot) return true;
+  return inject(Router).createUrlTree(['/admin/leads']);
 };

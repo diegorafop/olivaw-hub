@@ -135,22 +135,22 @@ for (const mobile of [false, true]) {
   });
 }
 
-test('conta interna sem root não entra na operação', async ({ page }) => {
+test('conta sem root e sem permissão não entra na operação', async ({ page }) => {
   await signIn(page, { root: false });
   await expect(page).toHaveURL(/\/acesso-negado$/);
   await expect(page.getByRole('heading', { name: 'Acesso negado' })).toBeVisible();
   await page.goto('/admin');
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/acesso-negado$/);
 });
 
-test('sessão expirada retorna ao login sem persistir token', async ({ page }) => {
+test('sessão expirada retorna ao login e remove token persistido', async ({ page }) => {
   await signIn(page, { expiresIn: 3000 });
   await expect(page).toHaveURL(/\/admin$/);
   await expect(page).toHaveURL(/\/login$/, { timeout: 10000 });
   expect(
     await page.evaluate(() => [
       localStorage.getItem('accessToken'),
-      sessionStorage.getItem('accessToken'),
+      sessionStorage.getItem('olivaw.session:https://api.olivaw.com.br'),
     ]),
   ).toEqual([null, null]);
 });
