@@ -8,7 +8,7 @@ Conhecer quanto custa manter a Olivaw, quanto cada cliente contribui para a oper
 
 ## Dependências e limites
 
-- [Cadastro de clientes](03-cadastro-de-clientes.md) para vincular receitas, custos e cobranças à empresa correta.
+- [Cadastro de clientes](../done/03-cadastro-de-clientes.md) para vincular receitas, custos e cobranças à empresa correta.
 - [Inventário](04-inventario-de-recursos.md) e [consumo](07-consumo-e-capacidade.md) para atribuição técnica de custos, quando houver medição confiável.
 - [Planos e condições](08-planos-e-condicoes.md) e [definição de custos e planos](../custos-e-planos.md) para valores e condições aprovados.
 - [Identidade do portal](11-identidade-do-portal.md) para futuras consultas do cliente. Cadastro de empresa não cria `UserProfile`, login ou convite automaticamente.

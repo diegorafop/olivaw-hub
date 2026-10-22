@@ -98,7 +98,7 @@ Disponível no código para avaliação, exclusivo da policy `olivaw.root`. A mi
 
 Payloads públicos em `Owh.Olivaw.Client/Features/CustomerFeature`. Nome comercial e de um a oito contatos são obrigatórios; cada contato tem nome e pelo menos e-mail ou WhatsApp válido. WhatsApp contém DDD e celular de 11 dígitos, sem máscara. Ambos os canais preenchidos devem ser válidos. Razão social, CNPJ (14 números), responsável interno e observações são opcionais. Não há validação fiscal externa.
 
-`sourceLeadExternalId` é opcional e permitido apenas na criação; preserva o vínculo com o lead existente. Origem repetida retorna HTTP 409 e o ID público do cliente vinculado. CNPJ duplicado e revisão desatualizada também retornam 409. Campos inválidos retornam 400 e recursos ausentes 404. Status aceitos: `onboarding`, `active`, `paused`, `closed`, com as transições documentadas na [feature 03](../docs/features/painel-olivaw/03-cadastro-de-clientes.md). Alterar status não suspende sistemas nem afeta cobrança.
+`sourceLeadExternalId` é opcional e permitido apenas na criação; preserva o vínculo com o lead existente. Origem repetida retorna HTTP 409 e o ID público do cliente vinculado. CNPJ duplicado e revisão desatualizada também retornam 409. Campos inválidos retornam 400 e recursos ausentes 404. Status aceitos: `onboarding`, `active`, `paused`, `closed`, com as transições documentadas na [feature 03](../docs/features/done/03-cadastro-de-clientes.md). Alterar status não suspende sistemas nem afeta cobrança.
 
 O servidor obtém operador e identidade do JWT, sem aceitar auditoria do body. Respostas não expõem chaves internas ou dados de autenticação. A trilha mínima registra criação/atualização e mudanças de situação; não guarda versões completas dos dados anteriores.
 

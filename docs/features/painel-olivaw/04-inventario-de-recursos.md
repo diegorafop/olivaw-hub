@@ -8,7 +8,7 @@ Permitir entender quais sistemas e dependências pertencem a cada cliente, antes
 
 ## Dependências
 
-[Cadastro de clientes](03-cadastro-de-clientes.md).
+[Cadastro de clientes](../done/03-cadastro-de-clientes.md).
 
 ## Escopo da entrega
 

@@ -8,7 +8,7 @@ Criar a fronteira de acesso do portal de relacionamento antes de apresentar dado
 
 ## Dependências
 
-[Clientes](03-cadastro-de-clientes.md). Decisão arquitetural explícita sobre autoridade externa; a preferência é autoridade própria do portal reutilizando Olivaw Identity, separada da administração interna.
+[Clientes](../done/03-cadastro-de-clientes.md). Decisão arquitetural explícita sobre autoridade externa; a preferência é autoridade própria do portal reutilizando Olivaw Identity, separada da administração interna.
 
 ## Escopo da entrega
 
