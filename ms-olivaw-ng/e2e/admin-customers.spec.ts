@@ -150,7 +150,7 @@ for (const mobile of [false, true]) {
     await page.setViewportSize({ width: mobile ? 390 : 1440, height: 1000 });
     const writes = await setup(page);
     const avatar = page.locator('.avatar-scene img');
-    await expect(avatar).toHaveAttribute('src', /coordinator-v2.webp/);
+    await expect(avatar).toHaveAttribute('src', /coordinator-v3.webp/);
     await expect
       .poll(() =>
         avatar.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),

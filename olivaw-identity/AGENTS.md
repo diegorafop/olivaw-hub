@@ -26,3 +26,11 @@ dotnet test olivaw-identity/tests/Olivaw.Identity.Tests/Olivaw.Identity.Tests.cs
 ```
 
 Teste regras em isolamento e use HTTP em memória/SQLite para verificar integração, índices, políticas e isolamento entre contextos. SQLite não comprova comportamento específico dos bancos de produção. Mudanças compartilhadas exigem também os testes do core e do template. Não publique pacotes nem altere versões como efeito colateral.
+
+## Limites de versões por licenciamento
+
+Por decisão explícita do mantenedor, manter **MassTransit e seus transportes em 8.5.x** e **MediatR em 12.5.x**, preservando as linhas escolhidas para uso gratuito. Não atualizar essas famílias para outra minor/major, nem adicionar pacote que exija versões fora desses intervalos, sem nova autorização explícita.
+
+- Usar versões estáveis explícitas nos projetos; alinhar todos os pacotes `MassTransit.*` na mesma versão 8.5.x.
+- Conferir dependências transitivas após restore, além das referências diretas. Não usar atualização automática irrestrita para contornar os limites.
+- A regra inclui Core, identidade, APIs, testes, template e serviços gerados. Ao atualizar dependências, verificar também compatibilidade entre EF Core, provedores e frameworks.
