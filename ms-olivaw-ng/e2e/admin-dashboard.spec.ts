@@ -40,6 +40,17 @@ async function signIn(
           asOf: new Date().toISOString(),
         },
       });
+    if (path === '/customers/summary')
+      return route.fulfill({
+        json: {
+          total: 0,
+          onboarding: 0,
+          active: 0,
+          paused: 0,
+          closed: 0,
+          asOf: new Date().toISOString(),
+        },
+      });
     await route.abort();
   });
   await page.goto('/login');
@@ -61,14 +72,13 @@ for (const mobile of [false, true]) {
     await expect(page.getByRole('heading', { level: 1, name: 'Visão geral' })).toBeVisible();
     await expect(page.getByText('Olá, Operador Olivaw.')).toBeVisible();
     const nav = page.getByRole('navigation', { name: 'Navegação da operação' });
-    await expect(nav.getByRole('link')).toHaveCount(2);
+    await expect(nav.getByRole('link')).toHaveCount(3);
     await expect(nav.getByRole('link', { name: 'Visão geral' })).toHaveAttribute(
       'aria-current',
       'page',
     );
     for (const label of [
       'Ambiente não informado',
-      'Cadastro ainda não disponível',
       'Monitoramento não conectado',
       'Solicitações ainda não habilitadas',
       'Sem fontes conectadas',
@@ -88,6 +98,7 @@ for (const mobile of [false, true]) {
       '/identity/authentication/login',
       '/identity/authentication/access',
       '/leads/summary',
+      '/customers/summary',
     ]);
     const skip = page.getByRole('link', { name: 'Ir para o conteúdo', exact: true });
     await skip.focus();

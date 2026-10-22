@@ -83,3 +83,60 @@ dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client/Owh.Olivaw.Client.csproj --no-bu
 ```
 
 O comando de pack usa a compilação Debug criada pelos comandos anteriores; não publica o pacote. Testes de HTTP e handlers usam repositórios simulados. Tradução das consultas é verificada para os dois provedores sem banco real; execução integrada no banco do ambiente ainda deve ser conferida após publicar a API. Esta tarefa não aplica migrations nem executa redeploy.
+
+## Cadastro administrativo de clientes
+
+Disponível no código para avaliação, exclusivo da policy `olivaw.root`. A migration PostgreSQL foi gerada; sua aplicação e o teste no ambiente ainda dependem da publicação pelo mantenedor. Cliente representa a empresa e não cria usuário, `UserProfile`, conta técnica ou credencial.
+
+| Método | Recurso | Resultado |
+| --- | --- | --- |
+| GET | `/customers?page=1&pageSize=20&search=&status=` | Lista paginada, total e itens resumidos |
+| GET | `/customers/summary` | Contagens por situação e momento da consulta |
+| GET | `/customers/{externalId}` | Ficha, contatos, origem e até 20 alterações recentes |
+| POST | `/customers` | Cadastro em implantação, ID público e revisão; HTTP 201 |
+| PUT | `/customers/{externalId}` | Atualização com revisão esperada; HTTP 200 |
+
+Payloads públicos em `Owh.Olivaw.Client/Features/CustomerFeature`. Nome comercial e de um a oito contatos são obrigatórios; cada contato tem nome e pelo menos e-mail ou WhatsApp válido. WhatsApp contém DDD e celular de 11 dígitos, sem máscara. Ambos os canais preenchidos devem ser válidos. Razão social, CNPJ (14 números), responsável interno e observações são opcionais. Não há validação fiscal externa.
+
+`sourceLeadExternalId` é opcional e permitido apenas na criação; preserva o vínculo com o lead existente. Origem repetida retorna HTTP 409 e o ID público do cliente vinculado. CNPJ duplicado e revisão desatualizada também retornam 409. Campos inválidos retornam 400 e recursos ausentes 404. Status aceitos: `onboarding`, `active`, `paused`, `closed`, com as transições documentadas na [feature 03](../docs/features/painel-olivaw/03-cadastro-de-clientes.md). Alterar status não suspende sistemas nem afeta cobrança.
+
+O servidor obtém operador e identidade do JWT, sem aceitar auditoria do body. Respostas não expõem chaves internas ou dados de autenticação. A trilha mínima registra criação/atualização e mudanças de situação; não guarda versões completas dos dados anteriores.
+
+As leituras simples e escritas usam `IRepository<Customer>`. `IRepositoryCustomer` é restrito à paginação/contagem e agregação por situação no banco, operações ausentes no genérico. O modelo inclui `customer`, `customercontact` e `customerchange`, com FK internas, contatos relacionais, índice único opcional de CNPJ e de lead de origem, e revisão para concorrência otimista.
+
+**Migration PostgreSQL pronta:** `20261022010058_Issue013Customers` cria somente `customer`, `customercontact` e `customerchange`, seus vínculos e índices. Migration, designer, snapshot e SQL entre `Issue013` e `Issue013Customers` foram revisados; não há alterações em tabelas de leads ou identidade. `has-pending-model-changes` confirmou modelo sincronizado. Nenhum banco foi acessado para gerar ou revisar estes artefatos. SQL Server e Oracle não receberam migrations nesta entrega.
+
+**Ao publicar:** o startup da API aplica automaticamente as migrations pendentes. Os arquivos foram gerados localmente; a nova feature ainda não foi publicada e não foi testada contra PostgreSQL real. O mantenedor fará o redeploy e a validação na AWS. O deploy de leads concluído anteriormente não contém esta feature.
+
+Comandos usados na raiz do monorepo. O `migrations add` documenta a geração original; não repetir quando a migration já estiver no checkout:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations add Issue013Customers \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations script Issue013 Issue013Customers \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build \
+  --output /tmp/olivaw-issue013-customers.sql
+
+dotnet ef migrations has-pending-model-changes \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+```
+
+Esses comandos usam a factory de design time, sem iniciar o host ou aplicar alterações. Ver também os [comandos do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
+
+Validação local, sem banco real:
+
+```bash
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -c Release -m:1
+dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client/Owh.Olivaw.Client.csproj -c Release --no-build -o /tmp/olivaw-customer-pack
+```

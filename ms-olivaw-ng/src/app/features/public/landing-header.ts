@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
       >
         <img
           class="brand-mark"
-          src="assets/brand/olivaw-avatar-web-v2.png"
+          src="assets/brand/olivaw-avatar-web-v3.png"
           width="48"
           height="48"
           alt=""

@@ -192,3 +192,17 @@ sudo install -o root -g root -m 0440 scripts/deployment/olivaw-cleanup.sudoers /
 ```
 
 A primeira publicação da nova autoridade e da DevOps está no [roteiro de identidade](identity-architecture.md). Cada usuário técnico precisa de permissão de deploy por pasta; o JWT root da operação mantém acesso administrativo.
+
+## Compose falha e o disco está cheio
+
+O executor devolve os códigos de saída e descarta a saída bruta para evitar expor segredos. `Compose: exit code 1` sozinho não identifica erro de compilação. Conferir na VM, sem imprimir dotenv ou configuração expandida:
+
+```bash
+df -h /
+docker system df
+docker ps -a --format '{{.Names}} {{.Status}}'
+```
+
+Cache acumulado de build pode ocupar o disco mesmo com poucos containers ativos. Após aprovação operacional, uma opção de limpeza limitada a cache não utilizado há mais de 24 horas é `docker builder prune --all --force --filter until=24h`. Não executar limpezas concorrentes; não remover volumes, dados ou diretórios de bancos para liberar espaço. O build seguinte pode demorar mais por perder cache. Conferir o espaço novamente e só então repetir a implantação da mesma branch publicada.
+
+Em 21/10/2026, a VM atingiu 100% de uso, com cerca de 29 GB de cache de build reportado pelo Docker. Após as limpezas autorizadas, voltou a aproximadamente 25% de uso. A publicação da API Olivaw concluiu no job `88931a2b-e0b6-49e6-84b4-2a1c91de40d8`; `GET /leads` autenticado foi confirmado com HTTP 200, sem divulgar dados dos registros. Monitoramento e alertas de capacidade continuam no planejamento das features 05–07.

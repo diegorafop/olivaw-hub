@@ -48,7 +48,7 @@ A pasta conduz por cinco etapas: ideia, serviços, primeira entrega, parceria e 
 
 O `ProjectDraft` reúne um JSON versionado desde a entrada, com identificador aleatório, origem, opções, texto e até 40 eventos de navegação. O rascunho fica no estado e no `sessionStorage` da aba; gravações locais são agrupadas em 400 ms e não chamam a API. Recarregar preserva o rascunho. Fechar a sessão da aba encerra esse armazenamento, sujeito ao comportamento de restauração do navegador.
 
-Somente “Enviar para análise da Olivaw”, com e-mail, persiste o snapshot na API. Uma chave aleatória exclusiva da jornada protege atualizações sem usar o JWT administrativo. Revisões permitem repetir um envio sem criar outro lead. Falhas preservam o texto e oferecem nova tentativa ou cópia do resumo. Não há uploads, orçamento automático ou análise automática de requisitos.
+Somente “Enviar para análise da Olivaw”, com e-mail ou WhatsApp válido, persiste o snapshot na API. Uma chave aleatória exclusiva da jornada protege atualizações sem usar o JWT administrativo. Revisões permitem repetir um envio sem criar outro lead. Falhas preservam o texto e oferecem nova tentativa ou cópia do resumo. Não há uploads, orçamento automático ou análise automática de requisitos.
 
 Validação específica: `npm run build` e `npm run e2e -- site-studio.spec.ts project-folder.spec.ts project-wizard.spec.ts landing.spec.ts`, dentro de `ms-olivaw-ng`.
 
@@ -86,7 +86,7 @@ Validação específica: `npm run e2e -- clients-contact.spec.ts landing.spec.ts
 
 ## Imagem de compartilhamento
 
-As tags Open Graph e Twitter apontam para `public/assets/brand/olivaw-share-v1.jpg`, uma cópia JPEG de 720 × 720 do avatar atual, com fundo claro. É um arquivo separado: logos, imagens da interface, favicon e apple-touch-icon permanecem nas referências anteriores.
+As tags Open Graph e Twitter apontam para `public/assets/brand/olivaw-share-v2.jpg`, uma cópia JPEG de 720 × 720 do avatar atual, com fundo claro. A família visual agora usa a órbita mais fina: símbolo `olivaw-avatar-web-v3.png`, reação da carta `olivaw-message-welcome-v2.webp`, coordenador administrativo `olivaw-operations-coordinator-v2.webp`, favicon PNG/ICO e Apple Touch dedicados. Originais e prompts ficam em [Mini Olivaws](design/brand/avatars/README.md).
 
 Para regenerar a prévia com os mesmos pixels de origem, sem redesenhar o robô:
 
@@ -96,3 +96,19 @@ npm run build
 ```
 
 O script usa o Chromium do Playwright já instalado no projeto e limita a saída a 150 KB. Após publicar, conferir se a URL da imagem responde como `image/jpeg` e testar um novo compartilhamento. O nome separado diferencia o asset da imagem antiga, mas não garante atualização imediata do cache do WhatsApp para a página. Alterações locais não atualizam a prévia publicada.
+
+## Clientes administrativos
+
+`/admin/customers` permite buscar por empresa, razão social ou CNPJ e filtrar situação, com paginação pela API. `/admin/customers/new` prepara cadastro; `/admin/customers/:id` apresenta edição, contatos, situação e histórico mínimo. A ficha do lead oferece “Cadastrar como cliente”: apenas prepara os campos e conserva origem, sem gravar até a confirmação. Nome do contato precisa ser conferido/preenchido pela equipe. Clientes ficam sem login nesta etapa.
+
+A Visão geral consulta `/customers/summary`; números representam situação cadastral, não saúde técnica. Falha de API aparece como indisponibilidade, sem dados demonstrativos. A persistência no ambiente depende da migration e publicação descritas no [README da API](../ms-olivaw-api/README.md#cadastro-administrativo-de-clientes); a migration PostgreSQL `Issue013Customers` foi gerada e revisada, mas não aplicada em banco nesta entrega.
+
+O formulário aceita até oito contatos com nome e pelo menos um canal válido; WhatsApp tem máscara e é enviado só com dígitos. Revisão evita sobrescrita concorrente; erro conserva os campos. Mudança de situação exige confirmação e não altera cobrança ou sistemas. Sair com alterações não salvas pede confirmação; expiração da sessão e logout continuam liberando a navegação de segurança.
+
+```bash
+npm run build
+npm run lint
+npm run e2e -- admin-customers.spec.ts admin-dashboard.spec.ts admin-leads.spec.ts
+```
+
+Os testes interceptam a API e não cadastram empresas reais, enviam convites ou criam usuários.

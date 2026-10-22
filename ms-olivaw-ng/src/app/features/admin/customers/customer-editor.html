@@ -1,0 +1,234 @@
+<main class="customer-content" id="operation-content" tabindex="-1">
+  <a class="back" routerLink="/admin/customers">← Clientes</a>
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">OLIVAW / FICHA DO CLIENTE</p>
+      <h1>{{ id ? data()?.business || 'Ficha do cliente' : 'Uma nova parceria.' }}</h1>
+      <p>
+        {{
+          id
+            ? 'O contexto da empresa, sempre por perto.'
+            : 'Comece pelo essencial. Os detalhes podem vir depois.'
+        }}
+      </p>
+    </div>
+    <span class="status" [attr.data-status]="data()?.status || 'onboarding'">{{
+      label(data()?.status || 'onboarding')
+    }}</span>
+  </header>
+  @if (loading()) {
+    <p class="panel" role="status">Consultando informações…</p>
+  }
+  @if (error()) {
+    <div class="error-box" role="alert">
+      <p>{{ error() }}</p>
+      @if (existingId()) {
+        <a [routerLink]="['/admin/customers', existingId()]">Abrir cliente existente ↗</a>
+      }
+      @if (id && !data()) {
+        <button type="button" (click)="load()">Tentar novamente</button>
+      }
+    </div>
+  }
+  @if (success()) {
+    <p class="success-box" role="status">{{ success() }}</p>
+  }
+  @if (!loading() && (!id || data())) {
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <div class="editor-grid">
+        <div>
+          <section class="panel" aria-labelledby="company-title">
+            <p class="eyebrow">01 / EMPRESA</p>
+            <h2 id="company-title">Quem vamos acompanhar?</h2>
+            @if (source || data()?.sourceLeadExternalId) {
+              <p class="origin">
+                Origem: lead recebido ·
+                <a [routerLink]="['/admin/leads', source || data()?.sourceLeadExternalId]"
+                  >Ver conversa inicial ↗</a
+                >
+              </p>
+            }
+            <label
+              >Nome comercial <span aria-hidden="true">*</span
+              ><input
+                formControlName="business"
+                maxlength="120"
+                autocomplete="organization"
+                [attr.aria-invalid]="form.controls.business.invalid && attempted()"
+            /></label>
+            @if (form.controls.business.invalid && attempted()) {
+              <p class="field-error">Informe o nome comercial da empresa.</p>
+            }
+            <div class="two-columns">
+              <label
+                >Razão social <span class="optional">opcional</span
+                ><input formControlName="legalName" maxlength="180" /></label
+              ><label
+                >CNPJ <span class="optional">opcional</span
+                ><input
+                  formControlName="document"
+                  maxlength="14"
+                  inputmode="numeric"
+                  placeholder="Somente os 14 números"
+                  [attr.aria-invalid]="form.controls.document.invalid && attempted()"
+              /></label>
+            </div>
+            @if (form.controls.document.invalid && attempted()) {
+              <p class="field-error">Use os 14 números do CNPJ ou deixe em branco.</p>
+            }
+            <label
+              >Responsável na Olivaw <span class="optional">opcional</span
+              ><input
+                formControlName="owner"
+                maxlength="120"
+                placeholder="Quem acompanha esta parceria"
+            /></label>
+          </section>
+          <section class="panel" aria-labelledby="contacts-title">
+            <div class="list-heading">
+              <div>
+                <p class="eyebrow">02 / PESSOAS</p>
+                <h2 id="contacts-title">Com quem conversamos?</h2>
+              </div>
+              <span>Até 8 contatos</span>
+            </div>
+            <div formArrayName="contacts">
+              @for (contact of contacts.controls; track contact; let index = $index) {
+                <fieldset class="contact" [formGroupName]="index">
+                  <legend>Contato {{ index + 1 }}</legend>
+                  <div class="two-columns">
+                    <label
+                      >Nome <span aria-hidden="true">*</span
+                      ><input
+                        formControlName="name"
+                        maxlength="120"
+                        [attr.aria-invalid]="contact.controls.name.invalid && attempted()" /></label
+                    ><label
+                      >Cargo ou função <span class="optional">opcional</span
+                      ><input formControlName="role" maxlength="120"
+                    /></label>
+                  </div>
+                  <p class="help">
+                    Informe ao menos um e-mail ou WhatsApp com DDD. Se preencher ambos, os dois
+                    precisam ser válidos.
+                  </p>
+                  <div class="two-columns">
+                    <label
+                      >E-mail<input
+                        formControlName="email"
+                        type="email"
+                        maxlength="254"
+                        [attr.aria-invalid]="contact.hasError('contact') && attempted()" /></label
+                    ><label
+                      >WhatsApp com DDD<input
+                        formControlName="whatsapp"
+                        type="tel"
+                        maxlength="15"
+                        placeholder="(11) 99999-9999"
+                        (input)="maskPhone(index, $event)"
+                        [attr.aria-invalid]="contact.hasError('contact') && attempted()"
+                    /></label>
+                  </div>
+                  @if (contact.invalid && attempted()) {
+                    <p class="field-error">Preencha o nome e ao menos um contato válido.</p>
+                  }
+                  @if (contacts.length > 1) {
+                    <button class="subtle" type="button" (click)="removeContact(index)">
+                      Remover contato {{ index + 1 }}
+                    </button>
+                  }
+                </fieldset>
+              }
+            </div>
+            <button
+              class="subtle"
+              type="button"
+              [disabled]="contacts.length >= 8 || saving()"
+              (click)="addContact()"
+            >
+              ＋ Adicionar contato
+            </button>
+          </section>
+          <section class="panel" aria-labelledby="context-title">
+            <p class="eyebrow">03 / CONTEXTO</p>
+            <h2 id="context-title">O que precisamos lembrar?</h2>
+            <label
+              >Observações internas <span class="optional">opcional</span
+              ><textarea
+                formControlName="notes"
+                rows="5"
+                maxlength="3000"
+                placeholder="Contexto da empresa e próximos passos combinados."
+              ></textarea>
+            </label>
+            <p class="help">Somente para a equipe Olivaw. Evite senhas ou credenciais.</p>
+          </section>
+        </div>
+        <aside>
+          <section class="panel situation">
+            <p class="eyebrow">ACOMPANHAMENTO</p>
+            <h2>Em que momento estamos?</h2>
+            @if (id) {
+              <label
+                >Situação cadastral<select formControlName="status">
+                  @for (status of statuses; track status.value) {
+                    <option [value]="status.value" [disabled]="!allowedStatus(status.value)">
+                      {{ status.label }}
+                    </option>
+                  }
+                </select></label
+              >
+            } @else {
+              <p>O cliente começa <strong>em implantação</strong>.</p>
+            }
+            <p class="help">
+              Esta situação organiza o cadastro. Não suspende sistemas nem muda cobranças.
+            </p>
+            <div class="note">
+              <span aria-hidden="true">↗</span>
+              <p>
+                Uma empresa, várias possibilidades.<br />O acesso ao portal será uma etapa futura.
+              </p>
+            </div>
+          </section>
+          @if (data(); as customer) {
+            <section class="panel history" aria-labelledby="history-title">
+              <p class="eyebrow">TRILHA DO CADASTRO</p>
+              <h2 id="history-title">Últimas alterações</h2>
+              <ol>
+                @for (change of customer.changes; track $index) {
+                  <li>
+                    <strong>{{
+                      change.action === 'created' ? 'Cliente cadastrado' : 'Cadastro atualizado'
+                    }}</strong
+                    ><span
+                      >{{ change.actor || 'Equipe Olivaw' }} ·
+                      {{ change.at | date: 'dd/MM/yyyy HH:mm' }}</span
+                    >
+                    @if (change.previousStatus !== change.status) {
+                      <small>{{ label(change.previousStatus) }} → {{ label(change.status) }}</small>
+                    }
+                  </li>
+                }
+              </ol>
+              <p class="help">Até 20 alterações mais recentes.</p>
+            </section>
+          }
+        </aside>
+      </div>
+      <footer class="save-bar">
+        <p>Os campos com <span aria-hidden="true">*</span> são obrigatórios.</p>
+        <div>
+          <a routerLink="/admin/customers">Voltar à lista</a
+          ><button
+            class="primary"
+            type="submit"
+            [disabled]="saving() || (!!source && !!error() && !form.dirty)"
+          >
+            {{ saving() ? 'Salvando…' : id ? 'Salvar alterações' : 'Cadastrar cliente' }}
+          </button>
+        </div>
+      </footer>
+    </form>
+  }
+</main>

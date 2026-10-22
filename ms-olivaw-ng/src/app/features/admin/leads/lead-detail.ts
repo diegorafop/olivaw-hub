@@ -1,10 +1,11 @@
 import { formatWhatsapp } from '../../public/contact-details';
 import { Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import type { LeadDetailData } from './leads-api';
 @Component({
   selector: 'app-lead-detail',
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './lead-detail.html',
   styleUrl: './lead-detail.scss',
 })

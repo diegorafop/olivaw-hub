@@ -4,7 +4,7 @@
 
 Proposta criada em 20/10/2026 e decomposta em features em 21/10/2026. Este documento é o índice e a visão comum da épica; os arquivos abaixo definem escopo, dependências, exclusões, critérios de aceite e decisões de cada entrega.
 
-A decomposição em features é documental. A primeira versão do dashboard foi posteriormente implementada para avaliação, conforme o estado da feature 01; as demais continuam planejadas. Este índice não cria issues, aprova schemas/migrations ou autoriza provisionamento e publicação. Os números são referências de planejamento, não números de issues nem versões de release.
+A decomposição em features é documental. A primeira versão do dashboard foi posteriormente implementada para avaliação, conforme o estado da feature 01; a consulta de leads está disponível e o cadastro de clientes tem implementação local e migration PostgreSQL revisada, pendentes de publicação/teste na AWS; as demais continuam planejadas. Este índice não cria issues, aprova schemas/migrations ou autoriza provisionamento e publicação. Os números são referências de planejamento, não números de issues nem versões de release.
 
 A visão permanece dividida em duas fases:
 
@@ -52,6 +52,10 @@ A ordem é uma proposta de prioridade, não uma cadeia rígida. Clientes podem c
 | 16 | [Implementação assistida por IA](painel-olivaw/16-implementacao-assistida-por-ia.md) | Alteração isolada, testes e revisão | Assistência por IA e política de execução |
 
 A feature 15 pode começar com atendimentos registrados pela equipe, sem depender do portal. A feature 16 exige uma política própria de execução e revisão; não é uma consequência automática de ligar a triagem.
+
+## Financeiro
+
+[17 — Financeiro da Olivaw](painel-olivaw/17-financeiro.md) reúne o planejamento de custos da operação, contas a pagar e receber, fluxo de caixa, resultado, impostos e precificação. Foi dividido em quatro entregas propostas, ainda sem implementação. Prevê também uma consulta futura de cobranças e pagamentos no portal, com isolamento por empresa e sem exposição dos custos ou margens internos.
 
 ## Fluxo de evolução
 
@@ -126,7 +130,7 @@ Antes de codar, resolver as decisões que bloqueiam a entrega escolhida, conferi
 
 Cada implementação deve validar os comportamentos alterados, as fronteiras de autorização e a experiência em desktop, celular, teclado e movimento reduzido. Documentar limitações e fontes ainda não conectadas. Atualizar o estado da feature com evidência do que foi entregue; não marcar as seguintes como prontas por terem infraestrutura em comum.
 
-Pagamentos, anexos, ações operacionais executáveis e respostas autônomas a clientes permanecem fora dos recortes atuais. Se forem priorizados, criar features próprias com requisitos e aceite antes da implementação.
+Pagamentos foram planejados na feature 17 e permanecem fora da implementação atual. Anexos, ações operacionais executáveis e respostas autônomas a clientes também exigem recortes próprios com requisitos e aceite antes da implementação.
 
 ## O que existe e o que falta
 

@@ -1,3 +1,4 @@
+import { customerDraftGuard } from './features/admin/customers/customer-draft.guard';
 import { Routes } from '@angular/router';
 import { operationGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
@@ -30,6 +31,26 @@ export const routes: Routes = [
     canMatch: [operationGuard],
     loadComponent: () => import('./features/admin/admin-frame').then((m) => m.AdminFrame),
     children: [
+      {
+        path: 'customers',
+        title: 'Olivaw - Clientes',
+        loadComponent: () =>
+          import('./features/admin/customers/customers-page').then((m) => m.CustomersPage),
+      },
+      {
+        path: 'customers/new',
+        title: 'Olivaw - Novo cliente',
+        canDeactivate: [customerDraftGuard],
+        loadComponent: () =>
+          import('./features/admin/customers/customer-editor').then((m) => m.CustomerEditor),
+      },
+      {
+        path: 'customers/:id',
+        title: 'Olivaw - Cliente',
+        canDeactivate: [customerDraftGuard],
+        loadComponent: () =>
+          import('./features/admin/customers/customer-editor').then((m) => m.CustomerEditor),
+      },
       {
         path: 'leads',
         title: 'Olivaw - Leads',

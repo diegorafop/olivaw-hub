@@ -8,6 +8,11 @@
 @if (data.contentUnavailable || !draft) {
   <p role="status">O conteúdo deste registro não pôde ser lido.</p>
 } @else {
+  <p>
+    <a routerLink="/admin/customers/new" [queryParams]="{ lead: data.externalId }"
+      >Cadastrar como cliente ↗</a
+    >
+  </p>
   <section aria-label="Contato">
     <h3>Vamos conversar</h3>
     <div class="contacts">

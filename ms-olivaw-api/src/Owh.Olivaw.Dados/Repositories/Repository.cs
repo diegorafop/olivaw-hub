@@ -79,7 +79,7 @@ public class Repository<T>
         return await Query(orderByDescending, joins)
             .Where(lambda)
             .Take(count)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<T> GetFirstAsync

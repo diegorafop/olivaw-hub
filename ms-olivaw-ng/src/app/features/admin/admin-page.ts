@@ -1,23 +1,17 @@
+import { CustomerOverview } from './customers/customer-overview';
 import { Component, inject } from '@angular/core';
 import { AdminAreaCard } from './admin-area-card';
 import { LeadOverview } from './leads/lead-overview';
 import { AutenticacaoStore } from '../../core/auth/autenticacao.store';
 @Component({
   selector: 'app-admin-page',
-  imports: [AdminAreaCard, LeadOverview],
+  imports: [AdminAreaCard, LeadOverview, CustomerOverview],
   templateUrl: './admin-page.html',
   styleUrl: './admin-page.scss',
 })
 export class AdminPage {
   readonly store = inject(AutenticacaoStore);
   readonly areas = [
-    {
-      number: '01',
-      title: 'Clientes',
-      status: 'Cadastro ainda não disponível',
-      text: 'As empresas e seus responsáveis terão um lugar próprio na operação.',
-      icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.87M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
-    },
     {
       number: '02',
       title: 'Sistemas',

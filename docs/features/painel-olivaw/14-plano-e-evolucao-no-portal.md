@@ -22,6 +22,8 @@ Mostrar o que foi contratado e o que está sendo planejado ou entregue, sem tran
 
 - Pagamentos, faturas, upgrade instantâneo, cobrança variável e promessas de entrega sem aprovação.
 
+A consulta futura de cobranças e pagamentos anteriores está prevista na [feature 17 — Financeiro](17-financeiro.md), com autorização por empresa. Continua fora da implementação desta feature; não inclui processamento automático de pagamentos. Cadastro de cliente permanece sem login até a entrega da identidade do portal.
+
 ## Critérios de aceite
 
 - Plano e histórico respeitam vigência e não expõem custo ou margem interna.

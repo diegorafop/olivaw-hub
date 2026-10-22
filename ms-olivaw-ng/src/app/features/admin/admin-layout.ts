@@ -24,7 +24,11 @@ export class AdminLayout {
     { initialValue: this.router.url },
   );
   readonly section = computed(() =>
-    this.currentUrl().includes('/admin/leads') ? 'Leads' : 'Visão geral',
+    this.currentUrl().includes('/admin/customers')
+      ? 'Clientes'
+      : this.currentUrl().includes('/admin/leads')
+        ? 'Leads'
+        : 'Visão geral',
   );
   readonly collapsed = signal(false);
   readonly operator = input.required<string>();

@@ -2,7 +2,7 @@
 
 ## Estado e objetivo
 
-Planejada; não implementada por este documento. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
+Interface, contratos, domínio e API implementados localmente para avaliação. Migration PostgreSQL `Issue013Customers` gerada e revisada; publicação e teste real no ambiente aguardam o mantenedor. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
 
 Representar as empresas atendidas pela Olivaw e seus responsáveis, estabelecendo a base de vínculo para os demais módulos.
 
@@ -33,5 +33,19 @@ Representar as empresas atendidas pela Olivaw e seus responsáveis, estabelecend
 
 ## Decisões antes de implementar
 
-- Campos mínimos, unicidade, transições, permissões e tratamento de dados de contato.
-- Necessidade de razão social/documento nesta primeira versão e regra de desativação sem perder histórico.
+Decisões do primeiro recorte:
+
+- Nome comercial e pelo menos um contato com nome e e-mail ou WhatsApp válidos. Até oito contatos por empresa; quando ambos os canais forem informados, ambos precisam ser válidos. Razão social, CNPJ com 14 dígitos, responsável Olivaw e observações são opcionais.
+- Nome comercial não é único: empresas diferentes podem ter o mesmo nome. CNPJ informado e origem de lead têm índices únicos. Conversão repetida de lead informa o cliente já vinculado; não gera nova empresa automaticamente.
+- Cliente nasce em implantação. Pode avançar para ativo, pausado ou encerrado; ativo pode pausar ou encerrar; pausado pode retomar implantação ou atividade, ou encerrar. Encerrado reabre somente em implantação. A interface pede confirmação ao mudar a situação.
+- Não há exclusão física de empresa nem criação automática de usuários, `UserProfile`, contas técnicas, credenciais ou convites. Por decisão do mantenedor, clientes ficam sem login nesta etapa; vínculos com pessoas autorizadas serão definidos na feature 11.
+- Controle inicial exclusivo de root, também no servidor. Revisão concorrente evita sobrescrever alterações; a ficha mostra as vinte movimentações mais recentes, com operador, momento e situação anterior/nova. O histórico mínimo não é um diff completo dos valores anteriores.
+- Conversão é uma preparação explícita do formulário; busca contexto e contatos do lead, exige revisão e só persiste ao cadastrar. Nenhum lead, LTMJ ou outro cliente é cadastrado como efeito dos testes.
+
+## Implementação e verificação
+
+Rotas `/admin/customers`, `/admin/customers/new` e `/admin/customers/:id`; endpoints e requisitos de publicação no [README da API](../../../ms-olivaw-api/README.md#cadastro-administrativo-de-clientes). O dashboard consulta contagens reais por situação, com estado de erro se a fonte não estiver disponível. Não confundir situação cadastral com saúde técnica.
+
+Criação, atualização e consulta por ID injetam `IRepository<Customer>` diretamente. `IRepositoryCustomer : IRepository<Customer>` e `RepositoryCustomer : Repository<Customer>` existem somente para paginação com contagem e agregação por situação no banco, ausentes no contrato genérico; usam LINQ/EF, sem SQL bruto. Contatos e histórico usam entidades relacionais com chaves internas e vínculos explícitos.
+
+Testes HTTP em memória verificam autorização, validação, duplicidade de origem, revisão concorrente e auditoria. Testes do modelo verificam PostgreSQL e SQL Server sem conexão. Playwright cobre cadastro e contatos em desktop/celular, filtros, recuperação de erro e preparação de conversão. Não houve teste contra banco real. Após autorização explícita do mantenedor, foi gerada somente a migration PostgreSQL `Issue013Customers`, revisando SQL, designer e snapshot e confirmando ausência de mudanças pendentes no modelo. Não foi aplicada em banco; publicação e teste na AWS ficam com o mantenedor. SQL Server e Oracle não receberam migrations.

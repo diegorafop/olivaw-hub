@@ -2,8 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { chromium } from '@playwright/test';
 
 // Export a dedicated social JPEG; never overwrite the original brand assets.
-const source = new URL('../public/assets/brand/olivaw-avatar-web-v2.png', import.meta.url);
-const destination = new URL('../public/assets/brand/olivaw-share-v1.jpg', import.meta.url);
+const source = new URL('../public/assets/brand/olivaw-avatar-web-v3.png', import.meta.url);
+const destination = new URL('../public/assets/brand/olivaw-share-v2.jpg', import.meta.url);
 const sourceData = await readFile(source);
 const browser = await chromium.launch({ headless: true });
 try {
