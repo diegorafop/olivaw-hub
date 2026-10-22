@@ -92,3 +92,7 @@ O último comando apenas valida. A subida exige bancos/schemas preparados e a in
 O Dockerfile executa as suítes de identidade, core e template e roda a aplicação sem root. Os dotenv são versionados no Git privado nesta etapa e ficam excluídos do contexto do build Docker; o Compose os injeta no runtime.
 
 O template inclui a migration inicial de identidade em inglês, sem entidades demonstrativas. Os serviços gerados usam o prefixo `Owh`, pastas `Domain` com instruções e configurações de identidade independentes. Veja [geração de serviços](TEMPLATE.md).
+
+## Atualização de dependências
+
+As dependências foram conferidas na atualização de 22/10/2026. MassTransit permanece em 8.5.x e MediatR em 12.5.x por decisão explícita do mantenedor, incluindo referências transitivas e serviços gerados. Ver [versões, limites e verificações do monorepo](../docs/dependencias.md). Não houve publicação de pacotes ou alteração de banco como parte desta atualização.

@@ -62,7 +62,7 @@ Não há contadores ou gráficos simulados. O resumo de leads usa a API real. As
 
 Login, saída e expiração mantêm o fluxo existente, sem persistência do token. Falha na revogação informa a limitação e conclui a saída local. Atalhos apontam somente para a própria visão geral e para o site público.
 
-Validação: `npm run build`, `npm run lint` e `npm run e2e -- auth.spec.ts admin-dashboard.spec.ts`. Testes de navegador simulam a identidade, sem credenciais ou chamadas à API real. Ver [escopo da primeira feature](../docs/features/painel-olivaw/01-dashboard-administrativo.md).
+Validação: `npm run build`, `npm run lint` e `npm run e2e -- auth.spec.ts admin-dashboard.spec.ts`. Testes de navegador simulam a identidade, sem credenciais ou chamadas à API real. Ver [escopo da primeira feature](../docs/features/done/01-dashboard-administrativo.md).
 
 ## Leads administrativos
 
@@ -72,7 +72,7 @@ A ficha apresenta ideia, possibilidades incluídas/excluídas, plano de interess
 
 O dashboard consulta `GET /leads/summary`, exibindo totais recebidos e dos últimos sete dias, com data de consulta. Não são contadores de não lidos. Se a API não estiver disponível/atualizada, aparece falha com nova tentativa, sem números demonstrativos. O layout e o encerramento da sessão ficam no componente pai das rotas administrativas, mantendo o menu recolhido ao navegar entre páginas.
 
-A API exige root também no servidor. Para avaliar os registros já publicados, publique a API com as novas consultas; somente atualizar o site não basta. Nenhuma migration adicional é necessária. Ver [contratos da API](../ms-olivaw-api/README.md#consulta-administrativa-de-leads) e [estado da feature](../docs/features/painel-olivaw/02-leads-administrativos.md).
+A API exige root também no servidor. Para avaliar os registros já publicados, publique a API com as novas consultas; somente atualizar o site não basta. Nenhuma migration adicional é necessária. Ver [contratos da API](../ms-olivaw-api/README.md#consulta-administrativa-de-leads) e [estado da feature](../docs/features/done/02-leads-administrativos.md).
 
 Verificação: `npm run build`, `npm run lint` e `npm run e2e -- admin-leads.spec.ts admin-dashboard.spec.ts auth.spec.ts`. Os testes usam dados simulados e não acessam leads reais ou a API remota.
 
@@ -86,7 +86,7 @@ Validação específica: `npm run e2e -- clients-contact.spec.ts landing.spec.ts
 
 ## Imagem de compartilhamento
 
-As tags Open Graph e Twitter apontam para `public/assets/brand/olivaw-share-v2.jpg`, uma cópia JPEG de 720 × 720 do avatar atual, com fundo claro. A família visual agora usa a órbita mais fina: símbolo `olivaw-avatar-web-v3.png`, reação da carta `olivaw-message-welcome-v2.webp`, coordenador administrativo `olivaw-operations-coordinator-v2.webp`, favicon PNG/ICO e Apple Touch dedicados. Originais e prompts ficam em [Mini Olivaws](design/brand/avatars/README.md).
+As tags Open Graph e Twitter apontam para `public/assets/brand/olivaw-share-v3.jpg`, uma cópia JPEG de 720 × 720 do avatar atual, com fundo claro. A família visual agora usa a órbita mais fina com arco ciano no lugar da lâmpada circular: símbolo `olivaw-avatar-web-v4.png`, reação da carta `olivaw-message-welcome-v3.webp`, coordenador administrativo `olivaw-operations-coordinator-v3.webp`, favicon PNG/ICO e Apple Touch dedicados. Originais e prompts ficam em [Mini Olivaws](design/brand/avatars/README.md).
 
 Para regenerar a prévia com os mesmos pixels de origem, sem redesenhar o robô:
 

@@ -47,3 +47,7 @@ dotnet test olivaw-identity/tests/Olivaw.Identity.Tests/Olivaw.Identity.Tests.cs
 ```
 
 Veja [arquitetura e publicação](../docs/identity-architecture.md). As configurações `.env` são versionadas no Git privado nesta etapa; não registre seus valores em logs ou documentação.
+
+## Atualização de dependências
+
+As dependências foram conferidas na atualização de 22/10/2026. MassTransit permanece em 8.5.x e MediatR em 12.5.x por decisão explícita do mantenedor, incluindo referências transitivas e serviços gerados. Ver [versões, limites e verificações do monorepo](../docs/dependencias.md). Não houve publicação de pacotes ou alteração de banco como parte desta atualização.

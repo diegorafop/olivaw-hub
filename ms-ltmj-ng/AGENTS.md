@@ -23,3 +23,9 @@ Não publique imagens, implante, faça finish ou push como efeito da validação
 ## Conversas e decisões do cliente
 
 A cada nova informação relevante fornecida sobre a LTMJ, acrescente uma entrada datada em `docs/historico.md`, indicando origem, estado de confirmação, impacto e pendências. Preserve `docs/briefing-inicial.md` como registro inicial e atualize `docs/briefing-e-mvp.md` quando houver mudança de plano. Não apresente propostas do Olivaw como aprovação do cliente. A API usa esse mesmo histórico como referência. Não registre dados pessoais desnecessários, senhas ou dados de convidados nesses documentos.
+
+## Atualização de dependências
+
+Preserve compatibilidade entre Angular, CLI, Material/CDK, TypeScript e Node. Angular 22.2 requer TypeScript 6.0.x; não instalar TypeScript 7 apenas por ser a versão latest. Os tipos do Node acompanham o runtime 24 usado pelo projeto. Atualize também o lockfile e valide build, lint, testes unitários e E2E.
+
+O `overrides.vite` fixa o patch 8.3.5 para corrigir avisos da versão 8.3.2 exigida pelo Angular Build 22.2.3. Reavalie o override em futuras atualizações e remova quando a cadeia oficial incorporar uma versão corrigida equivalente; não mantenha um pin antigo sem consultar auditoria e compatibilidade.

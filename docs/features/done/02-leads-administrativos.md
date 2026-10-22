@@ -1,22 +1,21 @@
-# 02 — Consulta e acompanhamento de leads
+# 02 — Consulta administrativa de leads
 
 ## Estado e objetivo
 
-Recorte de consulta implementado no código para avaliação. Acompanhamento comercial ainda planejado. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
+Recorte de consulta concluído. O [acompanhamento comercial](../painel-olivaw/02-acompanhamento-comercial-de-leads.md) permanece planejado em documento próprio. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
 
 Dar à equipe acesso aos JSONs recebidos pela jornada e pelo contato direto. É a primeira fonte comercial útil para o dashboard, sem transformar automaticamente um interessado em cliente.
 
 ## Dependências
 
-[Dashboard administrativo](01-dashboard-administrativo.md) e persistência de leads disponível no ambiente. O envio público já existe; consultas administrativas protegidas e acompanhamento interno ainda precisam ser implementados.
+[Dashboard administrativo](01-dashboard-administrativo.md) e persistência de leads disponível no ambiente. Envio público e consultas administrativas protegidas estão implementados. A evolução comercial é independente deste recorte.
 
 ## Escopo da entrega
 
-- Lista paginada de leads, com busca e filtros úteis por origem, data e situação comercial.
+- Lista paginada de leads, com busca e filtros úteis por origem e data.
 - Ficha legível com negócio, ideia, escolhas, plano de interesse, e-mail ou WhatsApp e histórico da jornada. Aceitar snapshots antigos sem WhatsApp.
-- Definir acompanhamento comercial mínimo: novo, em conversa e arquivado, com responsável e notas internas; confirmar transições e persistência antes de codar.
 - Criar consultas administrativas autorizadas, preservando o envio público sem oferecer leitura pública do lead ou revelar sua chave de escrita.
-- Conectar ao dashboard o número de leads que precisam de atenção, com navegação para a lista correspondente.
+- Conectar ao dashboard o total recebido e a quantidade recebida nos últimos sete dias, com navegação para a lista. Esses números não representam pendências comerciais.
 
 ## Fora desta entrega
 
@@ -26,7 +25,7 @@ Dar à equipe acesso aos JSONs recebidos pela jornada e pelo contato direto. É 
 
 ## Critérios de aceite
 
-- Operador com permissão localiza e lê o lead; pessoa sem permissão não consulta, exporta ou altera seu acompanhamento.
+- Operador root localiza e lê o lead; pessoa sem permissão não acessa consultas administrativas.
 - Contato por e-mail, só WhatsApp e snapshots antigos são apresentados corretamente.
 - Envio idempotente continua funcionando e registros não são duplicados por uma atualização comercial.
 - Paginação, ausência de resultados, falha de leitura e dados ainda não carregados têm estados distintos.
@@ -46,13 +45,13 @@ A API oferece `GET /leads`, `GET /leads/{externalId}` e `GET /leads/summary`, so
 
 A paginação e os filtros são executados no banco, extraindo campos do JSON. A consulta usa `IRepositoryLead` / `RepositoryLead`, herdando `IRepository<Lead>` / `Repository<Lead>`, porque o contrato genérico não fornece paginação/contagem nem projeção JSON. Leitura por ID e filtros comuns continuam usando `IRepository<Lead>` diretamente no handler. PostgreSQL e SQL Server possuem projeções próprias; os valores dos filtros são parametrizados pelo EF Core. A busca cobre negócio, título, e-mail e WhatsApp, não o texto completo dos requisitos.
 
-Não houve alteração de entidade persistida, schema, migration ou dados existentes. O novo código requer publicação da API; atualizar apenas o frontend não disponibiliza as consultas. Nenhum deploy ou acesso a banco real foi feito durante a implementação.
+Não houve alteração de entidade persistida, schema, migration ou dados existentes. O novo código requer publicação da API; atualizar apenas o frontend não disponibiliza as consultas. Na implementação e nos testes locais não houve acesso a banco real. Posteriormente, a consulta foi publicada em 21/10/2026 e `GET /leads` autenticado respondeu HTTP 200, conforme o [registro operacional](../../deploy-executor.md#compose-falha-e-o-disco-está-cheio).
 
-## Acompanhamento comercial pendente
+## Evolução separada: acompanhamento comercial
 
 Status novo/em conversa/arquivado, responsável e notas internas continuam fora deste recorte de consulta. Precisam de um modelo separado do snapshot enviado pelo visitante, com auditoria, concorrência, permissões e retenção definidos. Não usar `Stage` da jornada como status comercial nem alterar o snapshot para registrar notas: isso confundiria o contrato público e a idempotência.
 
-Não há botão de acompanhamento fictício, filtro comercial sem persistência, exportação, notificação automática ou conversão em cliente. Ao implementar a persistência comercial, gerar migrations somente após solicitação explícita do mantenedor.
+Não há botão de acompanhamento fictício, filtro comercial sem persistência, exportação ou notificação automática. A conversão explícita de lead foi entregue posteriormente no [cadastro de clientes](03-cadastro-de-clientes.md). Ao implementar a persistência comercial, gerar migrations somente após solicitação explícita do mantenedor.
 
 ## Validação deste recorte
 

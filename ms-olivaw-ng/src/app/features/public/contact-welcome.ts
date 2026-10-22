@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-contact-welcome',
   template: `<img
-      src="assets/brand/reactions/olivaw-message-welcome-v2.webp"
+      src="assets/brand/reactions/olivaw-message-welcome-v3.webp"
       alt=""
       width="80"
       height="80"

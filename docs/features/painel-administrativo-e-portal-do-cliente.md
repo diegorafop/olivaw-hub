@@ -15,7 +15,7 @@ Agentes de IA entram gradualmente no atendimento e na evolução. Não são requ
 
 ## Começar por aqui
 
-A primeira implementação é [01 — Dashboard administrativo da Olivaw](painel-olivaw/01-dashboard-administrativo.md).
+A primeira implementação é [01 — Dashboard administrativo da Olivaw](done/01-dashboard-administrativo.md).
 
 Vamos substituir a tela básica de `/admin` por uma experiência própria da operação: layout administrativo, identificação do operador, navegação responsiva, visão geral e estados vazios honestos. Aproveitamos login e logout existentes e confirmamos a autorização interna.
 
@@ -25,11 +25,13 @@ O painel inicial estará concluído quando um operador autorizado puder entrar, 
 
 ## Features da operação interna
 
+As entregas implementadas estão em [features concluídas](done/README.md). A consulta de leads foi encerrada como recorte próprio; [acompanhamento comercial](painel-olivaw/02-acompanhamento-comercial-de-leads.md) continua planejado. A organização em `done` não substitui publicação nem validação na AWS.
+
 | Ordem sugerida | Feature | Resultado próprio | Dependência principal |
 | --- | --- | --- | --- |
-| 01 | [Dashboard administrativo](painel-olivaw/01-dashboard-administrativo.md) | Estrutura visual e entrada da operação | Autenticação existente e autorização interna |
-| 02 | [Leads administrativos](painel-olivaw/02-leads-administrativos.md) | Consultar e acompanhar contatos recebidos | Dashboard e persistência de leads |
-| 03 | [Cadastro de clientes](painel-olivaw/03-cadastro-de-clientes.md) | Empresas, contatos e responsáveis | Dashboard; leads apenas para conversão |
+| 01 | [Dashboard administrativo](done/01-dashboard-administrativo.md) | Estrutura visual e entrada da operação | Autenticação existente e autorização interna |
+| 02 | [Leads administrativos](done/02-leads-administrativos.md) | Consultar e acompanhar contatos recebidos | Dashboard e persistência de leads |
+| 03 | [Cadastro de clientes](done/03-cadastro-de-clientes.md) | Empresas, contatos e responsáveis | Dashboard; leads apenas para conversão |
 | 04 | [Inventário de recursos](painel-olivaw/04-inventario-de-recursos.md) | Projetos, sistemas, ambientes e dependências | Clientes |
 | 05 | [Coleta e saúde](painel-olivaw/05-coleta-e-saude.md) | Primeira verificação real e seus limites | Inventário e fonte autorizada |
 | 06 | [Alertas e incidentes](painel-olivaw/06-alertas-e-incidentes.md) | Impacto, responsável, avaliação e recuperação | Inventário e coleta |

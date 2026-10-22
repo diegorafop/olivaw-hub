@@ -116,3 +116,11 @@ O fluxo Docker oficial de geração está no [README](README.md#gerar-pacotes-co
 - Revise migration, designer, snapshot e SQL entre a migration anterior e a nova. Preserve BOM UTF-8 e CRLF dos arquivos C#. Não altere migrations antigas já publicadas.
 - Gerar e revisar não autoriza `database update`, conexão a bancos reais ou redeploy. O startup das APIs aplica as migrations pendentes; registre essa consequência antes da publicação.
 - Documente comandos reproduzíveis no README da API e consulte os [comandos do Core](README.md#migrations-dos-microservices-consumidores). Informe as validações executadas e os provedores não contemplados.
+
+## Limites de versões por licenciamento
+
+Por decisão explícita do mantenedor, manter **MassTransit e seus transportes em 8.5.x** e **MediatR em 12.5.x**, preservando as linhas escolhidas para uso gratuito. Não atualizar essas famílias para outra minor/major, nem adicionar pacote que exija versões fora desses intervalos, sem nova autorização explícita.
+
+- Usar versões estáveis explícitas nos projetos; alinhar todos os pacotes `MassTransit.*` na mesma versão 8.5.x.
+- Conferir dependências transitivas após restore, além das referências diretas. Não usar atualização automática irrestrita para contornar os limites.
+- A regra inclui Core, identidade, APIs, testes, template e serviços gerados. Ao atualizar dependências, verificar também compatibilidade entre EF Core, provedores e frameworks.

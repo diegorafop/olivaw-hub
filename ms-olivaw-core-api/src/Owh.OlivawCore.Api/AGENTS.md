@@ -45,3 +45,7 @@ Estas regras complementam o [AGENTS.md da raiz](../../AGENTS.md).
 ## Limite do domínio
 
 Não crie pasta `Domain` neste projeto `.Api`. Tipos de domínio compartilhados pertencem ao núcleo `Owh.OlivawCore`; entidades e invariantes específicas pertencem ao domínio de cada consumidor. Tipos de infraestrutura permanecem nas pastas correspondentes desta biblioteca.
+
+## Versões de mensageria e mediação
+
+MassTransit e transportes permanecem em **8.5.x**, alinhados entre si; MediatR permanece em **12.5.x**. A restrição é uma decisão de licenciamento do mantenedor e também se aplica aos consumidores e às dependências transitivas. Atualizações fora dessas linhas exigem nova autorização explícita; ver [diretrizes do Core](../../AGENTS.md#limites-de-versões-por-licenciamento).

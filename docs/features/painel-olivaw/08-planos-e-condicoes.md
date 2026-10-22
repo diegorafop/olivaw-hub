@@ -8,7 +8,7 @@ Registrar o que foi combinado com cada cliente, mantendo mensalidade e capacidad
 
 ## Dependências
 
-[Clientes](03-cadastro-de-clientes.md) e decisões comerciais de [custos e planos](../custos-e-planos.md). A [coleta de consumo](07-consumo-e-capacidade.md) é necessária apenas para comparar uso medido e limites.
+[Clientes](../done/03-cadastro-de-clientes.md) e decisões comerciais de [custos e planos](../custos-e-planos.md). A [coleta de consumo](07-consumo-e-capacidade.md) é necessária apenas para comparar uso medido e limites.
 
 ## Escopo da entrega
 

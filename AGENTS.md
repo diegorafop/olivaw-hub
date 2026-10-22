@@ -65,3 +65,11 @@ Por decisão explícita do mantenedor, os arquivos `.env` de todos os projetos s
 - Projetos com sufixo `.Api` não podem conter pasta `Domain`. Entidades, objetos de valor e invariantes ficam no projeto de domínio correspondente, como `Owh.Olivaw/Domain` ou `Owh.Ltmj/Domain`.
 - Modelos internos da API ficam junto às features, em `Internals` quando necessário; contratos públicos ficam no projeto cliente quando existente. Preserve interfaces de domínio nas pastas `Repositories`, `Services` e `Requests` do núcleo.
 - O template `ms-limpo-api` e os serviços gerados devem preservar essa organização.
+
+## Limites de versões por licenciamento
+
+Por decisão explícita do mantenedor, manter **MassTransit e seus transportes em 8.5.x** e **MediatR em 12.5.x**, preservando as linhas escolhidas para uso gratuito. Não atualizar essas famílias para outra minor/major, nem adicionar pacote que exija versões fora desses intervalos, sem nova autorização explícita.
+
+- Usar versões estáveis explícitas nos projetos; alinhar todos os pacotes `MassTransit.*` na mesma versão 8.5.x.
+- Conferir dependências transitivas após restore, além das referências diretas. Não usar atualização automática irrestrita para contornar os limites.
+- A regra inclui Core, identidade, APIs, testes, template e serviços gerados. Ao atualizar dependências, verificar também compatibilidade entre EF Core, provedores e frameworks.

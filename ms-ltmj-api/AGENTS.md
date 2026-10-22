@@ -155,3 +155,11 @@ Quando este template receber um cliente REST completo, siga também `src/Owh.Ltm
 ## Configuração versionada nesta etapa
 
 Por decisão explícita do mantenedor, os dotenv de todos os projetos acompanham o Git privado até a futura migração para Key Vault. Essa exceção às diretrizes gerais de credenciais aplica-se aos arquivos de configuração de serviço; não autoriza registrar seus valores em logs, documentação ou respostas, nem versionar chaves SSH, credenciais AWS, tokens pessoais ou dados de clientes.
+
+## Limites de versões por licenciamento
+
+Por decisão explícita do mantenedor, manter **MassTransit e seus transportes em 8.5.x** e **MediatR em 12.5.x**, preservando as linhas escolhidas para uso gratuito. Não atualizar essas famílias para outra minor/major, nem adicionar pacote que exija versões fora desses intervalos, sem nova autorização explícita.
+
+- Usar versões estáveis explícitas nos projetos; alinhar todos os pacotes `MassTransit.*` na mesma versão 8.5.x.
+- Conferir dependências transitivas após restore, além das referências diretas. Não usar atualização automática irrestrita para contornar os limites.
+- A regra inclui Core, identidade, APIs, testes, template e serviços gerados. Ao atualizar dependências, verificar também compatibilidade entre EF Core, provedores e frameworks.

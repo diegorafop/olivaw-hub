@@ -8,7 +8,7 @@ Organizar problemas, dúvidas e melhorias em uma fila interna antes de abrir o a
 
 ## Dependências
 
-[Clientes](03-cadastro-de-clientes.md) e [inventário](04-inventario-de-recursos.md). Correlação com incidentes usa a [central de alertas](06-alertas-e-incidentes.md) quando disponível, sem bloquear o atendimento manual.
+[Clientes](../done/03-cadastro-de-clientes.md) e [inventário](04-inventario-de-recursos.md). Correlação com incidentes usa a [central de alertas](06-alertas-e-incidentes.md) quando disponível, sem bloquear o atendimento manual.
 
 ## Escopo da entrega
 

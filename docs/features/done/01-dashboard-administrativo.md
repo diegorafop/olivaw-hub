@@ -51,7 +51,7 @@ Referências: [dashboard](../../../ms-olivaw-ng/src/app/features/admin/admin-pag
 
 Os testes simulam a identidade e cobrem root, conta sem root, estados iniciais, ausência de consultas operacionais, imagem carregada, saída, falha de revogação, expiração e apresentação em desktop/celular. Comandos reproduzíveis no [README do frontend](../../../ms-olivaw-ng/README.md#dashboard-interno-da-olivaw).
 
-Não houve mudança de API, schema, migration, configuração de infraestrutura ou publicação. A próxima feature continua pendente, até avaliação desta primeira interface.
+Não houve mudança de API, schema, migration, configuração de infraestrutura ou publicação. Este registro descreve o recorte inicial. Consulta de leads e cadastro de clientes foram entregues depois e têm documentos próprios nesta pasta.
 
 Validação local da primeira versão: build de produção, lint, formatação dos arquivos alterados, um teste do estado de autenticação e oito testes de navegador aprovados. Permanecem avisos de tamanho já existentes nos estilos públicos do Estúdio e da jornada. Três regras redundantes de espaçamento do resumo da jornada foram removidas para corrigir o limite de erro que já bloqueava o build; o dashboard não aumenta esses limites.
 
@@ -59,4 +59,4 @@ Validação local da primeira versão: build de produção, lint, formatação d
 
 A Visão geral permanece focada em prioridades, contexto e acontecimentos. Uma aba Dashboard será o espaço de análise com gráficos, filtros por período e aprofundamento, após entregar as fontes de dados. Não é uma segunda página vazia nesta primeira versão.
 
-Os primeiros gráficos previstos são disponibilidade e latência com cobertura explícita na [feature 05](05-coleta-e-saude.md), e crescimento de armazenamento/uso por período na [feature 07](07-consumo-e-capacidade.md). A navegação analítica entra com a primeira fonte real; sem histórico suficiente, apresenta ausência de dados, sem curvas demonstrativas na operação. Esta separação não altera o escopo da primeira entrega.
+Os primeiros gráficos previstos são disponibilidade e latência com cobertura explícita na [feature 05](../painel-olivaw/05-coleta-e-saude.md), e crescimento de armazenamento/uso por período na [feature 07](../painel-olivaw/07-consumo-e-capacidade.md). A navegação analítica entra com a primeira fonte real; sem histórico suficiente, apresenta ausência de dados, sem curvas demonstrativas na operação. Esta separação não altera o escopo da primeira entrega.
