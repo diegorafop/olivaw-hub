@@ -202,3 +202,7 @@ Consulte os percentuais de **linhas** e **ramificações** separadamente no `cov
 - Use versionamento semântico nos pacotes e mantenha coerência das versões de cada entrega.
 - Siga GitFlow: `master`, `develop`, `feature/MH-0001_descricao_branch`, `hotfix/MH-0002_descricao_branch`, releases e tags.
 - Não versione os pacotes e relatórios gerados em `dist`.
+
+## Atualização de dependências
+
+As dependências foram conferidas na atualização de 22/10/2026. MassTransit permanece em 8.5.x e MediatR em 12.5.x por decisão explícita do mantenedor, incluindo referências transitivas e serviços gerados. Ver [versões, limites e verificações do monorepo](../docs/dependencias.md). Não houve publicação de pacotes ou alteração de banco como parte desta atualização.

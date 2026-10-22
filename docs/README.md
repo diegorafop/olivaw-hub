@@ -1,5 +1,8 @@
 # Documentação do Olivaw
 
+- [Dependências e limites de atualização](dependencias.md): versões verificadas, restrições de licenciamento, auditoria e comandos de validação.
+- [Features concluídas](features/done/README.md): entregas implementadas, com pendências de ambiente preservadas nos documentos.
+
 - [Apresentação da Olivaw](approach/apresentacao-olivaw.md): versões resumida, média e completa, com adaptações para cada conversa.
 - [Abordagem — Rodrigo / Impressão](approach/rodrigo-impressao.md): sequência de conversa, catálogo e possíveis etapas para o negócio de impressão.
 - [Abordagem — Cavalcanti Terraplanagem](approach/cavalcanti-terraplanagem.md): divulgação da frota, locações e organização interna por etapas.
@@ -14,7 +17,7 @@
 - [Organização e desenvolvimento do monorepo](desenvolvimento.md): pastas, projetos, soluções, referências, geração de clientes, testes e publicação independente.
 - [Extração da identidade](identidade.md): decisão arquitetural, funcionalidades implementadas, verificações e limites da validação.
 - [Guia de Olivaw Identity](../olivaw-identity/README.md): configuração, rotas, policies, persistência e bootstrap de root.
-- [Épica — Administração e portal do cliente](features/painel-administrativo-e-portal-do-cliente.md): índice de 16 features com escopos, dependências e critérios de aceite.
+- [Épica — Administração e portal do cliente](features/painel-administrativo-e-portal-do-cliente.md): índice das features com escopos, dependências e critérios de aceite.
 - [Primeira entrega — Dashboard administrativo Olivaw](features/done/01-dashboard-administrativo.md): estrutura da operação interna, navegação e estados iniciais, sem depender dos módulos seguintes.
 - [Custos e planos da jornada comercial](features/custos-e-planos.md): cálculo pendente e informações a detalhar na etapa de parceria.
 - [Site institucional](../ms-olivaw-ng/README.md): frontend derivado, domínios e pendências de contato.
@@ -22,7 +25,7 @@
 - [Template de APIs](../ms-limpo-api/README.md): composição do host, desenvolvimento e Docker.
 - [Gerar um cliente](../ms-limpo-api/TEMPLATE.md): uso do gerador e preparação do novo projeto.
 - [Core compartilhado](../ms-olivaw-core-api/README.md): bibliotecas genéricas e seus contratos.
-- [Briefing](../BRIEFING.md): contexto de negócio e decisões iniciais.
+- [Briefing](BRIEFING.md): contexto de negócio e decisões iniciais.
 
 Comece pelo guia de desenvolvimento para entender como os componentes se relacionam. Use os READMEs dos módulos para configuração e contratos específicos.
 

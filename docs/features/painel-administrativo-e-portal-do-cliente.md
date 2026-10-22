@@ -25,6 +25,8 @@ O painel inicial estará concluído quando um operador autorizado puder entrar, 
 
 ## Features da operação interna
 
+As entregas implementadas estão em [features concluídas](done/README.md). A consulta de leads foi encerrada como recorte próprio; [acompanhamento comercial](painel-olivaw/02-acompanhamento-comercial-de-leads.md) continua planejado. A organização em `done` não substitui publicação nem validação na AWS.
+
 | Ordem sugerida | Feature | Resultado próprio | Dependência principal |
 | --- | --- | --- | --- |
 | 01 | [Dashboard administrativo](done/01-dashboard-administrativo.md) | Estrutura visual e entrada da operação | Autenticação existente e autorização interna |
