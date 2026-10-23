@@ -117,6 +117,16 @@ public class CustomerIntegrationTest
         Assert.Contains("existingExternalId", body);
         Assert.Single(fixture.Items, item => item.SourceLeadId == fixture.Lead.Id);
     }
+    [Theory]
+    [InlineData("/customers?page=1&pageSize=20&search=&status=")]
+    [InlineData("/customers?page=1&pageSize=20&search=&status=active")]
+    [InlineData("/customers?page=1&pageSize=20&search=Empresa&status=")]
+    public async Task Read_should_accept_empty_optional_filters_sent_by_frontend(string url)
+    {
+        await using var fixture = await CustomerFixture.StartAsync("root");
+        using var response = await fixture.Client.GetAsync(url);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
     internal static CreateCustomerCommand Input() => new()
     {
         Business = "Pastelaria", Contacts = [new CustomerContactInput { Name = "Responsável", Whatsapp = "11987654321" }]

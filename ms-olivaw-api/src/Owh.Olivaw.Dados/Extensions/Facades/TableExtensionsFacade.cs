@@ -13,5 +13,6 @@ internal static class TableExtensionsFacade
         modelBuilder.SetupLead();
         modelBuilder.SetupCustomer();
         modelBuilder.SetupManagedService();
+        modelBuilder.SetupInventory();
     }
 }

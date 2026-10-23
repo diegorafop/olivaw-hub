@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Owh.Olivaw.Api.Features.ManagedServiceFeature.Commands;
 using Owh.Olivaw.Domain;
+using Owh.Olivaw.Repositories;
 using Owh.Olivaw.Tests.Mocks;
 using Owh.OlivawCore.Repositories;
 using Xunit;
@@ -30,7 +31,7 @@ public class UpdateManagedServiceTest
         links.Setup(item => item.GetAsync(It.IsAny<Expression<Func<ManagedServiceCustomer, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<ManagedServiceCustomer, object>>[]>())).ReturnsAsync(new[] { oldLink });
         var changes = new Mock<IRepository<ManagedServiceChange>>();
         var command = new UpdateManagedServiceMediatorCommand { ExternalId = service.ExternalId, ActorUserId = ManagedServiceFakerBuilder.Actor, ActorName = "Atualização", Payload = new() { Revision = 1, Name = "Novo nome", Type = "api", Status = "active", Scope = "customer", CustomerExternalIds = new() { next.ExternalId } } };
-        var result = await new UpdateManagedServiceHandler(repository.Object, customers.Object, links.Object, changes.Object).Handle(command, CancellationToken.None);
+        var result = await new UpdateManagedServiceHandler(repository.Object, customers.Object, links.Object, changes.Object, Mock.Of<IRepositoryInventoryRevision>()).Handle(command, CancellationToken.None);
         Assert.Null(result.Conflict);
         Assert.Equal(2, result.Response.Revision);
         Assert.NotNull(oldLink.EndedAt);
@@ -39,7 +40,7 @@ public class UpdateManagedServiceTest
         Assert.Equal(next.Id, Assert.Single(service.Customers).CustomerId);
         repository.Verify(item => item.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         changes.Verify(item => item.AddAsync(It.Is<ManagedServiceChange>(change => change.Revision == 2), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.NotNull((await new UpdateManagedServiceHandler(repository.Object, customers.Object, links.Object, changes.Object).Handle(command, CancellationToken.None)).Conflict);
+        Assert.NotNull((await new UpdateManagedServiceHandler(repository.Object, customers.Object, links.Object, changes.Object, Mock.Of<IRepositoryInventoryRevision>()).Handle(command, CancellationToken.None)).Conflict);
     }
     [Fact]
     public async Task Handle_should_return_conflict_for_race_and_reject_null()
@@ -50,7 +51,7 @@ public class UpdateManagedServiceTest
         repository.Setup(item => item.SaveChangesAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException());
         var links = new Mock<IRepository<ManagedServiceCustomer>>();
         links.Setup(item => item.GetAsync(It.IsAny<Expression<Func<ManagedServiceCustomer, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<ManagedServiceCustomer, object>>[]>())).ReturnsAsync(Array.Empty<ManagedServiceCustomer>());
-        var handler = new UpdateManagedServiceHandler(repository.Object, Mock.Of<IRepository<Customer>>(), links.Object, Mock.Of<IRepository<ManagedServiceChange>>());
+        var handler = new UpdateManagedServiceHandler(repository.Object, Mock.Of<IRepository<Customer>>(), links.Object, Mock.Of<IRepository<ManagedServiceChange>>(), Mock.Of<IRepositoryInventoryRevision>());
         var result = await handler.Handle(new() { ExternalId = service.ExternalId, ActorUserId = ManagedServiceFakerBuilder.Actor, ActorName = "Operador", Payload = new() { Revision = 1, Name = "Nome", Type = "api", Scope = "internal", Status = "closed" } }, CancellationToken.None);
         Assert.NotNull(result.Conflict);
         await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null!, CancellationToken.None));

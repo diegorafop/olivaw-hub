@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Owh.Olivaw.Api.Features.ManagedServiceFeature.Internals;
 using Owh.Olivaw.Client.Features.ManagedServiceFeature.Commands;
 using Owh.Olivaw.Domain;
+using Owh.Olivaw.Repositories;
 using Owh.OlivawCore.Api.Helpers;
 using Owh.OlivawCore.Repositories;
 
@@ -21,7 +22,7 @@ public sealed class UpdateManagedServiceResult
     public string? Conflict { get; set; }
     public UpdateManagedServiceResponse Response { get; set; } = new();
 }
-public sealed class UpdateManagedServiceHandler(IRepository<ManagedService> repository, IRepository<Customer> customers, IRepository<ManagedServiceCustomer> links, IRepository<ManagedServiceChange> changes)
+public sealed class UpdateManagedServiceHandler(IRepository<ManagedService> repository, IRepository<Customer> customers, IRepository<ManagedServiceCustomer> links, IRepository<ManagedServiceChange> changes, IRepositoryInventoryRevision inventory)
     : IRequestHandler<UpdateManagedServiceMediatorCommand, UpdateManagedServiceResult>
 {
     public async Task<UpdateManagedServiceResult> Handle(UpdateManagedServiceMediatorCommand request, CancellationToken cancellationToken)
@@ -31,12 +32,14 @@ public sealed class UpdateManagedServiceHandler(IRepository<ManagedService> repo
         var now = DateTime.UtcNow;
         var service = await repository.GetFirstAsync(item => item.ExternalId == request.ExternalId && item.DeletedAt == null, cancellationToken);
         if (service.Revision != payload.Revision) return new() { Conflict = "Este serviço mudou. Reabra a ficha antes de salvar." };
+        await inventory.TouchAsync(request.ActorUserId, now, cancellationToken);
         var current = (await links.GetAsync(item => item.ManagedServiceId == service.Id && item.EndedAt == null && item.DeletedAt == null, cancellationToken)).ToArray();
         var selected = await ManagedServiceRules.ReadCustomersAsync(payload.CustomerExternalIds, customers, cancellationToken);
         var change = service.Apply(payload.Name, payload.Type, payload.Description, payload.Owner, payload.Scope, payload.Status, request.ActorUserId, request.ActorName, now);
         ManagedServiceRules.SynchronizeLinks(service, current, selected, request.ActorUserId, request.ActorName, now);
         // As consultas genéricas são rastreadas. Salvar diretamente evita marcar o grafo de clientes como modificado.
         // O EF detecta a alteração do serviço, os vínculos encerrados e os novos vínculos na mesma transação.
+        if (service.Status == "closed") await inventory.CloseServiceDeploymentsAsync(service.Id, request.ActorUserId, request.ActorName, now, cancellationToken);
         await changes.AddAsync(change, cancellationToken);
         try
         {
