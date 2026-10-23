@@ -1,0 +1,189 @@
+<main id="operation-content" tabindex="-1">
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / APLICAÇÕES</p>
+      <h1>{{ id ? 'Ficha do serviço' : 'Cadastrar serviço' }}</h1>
+      <p>Uma aplicação, com seus clientes e histórico.</p>
+    </div>
+    <a routerLink="/admin/services">Voltar à lista</a>
+  </header>
+  @if (loading() || preparing()) {
+    <p role="status">Carregando ficha…</p>
+  }
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  @if (conflict()) {
+    <button type="button" (click)="load()">Recarregar ficha e descartar rascunho</button>
+  }
+  @if (!loading() && !preparing() && (!id || data())) {
+    <form [formGroup]="form" (ngSubmit)="save()" class="editor">
+      <section class="surface">
+        <h2>Identificação</h2>
+        <label
+          >Nome de apresentação *<input formControlName="name" maxlength="120" required
+        /></label>
+        <label
+          >Identificador técnico *<input
+            formControlName="technicalId"
+            maxlength="80"
+            placeholder="ms-cliente-api"
+            required
+        /></label>
+        <p class="help">Letras minúsculas, números e hífens. Único e preservado após o cadastro.</p>
+        <label
+          >Tipo<select formControlName="type">
+            @for (option of typeOptions; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select></label
+        >
+        <label
+          >Situação cadastral<select formControlName="status">
+            @for (option of statusOptions; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select></label
+        >
+        <label
+          >Responsável interno <small>opcional</small
+          ><input formControlName="owner" maxlength="120"
+        /></label>
+        <label
+          >Descrição <small>opcional</small
+          ><textarea formControlName="description" maxlength="1000" rows="4"></textarea>
+        </label>
+      </section>
+      <section class="surface">
+        <h2>Clientes atendidos</h2>
+        <label
+          >Escopo<select formControlName="scope">
+            <option value="customer">Atendimento a clientes</option>
+            <option value="internal">Interno Olivaw</option>
+          </select></label
+        >
+        @if (form.controls.scope.value === 'customer' && form.controls.status.value !== 'closed') {
+          <ul>
+            @for (item of chosen(); track item.externalId) {
+              <li>
+                {{ item.business }}
+                <button
+                  type="button"
+                  (click)="remove(item.externalId)"
+                  [disabled]="saving()"
+                  [attr.aria-label]="'Retirar ' + item.business"
+                >
+                  Retirar
+                </button>
+              </li>
+            } @empty {
+              <li>Nenhum cliente selecionado.</li>
+            }
+          </ul>
+          <label
+            >Buscar cliente existente<input
+              type="search"
+              maxlength="100"
+              [value]="search()"
+              (input)="search.set($any($event.target).value)"
+              [disabled]="saving()"
+          /></label>
+          @if (searchError()) {
+            <p role="status">
+              Não foi possível buscar clientes. Altere a busca para tentar novamente.
+            </p>
+          }
+          <div class="choices">
+            @for (item of choices(); track item.externalId) {
+              <button
+                type="button"
+                (click)="add(item)"
+                [disabled]="saving()"
+                [attr.aria-label]="'Vincular ' + item.business"
+              >
+                {{ item.business }} +
+              </button>
+            }
+          </div>
+          <p class="help">
+            Até 20 resultados por busca; refine pelo nome. Até 100 clientes por serviço.
+          </p>
+        } @else {
+          <p>
+            Este serviço ficará sem vínculos ativos com clientes. Vínculos anteriores serão
+            encerrados ao salvar, preservando o histórico.
+          </p>
+        }
+        <p class="help">
+          O vínculo só é persistido ao salvar. Cadastro e situação não comprovam saúde nem executam
+          deploy.
+        </p>
+      </section>
+      <footer>
+        <a routerLink="/admin/services">Cancelar</a
+        ><button type="submit" class="primary" [disabled]="saving() || conflict()">
+          {{ saving() ? 'Salvando…' : id ? 'Salvar alterações' : 'Cadastrar serviço' }}
+        </button>
+      </footer>
+    </form>
+    @if (data(); as current) {
+      <section class="surface history">
+        <h2>Histórico do cadastro</h2>
+        <ol>
+          @for (change of current.changes; track change.revision) {
+            <li>
+              <strong>{{ change.actorName }}</strong> ·
+              {{ change.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              <p>{{ change.name }} · {{ types[change.type] }} · {{ statuses[change.status] }}</p>
+              <details>
+                <summary>Dados registrados</summary>
+                <p>
+                  {{ change.scope === 'internal' ? 'Interno Olivaw' : 'Atendimento a clientes' }}
+                </p>
+                <p>{{ change.owner || 'Sem responsável informado' }}</p>
+                <p>{{ change.description || 'Sem descrição' }}</p>
+              </details>
+            </li>
+          } @empty {
+            <li>Sem alterações registradas.</li>
+          }
+        </ol>
+        <p class="help">Até 20 alterações mais recentes.</p>
+        <h3>Vínculos ativos</h3>
+        <ul>
+          @for (link of current.customers; track link.customerExternalId) {
+            <li>
+              <a [routerLink]="['/admin/customers', link.customerExternalId]">{{
+                link.business
+              }}</a>
+              · desde {{ link.startedAt | date: 'dd/MM/yyyy HH:mm' }} · {{ link.startedByName }}
+            </li>
+          } @empty {
+            <li>Nenhum vínculo ativo.</li>
+          }
+        </ul>
+        <h3>Vínculos encerrados</h3>
+        <ul>
+          @for (link of current.previousCustomers; track $index) {
+            <li>
+              {{ link.business }} · {{ link.startedAt | date: 'dd/MM/yyyy HH:mm' }} ·
+              {{ link.startedByName }} a {{ link.endedAt | date: 'dd/MM/yyyy HH:mm' }} ·
+              {{ link.endedByName }}
+            </li>
+          } @empty {
+            <li>Nenhum vínculo encerrado.</li>
+          }
+        </ul>
+        <p class="help">
+          Até 20 encerramentos mais recentes; o histórico completo permanece preservado.
+        </p>
+      </section>
+    }
+  }
+  @if (id && !loading() && !data()) {
+    <button type="button" (click)="load()">Tentar novamente</button>
+  }
+</main>

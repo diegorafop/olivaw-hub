@@ -2,7 +2,7 @@
 
 ## Estado e objetivo
 
-Planejada; sem implementação. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). Ampliada com as informações do mantenedor sobre a LTMJ em 22/10/2026. Este documento propõe a modelagem para revisão antes de codar; não autoriza migrations, acesso à nuvem ou publicação.
+Em implementação: o recorte [04a — Serviços](../done/04a-cadastro-de-servicos.md) foi implementado e validado localmente, ainda sem migration/publicação. Ambientes, recursos e relações da 04b/04c continuam planejados. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). Ampliada com as informações do mantenedor sobre a LTMJ em 22/10/2026. Este documento propõe a modelagem para revisão antes de codar; não autoriza migrations, acesso à nuvem ou publicação.
 
 Responder: **quais serviços e recursos atendem cada cliente, quais são compartilhados, onde estão e quais dados permitirão projetar seu custo?**
 
@@ -11,7 +11,7 @@ O exemplo informado para a LTMJ inclui frontend Angular, API, PostgreSQL, Rabbit
 ## Dependências e entregas relacionadas
 
 - [Cadastro de clientes](../done/03-cadastro-de-clientes.md).
-- [04a — Cadastro de serviços e vínculos](04a-cadastro-de-servicos.md), primeiro recorte deste planejamento.
+- [04a — Cadastro de serviços e vínculos](../done/04a-cadastro-de-servicos.md), primeiro recorte deste planejamento.
 - [07 — Consumo e capacidade](07-consumo-e-capacidade.md) fornecerá medições; o inventário pode começar manualmente.
 - [17 — Financeiro](17-financeiro.md) manterá despesas, preços de referência, regras de rateio e projeções. Cadastro técnico não é cobrança ao cliente.
 - [09 — Publicações e cuidados](09-publicacoes-e-cuidados.md) complementará informações de backups e evidências de restauração.

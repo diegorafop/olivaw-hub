@@ -41,6 +41,8 @@ async function setup(page: Page, options: { conflict?: boolean; failList?: boole
         json: { name: 'Operador', isRoot: true, permissions: [], userProfileId: 'test' },
       });
     expect(route.request().headers()['authorization']).toBe('Bearer test');
+    if (path === '/services')
+      return route.fulfill({ json: { page: 1, pageSize: 20, total: 0, items: [] } });
     if (path === '/leads/summary')
       return route.fulfill({
         json: { total: 1, recent: 1, since: '2026-10-14T00:00:00Z', asOf: '2026-10-21T00:00:00Z' },

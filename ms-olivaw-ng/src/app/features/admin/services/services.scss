@@ -1,0 +1,172 @@
+:host {
+  display: block;
+}
+* {
+  box-sizing: border-box;
+}
+main {
+  max-width: 1450px;
+  padding: 36px;
+  margin: auto;
+}
+header,
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+header {
+  margin-bottom: 24px;
+}
+h1 {
+  font-size: 32px;
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+h2 {
+  font-size: 18px;
+  margin-top: 0;
+}
+h3 {
+  font-size: 15px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #52695c;
+}
+p {
+  line-height: 1.6;
+}
+.surface,
+.filters {
+  background: white;
+  border: 1px solid #dce5de;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+.filters {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.filters label {
+  flex: 1;
+  min-width: 180px;
+  margin: 0;
+}
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+input,
+select,
+textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 8px;
+  border: 1px solid #b8cabc;
+  border-radius: 6px;
+  padding: 11px;
+  font: inherit;
+  color: #18382d;
+  background: #fff;
+}
+textarea {
+  resize: vertical;
+}
+button,
+.primary {
+  border: 1px solid #b8cabc;
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: #fff;
+  color: #214f39;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+.primary {
+  background: #214f39;
+  color: white;
+  border-color: #214f39;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+a {
+  color: #245c43;
+}
+.service-list {
+  list-style: none;
+  padding: 0;
+}
+.service-list a {
+  display: grid;
+  gap: 8px;
+  padding: 18px 0;
+  text-decoration: none;
+  border-top: 1px solid #e2eae3;
+}
+.service-list span,
+.help,
+small {
+  font-size: 12px;
+  font-weight: 400;
+  color: #576c5d;
+}
+.editor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 20px;
+}
+.editor footer {
+  grid-column: 1 / -1;
+  margin-bottom: 24px;
+}
+li {
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.history {
+  max-width: 100%;
+}
+[role='alert'] {
+  color: #9d2929;
+}
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid #327eae;
+  outline-offset: 3px;
+}
+@media (max-width: 900px) {
+  .editor {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  main {
+    padding: 24px 18px;
+  }
+  .surface,
+  .filters {
+    padding: 18px;
+  }
+  h1 {
+    font-size: 28px;
+  }
+}

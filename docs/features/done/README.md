@@ -10,3 +10,5 @@ Entregas implementadas e verificadas localmente. Esta pasta registra conclusão 
 | [03 — Cadastro de clientes](03-cadastro-de-clientes.md)              | Empresas, contatos, origem, situação, histórico e migration PostgreSQL | Publicação e teste na AWS ficam com o mantenedor; sem login automático                                                            |
 
 O planejamento restante está na [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md) e em [painel-olivaw](../painel-olivaw/).
+
+- [04a — Serviços e vínculos com clientes](04a-cadastro-de-servicos.md): primeiro recorte da issue 018; código validado, migration pendente até fechar o escopo da issue. Recursos e ambientes continuam no planejamento da feature 04.

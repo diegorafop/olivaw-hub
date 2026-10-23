@@ -72,7 +72,7 @@ for (const mobile of [false, true]) {
     await expect(page.getByRole('heading', { level: 1, name: 'Visão geral' })).toBeVisible();
     await expect(page.getByText('Olá, Operador Olivaw.')).toBeVisible();
     const nav = page.getByRole('navigation', { name: 'Navegação da operação' });
-    await expect(nav.getByRole('link')).toHaveCount(3);
+    await expect(nav.getByRole('link')).toHaveCount(4);
     await expect(nav.getByRole('link', { name: 'Visão geral' })).toHaveAttribute(
       'aria-current',
       'page',

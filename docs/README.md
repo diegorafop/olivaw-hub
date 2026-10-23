@@ -1,6 +1,6 @@
 # Documentação do Olivaw
 
-- [Planejamento — Serviços e clientes](features/painel-olivaw/04a-cadastro-de-servicos.md): cadastro de serviços técnicos e vínculos com empresas para a evolução do inventário.
+- [Serviços e clientes — Base implementada](features/done/04a-cadastro-de-servicos.md): cadastro e vínculos com empresas validados localmente; migration pendente até fechar o escopo da issue 018.
 
 - [Histórico de entregas e notas de versão](features/painel-olivaw/18-historico-de-entregas.md): planejamento da linha do tempo por cliente e serviço.
 - [Solicitações do cliente](features/painel-olivaw/13-solicitacoes-do-cliente.md): planejamento de pedidos de alterações, capacidade e plano.
