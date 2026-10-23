@@ -17,7 +17,7 @@ public sealed class ReadManagedServiceByFilterHandler(IRepositoryManagedService 
     {
         ValidationHelper.ThrowIfNull(request);
         var payload = request.Payload;
-        var page = await repository.ReadPageAsync(payload.Search, payload.Status, payload.Type, payload.CustomerExternalId, payload.Page, payload.PageSize, cancellationToken);
+        var page = await repository.ReadPageAsync(payload.Search ?? string.Empty, payload.Status ?? string.Empty, payload.Type ?? string.Empty, payload.CustomerExternalId, payload.Page, payload.PageSize, cancellationToken);
         return new()
         {
             Page = payload.Page, PageSize = payload.PageSize, Total = page.Total,
@@ -35,9 +35,9 @@ public sealed class ReadManagedServiceByFilterValidator : AbstractValidator<Read
     {
         RuleFor(item => item.Page).InclusiveBetween(1, 100000);
         RuleFor(item => item.PageSize).InclusiveBetween(1, 100);
-        RuleFor(item => item.Search).NotNull().MaximumLength(100);
-        RuleFor(item => item.Status).Must(value => value == "" || ManagedService.IsStatus(value));
-        RuleFor(item => item.Type).Must(value => value == "" || ManagedService.IsType(value));
+        RuleFor(item => item.Search).MaximumLength(100);
+        RuleFor(item => item.Status).Must(value => string.IsNullOrEmpty(value) || ManagedService.IsStatus(value));
+        RuleFor(item => item.Type).Must(value => string.IsNullOrEmpty(value) || ManagedService.IsType(value));
         RuleFor(item => item.CustomerExternalId).NotEqual(Guid.Empty).When(item => item.CustomerExternalId.HasValue);
     }
 }

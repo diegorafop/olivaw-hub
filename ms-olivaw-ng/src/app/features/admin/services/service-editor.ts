@@ -1,3 +1,4 @@
+import { ServiceDeployments } from '../inventory/service-deployments';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { CustomersApi } from '../customers/customers-api';
 import { ServicesApi, serviceStatuses, serviceTypes, type ServiceDetail } from './services-api';
 @Component({
   selector: 'app-service-editor',
-  imports: [DatePipe, RouterLink, ReactiveFormsModule],
+  imports: [DatePipe, RouterLink, ReactiveFormsModule, ServiceDeployments],
   templateUrl: './service-editor.html',
   styleUrl: './services.scss',
 })

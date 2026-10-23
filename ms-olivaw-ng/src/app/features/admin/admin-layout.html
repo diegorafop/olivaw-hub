@@ -77,6 +77,19 @@
             ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
           >
         }
+        @if (isRoot()) {
+          <a
+            routerLink="/admin/resources"
+            routerLinkActive="nav-active"
+            ariaCurrentWhenActive="page"
+            aria-label="Recursos"
+            title="Recursos"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 4h18v6H3zM3 14h18v6H3zM7 7h2M7 17h2" /></svg
+            ><span class="menu-label">Recursos</span
+            ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
+          >
+        }
       </nav>
     </div>
     <div class="sidebar-bottom">

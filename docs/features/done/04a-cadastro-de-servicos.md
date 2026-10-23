@@ -4,7 +4,7 @@
 
 Primeiro recorte da [feature 04](../painel-olivaw/04-inventario-de-recursos.md), implementado e validado localmente na branch `feature/issue018-resources-flow` em 22/10/2026. A base é comum às opções de escopo apresentadas ao mantenedor: somente serviços ou serviços com a base de recursos/ambientes.
 
-**Migration PostgreSQL gerada na correção da issue 020.** A `Issue020` reúne o modelo de serviços e a base de inventário já mapeada, corrigindo a falha de startup por modelo pendente. Comandos e validações estão no [README da API](../../../ms-olivaw-api/README.md#correção-de-startup--issue020). Nenhum banco foi alterado durante a validação local; após publicar a imagem atualizada, o startup aplica automaticamente a migration. A entrega da interface e dos casos de uso da 04b continua em andamento.
+**Migration PostgreSQL gerada na correção da issue 020.** A `Issue020` reúne o modelo de serviços e a base de inventário já mapeada, corrigindo a falha de startup por modelo pendente. Comandos e validações estão no [README da API](../../../ms-olivaw-api/README.md#correção-de-startup--issue020). Nenhum banco foi alterado durante a validação local; após publicar a imagem atualizada, o startup aplica automaticamente a migration. A interface e os casos de uso da [04b](04b-inventario-de-recursos.md) foram concluídos e validados localmente.
 
 ## Entrega implementada
 
@@ -38,4 +38,4 @@ Comandos e contratos no [README da API](../../../ms-olivaw-api/README.md#serviç
 
 ## Continuação da feature 04
 
-Implantações por ambiente, recursos físicos/lógicos compartilhados, relações entre recursos e caminhos de dependência continuam no [planejamento da 04](../painel-olivaw/04-inventario-de-recursos.md). Medição e financeiro continuam nas features 07 e 17. A conclusão deste primeiro recorte não conclui toda a issue 018 nem toda a feature 04.
+Implantações por ambiente, recursos físicos/lógicos compartilhados, relações e caminhos de dependência estão implementados na [04b](04b-inventario-de-recursos.md). O detalhamento por tipo permanece no [planejamento da 04c](../painel-olivaw/04-inventario-de-recursos.md). Medição e financeiro continuam nas features 07 e 17. A conclusão deste primeiro recorte não conclui toda a issue 018 nem toda a feature 04.

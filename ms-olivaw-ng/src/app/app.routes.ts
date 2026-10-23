@@ -1,3 +1,4 @@
+import { inventoryDraftGuard } from './features/admin/inventory/inventory-draft.guard';
 import { serviceDraftGuard } from './features/admin/services/service-draft.guard';
 import { customerDraftGuard } from './features/admin/customers/customer-draft.guard';
 import { Routes } from '@angular/router';
@@ -32,6 +33,46 @@ export const routes: Routes = [
     canMatch: [operationGuard],
     loadComponent: () => import('./features/admin/admin-frame').then((m) => m.AdminFrame),
     children: [
+      {
+        path: 'resources',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Recursos',
+        loadComponent: () =>
+          import('./features/admin/inventory/resources-page').then((m) => m.ResourcesPage),
+      },
+      {
+        path: 'resources/new',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Novo recurso',
+        loadComponent: () =>
+          import('./features/admin/inventory/resource-editor').then((m) => m.ResourceEditor),
+      },
+      {
+        path: 'resources/:id',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Recurso',
+        loadComponent: () =>
+          import('./features/admin/inventory/resource-editor').then((m) => m.ResourceEditor),
+      },
+      {
+        path: 'deployments/new',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Novo ambiente',
+        loadComponent: () =>
+          import('./features/admin/inventory/deployment-editor').then((m) => m.DeploymentEditor),
+      },
+      {
+        path: 'deployments/:id',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Implantação',
+        loadComponent: () =>
+          import('./features/admin/inventory/deployment-editor').then((m) => m.DeploymentEditor),
+      },
+
       {
         path: 'services',
         canMatch: [rootGuard],

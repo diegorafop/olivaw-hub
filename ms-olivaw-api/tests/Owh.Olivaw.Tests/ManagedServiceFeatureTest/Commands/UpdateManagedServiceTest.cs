@@ -51,9 +51,11 @@ public class UpdateManagedServiceTest
         repository.Setup(item => item.SaveChangesAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException());
         var links = new Mock<IRepository<ManagedServiceCustomer>>();
         links.Setup(item => item.GetAsync(It.IsAny<Expression<Func<ManagedServiceCustomer, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<ManagedServiceCustomer, object>>[]>())).ReturnsAsync(Array.Empty<ManagedServiceCustomer>());
-        var handler = new UpdateManagedServiceHandler(repository.Object, Mock.Of<IRepository<Customer>>(), links.Object, Mock.Of<IRepository<ManagedServiceChange>>(), Mock.Of<IRepositoryInventoryRevision>());
+        var inventory = new Mock<IRepositoryInventoryRevision>();
+        var handler = new UpdateManagedServiceHandler(repository.Object, Mock.Of<IRepository<Customer>>(), links.Object, Mock.Of<IRepository<ManagedServiceChange>>(), inventory.Object);
         var result = await handler.Handle(new() { ExternalId = service.ExternalId, ActorUserId = ManagedServiceFakerBuilder.Actor, ActorName = "Operador", Payload = new() { Revision = 1, Name = "Nome", Type = "api", Scope = "internal", Status = "closed" } }, CancellationToken.None);
         Assert.NotNull(result.Conflict);
+        inventory.Verify(item => item.CloseServiceDeploymentsAsync(service.Id, ManagedServiceFakerBuilder.Actor, "Operador", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null!, CancellationToken.None));
     }
     [Fact]

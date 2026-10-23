@@ -1,0 +1,93 @@
+<main id="operation-content" tabindex="-1">
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / AMBIENTES</p>
+      <h1>{{ id ? 'Ficha da implantação' : 'Novo ambiente' }}</h1>
+      <p>{{ serviceName() }}</p>
+    </div>
+    <a [routerLink]="service() ? ['/admin/services', service()] : ['/admin/services']"
+      >Voltar ao serviço</a
+    >
+  </header>
+  @if (loading()) {
+    <p role="status">Consultando implantação…</p>
+  }
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  @if (conflict()) {
+    <button type="button" (click)="load()">Reabrir ficha e descartar alterações locais</button>
+  }
+  @if (serviceReady() && (!id || data())) {
+    <form
+      class="surface"
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      aria-label="Cadastro da implantação"
+    >
+      <div class="fields">
+        <label>Nome *<input formControlName="name" maxlength="120" /></label>
+        <label
+          >Ambiente<select formControlName="environment">
+            @for (option of environmentOptions; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select></label
+        >
+        <label>Localização<input formControlName="location" maxlength="200" /></label>
+        <label
+          >Endereço público / referência<input formControlName="endpoint" maxlength="300"
+        /></label>
+        <label
+          >Situação<select formControlName="status">
+            @for (option of statusOptions; track option[0]) {
+              @if (id || option[0] !== 'closed') {
+                <option [value]="option[0]">{{ option[1] }}</option>
+              }
+            }
+          </select></label
+        >
+      </div>
+      <p class="help">
+        URLs HTTP(S), sem credenciais, parâmetros ou fragmentos. Nenhum endereço é acessado pelo
+        cadastro. Serviço e ambiente são preservados após a criação.
+      </p>
+      @if (!data()?.endedAt) {
+        <button class="primary" type="submit" [disabled]="saving() || loading() || conflict()">
+          {{ saving() ? 'Salvando…' : 'Salvar implantação' }}
+        </button>
+      } @else {
+        <p>
+          Período encerrado em {{ data()?.endedAt | date: 'dd/MM/yyyy HH:mm' }}. Para retomar,
+          cadastre um novo ambiente no serviço.
+        </p>
+      }
+    </form>
+  }
+  @if (data(); as current) {
+    <app-inventory-links [deployment]="current.externalId" [readOnly]="!!current.endedAt" />
+    <section class="surface">
+      <h2>Histórico da implantação</h2>
+      <p class="help">Até 20 revisões mais recentes.</p>
+      @for (item of current.history; track item.revision) {
+        <details>
+          <summary>
+            Revisão {{ item.revision }} · {{ item.actorName }} ·
+            {{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+          </summary>
+          <p>{{ item.name }} · {{ statuses[item.status] }}</p>
+          <p>
+            {{ item.location || 'Localização não informada' }} ·
+            {{ item.endpoint || 'Endereço não informado' }}
+          </p>
+        </details>
+      }
+    </section>
+  }
+  @if (!loading() && !serviceReady()) {
+    <button type="button" (click)="load()">Tentar novamente</button>
+  }
+</main>

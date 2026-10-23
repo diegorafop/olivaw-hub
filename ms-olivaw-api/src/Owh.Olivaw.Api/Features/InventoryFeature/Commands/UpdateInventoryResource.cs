@@ -22,12 +22,12 @@ public sealed class UpdateInventoryResourceHandler(IRepository<InventoryResource
         ValidationHelper.ThrowIfNull(request);
         var data = InventoryRules.ToDomain(request.Payload);
         var now = DateTime.UtcNow;
+        await inventory.TouchAsync(request.ActorUserId, now, cancellationToken);
         var resource = await InventoryRules.RequireAsync(repository, request.ExternalId, cancellationToken);
         if (resource.Revision != request.Payload.Revision) return new() { Conflict = "Este recurso mudou. Reabra a ficha." };
         var key = InventoryResource.IdentityKey(data);
         if (resource.ProviderIdentityKey != null && resource.ProviderIdentityKey != key) return new() { Conflict = "A identidade do provedor é imutável; cadastre um novo recurso para um novo ativo." };
         if (key != null && await repository.ExistsAsync(item => item.ProviderIdentityKey == key && item.Id != resource.Id, cancellationToken)) return new() { Conflict = "Este recurso do provedor já está cadastrado." };
-        await inventory.TouchAsync(request.ActorUserId, now, cancellationToken);
         if (data.Status == "retired")
         {
             if (await customers.ExistsAsync(item => item.InventoryResourceId == resource.Id && item.EndedAt == null && item.DeletedAt == null, cancellationToken)) return new() { Conflict = "Encerre os vínculos com clientes antes de desativar o recurso." };

@@ -24,13 +24,17 @@ export class AdminLayout {
     { initialValue: this.router.url },
   );
   readonly section = computed(() =>
-    this.currentUrl().includes('/admin/services')
-      ? 'Serviços'
-      : this.currentUrl().includes('/admin/customers')
-        ? 'Clientes'
-        : this.currentUrl().includes('/admin/leads')
-          ? 'Leads'
-          : 'Visão geral',
+    this.currentUrl().includes('/admin/resources')
+      ? 'Recursos'
+      : this.currentUrl().includes('/admin/deployments')
+        ? 'Ambientes'
+        : this.currentUrl().includes('/admin/services')
+          ? 'Serviços'
+          : this.currentUrl().includes('/admin/customers')
+            ? 'Clientes'
+            : this.currentUrl().includes('/admin/leads')
+              ? 'Leads'
+              : 'Visão geral',
   );
   readonly isRoot = input(true);
   readonly collapsed = signal(false);

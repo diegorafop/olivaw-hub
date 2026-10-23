@@ -249,4 +249,36 @@ dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-re
 
 Validação local: o teste de regressão falhou antes da migration e passou depois; 162 testes da API passaram; build Release e `has-pending-model-changes` sem diferenças. Migration, designer, snapshot e SQL entre `Issue017` e `Issue020` revisados. Ferramenta EF 10.0.12 emitiu somente aviso de patch inferior ao runtime 10.0.13. SQL Server e Oracle não receberam migrations. O daemon Docker local não está acessível ao usuário e o sudo exige autenticação; build/execução da imagem não foram validados nesta correção.
 
-**Ao publicar uma nova imagem**, o startup aplicará automaticamente a `Issue020` antes de atender requisições. Reiniciar o container com a imagem antiga não inclui a correção. Nenhuma conexão a banco real, aplicação de SQL, publicação ou implantação foi feita nesta tarefa. A criação das tabelas não conclui a interface nem os casos de uso ainda pendentes da 04b.
+**Ao publicar uma nova imagem**, o startup aplicará automaticamente a `Issue020` antes de atender requisições. Reiniciar o container com a imagem antiga não inclui a correção. Nenhuma conexão a banco real, aplicação de SQL, publicação ou implantação foi feita nesta tarefa. A interface e os casos de uso da 04b foram concluídos posteriormente nesta branch, conforme a seção abaixo.
+
+
+## Inventário de recursos e ambientes — 04b
+
+Implementação e validação local concluídas. O [documento da 04b](../docs/features/done/04b-inventario-de-recursos.md) registra campos, regras, limites e evolução restante. Todas as rotas exigem `olivaw.root`, sem cache nem log de body:
+
+- `GET/POST /resources` e `GET/PUT /resources/{externalId}`.
+- `GET/POST /deployments` e `GET/PUT /deployments/{externalId}`.
+- `POST /resource-customers`, `POST /resource-dependencies` e `POST /deployment-resources`.
+- `PUT /resource-customers/{externalId}`, `PUT /resource-dependencies/{externalId}` e `PUT /deployment-resources/{externalId}` encerram períodos com `revision`, sem excluir histórico.
+- `GET /inventory-links` pagina vínculos por uma âncora `resourceExternalId` ou `deploymentExternalId`, `kind=customer/dependency/deployment` e `includeEnded`.
+
+Filtros de recursos: `page`, `pageSize`, `search`, `type`, `provider`, `status`, `environment`, `customerExternalId`, `shared`. Implantações: `page`, `pageSize`, `serviceExternalId`, `environment`. Filtros textuais opcionais de serviços/recursos/implantações aceitam ausência/vazio. Payloads planos ficam em `Owh.Olivaw.Client/Features/InventoryFeature`; autoria vem da identidade autenticada, fora do body público.
+
+Vínculos novos recebem `resourceExternalId`, `targetExternalId`, `purpose`; relações acrescentam `kind`, e usos podem declarar `reservedCpu`, `reservedMemoryGiB`, `reservedStorageGiB`. Alterar finalidade/reserva requer encerrar e criar novo período. PUT exige revisão positiva. Desativação, composição e encerramentos são protegidos por revisões; conflitos retornam HTTP 409. Encerrar serviço encerra implantações e usos na mesma transação, preservando recursos compartilhados.
+
+Consultas comuns usam o repositório genérico. `IRepositoryInventoryResource` acrescenta projeções/paginação e alcance deduplicado; `IRepositoryServiceDeployment` pagina implantações com serviço; `IRepositoryInventoryRevision` coordena a versão da topologia e encerramentos. A revisão é carregada antes das leituras que sustentam decisões; as alterações são salvas na mesma unidade de persistência EF.
+
+Comandos na raiz:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Api -c Release --no-restore -m:1
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1
+dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client -c Release --no-build --no-restore --output /tmp/olivaw-inventory-pack
+
+dotnet ef migrations has-pending-model-changes \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+```
+
+Resultado: build Release sem warnings, 239 testes aprovados, pack local e modelo PostgreSQL sem diferenças. Autorização HTTP, domínio, CQS, conflitos, filtros vazios, snapshots, períodos e SQL/modelo PostgreSQL e SQL Server foram testados sem conexão. A conclusão **não alterou o schema nem gerou outra migration**: permanece somente a `Issue020`. Oracle não foi contemplado. Não houve conexão a banco real, publicação ou redeploy; os novos fluxos precisam ser publicados e conferidos no ambiente.

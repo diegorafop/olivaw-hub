@@ -24,6 +24,10 @@ async function setup(page: Page, conflict = false) {
     const url = new URL(route.request().url());
     const path = url.pathname;
     const method = route.request().method();
+    if (path === '/resources')
+      return route.fulfill({ json: { page: 1, pageSize: 20, total: 0, items: [] } });
+    if (path === '/deployments')
+      return route.fulfill({ json: { page: 1, pageSize: 20, total: 0, items: [] } });
     if (path.endsWith('/login'))
       return route.fulfill({
         json: { accessToken: 'test', expiresAt: new Date(Date.now() + 300000).toISOString() },

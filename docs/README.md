@@ -1,6 +1,8 @@
 # Documentação do Olivaw
 
-- [Serviços e clientes — Base implementada](features/done/04a-cadastro-de-servicos.md): cadastro e vínculos com empresas validados localmente; migration pendente até fechar o escopo da issue 018.
+- [Serviços e clientes — Base implementada](features/done/04a-cadastro-de-servicos.md): cadastro e vínculos com empresas validados localmente; schema coberto pela `Issue020`.
+
+- [Inventário de recursos e ambientes — Implementado](features/done/04b-inventario-de-recursos.md): recursos compartilhados, implantações, vínculos, reservas e visão por cliente.
 
 - [Histórico de entregas e notas de versão](features/painel-olivaw/18-historico-de-entregas.md): planejamento da linha do tempo por cliente e serviço.
 - [Solicitações do cliente](features/painel-olivaw/13-solicitacoes-do-cliente.md): planejamento de pedidos de alterações, capacidade e plano.

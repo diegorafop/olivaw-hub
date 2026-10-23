@@ -233,5 +233,6 @@
   }
   @if (data(); as customer) {
     <app-customer-services [customer]="customer.externalId" />
+    <app-customer-resources [customer]="customer.externalId" />
   }
 </main>

@@ -33,6 +33,7 @@ public sealed class ReadInventoryResourceByIdResponse
     public decimal? ReservedMemoryGiB { get; set; }
     public decimal? ReservedStorageGiB { get; set; }
     public int IncompleteReservations { get; set; }
+    public int OriginCount { get; set; }
     public List<InventoryOriginItem> Origins { get; set; } = new();
     public List<InventoryResourceHistoryItem> History { get; set; } = new();
 }

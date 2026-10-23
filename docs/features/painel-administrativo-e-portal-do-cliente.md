@@ -4,7 +4,7 @@
 
 Proposta criada em 20/10/2026 e decomposta em features em 21/10/2026. Este documento é o índice e a visão comum da épica; os arquivos abaixo definem escopo, dependências, exclusões, critérios de aceite e decisões de cada entrega.
 
-A decomposição em features é documental. A primeira versão do dashboard foi posteriormente implementada para avaliação, conforme o estado da feature 01; a consulta de leads está disponível e o cadastro de clientes tem implementação local e migration PostgreSQL revisada, pendentes de publicação/teste na AWS; as demais continuam planejadas. Este índice não cria issues, aprova schemas/migrations ou autoriza provisionamento e publicação. Os números são referências de planejamento, não números de issues nem versões de release.
+A decomposição em features é documental. A primeira versão do dashboard foi posteriormente implementada para avaliação, conforme o estado da feature 01; a consulta de leads está disponível e o cadastro de clientes tem implementação local e migration PostgreSQL revisada, pendentes de publicação/teste na AWS; serviços e a base do inventário estão implementados e validados localmente, conforme os documentos 04a/04b; as demais continuam planejadas. Este índice não cria issues, aprova schemas/migrations ou autoriza provisionamento e publicação. Os números são referências de planejamento, não números de issues nem versões de release.
 
 A visão permanece dividida em duas fases:
 
@@ -37,8 +37,9 @@ As entregas implementadas estão em [features concluídas](done/README.md). A co
 | 02 | [Leads administrativos](done/02-leads-administrativos.md) | Consultar e acompanhar contatos recebidos | Dashboard e persistência de leads |
 | 02b | [Acompanhamento comercial](done/02-acompanhamento-comercial-de-leads.md) | Etapas, notas internas e histórico | Consulta de leads |
 | 03 | [Cadastro de clientes](done/03-cadastro-de-clientes.md) | Empresas, contatos e responsáveis | Dashboard; leads apenas para conversão |
-| 04a | [Cadastro de serviços](done/04a-cadastro-de-servicos.md) | Serviços técnicos e seus vínculos com clientes; base validada, migration pendente | Clientes |
-| 04 | [Inventário de recursos](painel-olivaw/04-inventario-de-recursos.md) | Recursos dedicados/compartilhados, ambientes e vínculos por cliente, preparando atribuição de custos | Clientes e serviços |
+| 04a | [Cadastro de serviços](done/04a-cadastro-de-servicos.md) | Serviços técnicos e seus vínculos com clientes; schema na Issue020 | Clientes |
+| 04b | [Base do inventário](done/04b-inventario-de-recursos.md) | Recursos, implantações, relações e reservas implementados e validados localmente | Clientes e serviços |
+| 04c | [Detalhamento do inventário](painel-olivaw/04-inventario-de-recursos.md) | Recursos dedicados/compartilhados, ambientes e vínculos por cliente, preparando atribuição de custos | Clientes e serviços |
 | 05 | [Coleta e saúde](painel-olivaw/05-coleta-e-saude.md) | Primeira verificação real e seus limites | Inventário e fonte autorizada |
 | 06 | [Alertas e incidentes](painel-olivaw/06-alertas-e-incidentes.md) | Impacto, responsável, avaliação e recuperação | Inventário e coleta |
 | 07 | [Consumo e capacidade](painel-olivaw/07-consumo-e-capacidade.md) | Primeira medida atribuível e histórico | Inventário e coleta confiável |

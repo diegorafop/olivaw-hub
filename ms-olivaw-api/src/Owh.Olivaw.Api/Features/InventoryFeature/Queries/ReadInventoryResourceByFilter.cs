@@ -15,14 +15,14 @@ public sealed class ReadInventoryResourceByFilterHandler(IRepositoryInventoryRes
     public async Task<ReadInventoryResourceByFilterResponse> Handle(ReadInventoryResourceByFilterMediatorQuery request, CancellationToken cancellationToken)
     {
         ValidationHelper.ThrowIfNull(request);
-        var p = request.Payload;
-        var result = await repository.ReadPageAsync(new InventoryResourceFilter { Page = p.Page, PageSize = p.PageSize, Search = p.Search, Type = p.Type, Status = p.Status, Provider = p.Provider, CustomerExternalId = p.CustomerExternalId, Environment = p.Environment, Shared = p.Shared }, cancellationToken);
+        var payload = request.Payload;
+        var result = await repository.ReadPageAsync(new InventoryResourceFilter { Page = payload.Page, PageSize = payload.PageSize, Search = payload.Search ?? string.Empty, Type = payload.Type ?? string.Empty, Status = payload.Status ?? string.Empty, Provider = payload.Provider ?? string.Empty, CustomerExternalId = payload.CustomerExternalId, Environment = payload.Environment ?? string.Empty, Shared = payload.Shared }, cancellationToken);
         InventoryRules.RequireGraph(result.LimitExceeded);
-        return new() { Page = p.Page, PageSize = p.PageSize, Total = result.Total, Items = result.Items.Select(item => new InventoryResourceItem
+        return new() { Page = payload.Page, PageSize = payload.PageSize, Total = result.Total, Items = result.Items.Select(item => new InventoryResourceItem
         {
             ExternalId = item.Resource.ExternalId, TechnicalId = item.Resource.TechnicalId, Name = item.Resource.Name, Type = item.Resource.Type,
             Status = item.Resource.Status, Provider = item.Resource.Provider, CustomerCount = item.Context.CustomerCount,
-            Origins = item.Context.Origins.Select(InventoryReadMapping.Origin).ToList()
+            OriginCount = item.Context.OriginCount, Origins = item.Context.Origins.Select(InventoryReadMapping.Origin).ToList()
         }).ToList() };
     }
 }
@@ -31,10 +31,10 @@ public sealed class ReadInventoryResourceByFilterValidator : AbstractValidator<R
     public ReadInventoryResourceByFilterValidator()
     {
         RuleFor(item => item.Page).InclusiveBetween(1, 100000); RuleFor(item => item.PageSize).InclusiveBetween(1, 100);
-        RuleFor(item => item.Search).NotNull().MaximumLength(100); RuleFor(item => item.Provider).NotNull().MaximumLength(80);
-        RuleFor(item => item.Type).Must(value => value == "" || InventoryResourceData.IsType(value));
-        RuleFor(item => item.Status).Must(value => value == "" || InventoryResourceData.IsStatus(value));
-        RuleFor(item => item.Environment).Must(value => value == "" || ServiceDeployment.IsEnvironment(value));
+        RuleFor(item => item.Search).MaximumLength(100); RuleFor(item => item.Provider).MaximumLength(80);
+        RuleFor(item => item.Type).Must(value => string.IsNullOrEmpty(value) || InventoryResourceData.IsType(value!));
+        RuleFor(item => item.Status).Must(value => string.IsNullOrEmpty(value) || InventoryResourceData.IsStatus(value!));
+        RuleFor(item => item.Environment).Must(value => string.IsNullOrEmpty(value) || ServiceDeployment.IsEnvironment(value!));
         RuleFor(item => item.CustomerExternalId).NotEqual(Guid.Empty).When(item => item.CustomerExternalId.HasValue);
     }
 }

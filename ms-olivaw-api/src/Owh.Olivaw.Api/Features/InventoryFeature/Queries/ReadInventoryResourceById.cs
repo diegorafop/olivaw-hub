@@ -41,7 +41,7 @@ public sealed class ReadInventoryResourceByIdHandler(IRepository<InventoryResour
             StorageCapacityGiB = resource.StorageCapacityGiB,
             CustomerCount = context.CustomerCount, Customers = context.Customers.Select(item => new InventoryCustomerItem { ExternalId = item.ExternalId, Business = item.Business }).ToList(),
             ReservedCpu = context.ReservedCpu, ReservedMemoryGiB = context.ReservedMemoryGiB, ReservedStorageGiB = context.ReservedStorageGiB, IncompleteReservations = context.IncompleteReservations,
-            Origins = context.Origins.Select(InventoryReadMapping.Origin).ToList(),
+            OriginCount = context.OriginCount, Origins = context.Origins.Select(InventoryReadMapping.Origin).ToList(),
             History = history.Select(item => new InventoryResourceHistoryItem
             {
                 Revision = item.Revision, ActorName = item.ActorName, CreatedAt = item.CreatedAt, VerifiedAt = item.VerifiedAt,

@@ -11,4 +11,5 @@ Entregas implementadas e verificadas localmente. Esta pasta registra conclusão 
 
 O planejamento restante está na [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md) e em [painel-olivaw](../painel-olivaw/).
 
-- [04a — Serviços e vínculos com clientes](04a-cadastro-de-servicos.md): primeiro recorte da issue 018; código validado, migration pendente até fechar o escopo da issue. Recursos e ambientes continuam no planejamento da feature 04.
+- [04a — Serviços e vínculos com clientes](04a-cadastro-de-servicos.md): base administrativa de serviços; schema coberto pela `Issue020`.
+- [04b — Inventário de recursos e ambientes](04b-inventario-de-recursos.md): cadastro único de recursos, implantações, relações, reservas e visão por cliente; desenvolvimento/testes concluídos, publicação dos novos fluxos pendente.

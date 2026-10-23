@@ -2,7 +2,9 @@
 
 ## Estado e objetivo
 
-Em implementação: o recorte [04a — Serviços](../done/04a-cadastro-de-servicos.md) foi implementado e validado localmente, com schema PostgreSQL coberto pela migration `Issue020`, ainda sem validação da nova imagem no ambiente. A base de domínio/mapeamentos da 04b está iniciada; interface e casos de uso ainda não foram concluídos. O detalhamento da 04c continua planejado. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). Ampliada com as informações do mantenedor sobre a LTMJ em 22/10/2026. Este documento propõe a modelagem para revisão antes de codar; não autoriza migrations, acesso à nuvem ou publicação.
+Base implementada: [04a — Serviços](../done/04a-cadastro-de-servicos.md) e [04b — Inventário e ambientes](../done/04b-inventario-de-recursos.md), validadas localmente. O schema PostgreSQL está coberto pela migration `Issue020`; a interface e os casos de uso novos ainda precisam de publicação e smoke test no ambiente. Este documento conserva a visão completa e o planejamento restante da **04c — Detalhamento**, além das integrações futuras de medição/financeiro.
+
+Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). Os exemplos informados pelo mantenedor em 22/10/2026 não são cadastros automáticos nem autorizações de acesso à nuvem.
 
 Responder: **quais serviços e recursos atendem cada cliente, quais são compartilhados, onde estão e quais dados permitirão projetar seu custo?**
 
@@ -193,7 +195,7 @@ Não exigir que o operador preencha toda a infraestrutura para salvar o primeiro
 - Autorização no servidor protege cadastros, vínculos e consultas. Relações e URLs são validadas como dados; destinos de coleta futura obedecerão a política própria.
 - Um recurso sem coleta aparece como inventariado, com saúde/consumo não confirmados. Cadastro e testes não inventam quantidade, disponibilidade, isolamento, preço ou plano da LTMJ.
 
-## Decisões a confirmar antes de codar
+## Dados operacionais a conferir e evolução da 04c
 
 - Onde cada componente da LTMJ está realmente hospedado, ambientes utilizados e quais instâncias são compartilhadas com outros clientes ou com a operação Olivaw.
 - Se existem banco/schema, virtual host, separação Redis e armazenamento por cliente, e quais são apenas convenções de nomes.
