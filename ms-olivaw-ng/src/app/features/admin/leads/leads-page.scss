@@ -300,12 +300,74 @@ h2 {
 }
 
 .status-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem 1.25rem;
-  padding: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+  gap: 10px;
+  margin: 0 0 24px;
 }
-.status-summary small {
-  flex-basis: 100%;
-  color: #52645b;
+.status-card {
+  --stage-color: #627366;
+  min-width: 0;
+  padding: 15px 16px;
+  border: 1px solid #e1e8df;
+  border-radius: 12px;
+  background: #fff;
+}
+.status-label {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: #536a5b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.status-dot {
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--stage-color);
+}
+.status-count {
+  display: block;
+  margin-top: 10px;
+  color: #244435;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+.status-card[data-status='conversation'] {
+  --stage-color: #4d7b91;
+}
+.status-card[data-status='analysis'] {
+  --stage-color: #917542;
+}
+.status-card[data-status='development'] {
+  --stage-color: #73618f;
+}
+.status-card[data-status='validation'] {
+  --stage-color: #3e827a;
+}
+.status-card[data-status='delivered'] {
+  --stage-color: #36734c;
+}
+.status-card[data-status='discontinued'] {
+  --stage-color: #897b77;
+}
+.status-caption {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #627366;
+}
+@media (max-width: 600px) {
+  .status-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .status-card {
+    padding: 13px 14px;
+  }
 }

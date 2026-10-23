@@ -25,9 +25,9 @@ O painel inicial estará concluído quando um operador autorizado puder entrar, 
 
 ## Features da operação interna
 
-**Prioridade anterior de planejamento:** [04a — Cadastro de serviços e vínculo com clientes](painel-olivaw/04a-cadastro-de-servicos.md). Primeiro registrar quais serviços atendem cada empresa; depois avançar no inventário de ambientes/recursos e retomar o acompanhamento comercial de leads. A numeração original identifica os documentos e não representa mais uma fila estrita de implementação.
+**Prioridade anterior de planejamento:** [04a — Cadastro de serviços e vínculo com clientes](done/04a-cadastro-de-servicos.md). Primeiro registrar quais serviços atendem cada empresa; depois avançar no inventário de ambientes/recursos e retomar o acompanhamento comercial de leads. A numeração original identifica os documentos e não representa mais uma fila estrita de implementação.
 
-Em 22/10/2026, a feature 02b de acompanhamento de leads foi implementada e validada localmente a pedido do mantenedor. O cadastro de serviços permanece como próxima entrega planejada.
+Em 22/10/2026, a feature 02b de acompanhamento de leads foi implementada e validada localmente a pedido do mantenedor. A base de cadastro de serviços foi implementada localmente na issue 018; ambientes e recursos aguardam definição do próximo recorte.
 
 As entregas implementadas estão em [features concluídas](done/README.md). A consulta de leads foi encerrada como recorte próprio; [acompanhamento comercial](done/02-acompanhamento-comercial-de-leads.md) foi implementado e validado localmente, com publicação pendente. A organização em `done` não substitui publicação nem validação na AWS.
 
@@ -37,7 +37,7 @@ As entregas implementadas estão em [features concluídas](done/README.md). A co
 | 02 | [Leads administrativos](done/02-leads-administrativos.md) | Consultar e acompanhar contatos recebidos | Dashboard e persistência de leads |
 | 02b | [Acompanhamento comercial](done/02-acompanhamento-comercial-de-leads.md) | Etapas, notas internas e histórico | Consulta de leads |
 | 03 | [Cadastro de clientes](done/03-cadastro-de-clientes.md) | Empresas, contatos e responsáveis | Dashboard; leads apenas para conversão |
-| 04a | [Cadastro de serviços](painel-olivaw/04a-cadastro-de-servicos.md) | Serviços técnicos e seus vínculos com clientes; próxima entrega | Clientes |
+| 04a | [Cadastro de serviços](done/04a-cadastro-de-servicos.md) | Serviços técnicos e seus vínculos com clientes; base validada, migration pendente | Clientes |
 | 04 | [Inventário de recursos](painel-olivaw/04-inventario-de-recursos.md) | Recursos dedicados/compartilhados, ambientes e vínculos por cliente, preparando atribuição de custos | Clientes e serviços |
 | 05 | [Coleta e saúde](painel-olivaw/05-coleta-e-saude.md) | Primeira verificação real e seus limites | Inventário e fonte autorizada |
 | 06 | [Alertas e incidentes](painel-olivaw/06-alertas-e-incidentes.md) | Impacto, responsável, avaliação e recuperação | Inventário e coleta |

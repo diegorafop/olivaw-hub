@@ -1,3 +1,4 @@
+import { serviceDraftGuard } from './features/admin/services/service-draft.guard';
 import { customerDraftGuard } from './features/admin/customers/customer-draft.guard';
 import { Routes } from '@angular/router';
 import { operationGuard, rootGuard, operationHomeGuard } from './core/auth/auth.guard';
@@ -31,6 +32,29 @@ export const routes: Routes = [
     canMatch: [operationGuard],
     loadComponent: () => import('./features/admin/admin-frame').then((m) => m.AdminFrame),
     children: [
+      {
+        path: 'services',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Serviços',
+        loadComponent: () =>
+          import('./features/admin/services/services-page').then((m) => m.ServicesPage),
+      },
+      {
+        path: 'services/new',
+        canMatch: [rootGuard],
+        canDeactivate: [serviceDraftGuard],
+        title: 'Olivaw - Novo serviço',
+        loadComponent: () =>
+          import('./features/admin/services/service-editor').then((m) => m.ServiceEditor),
+      },
+      {
+        path: 'services/:id',
+        canMatch: [rootGuard],
+        canDeactivate: [serviceDraftGuard],
+        title: 'Olivaw - Serviço',
+        loadComponent: () =>
+          import('./features/admin/services/service-editor').then((m) => m.ServiceEditor),
+      },
       {
         path: 'customers',
         canMatch: [rootGuard],

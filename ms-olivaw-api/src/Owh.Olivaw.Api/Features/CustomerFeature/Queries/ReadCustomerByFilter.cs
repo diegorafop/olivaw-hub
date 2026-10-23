@@ -16,7 +16,7 @@ public sealed class ReadCustomerByFilterHandler(IRepositoryCustomer repository) 
     {
         ValidationHelper.ThrowIfNull(request);
         var payload = request.Payload;
-        var result = await repository.ReadPageAsync(payload.Search, payload.Status, payload.Page, payload.PageSize, cancellationToken);
+        var result = await repository.ReadPageAsync(payload.Search ?? string.Empty, payload.Status ?? string.Empty, payload.Page, payload.PageSize, cancellationToken);
         return new ReadCustomerByFilterResponse
         {
             Page = payload.Page, PageSize = payload.PageSize, Total = result.Total,
@@ -30,8 +30,8 @@ public sealed class ReadCustomerByFilterValidator : AbstractValidator<ReadCustom
     {
         RuleFor(item => item.Page).InclusiveBetween(1, 100000);
         RuleFor(item => item.PageSize).InclusiveBetween(1, 100);
-        RuleFor(item => item.Search).NotNull().MaximumLength(100);
-        RuleFor(item => item.Status).Must(value => value is "" or "onboarding" or "active" or "paused" or "closed");
+        RuleFor(item => item.Search).MaximumLength(100);
+        RuleFor(item => item.Status).Must(value => value is null or "" or "onboarding" or "active" or "paused" or "closed");
     }
 }
 public sealed class ReadCustomerByFilterMediatorValidator : AbstractValidator<ReadCustomerByFilterMediatorQuery>

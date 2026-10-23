@@ -60,11 +60,9 @@ export class CustomersApi {
     return { context: new HttpContext().set(LOCAL_ERROR, true).set(SKIP_LOADING, true) };
   }
   list(page: number, search: string, status: string) {
-    const params = new HttpParams()
-      .set('page', page)
-      .set('pageSize', 20)
-      .set('search', search)
-      .set('status', status);
+    let params = new HttpParams().set('page', page).set('pageSize', 20);
+    if (search.trim()) params = params.set('search', search.trim());
+    if (status) params = params.set('status', status);
     return this.http
       .get<CustomerPage>(this.config.endpoint('customers'), { ...this.options(), params })
       .pipe(timeout(15000));

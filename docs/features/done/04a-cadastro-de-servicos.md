@@ -1,0 +1,41 @@
+# 04a — Cadastro de serviços e vínculo com clientes
+
+## Estado e escopo
+
+Primeiro recorte da [feature 04](../painel-olivaw/04-inventario-de-recursos.md), implementado e validado localmente na branch `feature/issue018-resources-flow` em 22/10/2026. A base é comum às opções de escopo apresentadas ao mantenedor: somente serviços ou serviços com a base de recursos/ambientes.
+
+**Migration ainda não gerada.** A issue 018 permanece em andamento: aguarda definição sobre incluir também a 04b antes de estabilizar o schema e gerar uma única migration, mediante autorização explícita. Não publicar esta API enquanto seu modelo não estiver coberto pela migration. Aplicação em banco, publicação e validação no ambiente não foram realizadas.
+
+## Entrega implementada
+
+- Cadastro de aplicação lógica, com nome, identificador técnico único e imutável, tipo, descrição, responsável interno textual opcional, escopo e situação.
+- Tipos iniciais: frontend, API, worker, tarefa agendada e outro. Banco, servidor e domínio continuam como recursos da próxima entrega.
+- Situações Planejado, Em implantação, Ativo e Encerrado, com transições livres. A situação é cadastral e não comprova saúde.
+- Escopo Interno Olivaw, sem empresa fictícia, ou Atendimento a clientes. Até 100 clientes por serviço; um cliente pode ter vários serviços.
+- Vínculos usando PK/FK internas e GUIDs públicos, sem copiar empresas ou duplicar o serviço por cliente/ambiente.
+- Encerrar serviço, tornar interno ou retirar cliente encerra os vínculos afetados e conserva período, autor da abertura e autor do encerramento. Reativar pode criar novo período, preservando os anteriores.
+- Revisão para concorrência; conflito retorna HTTP 409. Identificador duplicado é protegido também por índice único.
+- Lista paginada com busca por nome/identificador e filtros por tipo, situação e cliente. Filtro de cliente é acessível a partir de sua ficha.
+- Menu Serviços, formulário de cadastro/edição e seção Serviços na ficha do cliente, com ações para vincular existente ou preparar novo cadastro. Nenhuma preparação persiste antes de salvar.
+- Histórico do cadastro com snapshot tipado dos dados alterados, autor e data. Ficha mostra vínculos ativos e os 20 encerramentos e 20 alterações mais recentes; histórico completo permanece no banco.
+
+## Regras adotadas nesta base
+
+Identificador técnico aceita até 80 caracteres com letras minúsculas, números e hífens, como `ms-exemplo-api`. Nome aceita até 120, descrição até 1.000 e responsável até 120 caracteres. Servidor valida vínculos duplicados e clientes inexistentes/removidos. Serviço de clientes não encerrado exige ao menos um vínculo; interno ou encerrado recebe lista vazia.
+
+Acesso inicial exclusivo do root interno, preservando a política de Clientes. Não cria access profiles, identidades externas, usuários técnicos ou vínculos de portal. Ativação/encerramento não dispara deploy, provisionamento, suspensão, cobrança ou mudança de plano.
+
+Alterações de dados e vínculos usam a mesma unidade transacional do contexto EF. A abertura/encerramento dos vínculos não é apagada em substituições; o cadastro mantém identidade técnica estável. Leituras simples usam `IRepository<T>`; `IRepositoryManagedService` existe somente para paginação, contagem e projeção no banco.
+
+## Validação local
+
+- 158 testes da API: domínio, commands/validators, queries, controller, HTTP em memória e modelo/tradução SQL PostgreSQL e SQL Server, sem conexão a banco real.
+- 14 testes de navegador: serviços e regressões de clientes/dashboard, incluindo desktop/celular, compartilhamento, encerramento de vínculos, serviço interno e concorrência.
+- 28 testes unitários existentes do frontend, lint e builds; avisos preexistentes de estilos das páginas públicas permanecem registrados no README.
+- Capturas de desktop/celular conferidas. Banco, nuvem, dados de clientes e infraestrutura não foram acessados; não houve seed da LTMJ.
+
+Comandos e contratos no [README da API](../../../ms-olivaw-api/README.md#serviços-e-vínculos-com-clientes) e no [README do frontend](../../../ms-olivaw-ng/README.md#serviços-administrativos).
+
+## Continuação da feature 04
+
+Implantações por ambiente, recursos físicos/lógicos compartilhados, relações entre recursos e caminhos de dependência continuam no [planejamento da 04](../painel-olivaw/04-inventario-de-recursos.md). Medição e financeiro continuam nas features 07 e 17. A conclusão deste primeiro recorte não conclui toda a issue 018 nem toda a feature 04.

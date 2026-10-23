@@ -124,3 +124,13 @@ Revisão própria evita sobrescrever uma alteração concorrente. Em conflito, a
 Root e operadores internos com `leads.manage` podem consultar e atualizar o acompanhamento. A permissão é conferida no servidor usando a identidade existente; nenhum perfil ou usuário externo é criado automaticamente. O portal e os perfis propostos continuam no planejamento.
 
 Validação local desta entrega: `npm test`, `npm run lint`, `npm run build` e `npm run e2e -- e2e/admin-leads.spec.ts e2e/admin-dashboard.spec.ts e2e/admin-customers.spec.ts`. O navegador usa contratos simulados, sem gravar dados remotos. A API e sua migration PostgreSQL precisam ser publicadas antes de usar o acompanhamento no ambiente.
+
+## Serviços administrativos
+
+Root acessa `/admin/services`, `/admin/services/new` e `/admin/services/:id`, com lista paginada, busca por nome/identificador e filtros por tipo e situação. A ficha do cliente consulta os serviços atuais com filtro por empresa e paginação; prepara vínculo com serviço existente ou novo, sem salvar automaticamente.
+
+Serviço interno dispensa empresa fictícia. Serviço de clientes admite até 100 vínculos e exige ao menos um enquanto não encerrado. Encerramento/troca de escopo/retirada de cliente pedem confirmação quando afetam vínculos atuais; histórico com período e autoria é preservado. Reabrir permite novos períodos. A interface conserva dados após erro/conflito e protege saída com alterações não salvas, liberando logout/expiração.
+
+Cadastro não equivale a saúde monitorada e não altera infraestrutura ou cobranças. Ambientes e recursos ainda não foram implementados. A API correspondente e sua migration futura serão necessárias antes de publicar; não há tabelas novas em banco nesta entrega.
+
+Validação: `npm test`, `npm run lint`, `npm run build` e `npm run e2e -- e2e/admin-services.spec.ts e2e/admin-customers.spec.ts e2e/admin-dashboard.spec.ts`. Contratos HTTP são simulados; não há dados reais de clientes nos testes. O build mantém os três avisos preexistentes de orçamento de estilos das páginas públicas.

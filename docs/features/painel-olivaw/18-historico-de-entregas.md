@@ -8,7 +8,7 @@ Registrar as funcionalidades implementadas para cada cliente e apresentar uma li
 
 ## Dependências
 
-- [Clientes](../done/03-cadastro-de-clientes.md) e [serviços vinculados](04a-cadastro-de-servicos.md).
+- [Clientes](../done/03-cadastro-de-clientes.md) e [serviços vinculados](../done/04a-cadastro-de-servicos.md).
 - [Identidade do portal](11-identidade-do-portal.md) para consulta externa.
 - Integração opcional com [solicitações](13-solicitacoes-do-cliente.md) e [publicações técnicas](09-publicacoes-e-cuidados.md).
 

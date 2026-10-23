@@ -188,3 +188,28 @@ dotnet ef migrations has-pending-model-changes \
 Esses comandos usam a factory de design time, sem iniciar o host. Ferramenta EF 10.0.12 emitiu aviso de patch inferior ao runtime 10.0.13; não houve atualização de dependências nesta tarefa. Consulte também os [comandos do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
 
 Validação: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1` (125 testes), build Release, tradução SQL/modelo PostgreSQL e SQL Server e testes HTTP em memória de autenticação, revogação de permissão, validação e conflito. Execução real do SQL e smoke test após publicação continuam pendentes.
+
+## Serviços e vínculos com clientes
+
+Base 04a implementada na issue 018, ainda sem migration nem publicação. Cadastro manual de aplicações lógicas, distinto de recursos e de provisionamento. Root interno pode executar:
+
+- `POST /services`: payload com `technicalId`, `name`, `type`, `description`, `owner`, `scope`, `status` e `customerExternalIds` (até 100 GUIDs públicos). Retorna HTTP 201 com `externalId` e `revision`.
+- `PUT /services/{externalId}`: mesmos campos de dados, sem `technicalId`, e revisão esperada `revision`. Vínculos não enviados são encerrados. Conflito retorna 409 e não há edição do identificador técnico.
+- `GET /services`: `page`/`pageSize` (máximo 100), `search`, `status`, `type` e `customerExternalId` opcional. Paginação, filtro, contagem e projeção são executados no banco. Contagem de clientes considera vínculos atuais, sem duplicar aplicação compartilhada.
+- `GET /services/{externalId}`: dados atuais, vínculos ativos, 20 encerramentos e 20 snapshots mais recentes do cadastro. Não retorna PKs internas ou credenciais.
+
+Tipos: `frontend`, `api`, `worker`, `scheduled`, `other`. Situações: `planned`, `onboarding`, `active`, `closed`, com transições livres. Escopos: `internal`, sem clientes; `customer`, com ao menos um cliente enquanto não encerrado. Um serviço encerrado tem lista vazia de vínculos ativos. O identificador usa até 80 caracteres em minúsculas, números e hífens; nome até 120, descrição até 1.000 e responsável textual até 120.
+
+`managedservice`, `managedservicecustomer` e `managedservicechange` mantêm PK/FK internas, identidade pública, períodos e autoria. Responsável operacional é texto opcional; autor é obtido da sessão no servidor. Reativação cria novo período de vínculo e preserva os anteriores. Novo serviço e seus vínculos/auditoria são salvos juntos; atualizações usam revisão concorrente e índice único para impedir duplicatas. Respostas não são armazenadas em cache; logs dos endpoints omitem corpos e consultas.
+
+**Schema ainda não preparado para publicação:** nenhuma migration da issue 018 foi gerada. A base de ambientes/recursos pode entrar no mesmo recorte; gerar somente ao final uma migration autorizada para os provedores solicitados, sem reescrever as antigas. O startup aplica migrations pendentes, mas a criação do código não criou tabelas em banco. Não aplicar `database update` ou implantar como validação local.
+
+Validação sem bancos reais:
+
+```bash
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Api -c Release --no-restore -m:1
+dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client -c Release --no-build --no-restore --output /tmp/olivaw-issue018-pack
+```
+
+Modelo e tradução de filtros foram verificados para PostgreSQL e SQL Server; Oracle não contemplado. Sem descoberta de nuvem, medições, dados reais de clientes, sementes ou execução de infraestrutura. Veja o [recorte entregue](../docs/features/done/04a-cadastro-de-servicos.md) e o [inventário restante](../docs/features/painel-olivaw/04-inventario-de-recursos.md).

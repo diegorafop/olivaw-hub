@@ -231,4 +231,7 @@
       </footer>
     </form>
   }
+  @if (data(); as customer) {
+    <app-customer-services [customer]="customer.externalId" />
+  }
 </main>

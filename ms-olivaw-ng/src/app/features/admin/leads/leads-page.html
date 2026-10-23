@@ -55,11 +55,14 @@
     @if (counts.byStatus) {
       <section class="status-summary" aria-label="Leads por etapa">
         @for (option of statusOptions; track option[0]) {
-          <span
-            >{{ option[1] }}: <strong>{{ counts.byStatus[option[0]] || 0 }}</strong></span
-          >
+          <div class="status-card" [attr.data-status]="option[0]">
+            <span class="status-label"
+              ><span class="status-dot" aria-hidden="true"></span>{{ option[1] }}</span
+            >
+            <strong class="status-count">{{ counts.byStatus[option[0]] || 0 }}</strong>
+          </div>
         }
-        <small>Contagem geral por etapa, independente dos filtros.</small>
+        <p class="status-caption">Visão geral das etapas · contagem independente dos filtros</p>
       </section>
     }
   }
