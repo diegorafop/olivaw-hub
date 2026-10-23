@@ -2,7 +2,7 @@
 
 ## Estado e objetivo
 
-Em implementação: o recorte [04a — Serviços](../done/04a-cadastro-de-servicos.md) foi implementado e validado localmente, ainda sem migration/publicação. Ambientes, recursos e relações da 04b/04c continuam planejados. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). Ampliada com as informações do mantenedor sobre a LTMJ em 22/10/2026. Este documento propõe a modelagem para revisão antes de codar; não autoriza migrations, acesso à nuvem ou publicação.
+Em implementação: o recorte [04a — Serviços](../done/04a-cadastro-de-servicos.md) foi implementado e validado localmente, com schema PostgreSQL coberto pela migration `Issue020`, ainda sem validação da nova imagem no ambiente. A base de domínio/mapeamentos da 04b está iniciada; interface e casos de uso ainda não foram concluídos. O detalhamento da 04c continua planejado. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). Ampliada com as informações do mantenedor sobre a LTMJ em 22/10/2026. Este documento propõe a modelagem para revisão antes de codar; não autoriza migrations, acesso à nuvem ou publicação.
 
 Responder: **quais serviços e recursos atendem cada cliente, quais são compartilhados, onde estão e quais dados permitirão projetar seu custo?**
 

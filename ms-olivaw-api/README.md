@@ -202,7 +202,7 @@ Tipos: `frontend`, `api`, `worker`, `scheduled`, `other`. Situações: `planned`
 
 `managedservice`, `managedservicecustomer` e `managedservicechange` mantêm PK/FK internas, identidade pública, períodos e autoria. Responsável operacional é texto opcional; autor é obtido da sessão no servidor. Reativação cria novo período de vínculo e preserva os anteriores. Novo serviço e seus vínculos/auditoria são salvos juntos; atualizações usam revisão concorrente e índice único para impedir duplicatas. Respostas não são armazenadas em cache; logs dos endpoints omitem corpos e consultas.
 
-**Schema ainda não preparado para publicação:** nenhuma migration da issue 018 foi gerada. A base de ambientes/recursos pode entrar no mesmo recorte; gerar somente ao final uma migration autorizada para os provedores solicitados, sem reescrever as antigas. O startup aplica migrations pendentes, mas a criação do código não criou tabelas em banco. Não aplicar `database update` ou implantar como validação local.
+**Schema PostgreSQL coberto pela `Issue020`:** a correção descrita abaixo inclui serviços e a base já mapeada do inventário. O startup aplica a migration após publicar a API. Nenhum banco foi alterado durante a geração/revisão; não executar `database update` como validação local.
 
 Validação sem bancos reais:
 
@@ -213,3 +213,40 @@ dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client -c Release --no-build --no-resto
 ```
 
 Modelo e tradução de filtros foram verificados para PostgreSQL e SQL Server; Oracle não contemplado. Sem descoberta de nuvem, medições, dados reais de clientes, sementes ou execução de infraestrutura. Veja o [recorte entregue](../docs/features/done/04a-cadastro-de-servicos.md) e o [inventário restante](../docs/features/painel-olivaw/04-inventario-de-recursos.md).
+
+
+## Correção de startup — Issue020
+
+O modelo de serviços e da base do inventário havia sido publicado sem migration correspondente. O EF Core interrompia o startup com `PendingModelChangesWarning`. A migration PostgreSQL `20261023010055_Issue020` sincroniza o snapshot e cria 11 tabelas novas, seus índices e FKs: serviços/histórico/clientes, recursos/histórico/revisão da topologia, implantações/histórico e os três vínculos temporais. O SQL de avanço não altera nem remove tabelas/dados existentes. Não foram modificadas migrations anteriores.
+
+O estágio final do Dockerfile instala `libgssapi-krb5-2`, que fornece `libgssapi_krb5.so.2`, necessária ao carregamento do suporte GSSAPI no Linux. O teste `PostgreSqlMigrationTest` usa a factory sem conexão e detecta divergências entre modelo e snapshot; também roda na etapa de testes do Dockerfile, antes de produzir a imagem final. A proteção `PendingModelChangesWarning` permanece habilitada.
+
+Comandos reproduzíveis na raiz (não repetir `migrations add` com os arquivos já presentes):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations add Issue020 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations script Issue017 Issue020 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build \
+  --output /tmp/olivaw-issue020.sql
+
+dotnet ef migrations has-pending-model-changes \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1
+```
+
+Validação local: o teste de regressão falhou antes da migration e passou depois; 162 testes da API passaram; build Release e `has-pending-model-changes` sem diferenças. Migration, designer, snapshot e SQL entre `Issue017` e `Issue020` revisados. Ferramenta EF 10.0.12 emitiu somente aviso de patch inferior ao runtime 10.0.13. SQL Server e Oracle não receberam migrations. O daemon Docker local não está acessível ao usuário e o sudo exige autenticação; build/execução da imagem não foram validados nesta correção.
+
+**Ao publicar uma nova imagem**, o startup aplicará automaticamente a `Issue020` antes de atender requisições. Reiniciar o container com a imagem antiga não inclui a correção. Nenhuma conexão a banco real, aplicação de SQL, publicação ou implantação foi feita nesta tarefa. A criação das tabelas não conclui a interface nem os casos de uso ainda pendentes da 04b.

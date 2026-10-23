@@ -4,7 +4,7 @@
 
 Primeiro recorte da [feature 04](../painel-olivaw/04-inventario-de-recursos.md), implementado e validado localmente na branch `feature/issue018-resources-flow` em 22/10/2026. A base é comum às opções de escopo apresentadas ao mantenedor: somente serviços ou serviços com a base de recursos/ambientes.
 
-**Migration ainda não gerada.** A issue 018 permanece em andamento: aguarda definição sobre incluir também a 04b antes de estabilizar o schema e gerar uma única migration, mediante autorização explícita. Não publicar esta API enquanto seu modelo não estiver coberto pela migration. Aplicação em banco, publicação e validação no ambiente não foram realizadas.
+**Migration PostgreSQL gerada na correção da issue 020.** A `Issue020` reúne o modelo de serviços e a base de inventário já mapeada, corrigindo a falha de startup por modelo pendente. Comandos e validações estão no [README da API](../../../ms-olivaw-api/README.md#correção-de-startup--issue020). Nenhum banco foi alterado durante a validação local; após publicar a imagem atualizada, o startup aplica automaticamente a migration. A entrega da interface e dos casos de uso da 04b continua em andamento.
 
 ## Entrega implementada
 
