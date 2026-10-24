@@ -20,3 +20,4 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 - [12 — Dashboard Meu negócio](done/painel-olivaw/12-dashboard-do-cliente.md).
 - [13 — Solicitações e conversas do cliente](done/painel-olivaw/13-solicitacoes-do-cliente.md).
 - [18 — Histórico de entregas](done/painel-olivaw/18-historico-de-entregas.md).
+- [Infraestrutura compartilhada — Compose e migração preservando volumes](done/infraestrutura-compartilhada.md): instalada e verificada na VM em 24/10/2026.

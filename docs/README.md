@@ -1,5 +1,10 @@
 # Documentação do Olivaw
 
+- [Agentes Python — Safety e relatórios por API](features/discovery/agentes-python-safety-e-relatorios.md): proposta do agrupador, scaffold, skill própria, configuração e persistência JSON; aguardando leitura.
+
+- [Segurança e infraestrutura — Auditoria inicial](features/discovery/seguranca-e-infraestrutura.md): achados do servidor e rotas anônimas, contenção de chave SSH e plano de correções.
+- [Infraestrutura compartilhada](../ms-infrastructure-app/README.md): Compose de PostgreSQL, RabbitMQ, Traefik e Redis opcional, volumes e reconstrução de VM.
+
 - [Operação interna — Entregas 05 a 10](operacao-interna.md): Configuração em cards, estudos de planos, registros operacionais e pendências de integração.
 
 - [Serviços e clientes — Base implementada](features/done/04a-cadastro-de-servicos.md): cadastro e vínculos com empresas validados localmente; schema coberto pela `Issue020`.
