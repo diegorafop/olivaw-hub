@@ -1,0 +1,17 @@
+name: ms-olivaw-ng-stg
+services:
+  ms-olivaw-ng:
+    container_name: ms-olivaw-ng-stg
+    image: ${FRONTEND_IMAGE:-ms-olivaw-ng:stg}
+    environment:
+      API_URL: ${API_URL:-https://api.stg.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-ng-stg.rule: Host(`${PUBLIC_HOST:-stg.olivaw.com.br}`)
+      traefik.http.routers.ms-olivaw-ng-stg.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-ng-stg.tls: 'true'
+      traefik.http.routers.ms-olivaw-ng-stg.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-ng-stg.service: ms-olivaw-ng-stg
+      traefik.http.services.ms-olivaw-ng-stg.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-ng-stg.loadbalancer.server.scheme: http

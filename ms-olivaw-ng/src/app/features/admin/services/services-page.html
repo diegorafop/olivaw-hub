@@ -1,0 +1,95 @@
+<main id="operation-content" tabindex="-1">
+  <a routerLink="/admin/configuration">Voltar à configuração</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / APLICAÇÕES</p>
+      <h1>Serviços</h1>
+      <p>Aplicações que mantemos e empresas atendidas.</p>
+    </div>
+    <a
+      class="primary"
+      routerLink="/admin/services/new"
+      [queryParams]="{ customer: contextCustomer || customerFilter || null }"
+      >Cadastrar serviço</a
+    >
+  </header>
+  @if (contextCustomer) {
+    <p role="status">
+      Escolha um serviço para preparar o vínculo com o cliente. Ele será salvo somente ao confirmar
+      a ficha.
+    </p>
+  }
+  @if (customerFilter) {
+    <p>
+      Mostrando serviços vinculados ao cliente.
+      <a routerLink="/admin/services">Ver todos os serviços</a>
+    </p>
+  }
+  <form [formGroup]="form" (ngSubmit)="apply()" class="filters" aria-label="Filtrar serviços">
+    <label
+      >Buscar nome ou identificador<input formControlName="search" type="search" maxlength="100"
+    /></label>
+    <label
+      >Tipo<select formControlName="type">
+        <option value="">Todos</option>
+        @for (option of typeOptions; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select></label
+    >
+    <label
+      >Situação<select formControlName="status">
+        <option value="">Todas</option>
+        @for (option of statusOptions; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select></label
+    >
+    <button type="submit">Filtrar</button>
+  </form>
+  @if (list().loading) {
+    <p role="status">Carregando serviços…</p>
+  } @else if (list().error) {
+    <p role="status">Não foi possível consultar os serviços.</p>
+    <button type="button" (click)="reload()">Tentar novamente</button>
+  } @else if (list().data; as data) {
+    <section class="surface">
+      <h2>
+        Aplicações cadastradas <small>{{ data.total }}</small>
+      </h2>
+      <ul class="service-list">
+        @for (item of data.items; track item.externalId) {
+          <li>
+            <a
+              [routerLink]="['/admin/services', item.externalId]"
+              [queryParams]="{ customer: contextCustomer || null }"
+              ><strong>{{ item.name }}</strong
+              ><span>{{ item.technicalId }} · {{ types[item.type] }}</span
+              ><span
+                >{{ statuses[item.status] }} ·
+                {{
+                  item.scope === 'internal' ? 'Interno Olivaw' : item.customerCount + ' cliente(s)'
+                }}</span
+              ></a
+            >
+          </li>
+        } @empty {
+          <li>Nenhum serviço neste recorte.</li>
+        }
+      </ul>
+      <footer>
+        <button type="button" (click)="go(data.page - 1)" [disabled]="data.page <= 1">
+          Anterior</button
+        ><span>Página {{ data.page }}</span
+        ><button
+          type="button"
+          (click)="go(data.page + 1)"
+          [disabled]="data.page * data.pageSize >= data.total"
+        >
+          Próxima
+        </button>
+      </footer>
+    </section>
+  }
+  <p class="help">Cadastro não comprova disponibilidade nem cria infraestrutura.</p>
+</main>

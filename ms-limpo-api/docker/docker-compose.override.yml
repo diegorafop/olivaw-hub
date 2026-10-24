@@ -1,14 +1,9 @@
-﻿services:
-    ms-limpo-api:
-        container_name: ms-limpo-api-latest
-        image: registry.mps.com.br/holos/ms-limpo-api:latest
-        build:
-            args:
-                - BUILD_CONFIG=Debug
-                - HTTP_PORT=80
-                - HTTPS_PORT=443
-        environment:
-            - ASPNETCORE_ENVIRONMENT=Development
-        ports:
-            - 44324:80
-            - 44325:443
+services:
+  ms-limpo-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      masstransit__configured: 'false'
+    ports:
+    - 127.0.0.1:8081:8080
+    labels:
+      traefik.enable: 'false'

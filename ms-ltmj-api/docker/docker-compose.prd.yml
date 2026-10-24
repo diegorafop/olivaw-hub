@@ -1,0 +1,17 @@
+name: ms-ltmj-api-prd
+services:
+  ms-ltmj-api:
+    container_name: ms-ltmj-api-prd
+    image: ms-ltmj-api:prd
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-ltmj-api-prd.rule: Host(`${PUBLIC_HOST:-api.ltmj.olivaw.com.br}`)
+      traefik.http.routers.ms-ltmj-api-prd.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-ltmj-api-prd.tls: 'true'
+      traefik.http.routers.ms-ltmj-api-prd.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-ltmj-api-prd.service: ms-ltmj-api-prd
+      traefik.http.services.ms-ltmj-api-prd.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-ltmj-api-prd.loadbalancer.server.scheme: http

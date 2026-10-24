@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 || ! $1 =~ ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ ]]; then
-    echo "Uso: $0 nome-do-servico [diretorio-de-saida]" >&2
+if [[ $# -lt 1 || $# -gt 3 || ! $1 =~ ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ ]]; then
+    echo "Uso: $0 nome-do-servico [diretorio-de-saida] [dono-do-banco]" >&2
+    exit 2
+fi
+
+database_owner=${3:-olivaw}
+if [[ ! $database_owner =~ ^[a-z][a-z0-9]*(_[a-z0-9]+)*$ ]]; then
+    echo "O dono do banco deve usar minusculas, numeros e sublinhados, por exemplo pastelaria_joao." >&2
     exit 2
 fi
 
@@ -18,11 +24,21 @@ if [[ -e $output_dir ]]; then
     exit 1
 fi
 
+monorepo_dir=$(cd -- "$repo_dir/.." && pwd)
+output_parent=$(cd -- "$(dirname -- "$output_dir")" && pwd)
+if [[ "$output_parent" != "$monorepo_dir" ]]; then
+    echo "Gere o serviço diretamente na raiz do monorepo para preservar os ProjectReference." >&2
+    exit 1
+fi
+
 dotnet new install "$repo_dir" --force
-dotnet new mps-microservice \
+dotnet new owh-microservice \
     --name "$service_name" \
     --serviceSlug "$service_slug" \
     --serviceToken "$service_token" \
+    --databaseOwnerInput "$database_owner" \
     --output "$output_dir"
+
+python3 "$script_dir/configure-generated-service.py" "$repo_dir" "$output_dir" "$service_slug" "$database_owner"
 
 echo "Microservice criado em: $output_dir"

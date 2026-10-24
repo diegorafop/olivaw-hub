@@ -1,0 +1,17 @@
+name: ms-olivaw-api-rls
+services:
+  ms-olivaw-api:
+    container_name: ms-olivaw-api-rls
+    image: ms-olivaw-api:rls
+    environment:
+      ASPNETCORE_ENVIRONMENT: Release
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-api-rls.rule: Host(`${PUBLIC_HOST:-api.olivaw-hub-rls.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-api-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-api-rls.tls: 'true'
+      traefik.http.routers.ms-olivaw-api-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-api-rls.service: ms-olivaw-api-rls
+      traefik.http.services.ms-olivaw-api-rls.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-api-rls.loadbalancer.server.scheme: http

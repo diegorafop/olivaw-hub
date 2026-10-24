@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.4.11513.90
@@ -11,11 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{7E
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Limpo.Api", "src\Mps.Limpo.Api\Mps.Limpo.Api.csproj", "{37B20C49-A02C-4A3A-906E-287E432DDEDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Limpo.Api", "src\Owh.Limpo.Api\Owh.Limpo.Api.csproj", "{37B20C49-A02C-4A3A-906E-287E432DDEDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Limpo", "src\Mps.Limpo\Mps.Limpo.csproj", "{EFD08747-D687-45ED-B6AD-63439507C6FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Limpo", "src\Owh.Limpo\Owh.Limpo.csproj", "{EFD08747-D687-45ED-B6AD-63439507C6FE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Limpo.Tests", "tests\Mps.Limpo.Tests\Mps.Limpo.Tests.csproj", "{1BB99E41-8A7F-4AD7-8CEA-EBDC42683A4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Limpo.Tests", "tests\Owh.Limpo.Tests\Owh.Limpo.Tests.csproj", "{1BB99E41-8A7F-4AD7-8CEA-EBDC42683A4E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{18FA643D-A533-49CA-9BB8-8BCB5BDDCA10}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,15 +30,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{18FA64
 		docker\docker-compose.yml = docker\docker-compose.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Limpo.Dados", "src\Mps.Limpo.Dados\Mps.Limpo.Dados.csproj", "{4E7BDB1B-CBA9-4FFE-A08D-335F9189CBE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Limpo.Dados", "src\Owh.Limpo.Dados\Owh.Limpo.Dados.csproj", "{4E7BDB1B-CBA9-4FFE-A08D-335F9189CBE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Limpo.Dados.PostgreSql", "src\Mps.Limpo.Dados.PostgreSql\Mps.Limpo.Dados.PostgreSql.csproj", "{30B9F873-186B-4B60-817B-C567C29E9D10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Limpo.Dados.PostgreSql", "src\Owh.Limpo.Dados.PostgreSql\Owh.Limpo.Dados.PostgreSql.csproj", "{30B9F873-186B-4B60-817B-C567C29E9D10}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Limpo.Dados.SqlServer", "src\Mps.Limpo.Dados.SqlServer\Mps.Limpo.Dados.SqlServer.csproj", "{3D477C0D-91C8-4FD6-A76E-C9DE15977C18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Limpo.Dados.SqlServer", "src\Owh.Limpo.Dados.SqlServer\Owh.Limpo.Dados.SqlServer.csproj", "{3D477C0D-91C8-4FD6-A76E-C9DE15977C18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mps.Limpo.Dados.Oracle", "src\Mps.Limpo.Dados.Oracle\Mps.Limpo.Dados.Oracle.csproj", "{7AE1C79C-ACBE-45AE-B3E6-CE17A3F42CC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owh.Limpo.Dados.Oracle", "src\Owh.Limpo.Dados.Oracle\Owh.Limpo.Dados.Oracle.csproj", "{7AE1C79C-ACBE-45AE-B3E6-CE17A3F42CC5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.Limpo.Client", "src\Mps.Limpo.Client\Mps.Limpo.Client.csproj", "{04F2E373-A2DE-4C13-8827-81E0A9A8BE2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Limpo.Client", "src\Owh.Limpo.Client\Owh.Limpo.Client.csproj", "{04F2E373-A2DE-4C13-8827-81E0A9A8BE2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

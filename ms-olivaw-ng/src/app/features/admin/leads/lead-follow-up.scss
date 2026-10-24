@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+section {
+  border-top: 1px solid #dce4df;
+  padding: 1.25rem 0;
+}
+h3,
+h4 {
+  margin: 0 0 1rem;
+}
+.current-status {
+  color: #245840;
+  font-weight: 700;
+}
+form {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+label {
+  font-weight: 600;
+}
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 0.7rem;
+  border: 1px solid #aabbb1;
+  border-radius: 0.4rem;
+  background: white;
+  color: #162c39;
+}
+textarea {
+  resize: vertical;
+}
+small {
+  color: #52645b;
+}
+button {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #245840;
+  border-radius: 0.4rem;
+  background: #245840;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #327eae;
+  outline-offset: 3px;
+}
+[role='alert'] {
+  color: #9a2828;
+}
+ol {
+  list-style: none;
+  padding: 0;
+}
+li {
+  border-left: 2px solid #c5d8cb;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.note {
+  white-space: pre-wrap;
+}
+.history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

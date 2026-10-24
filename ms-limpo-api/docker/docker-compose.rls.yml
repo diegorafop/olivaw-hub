@@ -1,19 +1,17 @@
+name: ms-limpo-api-rls
 services:
-    ms-limpo-api:
-        container_name: ms-limpo-api-rls
-        image: registry.mps.com.br/holos/ms-limpo-api:rls
-        build:
-            args:
-                - BUILD_CONFIG=Release
-                - SKIP_UNITARY_TESTS=false
-                - SKIP_EF_SCHEMA_SCRIPT=true
-                - HTTP_PORT=80
-                - HTTPS_PORT=443
-        environment:
-            - ASPNETCORE_ENVIRONMENT=Release
-        labels:
-            - traefik.http.routers.limpo-api-rls.rule=Host(`limpo-api.rls.holos.mps.com.br`)
-            - traefik.http.routers.limpo-api-rls.entrypoints=ms-holos-web-secure
-            - traefik.http.routers.limpo-api-rls.tls=true
-            - traefik.http.routers.limpo-api-rls.tls.certresolver=lets-encrypt
-            - traefik.docker.network=holos-net
+  ms-limpo-api:
+    container_name: ms-limpo-api-rls
+    image: ms-limpo-api:rls
+    environment:
+      ASPNETCORE_ENVIRONMENT: Release
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-limpo-api-rls.rule: Host(`${PUBLIC_HOST:-api.limpo-rls.olivaw.com.br}`)
+      traefik.http.routers.ms-limpo-api-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-limpo-api-rls.tls: 'true'
+      traefik.http.routers.ms-limpo-api-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-limpo-api-rls.service: ms-limpo-api-rls
+      traefik.http.services.ms-limpo-api-rls.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-limpo-api-rls.loadbalancer.server.scheme: http

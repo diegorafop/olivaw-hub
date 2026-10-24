@@ -1,0 +1,134 @@
+<main [id]="preview ? 'operation-content' : 'portal-content'" tabindex="-1">
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / PORTAL DO CLIENTE</p>
+      <h1>Meu negócio</h1>
+      <p>Seus sistemas, condições e conversas com a equipe.</p>
+    </div>
+    @if (preview) {
+      <a routerLink="/admin/portal-access">Voltar aos acessos do portal</a>
+    } @else {
+      <button type="button" (click)="signOut()">Sair</button>
+    }
+  </header>
+  @if (preview) {
+    <section class="surface" aria-label="Prévia interna">
+      <strong>Prévia interna — somente consulta</strong>
+      <p>
+        Esta tela mostra o conteúdo público da empresa selecionada. Não cria uma sessão de cliente
+        nem concede acesso a pessoas.
+      </p>
+    </section>
+  }
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  <section class="surface">
+    <label
+      >Empresa<select [formControl]="customer" (change)="load()">
+        <option value="">Selecione sua empresa</option>
+        @for (company of companies(); track company.externalId) {
+          <option [value]="company.externalId">{{ company.business }}</option>
+        }
+      </select></label
+    ><button type="button" [disabled]="loading() || !customer.value" (click)="load()">
+      Atualizar
+    </button>
+    @if (nextCompany() !== null) {
+      <button type="button" (click)="moreCompanies()">Outras empresas</button>
+    }
+    @if (companies().length === 0) {
+      <p>Nenhuma empresa disponível neste acesso. Solicite à equipe a revisão do vínculo.</p>
+    }
+  </section>
+  @if (loading()) {
+    <p role="status">Carregando informações autorizadas…</p>
+  }
+  @if (data(); as current) {
+    <h2>{{ current.business }}</h2>
+    <nav class="choices" aria-label="Seções do Meu negócio">
+      <button type="button" [attr.aria-pressed]="tab() === 'overview'" (click)="setTab('overview')">
+        Visão geral</button
+      ><button type="button" [attr.aria-pressed]="tab() === 'plan'" (click)="setTab('plan')">
+        Meu plano
+      </button>
+      <button type="button" [attr.aria-pressed]="tab() === 'requests'" (click)="setTab('requests')">
+        Solicitações
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="tab() === 'deliveries'"
+        (click)="setTab('deliveries')"
+      >
+        Entregas
+      </button>
+    </nav>
+    @if (tab() === 'overview') {
+      <div class="resource-grid">
+        @for (service of current.services; track service.externalId) {
+          <article class="resource-card">
+            <h3>{{ service.name }}</h3>
+            <p>{{ stateLabel(service.state) }}</p>
+            @if (service.observedAt) {
+              <p>Última verificação: {{ service.observedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+            }
+            @if (service.publicUrl) {
+              <a [href]="service.publicUrl" target="_blank" rel="noopener noreferrer"
+                >Abrir sistema <span class="sr-only">em nova aba</span></a
+              >
+            }
+          </article>
+        } @empty {
+          <section class="surface">
+            <h3>Seus sistemas aparecerão aqui</h3>
+            <p>A equipe ainda não publicou os serviços desta empresa para acompanhamento.</p>
+          </section>
+        }
+      </div>
+      <p class="help">
+        Uma verificação pontual não comprova todos os fluxos de negócio nem um percentual histórico
+        de disponibilidade.
+      </p>
+      @if (current.nextBeforeId; as cursor) {
+        <button type="button" (click)="load(cursor)">Outros sistemas</button>
+      }
+    }
+    @if (tab() === 'requests') {
+      <app-portal-requests
+        [customer]="current.customerExternalId"
+        [preview]="preview"
+        [canRequest]="current.canRequest"
+        [services]="current.services"
+      />
+    }
+    @if (tab() === 'deliveries') {
+      <app-portal-deliveries
+        [customer]="current.customerExternalId"
+        [preview]="preview"
+        [services]="current.services"
+      />
+    }
+    @if (tab() === 'plan') {
+      <section class="surface">
+        <h3>Condições combinadas</h3>
+        @if (current.currentPlan; as plan) {
+          <h4>{{ plan.name }}</h4>
+          <p>
+            {{ plan.monthlyPrice | currency: plan.currency }} por mês · vigente desde
+            {{ plan.startsAt | date: 'dd/MM/yyyy' }}
+          </p>
+          <p style="white-space: pre-line">{{ plan.conditions }}</p>
+          <p>
+            Armazenamento: {{ plan.storageLimitGiB ?? 'Não definido' }} GiB · memória:
+            {{ plan.memoryLimitGiB ?? 'Não definida' }} GiB
+          </p>
+        } @else {
+          <p>
+            Seu plano ainda está em definição. Estudos internos não representam condições
+            contratadas.
+          </p>
+        }
+      </section>
+    }
+  }
+</main>

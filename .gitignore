@@ -1,0 +1,46 @@
+# Regras comuns do monorepo; valem também para novos clientes.
+# A configuração compartilhada .vscode/settings.json permanece versionada.
+
+# Compilação .NET em qualquer projeto ou cliente
+[Bb]in/
+[Oo]bj/
+[Dd]ist/
+artifacts/
+BenchmarkDotNet.Artifacts/
+
+# Resultados de testes e cobertura
+[Tt]est[Rr]esults/
+results/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+coverage.cobertura.xml
+coverage.opencover.xml
+*.nupkg
+*.snupkg
+
+# Estado local das IDEs
+.vs/
+.idea/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Configuração de ambiente e certificados privados
+appsettings.*.local.json
+*.pfx
+*.p12
+
+# Logs e arquivos temporários
+logs/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Cache dos scripts Python
+__pycache__/
+*.py[cod]

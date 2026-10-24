@@ -1,0 +1,17 @@
+name: ms-olivaw-ng-dev
+services:
+  ms-olivaw-ng:
+    container_name: ms-olivaw-ng-dev
+    image: ${FRONTEND_IMAGE:-ms-olivaw-ng:dev}
+    environment:
+      API_URL: ${API_URL:-https://api.dev.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-ng-dev.rule: Host(`${PUBLIC_HOST:-dev.olivaw.com.br}`)
+      traefik.http.routers.ms-olivaw-ng-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-ng-dev.tls: 'true'
+      traefik.http.routers.ms-olivaw-ng-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-ng-dev.service: ms-olivaw-ng-dev
+      traefik.http.services.ms-olivaw-ng-dev.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-ng-dev.loadbalancer.server.scheme: http

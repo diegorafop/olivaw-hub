@@ -1,0 +1,127 @@
+<a class="skip-link" href="/admin#operation-content" (click)="focusContent($event)"
+  >Ir para o conteúdo</a
+>
+<div class="workspace" [class.is-collapsed]="collapsed()">
+  <aside id="operation-sidebar" class="sidebar" aria-label="Área da operação">
+    <a
+      class="brand"
+      [routerLink]="isRoot() ? '/admin' : '/admin/leads'"
+      aria-label="Olivaw Hub — Operação"
+    >
+      <img
+        src="assets/brand/reactions/olivaw-message-welcome-v3.webp"
+        width="44"
+        height="44"
+        alt=""
+      />
+      <span class="menu-label"
+        >olivaw<span class="brand-dot">.</span><small>HUB DE SISTEMAS</small></span
+      >
+    </a>
+    <div class="sidebar-section">
+      <p class="nav-label">ESPAÇO DE TRABALHO</p>
+      <nav aria-label="Navegação da operação">
+        @if (isRoot()) {
+          <a
+            routerLinkActive="nav-active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/admin"
+            ariaCurrentWhenActive="page"
+            aria-label="Visão geral"
+            title="Visão geral"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
+            </svg>
+            <span class="menu-label">Visão geral</span>
+            <span class="menu-label nav-arrow" aria-hidden="true">↗</span>
+          </a>
+        }
+        <a
+          routerLink="/admin/leads"
+          routerLinkActive="nav-active"
+          ariaCurrentWhenActive="page"
+          aria-label="Leads"
+          title="Leads"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3zM3 5l9 7 9-7" /></svg>
+          <span class="menu-label">Leads</span
+          ><span class="menu-label nav-arrow" aria-hidden="true">↗</span>
+        </a>
+        @if (isRoot()) {
+          <a
+            routerLink="/admin/configuration"
+            [class.nav-active]="isConfiguration()"
+            [attr.aria-current]="isConfiguration() ? 'page' : null"
+            aria-label="Configuração"
+            title="Configuração"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" /></svg
+            ><span class="menu-label">Configuração</span
+            ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
+          >
+        }
+      </nav>
+    </div>
+    <div class="sidebar-bottom">
+      <a
+        class="site-link"
+        href="/"
+        target="_blank"
+        rel="noopener"
+        aria-label="Abrir site Olivaw (nova aba)"
+        title="Abrir site Olivaw (nova aba)"
+      >
+        <span class="menu-label">Abrir site Olivaw</span> <span aria-hidden="true">↗</span
+        ><span class="sr-only"> (nova aba)</span>
+      </a>
+      <div class="operator" [attr.title]="operator() + ' — Operação Olivaw'">
+        <span class="user-avatar" aria-hidden="true">{{ initials() }}</span>
+        <div class="menu-label">
+          <strong>{{ operator() }}</strong
+          ><small>{{ isRoot() ? 'Administrador root' : 'Administrador Olivaw' }}</small>
+        </div>
+      </div>
+      <button
+        aria-label="Sair"
+        title="Sair"
+        class="logout"
+        type="button"
+        [disabled]="pending()"
+        (click)="signOut.emit()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 21H4V3h5M14 7l5 5-5 5M8 12h11" />
+        </svg>
+        <span class="menu-label">{{ pending() ? 'Saindo…' : 'Sair' }}</span>
+      </button>
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <div class="toolbar-context">
+        <button
+          class="menu-toggle"
+          type="button"
+          aria-controls="operation-sidebar"
+          [attr.aria-expanded]="!collapsed()"
+          [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Recolher menu'"
+          [attr.title]="collapsed() ? 'Expandir menu' : 'Recolher menu'"
+          (click)="collapsed.set(!collapsed())"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 4h16v16H4zM9 4v16" />
+            <path [attr.d]="collapsed() ? 'm13 9 3 3-3 3' : 'm16 9-3 3 3 3'" />
+          </svg>
+        </button>
+        <app-breadcrumb [items]="breadcrumbs()" />
+      </div>
+      <span class="internal-badge"
+        ><svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 10h12v11H6zM8 10V6a4 4 0 0 1 8 0v4M12 14v3" /></svg
+        >Área interna</span
+      >
+    </header>
+    <ng-content />
+  </div>
+</div>

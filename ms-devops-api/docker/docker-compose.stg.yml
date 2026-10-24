@@ -1,0 +1,17 @@
+name: ms-devops-api-stg
+services:
+  ms-devops-api:
+    container_name: ms-devops-api-stg
+    image: ms-devops-api:stg
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-devops-api-stg.rule: Host(`${PUBLIC_HOST:-api.devops-stg.olivaw.com.br}`)
+      traefik.http.routers.ms-devops-api-stg.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-devops-api-stg.tls: 'true'
+      traefik.http.routers.ms-devops-api-stg.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-devops-api-stg.service: ms-devops-api-stg
+      traefik.http.services.ms-devops-api-stg.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-devops-api-stg.loadbalancer.server.scheme: http

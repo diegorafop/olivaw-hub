@@ -1,0 +1,17 @@
+name: ms-ltmj-ng-rls
+services:
+  ms-ltmj-ng:
+    container_name: ms-ltmj-ng-rls
+    image: ${FRONTEND_IMAGE:-ms-ltmj-ng:rls}
+    environment:
+      API_URL: ${API_URL:-https://api.ltmj-rls.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-ltmj-ng-rls.rule: Host(`${PUBLIC_HOST:-ltmj-rls.olivaw.com.br}`)
+      traefik.http.routers.ms-ltmj-ng-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-ltmj-ng-rls.tls: 'true'
+      traefik.http.routers.ms-ltmj-ng-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-ltmj-ng-rls.service: ms-ltmj-ng-rls
+      traefik.http.services.ms-ltmj-ng-rls.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-ltmj-ng-rls.loadbalancer.server.scheme: http

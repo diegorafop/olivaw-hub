@@ -1,0 +1,17 @@
+name: ms-olivaw-api-dev
+services:
+  ms-olivaw-api:
+    container_name: ms-olivaw-api-dev
+    image: ms-olivaw-api:dev
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-api-dev.rule: Host(`${PUBLIC_HOST:-api.olivaw-hub-dev.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-api-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-api-dev.tls: 'true'
+      traefik.http.routers.ms-olivaw-api-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-api-dev.service: ms-olivaw-api-dev
+      traefik.http.services.ms-olivaw-api-dev.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-api-dev.loadbalancer.server.scheme: http

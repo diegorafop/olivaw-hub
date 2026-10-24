@@ -1,0 +1,17 @@
+name: ms-devops-api-dev
+services:
+  ms-devops-api:
+    container_name: ms-devops-api-dev
+    image: ms-devops-api:dev
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-devops-api-dev.rule: Host(`${PUBLIC_HOST:-api.devops-dev.olivaw.com.br}`)
+      traefik.http.routers.ms-devops-api-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-devops-api-dev.tls: 'true'
+      traefik.http.routers.ms-devops-api-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-devops-api-dev.service: ms-devops-api-dev
+      traefik.http.services.ms-devops-api-dev.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-devops-api-dev.loadbalancer.server.scheme: http

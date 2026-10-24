@@ -1,0 +1,17 @@
+name: ms-limpo-ng-qas
+services:
+  ms-limpo-ng:
+    container_name: ms-limpo-ng-qas
+    image: ${FRONTEND_IMAGE:-ms-limpo-ng:qas}
+    environment:
+      API_URL: ${API_URL:-https://api.limpo-qas.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-limpo-ng-qas.rule: Host(`${PUBLIC_HOST:-limpo-qas.olivaw.com.br}`)
+      traefik.http.routers.ms-limpo-ng-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-limpo-ng-qas.tls: 'true'
+      traefik.http.routers.ms-limpo-ng-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-limpo-ng-qas.service: ms-limpo-ng-qas
+      traefik.http.services.ms-limpo-ng-qas.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-limpo-ng-qas.loadbalancer.server.scheme: http

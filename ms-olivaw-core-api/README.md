@@ -1,12 +1,12 @@
-# Mps.OlivawCore
+# Owh.OlivawCore
 
 Bibliotecas base do ecossistema OlivawCore para compartilhar contratos, extensões e infraestrutura entre microservices. A distribuição é feita por pacotes NuGet, que incluem as DLLs e suas dependências declaradas, evitando copiar a mesma implementação para cada projeto.
 
-O repositório `ms-olivaw-core-api` produz três pacotes. `Mps.OlivawCore.Api` é uma biblioteca de apoio a aplicações ASP.NET Core; a aplicação que hospeda endpoints e regras de negócio fica no microservice consumidor.
+O repositório `ms-olivaw-core-api` produz três pacotes. `Owh.OlivawCore.Api` é uma biblioteca de apoio a aplicações ASP.NET Core; a aplicação que hospeda endpoints e regras de negócio fica no microservice consumidor.
 
 ## Compatibilidade da renomeação
 
-Os pacotes, assemblies e namespaces usam agora `Mps.OlivawCore`, `Mps.OlivawCore.Dados` e `Mps.OlivawCore.Api`. Os consumidores devem atualizar as referências NuGet, os `using` e os nomes de tipos afetados. A solução é `OlivawCore.sln` e o diretório do projeto é `ms-olivaw-core-api`.
+Os pacotes, assemblies e namespaces usam agora `Owh.OlivawCore`, `Owh.OlivawCore.Dados` e `Owh.OlivawCore.Api`. Os consumidores devem atualizar as referências NuGet, os `using` e os nomes de tipos afetados. A solução é `OlivawCore.sln` e o diretório do projeto é `ms-olivaw-core-api`.
 
 A renomeação também altera identificadores de configuração, prefixos de mensageria e nomes usados por reflexão que continham a marca anterior. Revise essas configurações e integrações nos consumidores antes de adotar os novos pacotes. Esta alteração não publica pacotes nem modifica os microservices consumidores.
 
@@ -14,18 +14,18 @@ A renomeação também altera identificadores de configuração, prefixos de men
 
 | Pacote | Target | Conteúdo principal |
 | --- | --- | --- |
-| `Mps.OlivawCore` | .NET Standard 2.1 | `Entity`, `BaseContract`, requests, `IRepository<T>`, `IServiceHttpClient`, `IProviderAuthentication` e interfaces de configuração. |
-| `Mps.OlivawCore.Dados` | .NET 10 | Convenções e helpers de Entity Framework Core, nomes de constraints, leitura de configuração de conexão e `EntityValidator<T>`. |
-| `Mps.OlivawCore.Api` | .NET 10 | Extensões ASP.NET Core, conversão de entidades/contratos, serialização, validação, clientes HTTP, autenticação e configuração de mensageria. |
+| `Owh.OlivawCore` | .NET Standard 2.1 | `Entity`, `BaseContract`, requests, `IRepository<T>`, `IServiceHttpClient`, `IProviderAuthentication` e interfaces de configuração. |
+| `Owh.OlivawCore.Dados` | .NET 10 | Convenções e helpers de Entity Framework Core, nomes de constraints, leitura de configuração de conexão e `EntityValidator<T>`. |
+| `Owh.OlivawCore.Api` | .NET 10 | Extensões ASP.NET Core, conversão de entidades/contratos, serialização, validação, clientes HTTP, autenticação e configuração de mensageria. |
 
 A versão declarada atualmente nos três projetos é `1.0.1`. Cada pacote mantém seus metadados e sua versão no respectivo `.csproj`.
 
 ### Dependências entre projetos
 
 ```text
-Mps.OlivawCore.Api   -> Mps.OlivawCore.Dados -> Mps.OlivawCore
-Mps.OlivawCore.Api   -> Mps.OlivawCore
-Mps.OlivawCore.Tests -> Mps.OlivawCore.Api
+Owh.OlivawCore.Api   -> Owh.OlivawCore.Dados -> Owh.OlivawCore
+Owh.OlivawCore.Api   -> Owh.OlivawCore
+Owh.OlivawCore.Tests -> Owh.OlivawCore.Api
 ```
 
 O núcleo usa C# 10 e não depende de ASP.NET Core ou EF Core. Os pacotes Dados e Api usam .NET 10. Os testes ficam em um projeto separado, com `IsPackable=false`.
@@ -47,11 +47,11 @@ Os helpers de dados reconhecem `PostgreSql`, `SqlServer` e `Oracle` para operaç
 
 ```text
 src/
-  Mps.OlivawCore/          # Contratos e abstrações compartilhadas
-  Mps.OlivawCore.Dados/    # Infraestrutura comum de dados
-  Mps.OlivawCore.Api/      # Utilitários para APIs e integrações
+  Owh.OlivawCore/          # Contratos e abstrações compartilhadas
+  Owh.OlivawCore.Dados/    # Infraestrutura comum de dados
+  Owh.OlivawCore.Api/      # Utilitários para APIs e integrações
 tests/
-  Mps.OlivawCore.Tests/    # Testes das bibliotecas
+  Owh.OlivawCore.Tests/    # Testes das bibliotecas
 Dockerfile               # Build, testes e empacotamento
 OlivawCore.sln             # Solução
 ```
@@ -87,9 +87,9 @@ Com a versão atual e os testes habilitados, a saída esperada é:
 ```text
 dist/
   packages/
-    Mps.OlivawCore.1.0.1.nupkg
-    Mps.OlivawCore.Dados.1.0.1.nupkg
-    Mps.OlivawCore.Api.1.0.1.nupkg
+    Owh.OlivawCore.1.0.1.nupkg
+    Owh.OlivawCore.Dados.1.0.1.nupkg
+    Owh.OlivawCore.Api.1.0.1.nupkg
   results/
     coverage.cobertura.xml
     xunit-result.xml
@@ -121,9 +121,9 @@ dotnet nuget push "./dist/packages/*.nupkg" --source Gitea
 Configure o feed NuGet do Gitea no ambiente do projeto consumidor, com acesso também às fontes das dependências externas. Depois, adicione os pacotes necessários ao `.csproj` correspondente. Exemplos usando a versão atual, após sua publicação:
 
 ```bash
-dotnet add caminho/MeuDominio.csproj package Mps.OlivawCore --version 1.0.1
-dotnet add caminho/MeusDados.csproj package Mps.OlivawCore.Dados --version 1.0.1
-dotnet add caminho/MinhaApi.csproj package Mps.OlivawCore.Api --version 1.0.1
+dotnet add caminho/MeuDominio.csproj package Owh.OlivawCore --version 1.0.1
+dotnet add caminho/MeusDados.csproj package Owh.OlivawCore.Dados --version 1.0.1
+dotnet add caminho/MinhaApi.csproj package Owh.OlivawCore.Api --version 1.0.1
 ```
 
 Os caminhos são exemplos e devem ser substituídos pelos projetos do microservice. Referencie diretamente o pacote usado por cada camada. O NuGet resolve as dependências transitivas; Dados e Api exigem um projeto consumidor compatível com .NET 10.
@@ -132,14 +132,47 @@ Para experimentar uma versão antes da publicação, adicione o caminho absoluto
 
 No microservice, implemente as regras de negócio e a persistência, registre os serviços necessários e invoque as extensões de configuração aplicáveis. Instalar o pacote disponibiliza os componentes; não configura automaticamente o host, a autenticação, o broker ou o banco.
 
+## Migrations dos microservices consumidores
+
+O nome segue a issue da branch: `feature/issue013-logo-whatsapp` corresponde a `Issue013`. Se o nome já existir, use um sufixo descritivo sem reescrever o histórico, como `Issue013LeadIndex`. Sem issue identificável, confirme o nome antes de gerar. Gere somente os provedores solicitados.
+
+O Core fornece convenções de persistência, mas não possui banco ou migrations próprios. Gere cada migration no projeto do provedor da API consumidora. Os comandos abaixo partem da raiz do monorepo e usam a `Issue013` do `ms-olivaw-api`, criada na branch `feature/issue013-logo-whatsapp`, como exemplo para PostgreSQL.
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --no-restore -m:1
+
+dotnet ef migrations add Issue013 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --no-build
+```
+
+O `--no-restore` pressupõe dependências restauradas; o `--no-build` usa a compilação anterior, que deve refletir os mappings atuais. O projeto possui uma factory de design time: esses comandos não iniciam o host HTTP, não executam bootstrap e não aplicam alterações no banco.
+
+Para revisar o SQL da migration sem conectar a um banco, após compilar novamente o provedor com a migration gerada:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --no-restore -m:1
+
+dotnet ef migrations script 20261018111944_InitialSchema Issue013 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --no-build \
+  --output /tmp/olivaw-issue013.sql
+```
+
+A `Issue013` cria a tabela `lead` e seu índice único de `externalid`. Revise o arquivo da migration, seu designer, o snapshot e o SQL antes da publicação. No `ms-olivaw-api`, as migrations pendentes são aplicadas automaticamente no startup após o redeploy; gerar os arquivos não atualiza o ambiente publicado. Este exemplo não gera migrations de SQL Server ou Oracle.
+
+Para outros serviços e entregas, ajuste os projetos, o contexto, a migration anterior e o nome da nova migration. Consulte as [instruções de persistência](../ms-olivaw-api/src/Owh.Olivaw.Dados/AGENTS.md) e o [README da API Olivaw](../ms-olivaw-api/README.md).
+
 ## Desenvolvimento e testes
 
 Para desenvolvimento local, instale o SDK .NET 10 e execute na raiz:
 
 ```bash
 dotnet restore OlivawCore.sln
-dotnet build OlivawCore.sln -c Release --no-restore
-dotnet test tests/Mps.OlivawCore.Tests/Mps.OlivawCore.Tests.csproj -c Release --no-build
+dotnet build OlivawCore.sln -c Release --no-restore -m:1
+dotnet test tests/Owh.OlivawCore.Tests/Owh.OlivawCore.Tests.csproj -c Release --no-build
 ```
 
 Para gerar os pacotes localmente após o build:
@@ -153,7 +186,7 @@ Os projetos têm `GeneratePackageOnBuild=false`; a geração de `.nupkg` é feit
 Para coletar cobertura local:
 
 ```bash
-dotnet test tests/Mps.OlivawCore.Tests/Mps.OlivawCore.Tests.csproj -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory ./dist/test-results
+dotnet test tests/Owh.OlivawCore.Tests/Owh.OlivawCore.Tests.csproj -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory ./dist/test-results
 ```
 
 Os testes usam xUnit v3 e Moq, com Coverlet para cobertura. A suíte cobre contratos, extensões, validação, serviços HTTP, configuração de DI e metadados EF Core. Os testes de mensageria montam a configuração sem iniciar conexões com brokers. O pacote `xunit.v3.mtp-off` mantém a execução via VSTest, compatível com o collector e o fluxo MSBuild do Docker.
@@ -164,8 +197,12 @@ Consulte os percentuais de **linhas** e **ramificações** separadamente no `cov
 
 ## Contribuição e versionamento
 
-- Siga o [AGENTS.md principal](AGENTS.md) e as regras de [Core](src/Mps.OlivawCore/AGENTS.md), [Dados](src/Mps.OlivawCore.Dados/AGENTS.md), [Api](src/Mps.OlivawCore.Api/AGENTS.md) e [Testes](tests/Mps.OlivawCore.Tests/AGENTS.md).
+- Siga o [AGENTS.md principal](AGENTS.md) e as regras de [Core](src/Owh.OlivawCore/AGENTS.md), [Dados](src/Owh.OlivawCore.Dados/AGENTS.md), [Api](src/Owh.OlivawCore.Api/AGENTS.md) e [Testes](tests/Owh.OlivawCore.Tests/AGENTS.md).
 - Preserve contratos públicos e avalie o impacto de alterações em todos os consumidores. Documente mudanças de configuração e compatibilidade.
 - Use versionamento semântico nos pacotes e mantenha coerência das versões de cada entrega.
 - Siga GitFlow: `master`, `develop`, `feature/MH-0001_descricao_branch`, `hotfix/MH-0002_descricao_branch`, releases e tags.
 - Não versione os pacotes e relatórios gerados em `dist`.
+
+## Atualização de dependências
+
+As dependências foram conferidas na atualização de 22/10/2026. MassTransit permanece em 8.5.x e MediatR em 12.5.x por decisão explícita do mantenedor, incluindo referências transitivas e serviços gerados. Ver [versões, limites e verificações do monorepo](../docs/dependencias.md). Não houve publicação de pacotes ou alteração de banco como parte desta atualização.

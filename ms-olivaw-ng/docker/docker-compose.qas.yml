@@ -1,0 +1,17 @@
+name: ms-olivaw-ng-qas
+services:
+  ms-olivaw-ng:
+    container_name: ms-olivaw-ng-qas
+    image: ${FRONTEND_IMAGE:-ms-olivaw-ng:qas}
+    environment:
+      API_URL: ${API_URL:-https://api.qas.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-ng-qas.rule: Host(`${PUBLIC_HOST:-qas.olivaw.com.br}`)
+      traefik.http.routers.ms-olivaw-ng-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-ng-qas.tls: 'true'
+      traefik.http.routers.ms-olivaw-ng-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-ng-qas.service: ms-olivaw-ng-qas
+      traefik.http.services.ms-olivaw-ng-qas.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-ng-qas.loadbalancer.server.scheme: http

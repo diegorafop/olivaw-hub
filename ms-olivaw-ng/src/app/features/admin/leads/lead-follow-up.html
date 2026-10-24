@@ -1,0 +1,64 @@
+<section aria-labelledby="follow-up-title">
+  <h3 id="follow-up-title">Acompanhamento</h3>
+  <p class="current-status">{{ statuses[lead().followUpStatus] || 'Novo contato' }}</p>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <label for="follow-up-status">Etapa</label>
+    <select id="follow-up-status" formControlName="status">
+      @for (option of options; track option[0]) {
+        <option [value]="option[0]">{{ option[1] }}</option>
+      }
+    </select>
+    <label for="follow-up-note">Nota interna</label>
+    <textarea
+      id="follow-up-note"
+      formControlName="note"
+      maxlength="3000"
+      rows="4"
+      placeholder="O que foi conversado? Qual é o próximo passo?"
+      aria-describedby="follow-up-help"
+    ></textarea>
+    <small id="follow-up-help"
+      >Visível somente à equipe. A nota fica no histórico com autor e data.</small
+    >
+    <button type="submit" [disabled]="!canSave()">
+      {{ pending() ? 'Salvando…' : 'Salvar acompanhamento' }}
+    </button>
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    @if (conflict()) {
+      <button type="button" (click)="reload.emit()">Recarregar ficha e descartar rascunho</button>
+    }
+  </form>
+  <h4>Histórico da equipe</h4>
+  @if (history().loading) {
+    <p role="status">Carregando histórico…</p>
+  } @else if (history().error) {
+    <p role="status">Não foi possível carregar o histórico.</p>
+    <button type="button" (click)="retryHistory()">Tentar novamente</button>
+  } @else if (history().data; as data) {
+    <ol>
+      @for (item of data.items; track item.externalId) {
+        <li>
+          <strong>{{ item.actorName }}</strong> · {{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+          @if (item.previousStatus !== item.status) {
+            <p>{{ statuses[item.previousStatus] }} → {{ statuses[item.status] }}</p>
+          }
+          @if (item.note) {
+            <p class="note">{{ item.note }}</p>
+          }
+        </li>
+      } @empty {
+        <li>Nenhuma alteração registrada.</li>
+      }
+    </ol>
+    <div class="history-actions">
+      @if (before() !== null) {
+        <button type="button" (click)="before.set(null)">Mais recentes</button>
+      }
+      @if (data.nextBeforeRevision !== null) {
+        <button type="button" (click)="before.set(data.nextBeforeRevision)">Ver anteriores</button>
+      }
+    </div>
+  }
+</section>

@@ -1,15 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/template",
-  "author": "MPS",
+  "author": "Olivaw",
   "classifications": [
     "Web",
     "API",
     "Microservice"
   ],
-  "identity": "Mps.Templates.Microservice",
-  "name": "MPS Microservice",
-  "shortName": "mps-microservice",
-  "description": "Cria um microservice ASP.NET Core a partir do template Mps.Limpo.",
+  "identity": "Owh.Templates.Microservice",
+  "name": "Olivaw Microservice",
+  "shortName": "owh-microservice",
+  "description": "Cria um microservice ASP.NET Core a partir do template Owh.Limpo.",
   "sourceName": "Limpo",
   "preferNameDirectory": false,
   "tags": {
@@ -32,6 +32,36 @@
       "description": "Nome em caixa alta com sublinhados, por exemplo PRECATORIO_CALCULO.",
       "replaces": "LIMPO",
       "fileRename": "LIMPO"
+    },
+    "databaseSchema": {
+      "type": "generated",
+      "generator": "regex",
+      "parameters": {
+        "source": "serviceSlug",
+        "steps": [
+          {
+            "regex": "-",
+            "replacement": "_"
+          },
+          {
+            "regex": "^",
+            "replacement": "ms_"
+          }
+        ]
+      },
+      "replaces": "ms_limpo"
+    },
+    "databaseOwner": {
+      "type": "derived",
+      "valueSource": "databaseOwnerInput",
+      "valueTransform": "databasePrefix",
+      "replaces": "Database=olivaw"
+    },
+    "databaseOwnerInput": {
+      "type": "parameter",
+      "dataType": "text",
+      "defaultValue": "olivaw",
+      "description": "Dono do banco em snake_case, por exemplo olivaw ou pastelaria."
     }
   },
   "sources": [
@@ -50,10 +80,23 @@
         "data/**",
         "**/TestResults/**",
         "**/results/**",
-        "docker/.env",
         "TEMPLATE.md",
-        "scripts/new-microservice.sh"
+        "scripts/new-microservice.sh",
+        "certificates/**",
+        "**/*.pfx",
+        "**/.env",
+        "**/.env.*",
+        "scripts/configure-generated-service.py"
       ]
+    },
+    {
+      "source": "./",
+      "target": "./",
+      "include": [
+        "docker/.env.example",
+        "docker/.env.*.example"
+      ],
+      "exclude": []
     }
   ],
   "guids": [
@@ -73,5 +116,12 @@
     {
       "path": "Limpo.sln"
     }
-  ]
+  ],
+  "forms": {
+    "databasePrefix": {
+      "identifier": "replace",
+      "pattern": "^",
+      "replacement": "Database="
+    }
+  }
 }

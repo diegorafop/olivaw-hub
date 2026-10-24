@@ -1,0 +1,25 @@
+# Override opcional: requer os arquivos existentes e provisionados na VM.
+services:
+  ms-devops-api:
+    environment:
+      Deployment__Host: host.docker.internal
+      Deployment__Port: '22'
+      Deployment__User: ec2-user
+      Deployment__KeyFile: /run/secrets/deployment_key
+      Deployment__KnownHostsFile: /run/secrets/deployment_known_hosts
+      Deployment__TimeoutSeconds: '30'
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    volumes:
+    - type: bind
+      source: /etc/olivaw/ssh/deployment_key
+      target: /run/secrets/deployment_key
+      read_only: true
+      bind:
+        create_host_path: false
+    - type: bind
+      source: /etc/olivaw/ssh/known_hosts
+      target: /run/secrets/deployment_known_hosts
+      read_only: true
+      bind:
+        create_host_path: false

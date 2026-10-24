@@ -1,0 +1,67 @@
+name: Template Angular
+on:
+  push:
+    paths:
+      - "ms-limpo-ng/**"
+      - "ms-olivaw-ng/**"
+      - "ms-ltmj-ng/**"
+      - ".github/workflows/frontend.yml"
+  pull_request:
+    paths:
+      - "ms-limpo-ng/**"
+      - "ms-olivaw-ng/**"
+      - "ms-ltmj-ng/**"
+      - ".github/workflows/frontend.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validar:
+    strategy:
+      matrix:
+        project: [ms-limpo-ng, ms-olivaw-ng, ms-ltmj-ng]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - if: matrix.project == 'ms-limpo-ng'
+        run: npm run test:schematics
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+      - name: Validar Compose dos cinco ambientes
+        run: |
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml config --quiet
+          for environment in dev qas rls stg prd; do
+            docker compose --env-file "docker/.env.$environment" -f docker/docker-compose.yml -f "docker/docker-compose.$environment.yml" config --quiet
+          done
+      - name: Construir imagem sem publicar
+        run: docker build -f docker/Dockerfile -t ms-limpo-ng:ci .
+      - name: Validar runtime Nginx
+        run: |
+          docker run -d --name frontend-ci -e API_URL=https://api.ci.example.com -p 8081:8080 ms-limpo-ng:ci
+          trap 'docker logs frontend-ci; docker rm -f frontend-ci' EXIT
+          for attempt in $(seq 1 20); do
+            if curl -fsS http://localhost:8081/health; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:8081/config.json | grep -q 'https://api.ci.example.com'
+          curl -fsS http://localhost:8081/ | grep -q '<app-root'
+          curl -fsS http://localhost:8081/admin | grep -q '<app-root'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/ausente.js)" = 404

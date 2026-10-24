@@ -1,0 +1,17 @@
+name: ms-devops-api-qas
+services:
+  ms-devops-api:
+    container_name: ms-devops-api-qas
+    image: ms-devops-api:qas
+    environment:
+      ASPNETCORE_ENVIRONMENT: Quality
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-devops-api-qas.rule: Host(`${PUBLIC_HOST:-api.devops-qas.olivaw.com.br}`)
+      traefik.http.routers.ms-devops-api-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-devops-api-qas.tls: 'true'
+      traefik.http.routers.ms-devops-api-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-devops-api-qas.service: ms-devops-api-qas
+      traefik.http.services.ms-devops-api-qas.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-devops-api-qas.loadbalancer.server.scheme: http
