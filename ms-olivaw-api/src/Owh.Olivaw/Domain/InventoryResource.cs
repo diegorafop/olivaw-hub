@@ -30,6 +30,13 @@ public sealed class InventoryResource : Entity
     public decimal? CpuCapacity { get; private set; }
     public decimal? MemoryCapacityGiB { get; private set; }
     public decimal? StorageCapacityGiB { get; private set; }
+    public string Technology { get; private set; } = string.Empty;
+    public string TechnologyVersion { get; private set; } = string.Empty;
+    public string LogicalName { get; private set; } = string.Empty;
+    public DateTime? RenewalAt { get; private set; }
+    public DateTime? CertificateExpiresAt { get; private set; }
+    public int? BackupIntervalHours { get; private set; }
+    public int? BackupRetentionDays { get; private set; }
     public ICollection<InventoryResourceChange> Changes { get; private set; } = new List<InventoryResourceChange>();
     private InventoryResource() { }
     public static string? IdentityKey(InventoryResourceData data)
@@ -78,6 +85,13 @@ public sealed class InventoryResource : Entity
         CpuCapacity = data.CpuCapacity;
         MemoryCapacityGiB = data.MemoryCapacityGiB;
         StorageCapacityGiB = data.StorageCapacityGiB;
+        Technology = data.Technology;
+        TechnologyVersion = data.TechnologyVersion;
+        LogicalName = data.LogicalName;
+        RenewalAt = data.RenewalAt;
+        CertificateExpiresAt = data.CertificateExpiresAt;
+        BackupIntervalHours = data.BackupIntervalHours;
+        BackupRetentionDays = data.BackupRetentionDays;
         ProviderIdentityKey = key; ActorUserId = actor; Revision++;
         if (Revision > 1) UpdatedAt = now;
         return InventoryResourceChange.Create(this, actor, actorName, now);

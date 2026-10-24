@@ -30,9 +30,9 @@ public sealed class UpdateManagedServiceHandler(IRepository<ManagedService> repo
         ValidationHelper.ThrowIfNull(request);
         var payload = request.Payload;
         var now = DateTime.UtcNow;
+        await inventory.TouchAsync(request.ActorUserId, now, cancellationToken);
         var service = await repository.GetFirstAsync(item => item.ExternalId == request.ExternalId && item.DeletedAt == null, cancellationToken);
         if (service.Revision != payload.Revision) return new() { Conflict = "Este serviço mudou. Reabra a ficha antes de salvar." };
-        await inventory.TouchAsync(request.ActorUserId, now, cancellationToken);
         var current = (await links.GetAsync(item => item.ManagedServiceId == service.Id && item.EndedAt == null && item.DeletedAt == null, cancellationToken)).ToArray();
         var selected = await ManagedServiceRules.ReadCustomersAsync(payload.CustomerExternalIds, customers, cancellationToken);
         var change = service.Apply(payload.Name, payload.Type, payload.Description, payload.Owner, payload.Scope, payload.Status, request.ActorUserId, request.ActorName, now);

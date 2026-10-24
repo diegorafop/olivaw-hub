@@ -22,12 +22,12 @@ public sealed class UpdateInventoryResourceHandler(IRepository<InventoryResource
         ValidationHelper.ThrowIfNull(request);
         var data = InventoryRules.ToDomain(request.Payload);
         var now = DateTime.UtcNow;
+        await inventory.TouchAsync(request.ActorUserId, now, cancellationToken);
         var resource = await InventoryRules.RequireAsync(repository, request.ExternalId, cancellationToken);
         if (resource.Revision != request.Payload.Revision) return new() { Conflict = "Este recurso mudou. Reabra a ficha." };
         var key = InventoryResource.IdentityKey(data);
         if (resource.ProviderIdentityKey != null && resource.ProviderIdentityKey != key) return new() { Conflict = "A identidade do provedor é imutável; cadastre um novo recurso para um novo ativo." };
         if (key != null && await repository.ExistsAsync(item => item.ProviderIdentityKey == key && item.Id != resource.Id, cancellationToken)) return new() { Conflict = "Este recurso do provedor já está cadastrado." };
-        await inventory.TouchAsync(request.ActorUserId, now, cancellationToken);
         if (data.Status == "retired")
         {
             if (await customers.ExistsAsync(item => item.InventoryResourceId == resource.Id && item.EndedAt == null && item.DeletedAt == null, cancellationToken)) return new() { Conflict = "Encerre os vínculos com clientes antes de desativar o recurso." };
@@ -47,6 +47,21 @@ public sealed class UpdateInventoryResourceValidator : AbstractValidator<UpdateI
 {
     public UpdateInventoryResourceValidator()
     {
+        RuleFor(item => item.Technology).NotNull().MaximumLength(80);
+        RuleFor(item => item.TechnologyVersion).NotNull().MaximumLength(40);
+        RuleFor(item => item.LogicalName).NotNull().MaximumLength(120);
+        RuleFor(item => item.Technology).Empty().When(item => !InventoryResourceData.SupportsTechnology(item.Type));
+        RuleFor(item => item.TechnologyVersion).Empty().When(item => !InventoryResourceData.SupportsTechnology(item.Type));
+        RuleFor(item => item.Technology).NotEmpty().When(item => !string.IsNullOrEmpty(item.TechnologyVersion));
+        RuleFor(item => item.LogicalName).Empty().When(item => !InventoryResourceData.SupportsLogicalName(item.Type));
+        RuleFor(item => item.RenewalAt).Null().When(item => item.Type != "domain");
+        RuleFor(item => item.CertificateExpiresAt).Null().When(item => item.Type != "certificate");
+        RuleFor(item => item.RenewalAt).Must(InventoryResourceData.IsCalendarDate);
+        RuleFor(item => item.CertificateExpiresAt).Must(InventoryResourceData.IsCalendarDate);
+        RuleFor(item => item.BackupIntervalHours).Null().When(item => item.Type != "backup");
+        RuleFor(item => item.BackupRetentionDays).Null().When(item => item.Type != "backup");
+        RuleFor(item => item.BackupIntervalHours).InclusiveBetween(1, 87600);
+        RuleFor(item => item.BackupRetentionDays).InclusiveBetween(1, 36500);
         RuleFor(item => item.Name).NotNull().MaximumLength(120);
         RuleFor(item => item.Type).NotNull().MaximumLength(30);
         RuleFor(item => item.Purpose).NotNull().MaximumLength(1000);

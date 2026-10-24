@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Owh.Olivaw.Api.Features.PortalFeature.Internals;
+using FluentValidation;
 using System.Threading.RateLimiting;
 using Olivaw.Identity.Api;
 using Olivaw.Identity.Api.Security;
@@ -31,6 +32,8 @@ public static class WebApplicationBuilderFacadeExtensions
                     QueueLimit = 0
                 }));
         });
+        builder.Services.AddHttpClient<Owh.Olivaw.Api.Services.PublicHealthProbe>(client => client.Timeout = TimeSpan.FromSeconds(5))
+            .ConfigurePrimaryHttpMessageHandler(Owh.Olivaw.Api.Services.PublicHealthProbe.CreateHandler);
         builder.Services.AddCorsDefaultPolicyCore();
         builder.AddControllerCore();
         builder.AddSwagger();
@@ -45,5 +48,6 @@ public static class WebApplicationBuilderFacadeExtensions
         builder.AddServiceLogEngine();
         builder.AddDatabase();
         builder.Services.AddOlivawIdentity<WriteDbContext>(builder.Configuration);
+        builder.Services.AddPortalAuthority(builder.Configuration);
     }
 }

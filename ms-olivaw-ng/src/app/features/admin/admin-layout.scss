@@ -92,7 +92,7 @@ svg {
   color: #627366;
   font-weight: 700;
 }
-nav a {
+.sidebar nav a {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -105,7 +105,7 @@ nav a {
   background: #e6f0e9;
   color: #255841;
 }
-nav .nav-arrow {
+.sidebar nav .nav-arrow {
   margin-left: auto;
 }
 .sidebar-bottom {
@@ -183,17 +183,6 @@ nav .nav-arrow {
   border-bottom: 1px solid #e5eae3;
   background: #fcfdfb99;
 }
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 12px;
-  color: #627366;
-}
-.breadcrumb strong {
-  color: #465e50;
-  font-weight: 500;
-}
 .internal-badge {
   display: inline-flex;
   align-items: center;
@@ -250,7 +239,7 @@ nav .nav-arrow {
     margin: 0;
     align-self: center;
   }
-  nav a {
+  .sidebar nav a {
     padding: 11px 14px;
   }
   .topbar {
@@ -267,6 +256,9 @@ nav .nav-arrow {
   display: flex;
   align-items: center;
   gap: 16px;
+
+  min-width: 0;
+  flex: 1;
 }
 .menu-toggle {
   display: grid;
@@ -289,7 +281,7 @@ nav .nav-arrow {
   .is-collapsed .nav-label {
     display: none;
   }
-  .is-collapsed :is(.brand, nav a, .operator, .logout, .site-link) {
+  .is-collapsed :is(.brand, .sidebar nav a, .operator, .logout, .site-link) {
     justify-content: center;
     padding-inline: 0;
   }
@@ -305,5 +297,14 @@ nav .nav-arrow {
 @media (prefers-reduced-motion: no-preference) {
   .workspace {
     transition: grid-template-columns 0.45s ease;
+  }
+}
+
+.topbar {
+  padding-block: 12px;
+}
+@media (max-width: 600px) {
+  .internal-badge {
+    display: none;
   }
 }

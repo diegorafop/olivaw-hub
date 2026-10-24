@@ -1,0 +1,133 @@
+<section aria-label="Solicitações do cliente">
+  <h3>Problemas, dúvidas e melhorias</h3>
+  <p>
+    Conte o que precisa com suas palavras. A equipe avalia escopo, capacidade, preço e prazo antes
+    de executar. Enviar um pedido não altera seu plano.
+  </p>
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  @if (canRequest() || preview()) {
+    <form [formGroup]="form" (ngSubmit)="send()" aria-label="Novo pedido do cliente" class="editor">
+      <section class="surface">
+        <div class="fields">
+          <label
+            >O que você precisa?<select formControlName="requestType">
+              @for (option of typeOptions; track option[0]) {
+                <option [value]="option[0]">{{ option[1] }}</option>
+              }
+            </select></label
+          ><label
+            >Sistema relacionado<select formControlName="serviceExternalId">
+              <option value="">Pedido geral da empresa</option>
+              @for (service of services(); track service.serviceExternalId) {
+                <option [value]="service.serviceExternalId">{{ service.name }}</option>
+              }
+            </select></label
+          ><label class="wide">Título<input formControlName="title" maxlength="120" /></label
+          ><label class="wide"
+            >Descreva seu pedido<textarea
+              formControlName="description"
+              maxlength="3000"
+              rows="4"
+            ></textarea>
+          </label>
+          @if (form.controls.requestType.value === 'storage') {
+            <label
+              >Armazenamento desejado (GB), se souber<input
+                type="number"
+                formControlName="desiredStorageGB"
+                min="0.001"
+                max="1000000000"
+                step="0.001"
+            /></label>
+          }
+          @if (form.controls.requestType.value === 'capacity') {
+            <label
+              >Memória desejada (MiB), se souber<input
+                type="number"
+                formControlName="desiredMemoryMiB"
+                min="0.001"
+                max="1000000000"
+                step="0.001"
+            /></label>
+          }
+          @if (form.controls.requestType.value === 'plan') {
+            <label
+              >Plano ou condição de interesse<input formControlName="desiredPlan" maxlength="120"
+            /></label>
+          }
+        </div>
+        <button type="submit" class="primary" [disabled]="sending() || preview()">
+          {{
+            preview() ? 'Envio desabilitado na prévia' : sending() ? 'Enviando…' : 'Enviar pedido'
+          }}
+        </button>
+      </section>
+    </form>
+  } @else {
+    <p>Seu acesso permite consultar. Solicite à equipe permissão para abrir pedidos.</p>
+  }
+  <section class="surface">
+    <h3>Acompanhar solicitações</h3>
+    @if (loading()) {
+      <p role="status">Carregando pedidos…</p>
+    }
+    @for (request of requests(); track request.externalId) {
+      <article>
+        <h4>{{ request.protocol }} · {{ request.title }}</h4>
+        <p>
+          {{ states[request.status] || request.status }} ·
+          {{ request.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+        </p>
+        <p>{{ request.publicSummary || 'A equipe atualizará o acompanhamento por aqui.' }}</p>
+        @if (request.serviceLabel) {
+          <p>Sistema: {{ request.serviceLabel }}</p>
+        }
+        <button type="button" [disabled]="sending()" (click)="open(request)">Abrir conversa</button>
+      </article>
+    } @empty {
+      <p>Nenhuma solicitação neste recorte.</p>
+    }
+    <button type="button" (click)="load()">Pedidos recentes</button>
+    @if (nextRequest(); as cursor) {
+      <button type="button" (click)="load(cursor)">Pedidos anteriores</button>
+    }
+  </section>
+  @if (selected(); as request) {
+    <section class="surface">
+      <h3>Conversa · {{ request.protocol }}</h3>
+      @for (message of messages(); track message.externalId) {
+        <article>
+          <strong>{{ message.author }}</strong>
+          <p>{{ message.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+          <p style="white-space: pre-line">{{ message.body }}</p>
+        </article>
+      } @empty {
+        <p>Nenhuma mensagem pública registrada.</p>
+      }
+      @if (nextMessage(); as cursor) {
+        <button type="button" (click)="loadMessages(cursor)">Mensagens anteriores</button>
+      }
+      @if (canRequest() || preview()) {
+        <form [formGroup]="reply" (ngSubmit)="sendReply()" aria-label="Responder atendimento">
+          <label
+            >Sua mensagem<textarea
+              formControlName="body"
+              maxlength="3000"
+              rows="3"
+            ></textarea></label
+          ><label
+            ><input type="checkbox" formControlName="reopen" /> O problema continua; quero pedir
+            reabertura</label
+          ><button type="submit" [disabled]="sending() || preview()">
+            {{ preview() ? 'Resposta desabilitada na prévia' : 'Enviar mensagem' }}
+          </button>
+        </form>
+      }
+    </section>
+  }
+</section>

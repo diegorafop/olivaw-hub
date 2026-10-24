@@ -202,7 +202,7 @@ Tipos: `frontend`, `api`, `worker`, `scheduled`, `other`. Situações: `planned`
 
 `managedservice`, `managedservicecustomer` e `managedservicechange` mantêm PK/FK internas, identidade pública, períodos e autoria. Responsável operacional é texto opcional; autor é obtido da sessão no servidor. Reativação cria novo período de vínculo e preserva os anteriores. Novo serviço e seus vínculos/auditoria são salvos juntos; atualizações usam revisão concorrente e índice único para impedir duplicatas. Respostas não são armazenadas em cache; logs dos endpoints omitem corpos e consultas.
 
-**Schema ainda não preparado para publicação:** nenhuma migration da issue 018 foi gerada. A base de ambientes/recursos pode entrar no mesmo recorte; gerar somente ao final uma migration autorizada para os provedores solicitados, sem reescrever as antigas. O startup aplica migrations pendentes, mas a criação do código não criou tabelas em banco. Não aplicar `database update` ou implantar como validação local.
+**Schema PostgreSQL coberto pela `Issue020`:** a correção descrita abaixo inclui serviços e a base já mapeada do inventário. O startup aplica a migration após publicar a API. Nenhum banco foi alterado durante a geração/revisão; não executar `database update` como validação local.
 
 Validação sem bancos reais:
 
@@ -212,4 +212,132 @@ dotnet build ms-olivaw-api/src/Owh.Olivaw.Api -c Release --no-restore -m:1
 dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client -c Release --no-build --no-restore --output /tmp/olivaw-issue018-pack
 ```
 
-Modelo e tradução de filtros foram verificados para PostgreSQL e SQL Server; Oracle não contemplado. Sem descoberta de nuvem, medições, dados reais de clientes, sementes ou execução de infraestrutura. Veja o [recorte entregue](../docs/features/done/04a-cadastro-de-servicos.md) e o [inventário restante](../docs/features/painel-olivaw/04-inventario-de-recursos.md).
+Modelo e tradução de filtros foram verificados para PostgreSQL e SQL Server; Oracle não contemplado. Sem descoberta de nuvem, medições, dados reais de clientes, sementes ou execução de infraestrutura. Veja o [recorte entregue](../docs/features/done/04a-cadastro-de-servicos.md) e o [inventário restante](../docs/features/discovery/painel-olivaw/04-inventario-de-recursos.md).
+
+
+## Correção de startup — Issue020
+
+O modelo de serviços e da base do inventário havia sido publicado sem migration correspondente. O EF Core interrompia o startup com `PendingModelChangesWarning`. A migration PostgreSQL `20261023010055_Issue020` sincroniza o snapshot e cria 11 tabelas novas, seus índices e FKs: serviços/histórico/clientes, recursos/histórico/revisão da topologia, implantações/histórico e os três vínculos temporais. O SQL de avanço não altera nem remove tabelas/dados existentes. Não foram modificadas migrations anteriores.
+
+O estágio final do Dockerfile instala `libgssapi-krb5-2`, que fornece `libgssapi_krb5.so.2`, necessária ao carregamento do suporte GSSAPI no Linux. O teste `PostgreSqlMigrationTest` usa a factory sem conexão e detecta divergências entre modelo e snapshot; também roda na etapa de testes do Dockerfile, antes de produzir a imagem final. A proteção `PendingModelChangesWarning` permanece habilitada.
+
+Comandos reproduzíveis na raiz (não repetir `migrations add` com os arquivos já presentes):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations add Issue020 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+dotnet ef migrations script Issue017 Issue020 \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build \
+  --output /tmp/olivaw-issue020.sql
+
+dotnet ef migrations has-pending-model-changes \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1
+```
+
+Validação local: o teste de regressão falhou antes da migration e passou depois; 162 testes da API passaram; build Release e `has-pending-model-changes` sem diferenças. Migration, designer, snapshot e SQL entre `Issue017` e `Issue020` revisados. Ferramenta EF 10.0.12 emitiu somente aviso de patch inferior ao runtime 10.0.13. SQL Server e Oracle não receberam migrations. O daemon Docker local não está acessível ao usuário e o sudo exige autenticação; build/execução da imagem não foram validados nesta correção.
+
+**Ao publicar uma nova imagem**, o startup aplicará automaticamente a `Issue020` antes de atender requisições. Reiniciar o container com a imagem antiga não inclui a correção. Nenhuma conexão a banco real, aplicação de SQL, publicação ou implantação foi feita nesta tarefa. A interface e os casos de uso da 04b foram concluídos posteriormente nesta branch, conforme a seção abaixo.
+
+
+## Inventário de recursos e ambientes — 04b
+
+Implementação e validação local concluídas. O [documento da 04b](../docs/features/done/04b-inventario-de-recursos.md) registra campos, regras, limites e evolução restante. Todas as rotas exigem `olivaw.root`, sem cache nem log de body:
+
+- `GET/POST /resources` e `GET/PUT /resources/{externalId}`.
+- `GET/POST /deployments` e `GET/PUT /deployments/{externalId}`.
+- `POST /resource-customers`, `POST /resource-dependencies` e `POST /deployment-resources`.
+- `PUT /resource-customers/{externalId}`, `PUT /resource-dependencies/{externalId}` e `PUT /deployment-resources/{externalId}` encerram períodos com `revision`, sem excluir histórico.
+- `GET /inventory-links` pagina vínculos por uma âncora `resourceExternalId` ou `deploymentExternalId`, `kind=customer/dependency/deployment` e `includeEnded`.
+
+Filtros de recursos: `page`, `pageSize`, `search`, `type`, `provider`, `status`, `environment`, `customerExternalId`, `shared`. Implantações: `page`, `pageSize`, `serviceExternalId`, `environment`. Filtros textuais opcionais de serviços/recursos/implantações aceitam ausência/vazio. Payloads planos ficam em `Owh.Olivaw.Client/Features/InventoryFeature`; autoria vem da identidade autenticada, fora do body público.
+
+Vínculos novos recebem `resourceExternalId`, `targetExternalId`, `purpose`; relações acrescentam `kind`, e usos podem declarar `reservedCpu`, `reservedMemoryGiB`, `reservedStorageGiB`. Alterar finalidade/reserva requer encerrar e criar novo período. PUT exige revisão positiva. Desativação, composição e encerramentos são protegidos por revisões; conflitos retornam HTTP 409. Encerrar serviço encerra implantações e usos na mesma transação, preservando recursos compartilhados.
+
+Consultas comuns usam o repositório genérico. `IRepositoryInventoryResource` acrescenta projeções/paginação e alcance deduplicado; `IRepositoryServiceDeployment` pagina implantações com serviço; `IRepositoryInventoryRevision` coordena a versão da topologia e encerramentos. A revisão é carregada antes das leituras que sustentam decisões; as alterações são salvas na mesma unidade de persistência EF.
+
+Comandos na raiz:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Api -c Release --no-restore -m:1
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1
+dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client -c Release --no-build --no-restore --output /tmp/olivaw-inventory-pack
+
+dotnet ef migrations has-pending-model-changes \
+  --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql \
+  --context WriteDbContext --configuration Release --no-build
+```
+
+Resultado: build Release sem warnings, 239 testes aprovados, pack local e modelo PostgreSQL sem diferenças. Autorização HTTP, domínio, CQS, conflitos, filtros vazios, snapshots, períodos e SQL/modelo PostgreSQL e SQL Server foram testados sem conexão. A conclusão **não alterou o schema nem gerou outra migration**: permanece somente a `Issue020`. Oracle não foi contemplado. Não houve conexão a banco real, publicação ou redeploy; os novos fluxos precisam ser publicados e conferidos no ambiente.
+
+## Detalhes de recursos — 04c
+
+O inventário recebeu tecnologia/versão, identificação lógica e campos específicos de renovação de domínio, validade de certificado e intervalo/retenção de backup. Os dados são declarados, opcionais e preservados no histórico; a API valida a compatibilidade com o tipo de recurso. Datas são informadas em UTC à meia-noite.
+
+**Registro anterior à geração de 24/10/2026:** o bloqueio abaixo foi resolvido pela `Issue020Panel`, descrita no fechamento do pacote ao final. Os mappings de `inventoryresource` e `inventoryresourcechange` incluem novas colunas, mas nenhuma migration foi gerada ou aplicada. O teste de correspondência do modelo PostgreSQL permanece como bloqueio; o startup rejeita modelo pendente. A geração depende de pedido explícito e deve preservar a `Issue020` publicada.
+
+Comandos reproduzíveis de build, testes e verificações de interface, resultados e limites dos provedores estão na [feature 04c](../docs/features/done/04c-detalhes-de-recursos.md). PostgreSQL e SQL Server são verificados pelo modelo em memória, sem acessar bancos reais; migrations de ambos permanecem fora desta entrega.
+
+## Operação interna — 05 a 10
+
+Novos contratos internos para saúde pontual, incidentes, consumo informado, estudos de planos, evidências de cuidados e atendimento. Todos os endpoints exigem `olivaw.root`, preservam auditoria e restringem HTTP logging a método/caminho/status. Preços e ofertas não são presumidos; estudos de planos não alteram contratos.
+
+**Registro anterior à geração de 24/10/2026:** migrations PostgreSQL concluídas no fechamento abaixo. Novas tabelas: `healthreading`, `usagereading`, `careevidence`, `incident`, `incidentchange`, `supportrequest`, `supportrequestchange`, `costreference`, `planstudy`, `planstudycost` e `customerplan`, além das colunas documentadas da 04c. O teste de correspondência PostgreSQL permanece ativo e falha até gerar migration mediante solicitação explícita. Nenhum provedor recebeu migration neste lote.
+
+A coleta HTTP pontual utiliza `Monitoring:AllowedUrls`, uma lista de URLs HTTPS exatas previamente autorizadas, e a referência técnica do recurso. Sem configuração, permanece bloqueada. Não habilite alvos apenas para testar: as verificações locais usam transporte simulado. Não há scheduler ativo nem leitura AWS/DevOps.
+
+Escopos, limites, comandos reproduzíveis e resultados no [guia da operação interna](../docs/operacao-interna.md).
+
+
+## Pacote do painel e portal — Issue020Panel
+
+Em 24/10/2026, mediante autorização do mantenedor, foram geradas no provedor PostgreSQL:
+
+- `20261024142713_Issue020Panel`: 14 colunas adicionais no inventário/histórico e 18 tabelas novas de saúde, consumo, incidentes, custos/estudos, condições por cliente, cuidados, atendimento, acesso do portal e entregas, com seus índices e FKs.
+- `20261024142722_Issue020PortalIdentity`: cinco tabelas prefixadas `portal` da identidade compartilhada, no contexto independente `PortalIdentityDbContext`, sem usuários ou root pré-cadastrados. Histórico próprio `portalidentitymigrations`.
+
+A `Issue020` existente e todas as migrations publicadas foram preservadas. Migration, designer, snapshots e SQL entre `Issue020` e `Issue020Panel`, e de zero até `Issue020PortalIdentity`, foram revisados: avanço somente aditivo, sem `DROP`, renomeação, alteração de tipo ou remoção de registros existentes. Campos textuais novos do inventário têm default vazio e datas/números opcionais permanecem nulos. Nenhum SQL foi aplicado nem banco real acessado.
+
+### Comandos reproduzíveis
+
+Executar a partir da raiz. Os arquivos já existem: **não repetir `migrations add`**. As factories usam conexões fictícias e não iniciam o host.
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+
+# Geração realizada nesta entrega:
+dotnet ef migrations add Issue020Panel --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations add Issue020PortalIdentity --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context PortalIdentityDbContext --output-dir Migrations/PortalIdentity --configuration Release --no-build
+
+# Após gerar, recompilar antes de validar/scriptar:
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+dotnet ef migrations script Issue020 Issue020Panel --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue020-panel.sql
+dotnet ef migrations script 0 Issue020PortalIdentity --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context PortalIdentityDbContext --configuration Release --no-build --output /tmp/olivaw-issue020-portal.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context PortalIdentityDbContext --configuration Release --no-build
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Api -c Release --no-restore -m:1
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-restore -m:1
+```
+
+Validação local: build Release sem erros ou avisos; 359 testes da API passaram; ambos os contextos sem diferenças de modelo. Frontend: build e lint concluídos, 33 testes unitários e 31 E2E do pacote aprovados (29 administrativos e dois do portal). O build Angular mantém avisos preexistentes de orçamento de estilos. EF Tools 10.0.12 emite aviso de patch anterior ao runtime 10.0.13; dependências não foram atualizadas. SQL Server tem modelo/consultas verificados sem conexão, mas **não recebeu migrations**; Oracle não foi contemplado.
+
+### Publicação da base
+
+A base PostgreSQL está pronta para gerar/publicar uma nova imagem a partir deste checkout validado. **O startup aplicará `Issue020Panel` e `Issue020PortalIdentity` automaticamente antes de atender requisições**, sem `database update` manual. A criação de tabelas de identidade do portal ocorre mesmo com login externo desabilitado. Reiniciar uma imagem antiga não inclui o pacote. Execução real do SQL, imagem Docker e smoke test do ambiente ainda não foram verificados nesta entrega. Não houve finish, push ou implantação.
+
+Para habilitar login do cliente, configure `PortalIdentity:Issuer`, `PortalIdentity:Audience`, `PortalIdentity:SigningKey` (segredo próprio com ao menos 32 bytes) e `PortalIdentity:TokenMinutes` (1 a 120). Emissor, audiência e chave devem diferir da administração interna. O portal usa `ConnectionStrings:PortalIdentity` quando informado, ou `ConnectionStrings:DbContext`; o schema deve estar disponível para os dois contextos. Sem configuração válida de identidade, o login retorna 503; os módulos administrativos continuam disponíveis. Convites são entregues manualmente pela operação; não há envio automático de e-mail.
+
+O pacote não inicia outro serviço permanente, agendador ou coletor na VM. Sem `Monitoring:AllowedUrls`, a verificação HTTP permanece bloqueada. Financeiro, IA, automações e aceite comercial formal continuam no planejamento; veja o [índice das entregas](../docs/features/index.md) e o [guia de operação](../docs/operacao-interna.md). Consulte também os [comandos de migrations do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).

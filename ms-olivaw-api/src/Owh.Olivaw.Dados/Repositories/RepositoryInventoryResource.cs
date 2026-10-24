@@ -42,6 +42,51 @@ public sealed class RepositoryInventoryResource(WriteDbContext context) : Reposi
         }
         return graph;
     }
+    public async Task<InventoryLinkPage> ReadLinksAsync(InventoryLinkFilter filter, CancellationToken token)
+    {
+        var query = ReadLinkRows(filter);
+        return new() { Total = await query.LongCountAsync(token), Items = await query.OrderByDescending(item => item.StartedAt).ThenBy(item => item.ExternalId).Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync(token) };
+    }
+    public IQueryable<InventoryLinkReadItem> ReadLinkRows(InventoryLinkFilter filter)
+    {
+        if (filter.Kind == "customer")
+        {
+            var rows = _context.Set<ResourceCustomer>().AsNoTracking().Where(item => item.DeletedAt == null);
+            if (!filter.IncludeEnded) rows = rows.Where(item => item.EndedAt == null);
+            if (filter.ResourceExternalId.HasValue) rows = rows.Where(item => item.InventoryResource.ExternalId == filter.ResourceExternalId.Value);
+            return rows.Select(item => new InventoryLinkReadItem
+            {
+                ExternalId = item.ExternalId, ResourceExternalId = item.InventoryResource.ExternalId, ResourceName = item.InventoryResource.Name, TargetExternalId = item.Customer.ExternalId, TargetName = item.Customer.Business,
+                Purpose = item.Purpose, Revision = item.Revision, StartedAt = item.StartedAt, EndedAt = item.EndedAt, StartedByName = item.StartedByName, EndedByName = item.EndedByName,
+            });
+        }
+        if (filter.Kind == "dependency")
+        {
+            var rows = _context.Set<ResourceDependency>().AsNoTracking().Where(item => item.DeletedAt == null);
+            if (!filter.IncludeEnded) rows = rows.Where(item => item.EndedAt == null);
+            if (filter.ResourceExternalId.HasValue) rows = rows.Where(item => item.SourceResource.ExternalId == filter.ResourceExternalId.Value || item.TargetResource.ExternalId == filter.ResourceExternalId.Value);
+            return rows.Select(item => new InventoryLinkReadItem
+            {
+                ExternalId = item.ExternalId, ResourceExternalId = item.SourceResource.ExternalId, ResourceName = item.SourceResource.Name, TargetExternalId = item.TargetResource.ExternalId, TargetName = item.TargetResource.Name,
+                Purpose = item.Purpose, Revision = item.Revision, StartedAt = item.StartedAt, EndedAt = item.EndedAt, StartedByName = item.StartedByName, EndedByName = item.EndedByName,
+                RelationshipKind = item.Kind,
+            });
+        }
+        if (filter.Kind == "deployment")
+        {
+            var rows = _context.Set<DeploymentResource>().AsNoTracking().Where(item => item.DeletedAt == null);
+            if (!filter.IncludeEnded) rows = rows.Where(item => item.EndedAt == null);
+            if (filter.ResourceExternalId.HasValue) rows = rows.Where(item => item.InventoryResource.ExternalId == filter.ResourceExternalId.Value);
+            if (filter.DeploymentExternalId.HasValue) rows = rows.Where(item => item.ServiceDeployment.ExternalId == filter.DeploymentExternalId.Value);
+            return rows.Select(item => new InventoryLinkReadItem
+            {
+                ExternalId = item.ExternalId, ResourceExternalId = item.InventoryResource.ExternalId, ResourceName = item.InventoryResource.Name, TargetExternalId = item.ServiceDeployment.ExternalId, TargetName = item.ServiceDeployment.Name,
+                Purpose = item.Purpose, Revision = item.Revision, StartedAt = item.StartedAt, EndedAt = item.EndedAt, StartedByName = item.StartedByName, EndedByName = item.EndedByName,
+                Environment = item.ServiceDeployment.Environment, ReservedCpu = item.ReservedCpu, ReservedMemoryGiB = item.ReservedMemoryGiB, ReservedStorageGiB = item.ReservedStorageGiB,
+            });
+        }
+        throw new ArgumentException("Tipo de vínculo inválido.", nameof(filter));
+    }
     public IQueryable<InventoryResource> ReadRows(InventoryResourceFilter filter)
     {
         var query = _context.Set<InventoryResource>().AsNoTracking().Where(item => item.DeletedAt == null);
@@ -127,6 +172,9 @@ public sealed class RepositoryInventoryResource(WriteDbContext context) : Reposi
             if (!nodes.TryGetValue(edge.SourceId, out var source)) continue;
             result.Origins.Add(new() { Kind = "dependency", FromResourceExternalId = source.ExternalId, FromResourceName = source.Name, RelationshipKind = edge.Kind, Purpose = edge.Purpose });
         }
+        result.Origins = result.Origins.GroupBy(item => new { item.Kind, item.FromResourceExternalId, item.DeploymentExternalId, item.RelationshipKind, item.Purpose }).Select(group => group.First()).ToList();
+        result.OriginCount = result.Origins.Count;
+        result.Origins = result.Origins.Take(100).ToList();
         return result;
     }
 }

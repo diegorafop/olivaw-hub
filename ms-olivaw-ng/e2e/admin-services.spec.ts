@@ -24,6 +24,10 @@ async function setup(page: Page, conflict = false) {
     const url = new URL(route.request().url());
     const path = url.pathname;
     const method = route.request().method();
+    if (path === '/resources')
+      return route.fulfill({ json: { page: 1, pageSize: 20, total: 0, items: [] } });
+    if (path === '/deployments')
+      return route.fulfill({ json: { page: 1, pageSize: 20, total: 0, items: [] } });
     if (path.endsWith('/login'))
       return route.fulfill({
         json: { accessToken: 'test', expiresAt: new Date(Date.now() + 300000).toISOString() },
@@ -137,7 +141,11 @@ for (const mobile of [false, true]) {
   }, testInfo) => {
     await page.setViewportSize({ width: mobile ? 390 : 1440, height: 1000 });
     const writes = await setup(page);
-    await page.getByRole('link', { name: 'Serviços', exact: true }).click();
+    await page.getByRole('link', { name: 'Configuração', exact: true }).click();
+    await page
+      .getByRole('navigation', { name: 'Cadastros e ferramentas' })
+      .getByRole('link', { name: 'Serviços', exact: true })
+      .click();
     await expect(page.getByText('Nenhum serviço neste recorte.')).toBeVisible();
     await page.getByRole('link', { name: 'Cadastrar serviço', exact: true }).click();
     await page.getByLabel('Nome de apresentação').fill('Aplicação compartilhada');

@@ -186,4 +186,10 @@
   @if (id && !loading() && !data()) {
     <button type="button" (click)="load()">Tentar novamente</button>
   }
+  @if (data(); as current) {
+    <app-service-deployments
+      [service]="current.externalId"
+      [closed]="current.status === 'closed'"
+    />
+  }
 </main>

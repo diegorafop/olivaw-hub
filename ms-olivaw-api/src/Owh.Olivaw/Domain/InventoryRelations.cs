@@ -56,18 +56,29 @@ public sealed class InventoryReachability
         var result = new InventoryReachability();
         var adjacency = edges.ToLookup(item => item.SourceId, item => item.TargetId);
         var queue = new Queue<(int Resource, int Customer, string Environment)>();
-        foreach (var root in origins) queue.Enqueue((root.ResourceId, root.CustomerId, root.Environment));
         var seen = new HashSet<(int, int, string)>();
+        bool Enqueue(int resource, int customer, string environment)
+        {
+            if (!seen.Add((resource, customer, environment))) return true;
+            if (seen.Count > maxPairs) { result.LimitExceeded = true; return false; }
+            queue.Enqueue((resource, customer, environment));
+            return true;
+        }
+        foreach (var root in origins)
+        {
+            if (!Enqueue(root.ResourceId, root.CustomerId, root.Environment)) return result;
+        }
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
-            if (!seen.Add(current)) continue;
-            if (seen.Count > maxPairs) { result.LimitExceeded = true; return result; }
             if (!result.Customers.ContainsKey(current.Resource)) result.Customers[current.Resource] = new();
             if (current.Customer > 0) result.Customers[current.Resource].Add(current.Customer);
             if (!result.Environments.ContainsKey(current.Resource)) result.Environments[current.Resource] = new();
             if (current.Environment.Length > 0) result.Environments[current.Resource].Add(current.Environment);
-            foreach (var next in adjacency[current.Resource]) queue.Enqueue((next, current.Customer, current.Environment));
+            foreach (var next in adjacency[current.Resource])
+            {
+                if (!Enqueue(next, current.Customer, current.Environment)) return result;
+            }
         }
         return result;
     }

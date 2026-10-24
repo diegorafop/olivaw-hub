@@ -86,7 +86,7 @@ A [LTMJ Eventos](https://ltmj.olivaw.com.br/) pode ser mostrada como referência
 
 > Podemos separar em duas frentes: apresentar a Cavalcanti para quem está procurando uma máquina e organizar a operação de vocês. Não precisa construir tudo de uma vez. Primeiro definimos o que resolve a prioridade; depois apresentamos criação, operação e evolução com escopo e custos claros. Mudanças maiores são combinadas antes de executar.
 
-Planos e capacidades ainda dependem dos [cálculos comerciais](../features/custos-e-planos.md). Não prometer economia, aumento de locações ou manutenção ilimitada sem base e sem condições definidas.
+Planos e capacidades ainda dependem dos [cálculos comerciais](../features/discovery/custos-e-planos.md). Não prometer economia, aumento de locações ou manutenção ilimitada sem base e sem condições definidas.
 
 ### 8. Fechar o próximo passo
 

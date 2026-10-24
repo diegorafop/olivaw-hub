@@ -27,6 +27,13 @@ public sealed class InventoryResourceChange : Entity
     public decimal? CpuCapacity { get; private set; }
     public decimal? MemoryCapacityGiB { get; private set; }
     public decimal? StorageCapacityGiB { get; private set; }
+    public string Technology { get; private set; } = string.Empty;
+    public string TechnologyVersion { get; private set; } = string.Empty;
+    public string LogicalName { get; private set; } = string.Empty;
+    public DateTime? RenewalAt { get; private set; }
+    public DateTime? CertificateExpiresAt { get; private set; }
+    public int? BackupIntervalHours { get; private set; }
+    public int? BackupRetentionDays { get; private set; }
     private InventoryResourceChange() { }
     internal static InventoryResourceChange Create(InventoryResource resource, Guid actor, string actorName, DateTime now) => new()
     {
@@ -50,5 +57,12 @@ public sealed class InventoryResourceChange : Entity
         CpuCapacity = resource.CpuCapacity,
         MemoryCapacityGiB = resource.MemoryCapacityGiB,
         StorageCapacityGiB = resource.StorageCapacityGiB,
+        Technology = resource.Technology,
+        TechnologyVersion = resource.TechnologyVersion,
+        LogicalName = resource.LogicalName,
+        RenewalAt = resource.RenewalAt,
+        CertificateExpiresAt = resource.CertificateExpiresAt,
+        BackupIntervalHours = resource.BackupIntervalHours,
+        BackupRetentionDays = resource.BackupRetentionDays,
     };
 }

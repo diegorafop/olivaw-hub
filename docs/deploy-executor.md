@@ -206,3 +206,38 @@ docker ps -a --format '{{.Names}} {{.Status}}'
 Cache acumulado de build pode ocupar o disco mesmo com poucos containers ativos. Após aprovação operacional, uma opção de limpeza limitada a cache não utilizado há mais de 24 horas é `docker builder prune --all --force --filter until=24h`. Não executar limpezas concorrentes; não remover volumes, dados ou diretórios de bancos para liberar espaço. O build seguinte pode demorar mais por perder cache. Conferir o espaço novamente e só então repetir a implantação da mesma branch publicada.
 
 Em 21/10/2026, a VM atingiu 100% de uso, com cerca de 29 GB de cache de build reportado pelo Docker. Após as limpezas autorizadas, voltou a aproximadamente 25% de uso. A publicação da API Olivaw concluiu no job `88931a2b-e0b6-49e6-84b4-2a1c91de40d8`; `GET /leads` autenticado foi confirmado com HTTP 200, sem divulgar dados dos registros. Monitoramento e alertas de capacidade continuam no planejamento das features 05–07.
+
+
+## Recuperar a API Olivaw quando o login retorna 502
+
+O cliente `deploy.sh` precisa autenticar na API Olivaw. Se essa API estiver indisponível, tanto o deploy dela quanto o dos frontends falham antes de criar um job. Reiniciar a mesma imagem não inclui correções pendentes de código/migration.
+
+Em uma sessão administrativa já autenticada por SSH na EC2, com a branch de correção publicada no GitHub, prefira acionar o executor instalado. Ele conserva a fila e o lock, sem depender de JWT:
+
+```bash
+SSH_ORIGINAL_COMMAND=olivaw-deploy /usr/bin/python3 /opt/olivaw/deploy.py <<'JSON'
+{"action":"submit","folder":"olivaw/ms-olivaw-api","branch":"feature/issue020-inventario-recursos","environment":"prd"}
+JSON
+```
+
+Consulte o ID devolvido, sem reenviar o deploy:
+
+```bash
+SSH_ORIGINAL_COMMAND=olivaw-deploy /usr/bin/python3 /opt/olivaw/deploy.py <<'JSON'
+{"action":"status","id":"ID_DO_JOB"}
+JSON
+```
+
+Como alternativa manual na VM, quando não houver outro deploy em andamento, atualize o checkout para a branch publicada e rode em `/home/ec2-user/olivaw/ms-olivaw-api`:
+
+```bash
+docker compose --project-name ms-olivaw-api-prd \
+  --env-file docker/.env.prd \
+  -f docker/docker-compose.yml \
+  -f docker/docker-compose.prd.yml \
+  up -d --build ms-olivaw-api
+
+docker logs --tail 100 -f ms-olivaw-api-prd
+```
+
+Esses são comandos operacionais, não etapas de validação local. O startup da imagem atualizada aplica migrations pendentes; na recuperação da issue 020, a `Issue020` cobre o modelo de serviços/inventário. Não suprimir a proteção de modelo pendente. Depois que a API voltar, o cliente HTTP de deploy pode ser usado novamente.

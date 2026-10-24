@@ -1,0 +1,249 @@
+<main id="operation-content" tabindex="-1">
+  <a routerLink="/admin/configuration">Voltar à configuração</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / PLANOS</p>
+      <h1>Estudo dos planos</h1>
+      <p>
+        Compare limites e funcionalidades antes de definir Bronze, Prata, Ouro ou Diamante. Os
+        estudos não são ofertas aprovadas nem alteram contratos.
+      </p>
+    </div>
+  </header>
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  <section class="surface">
+    <h2>Base de custos mensais</h2>
+    <p>
+      Cadastre a origem uma vez por versão, por exemplo VM, disco ou backup. Preço desconhecido fica
+      vazio. Use BRL e valor mensal equivalente; converta custos anuais antes de informar e registre
+      a referência na fonte.
+    </p>
+    <form [formGroup]="costForm" (ngSubmit)="saveCost()" aria-label="Base de custos">
+      <div class="fields">
+        <label>Nome da origem *<input formControlName="name" maxlength="120" /></label
+        ><label
+          >Custo mensal (R$)<input
+            formControlName="monthlyCost"
+            type="number"
+            min="0"
+            max="1000000000"
+            step="0.01" /></label
+        ><label
+          >Fonte / referência da versão *<input formControlName="source" maxlength="300"
+        /></label>
+      </div>
+      <button type="submit" [disabled]="pending()">Registrar versão do custo</button>
+    </form>
+    <p>Atualizar preço cria uma versão. Selecione uma única versão por origem para cada estudo.</p>
+    @for (cost of costs(); track cost.externalId) {
+      <div class="fields">
+        <label
+          ><input
+            type="checkbox"
+            [disabled]="pending()"
+            [checked]="selected()[cost.externalId] !== undefined"
+            (change)="selectCost(cost, $any($event.target).checked)"
+          />{{ cost.name }} ·
+          {{ cost.monthlyCost === null ? 'Preço pendente' : (cost.monthlyCost | currency: 'BRL') }}
+          · {{ cost.effectiveAt | date: 'dd/MM/yyyy HH:mm' }}</label
+        >
+        @if (selected()[cost.externalId] !== undefined) {
+          <label
+            >Parcela desta origem no plano (%)<input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              [value]="selected()[cost.externalId]"
+              [disabled]="pending()"
+              (input)="allocation(cost.externalId, $any($event.target).value)"
+          /></label>
+        }
+        <p>{{ cost.source }}</p>
+      </div>
+    }
+    @if (costs().length === 0) {
+      <p>
+        Nenhum custo informado. Cadastre também custos com preço pendente para manter as lacunas
+        visíveis.
+      </p>
+    }
+    <button type="button" (click)="loadCosts()">Custos recentes</button>
+    @if (nextCost(); as cursor) {
+      <button type="button" (click)="loadCosts(cursor)">Versões anteriores de custos</button>
+    }
+  </section>
+  <section class="surface">
+    <h2>Origens selecionadas para este cenário</h2>
+    @for (cost of selectedCosts(); track cost.externalId) {
+      <p>
+        {{ cost.name }} · {{ selected()[cost.externalId] }}% ·
+        {{ cost.monthlyCost === null ? 'Preço pendente' : (cost.monthlyCost | currency: 'BRL') }}
+        <button type="button" [disabled]="pending()" (click)="selectCost(cost, false)">
+          Retirar {{ cost.name }}
+        </button>
+      </p>
+    } @empty {
+      <p>Nenhuma origem selecionada.</p>
+    }
+  </section>
+  <form
+    [formGroup]="studyForm"
+    class="editor"
+    aria-label="Estudo de plano"
+    (ngSubmit)="calculate()"
+  >
+    <section class="surface">
+      <h2>Cenário do plano</h2>
+      <div class="fields">
+        <label
+          >Nome do cenário *<input
+            formControlName="name"
+            maxlength="120"
+            placeholder="Ex.: Bronze — estudo inicial"
+        /></label>
+        <label
+          >Armazenamento incluído (GB)<input
+            type="number"
+            formControlName="storageLimitGB"
+            min="0"
+            max="1000000000"
+            step="0.001"
+        /></label>
+        <label
+          >Memória reservada (MiB), se aplicável<input
+            type="number"
+            formControlName="memoryLimitMiB"
+            min="0"
+            max="1000000000"
+            step="0.001"
+        /></label>
+        <label class="wide"
+          >Funcionalidades e cuidados incluídos *<textarea
+            formControlName="includedFeatures"
+            rows="5"
+            maxlength="3000"
+            placeholder="Descreva as funcionalidades, manutenção e atendimento previstos."
+          ></textarea>
+        </label>
+        <label
+          >Horas mensais de suporte<input
+            formControlName="supportHours"
+            type="number"
+            min="0"
+            max="1000"
+            step="0.01" /></label
+        ><label
+          >Custo interno por hora (R$)<input
+            formControlName="hourlyCost"
+            type="number"
+            min="0"
+            max="1000000"
+            step="0.01"
+        /></label>
+        <label
+          >Reserva operacional (%)<input
+            formControlName="reservePercent"
+            type="number"
+            min="0"
+            max="100"
+            step="0.01" /></label
+        ><label
+          >Margem sobre o preço (%)<input
+            formControlName="marginPercent"
+            type="number"
+            min="0"
+            max="99.99"
+            step="0.01"
+        /></label>
+      </div>
+      <p class="help">
+        GB é decimal; GiB é binário. Os limites do plano são hipóteses comerciais e não comprovam
+        espaço livre ou capacidade para atender vários clientes. Distribua o custo total de uma VM
+        sem contar novamente componentes já incluídos na fatura. A parcela restante é apenas o saldo
+        deste cenário, não consumo medido.
+      </p>
+      <p class="help">
+        Preço sugerido = (custos atribuídos + horas × custo/hora) × (1 + reserva) ÷ (1 − margem).
+        Valores iniciais zero de suporte, reserva e margem devem ser revisados; tributos e despesas
+        adicionais precisam ser incluídos explicitamente. Nenhum valor AWS é presumido.
+      </p>
+      <footer>
+        <button type="submit" class="primary" [disabled]="pending()">Calcular estudo</button
+        ><button type="button" [disabled]="pending()" (click)="calculate(true)">
+          Salvar cenário
+        </button>
+      </footer>
+    </section>
+  </form>
+  @if (result(); as estimate) {
+    <section class="surface" aria-label="Resultado do estudo">
+      <h2>Resultado estimado</h2>
+      <p>
+        Custo mensal conhecido atribuído:
+        <strong>{{ estimate.knownMonthlyCost | currency: 'BRL' }}</strong>
+      </p>
+      <p>
+        Saldo das origens fora deste cenário:
+        {{ estimate.unallocatedMonthlyCost | currency: 'BRL' }}
+      </p>
+      @if (estimate.suggestedMonthlyPrice === null) {
+        <p>Mensalidade sugerida pendente: {{ estimate.missingCosts }} origem(ns) sem preço.</p>
+      } @else {
+        <p>
+          Mensalidade sugerida:
+          <strong>{{ estimate.suggestedMonthlyPrice | currency: 'BRL' }}</strong>
+        </p>
+      }
+    </section>
+  }
+  <section class="surface">
+    <h2>Cenários salvos para comparação</h2>
+    <p>Versões de estudo preservadas. Salvar novamente cria outro cenário; não publica um plano.</p>
+    @for (study of studies(); track study.externalId) {
+      <article>
+        <h3>{{ study.name }}</h3>
+        <button type="button" [disabled]="pending()" (click)="useStudy(study)">
+          Usar como base
+        </button>
+        <p>
+          {{ study.createdAt | date: 'dd/MM/yyyy HH:mm' }} · Armazenamento:
+          {{ study.storageLimitGB ?? 'Não definido' }} GB · memória:
+          {{ study.memoryLimitMiB ?? 'Não definida' }} MiB
+        </p>
+        <p style="white-space: pre-line">{{ study.includedFeatures }}</p>
+        <p>
+          Custo conhecido: {{ study.knownMonthlyCost | currency: 'BRL' }} · mensalidade sugerida:
+          {{
+            study.suggestedMonthlyPrice === null
+              ? 'Pendente'
+              : (study.suggestedMonthlyPrice | currency: 'BRL')
+          }}
+        </p>
+        <details>
+          <summary>Base de cálculo preservada</summary>
+          @for (cost of study.costs; track cost.costReferenceExternalId) {
+            <p>
+              {{ cost.name }} · {{ cost.allocationPercent }}% ·
+              {{
+                cost.monthlyCost === null ? 'Preço pendente' : (cost.monthlyCost | currency: 'BRL')
+              }}
+              · {{ cost.source }}
+            </p>
+          }
+        </details>
+      </article>
+    } @empty {
+      <p>Nenhum cenário salvo.</p>
+    }
+    <button type="button" (click)="loadStudies()">Estudos recentes</button>
+    @if (nextStudy(); as cursor) {
+      <button type="button" (click)="loadStudies(cursor)">Estudos anteriores</button>
+    }
+  </section>
+</main>

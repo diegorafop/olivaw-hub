@@ -22,6 +22,13 @@ public sealed class InventoryResourceData
     public decimal? CpuCapacity { get; set; }
     public decimal? MemoryCapacityGiB { get; set; }
     public decimal? StorageCapacityGiB { get; set; }
+    public string Technology { get; set; } = string.Empty;
+    public string TechnologyVersion { get; set; } = string.Empty;
+    public string LogicalName { get; set; } = string.Empty;
+    public DateTime? RenewalAt { get; set; }
+    public DateTime? CertificateExpiresAt { get; set; }
+    public int? BackupIntervalHours { get; set; }
+    public int? BackupRetentionDays { get; set; }
     public static bool IsType(string value) => value is "compute" or "volume" or "database-instance" or "database" or "message-broker" or "message-namespace" or "cache-instance" or "cache-namespace" or "domain" or "subdomain" or "public-ip" or "dns-zone" or "dns-record" or "proxy" or "certificate" or "backup" or "observability" or "registry" or "external-service" or "other";
     public static bool IsStatus(string value) => value is "reported" or "verified" or "retired";
     public static bool IsMonitoring(string value) => value is "none" or "planned";
@@ -35,8 +42,44 @@ public sealed class InventoryResourceData
         if (uri.Query.Length > 0) return false;
         return uri.Fragment.Length == 0;
     }
+    public static bool SupportsTechnology(string type) => type is "compute" or "database-instance" or "database" or "message-broker" or "cache-instance" or "proxy" or "observability" or "registry" or "external-service";
+    public static bool SupportsLogicalName(string type) => type is "database" or "message-namespace" or "cache-namespace" or "subdomain" or "dns-record";
+    public static bool IsCalendarDate(DateTime? value)
+    {
+        if (!value.HasValue) return true;
+        if (value.Value.Kind != DateTimeKind.Utc) return false;
+        return value.Value.TimeOfDay == TimeSpan.Zero;
+    }
+    private void ValidateDetails()
+    {
+        if (Technology == null) throw new ArgumentNullException(nameof(Technology));
+        if (TechnologyVersion == null) throw new ArgumentNullException(nameof(TechnologyVersion));
+        if (LogicalName == null) throw new ArgumentNullException(nameof(LogicalName));
+        if (Technology.Length > 80) throw new ArgumentException("Tecnologia muito longa.");
+        if (TechnologyVersion.Length > 40) throw new ArgumentException("Versão muito longa.");
+        if (LogicalName.Length > 120) throw new ArgumentException("Identificação lógica muito longa.");
+        if (!SupportsTechnology(Type))
+        {
+            if (Technology.Length > 0) throw new ArgumentException("Tecnologia incompatível com o tipo.");
+            if (TechnologyVersion.Length > 0) throw new ArgumentException("Versão incompatível com o tipo.");
+        }
+        if (TechnologyVersion.Length > 0 && string.IsNullOrWhiteSpace(Technology)) throw new ArgumentException("Informe a tecnologia da versão.");
+        if (!SupportsLogicalName(Type) && LogicalName.Length > 0) throw new ArgumentException("Identificação lógica incompatível com o tipo.");
+        if (Type != "domain" && RenewalAt.HasValue) throw new ArgumentException("Renovação disponível somente para domínio.");
+        if (Type != "certificate" && CertificateExpiresAt.HasValue) throw new ArgumentException("Validade disponível somente para certificado.");
+        if (!IsCalendarDate(RenewalAt)) throw new ArgumentException("Informe a data de renovação em UTC, sem horário.");
+        if (!IsCalendarDate(CertificateExpiresAt)) throw new ArgumentException("Informe a data de validade em UTC, sem horário.");
+        if (Type != "backup")
+        {
+            if (BackupIntervalHours.HasValue) throw new ArgumentException("Intervalo disponível somente para backup.");
+            if (BackupRetentionDays.HasValue) throw new ArgumentException("Retenção disponível somente para backup.");
+        }
+        if (BackupIntervalHours.HasValue && (BackupIntervalHours < 1 || BackupIntervalHours > 87600)) throw new ArgumentException("Intervalo de backup inválido.");
+        if (BackupRetentionDays.HasValue && (BackupRetentionDays < 1 || BackupRetentionDays > 36500)) throw new ArgumentException("Retenção de backup inválida.");
+    }
     public void Validate()
     {
+        ValidateDetails();
         if (string.IsNullOrWhiteSpace(Name)) throw new ArgumentException("Nome obrigatório.");
         if (!IsType(Type)) throw new ArgumentException("Tipo inválido.");
         if (!IsStatus(Status)) throw new ArgumentException("Situação inválida.");

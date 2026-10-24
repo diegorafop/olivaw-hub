@@ -1,3 +1,4 @@
+import { CustomerResources } from '../inventory/customer-resources';
 import { CustomerServices } from '../services/customer-services';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
@@ -29,7 +30,7 @@ function contactForm() {
 }
 @Component({
   selector: 'app-customer-editor',
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, CustomerServices],
+  imports: [DatePipe, RouterLink, ReactiveFormsModule, CustomerServices, CustomerResources],
   templateUrl: './customer-editor.html',
   styleUrls: ['./customers.scss', './customer-layout.scss', './customer-details.scss'],
 })

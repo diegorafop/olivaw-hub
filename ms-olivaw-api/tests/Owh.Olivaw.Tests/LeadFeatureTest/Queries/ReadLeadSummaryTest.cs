@@ -30,4 +30,22 @@ public class ReadLeadSummaryTest
         Assert.Equal(TimeSpan.FromDays(7), response.AsOf - response.Since);
         reader.VerifyAll();
     }
+    [Fact]
+    public async Task Handle_should_reject_null_request_before_reading_counts()
+    {
+        var repository = new Mock<IRepositoryLead>(MockBehavior.Strict);
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new ReadLeadSummaryHandler(repository.Object).Handle(null!, CancellationToken.None));
+
+        repository.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public void Validator_should_reject_missing_payload()
+    {
+        var validator = new ReadLeadSummaryMediatorValidator();
+        validator.TestValidate(new ReadLeadSummaryMediatorQuery()).ShouldNotHaveAnyValidationErrors();
+
+        validator.TestValidate(new ReadLeadSummaryMediatorQuery { Payload = null! }).ShouldHaveValidationErrorFor(item => item.Payload);
+    }
 }

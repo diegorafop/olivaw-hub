@@ -30,12 +30,12 @@ public class ReadReadyDetailQueryResponse
 
 public class ReadReadyQueryHandler
 (
-    WriteDbContext context,
+    IWriteDbContext context,
     IConfiguration configuration
 ) : IRequestHandler<ReadReadyQuery,
     ReadReadyQueryResponse>
 {
-    private readonly WriteDbContext _context = context
+    private readonly IWriteDbContext _context = context
         ?? throw new ArgumentNullException(nameof(context));
 
     private readonly IConfiguration _configuration = configuration
@@ -58,6 +58,7 @@ public class ReadReadyQueryHandler
 
         await Task.WhenAll(itens);
         response.Details = itens.ToReadReadyDetailQueryResponse();
+        response.Status = response.GetHealthStatus();
 
         return response;
     }

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,8 +15,11 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services
     )
     {
+        services.AddScoped<IWriteDbContext>(provider => provider.GetRequiredService<WriteDbContext>());
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<Owh.Olivaw.Repositories.IRepositoryLead, RepositoryLead>();
+        services.AddScoped<Owh.Olivaw.Repositories.IRepositoryDeliveryNote, RepositoryDeliveryNote>();
+        services.AddScoped<Owh.Olivaw.Repositories.IRepositoryHealthReading, RepositoryHealthReading>();
         services.AddScoped<Owh.Olivaw.Repositories.IRepositoryCustomer, RepositoryCustomer>();
         services.AddScoped<Owh.Olivaw.Repositories.IRepositoryManagedService, RepositoryManagedService>();
         services.AddScoped<Owh.Olivaw.Repositories.IRepositoryInventoryRevision, RepositoryInventoryRevision>();

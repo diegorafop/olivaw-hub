@@ -1,3 +1,4 @@
+import { Breadcrumb } from '../../shared/breadcrumb';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
@@ -5,7 +6,7 @@ import { Component, inject, computed, input, output, signal } from '@angular/cor
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 @Component({
   selector: 'app-admin-layout',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [Breadcrumb, RouterLink, RouterLinkActive],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.scss',
 })
@@ -23,15 +24,81 @@ export class AdminLayout {
     ),
     { initialValue: this.router.url },
   );
-  readonly section = computed(() =>
-    this.currentUrl().includes('/admin/services')
-      ? 'Serviços'
-      : this.currentUrl().includes('/admin/customers')
-        ? 'Clientes'
-        : this.currentUrl().includes('/admin/leads')
-          ? 'Leads'
-          : 'Visão geral',
+  private readonly pathParts = computed(
+    () =>
+      this.router
+        .parseUrl(this.currentUrl())
+        .root.children['primary']?.segments.map((segment) => segment.path) ?? [],
   );
+  private readonly sectionTitles: Record<string, string> = {
+    configuration: 'Configuração',
+    deliveries: 'Entregas',
+    'portal-access': 'Portal do cliente',
+    'portal-preview': 'Prévia do cliente',
+    resources: 'Recursos',
+    deployments: 'Ambientes',
+    services: 'Serviços',
+    customers: 'Clientes',
+    leads: 'Leads',
+    health: 'Saúde',
+    incidents: 'Incidentes',
+    usage: 'Consumo',
+    plans: 'Planos',
+    care: 'Cuidados',
+    support: 'Atendimento',
+  };
+  readonly isConfiguration = computed(() =>
+    [
+      'configuration',
+      'deliveries',
+      'portal-access',
+      'portal-preview',
+      'customers',
+      'services',
+      'resources',
+      'deployments',
+      'health',
+      'incidents',
+      'usage',
+      'plans',
+      'care',
+      'support',
+    ].includes(this.pathParts()[1]),
+  );
+  readonly section = computed(() => this.sectionTitles[this.pathParts()[1]] ?? 'Visão geral');
+  readonly breadcrumbs = computed(() => {
+    const [, section, detail] = this.pathParts();
+    const items: { label: string; url: string }[] = [];
+    if (this.isRoot()) items.push({ label: 'Visão geral', url: '/admin' });
+    if (this.isConfiguration()) items.push({ label: 'Configuração', url: '/admin/configuration' });
+    if (!section || section === 'configuration') return items;
+    if (section === 'deployments') {
+      items.push({ label: 'Serviços', url: '/admin/services' });
+      items.push({
+        label: detail === 'new' ? 'Nova implantação' : 'Implantação',
+        url: this.currentUrl(),
+      });
+      return items;
+    }
+    const label = this.sectionTitles[section];
+    if (!label) return items;
+    items.push({ label, url: '/admin/' + section });
+    if (detail) {
+      const singular: Record<string, string> = {
+        resources: 'recurso',
+        services: 'serviço',
+        customers: 'cliente',
+        leads: 'lead',
+      };
+      const entity = singular[section];
+      if (entity)
+        items.push({
+          label: detail === 'new' ? 'Novo ' + entity : 'Ficha do ' + entity,
+          url: this.currentUrl(),
+        });
+    }
+    return items;
+  });
   readonly isRoot = input(true);
   readonly collapsed = signal(false);
   readonly operator = input.required<string>();

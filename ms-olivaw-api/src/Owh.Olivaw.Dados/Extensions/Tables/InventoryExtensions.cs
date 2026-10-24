@@ -55,6 +55,12 @@ internal static class InventoryExtensions
         change.Property(item => item.MemoryCapacityGiB).HasPrecision(18, 3);
         resource.Property(item => item.StorageCapacityGiB).HasPrecision(18, 3);
         change.Property(item => item.StorageCapacityGiB).HasPrecision(18, 3);
+        resource.Property(item => item.Technology).HasMaxLength(80).IsRequired();
+        change.Property(item => item.Technology).HasMaxLength(80).IsRequired();
+        resource.Property(item => item.TechnologyVersion).HasMaxLength(40).IsRequired();
+        change.Property(item => item.TechnologyVersion).HasMaxLength(40).IsRequired();
+        resource.Property(item => item.LogicalName).HasMaxLength(120).IsRequired();
+        change.Property(item => item.LogicalName).HasMaxLength(120).IsRequired();
         var gate = builder.Entity<InventoryRevision>();
         gate.ToTable("inventoryrevision"); gate.HasKey(item => item.Id);
         gate.Property(item => item.Key).HasMaxLength(20).IsRequired(); gate.HasIndex(item => item.Key).IsUnique();

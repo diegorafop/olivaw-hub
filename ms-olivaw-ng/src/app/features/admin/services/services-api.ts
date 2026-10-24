@@ -75,13 +75,11 @@ export class ServicesApi {
     return { context: new HttpContext().set(LOCAL_ERROR, true).set(SKIP_LOADING, true) };
   }
   list(page: number, search: string, status: string, type: string, customer = '') {
-    let params = new HttpParams()
-      .set('page', page)
-      .set('pageSize', 20)
-      .set('search', search)
-      .set('status', status)
-      .set('type', type);
+    let params = new HttpParams().set('page', page).set('pageSize', 20);
     if (customer) params = params.set('customerExternalId', customer);
+    if (search) params = params.set('search', search);
+    if (status) params = params.set('status', status);
+    if (type) params = params.set('type', type);
     return this.http
       .get<ServicePage>(this.config.endpoint('services'), { ...this.options(), params })
       .pipe(timeout(15000));

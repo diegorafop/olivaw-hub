@@ -1,8 +1,22 @@
+import { inventoryDraftGuard } from './features/admin/inventory/inventory-draft.guard';
 import { serviceDraftGuard } from './features/admin/services/service-draft.guard';
 import { customerDraftGuard } from './features/admin/customers/customer-draft.guard';
 import { Routes } from '@angular/router';
 import { operationGuard, rootGuard, operationHomeGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
+  {
+    path: 'meu-negocio/entrar',
+    title: 'Olivaw - Entrar no Meu negócio',
+    loadComponent: () =>
+      import('./features/portal/portal-login').then((module) => module.PortalLogin),
+  },
+  {
+    path: 'meu-negocio',
+    canDeactivate: [inventoryDraftGuard],
+    title: 'Olivaw - Meu negócio',
+    loadComponent: () =>
+      import('./features/portal/portal-page').then((module) => module.PortalPage),
+  },
   {
     path: 'projeto',
     title: 'Olivaw - Projeto',
@@ -32,6 +46,138 @@ export const routes: Routes = [
     canMatch: [operationGuard],
     loadComponent: () => import('./features/admin/admin-frame').then((m) => m.AdminFrame),
     children: [
+      {
+        path: 'deliveries',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Entregas',
+        data: { operation: 'deliveries' },
+        loadComponent: () =>
+          import('./features/admin/operations/operations-page').then(
+            (module) => module.OperationsPage,
+          ),
+      },
+      {
+        path: 'portal-access',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Acessos do portal',
+        loadComponent: () =>
+          import('./features/admin/portal-access/portal-access-page').then(
+            (module) => module.PortalAccessPage,
+          ),
+      },
+      {
+        path: 'portal-preview',
+        canDeactivate: [inventoryDraftGuard],
+        canMatch: [rootGuard],
+        title: 'Olivaw - Prévia do cliente',
+        data: { portalPreview: true },
+        loadComponent: () =>
+          import('./features/portal/portal-page').then((module) => module.PortalPage),
+      },
+      {
+        path: 'configuration',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Configuração',
+        loadComponent: () =>
+          import('./features/admin/configuration/configuration-page').then(
+            (m) => m.ConfigurationPage,
+          ),
+      },
+      {
+        path: 'health',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Saúde',
+        data: { operation: 'health' },
+        loadComponent: () =>
+          import('./features/admin/operations/operations-page').then((m) => m.OperationsPage),
+      },
+      {
+        path: 'incidents',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Incidentes',
+        data: { operation: 'incidents' },
+        loadComponent: () =>
+          import('./features/admin/operations/operations-page').then((m) => m.OperationsPage),
+      },
+      {
+        path: 'usage',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Consumo',
+        data: { operation: 'usage' },
+        loadComponent: () =>
+          import('./features/admin/operations/operations-page').then((m) => m.OperationsPage),
+      },
+      {
+        path: 'care',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Cuidados',
+        data: { operation: 'care' },
+        loadComponent: () =>
+          import('./features/admin/operations/operations-page').then((m) => m.OperationsPage),
+      },
+      {
+        path: 'support',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Atendimento',
+        data: { operation: 'support' },
+        loadComponent: () =>
+          import('./features/admin/operations/operations-page').then((m) => m.OperationsPage),
+      },
+      {
+        path: 'plans',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Planos',
+        loadComponent: () => import('./features/admin/plans/plans-page').then((m) => m.PlansPage),
+      },
+
+      {
+        path: 'resources',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Recursos',
+        loadComponent: () =>
+          import('./features/admin/inventory/resources-page').then((m) => m.ResourcesPage),
+      },
+      {
+        path: 'resources/new',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Novo recurso',
+        loadComponent: () =>
+          import('./features/admin/inventory/resource-editor').then((m) => m.ResourceEditor),
+      },
+      {
+        path: 'resources/:id',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Recurso',
+        loadComponent: () =>
+          import('./features/admin/inventory/resource-editor').then((m) => m.ResourceEditor),
+      },
+      {
+        path: 'deployments/new',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Novo ambiente',
+        loadComponent: () =>
+          import('./features/admin/inventory/deployment-editor').then((m) => m.DeploymentEditor),
+      },
+      {
+        path: 'deployments/:id',
+        canMatch: [rootGuard],
+        canDeactivate: [inventoryDraftGuard],
+        title: 'Olivaw - Implantação',
+        loadComponent: () =>
+          import('./features/admin/inventory/deployment-editor').then((m) => m.DeploymentEditor),
+      },
+
       {
         path: 'services',
         canMatch: [rootGuard],

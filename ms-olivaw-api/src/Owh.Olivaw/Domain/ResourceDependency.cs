@@ -20,6 +20,7 @@ public sealed class ResourceDependency : Entity
     private ResourceDependency() { }
     public static ResourceDependency Create(InventoryResource source, InventoryResource target, string purpose, string kind, Guid actor, string actorName, DateTime now)
     {
+        if (target.Status == "retired") throw new ArgumentException("Recurso de destino desativado.");
         if (source.Status == "retired") throw new ArgumentException("Recurso desativado.");
         if (purpose == null || purpose.Length > 300 || string.IsNullOrWhiteSpace(purpose)) throw new ArgumentException("Finalidade obrigatória, até 300 caracteres.");
         if (actor == Guid.Empty || string.IsNullOrWhiteSpace(actorName) || actorName.Length > 120) throw new ArgumentException("Operador inválido.");

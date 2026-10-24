@@ -53,6 +53,13 @@ internal static class InventoryRules
         CpuCapacity = payload.CpuCapacity,
         MemoryCapacityGiB = payload.MemoryCapacityGiB,
         StorageCapacityGiB = payload.StorageCapacityGiB,
+        Technology = payload.Technology,
+        TechnologyVersion = payload.TechnologyVersion,
+        LogicalName = payload.LogicalName,
+        RenewalAt = payload.RenewalAt,
+        CertificateExpiresAt = payload.CertificateExpiresAt,
+        BackupIntervalHours = payload.BackupIntervalHours,
+        BackupRetentionDays = payload.BackupRetentionDays,
     };
     internal static InventoryResourceData ToDomain(Owh.Olivaw.Client.Features.InventoryFeature.Commands.UpdateInventoryResourceCommand payload) => new()
     {
@@ -74,6 +81,13 @@ internal static class InventoryRules
         CpuCapacity = payload.CpuCapacity,
         MemoryCapacityGiB = payload.MemoryCapacityGiB,
         StorageCapacityGiB = payload.StorageCapacityGiB,
+        Technology = payload.Technology,
+        TechnologyVersion = payload.TechnologyVersion,
+        LogicalName = payload.LogicalName,
+        RenewalAt = payload.RenewalAt,
+        CertificateExpiresAt = payload.CertificateExpiresAt,
+        BackupIntervalHours = payload.BackupIntervalHours,
+        BackupRetentionDays = payload.BackupRetentionDays,
     };
     internal static void Require(bool condition, string field, string message)
     {

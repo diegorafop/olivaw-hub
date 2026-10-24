@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -55,5 +56,21 @@ public class HostingsTest
         Assert.Contains(builder.Services, item =>
             item.ServiceType == typeof(IPipelineBehavior<,>)
             && item.ImplementationType == typeof(TemplateValidationBehavior<,>));
+    }
+    [Fact]
+    public void Readiness_context_should_share_the_registered_write_context_within_each_scope()
+    {
+        var services = new ServiceCollection();
+        services.AddDbContext<WriteDbContext>(options => { });
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        Owh.Olivaw.Dados.Extensions.ServiceCollectionExtensions.AddRepositories(services);
+        using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
+        using var first = provider.CreateScope();
+        using var second = provider.CreateScope();
+
+        var firstContext = first.ServiceProvider.GetRequiredService<WriteDbContext>();
+        Assert.Same(firstContext, first.ServiceProvider.GetRequiredService<IWriteDbContext>());
+        Assert.Same(firstContext, first.ServiceProvider.GetRequiredService<IWriteDbContext>());
+        Assert.NotSame(firstContext, second.ServiceProvider.GetRequiredService<IWriteDbContext>());
     }
 }

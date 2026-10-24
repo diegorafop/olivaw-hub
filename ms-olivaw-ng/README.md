@@ -131,6 +131,28 @@ Root acessa `/admin/services`, `/admin/services/new` e `/admin/services/:id`, co
 
 Serviço interno dispensa empresa fictícia. Serviço de clientes admite até 100 vínculos e exige ao menos um enquanto não encerrado. Encerramento/troca de escopo/retirada de cliente pedem confirmação quando afetam vínculos atuais; histórico com período e autoria é preservado. Reabrir permite novos períodos. A interface conserva dados após erro/conflito e protege saída com alterações não salvas, liberando logout/expiração.
 
-Cadastro não equivale a saúde monitorada e não altera infraestrutura ou cobranças. Ambientes e recursos ainda não foram implementados. A API correspondente e sua migration futura serão necessárias antes de publicar; não há tabelas novas em banco nesta entrega.
+Cadastro não equivale a saúde monitorada e não altera infraestrutura ou cobranças. Ambientes e recursos foram implementados na 04b, descrita abaixo. O schema PostgreSQL está coberto pela `Issue020`; os novos fluxos dependem da publicação da API e do frontend.
 
 Validação: `npm test`, `npm run lint`, `npm run build` e `npm run e2e -- e2e/admin-services.spec.ts e2e/admin-customers.spec.ts e2e/admin-dashboard.spec.ts`. Contratos HTTP são simulados; não há dados reais de clientes nos testes. O build mantém os três avisos preexistentes de orçamento de estilos das páginas públicas.
+
+
+## Inventário de recursos e ambientes
+
+Root acessa `/admin/resources`, `/admin/resources/new` e `/admin/resources/:id`. O catálogo filtra tipo, provedor, cliente, ambiente, situação e compartilhamento; filtros/página permanecem na URL. A ficha diferencia identidade estável, responsabilidades, fonte, capacidade e reservas declaradas. A identidade do provedor fica bloqueada após atribuída. Erros/conflitos preservam os campos; saída com edição não salva pede confirmação.
+
+A ficha do serviço oferece **Cadastrar ambiente** e as implantações existentes. `/admin/deployments/new?service=<guid>` e `/admin/deployments/:id` permitem cadastrar ambiente/localização/referência, escolher recursos existentes e declarar reservas em vCPU/GiB. Encerrar pede confirmação e conserva o período com seus usos encerrados; retomar exige novo período.
+
+A ficha do cliente reúne recursos diretos e inferidos sem duplicar ativos, com origens navegáveis. Na ficha do recurso, **Clientes diretos**, **Relações técnicas** e **Usos por ambiente** paginam vínculos atuais/encerrados com finalidade e autores. Cadastros existentes são escolhidos pela busca. Autorização no servidor permanece obrigatória; guards e menu não substituem a política root.
+
+Não há medição de saúde/consumo, rateio, chamada de URL ou provisionamento implícitos no cadastro. Campos desconhecidos ficam vazios. Reservas totais são somente as diretamente declaradas para o recurso; a cadeia não é somada novamente. Detalhamento por tipo continua na 04c; o portal com isolamento por empresa tem planejamento próprio.
+
+Na pasta `ms-olivaw-ng`:
+
+```bash
+npm test
+npm run lint
+npm run build
+npm run e2e -- e2e/admin-inventory.spec.ts e2e/admin-services.spec.ts e2e/admin-customers.spec.ts e2e/admin-dashboard.spec.ts e2e/admin-leads.spec.ts
+```
+
+Validação: 33 testes unitários, 31 E2E administrativos (9 de inventário), lint/build e screenshots desktop/mobile revisadas. HTTP simulado, sem dados reais. O build mantém quatro avisos de orçamento preexistentes: três arquivos públicos e a lista de leads; o inventário não introduziu avisos. API e frontend precisam de nova publicação para expor os fluxos concluídos. A única migration `Issue020` existente cobre o modelo; não foi gerada outra nesta conclusão.
