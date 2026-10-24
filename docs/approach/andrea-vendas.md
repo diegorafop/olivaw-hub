@@ -101,7 +101,7 @@ Se ela perguntar quanto custa:
 
 > Depende do que precisa resolver e do tamanho dessa primeira versão. A gente analisa a necessidade, separa o investimento de construção dos cuidados de continuidade e apresenta tudo com clareza. Queremos começar por algo que faça sentido para a empresa e que possa crescer depois.
 
-Não apresentar valores, capacidades de planos ou quantidade de melhorias como definidos. Não prometer que todo projeto será barato ou comparar fornecedores de forma depreciativa. Ver [custos e planos](../features/custos-e-planos.md).
+Não apresentar valores, capacidades de planos ou quantidade de melhorias como definidos. Não prometer que todo projeto será barato ou comparar fornecedores de forma depreciativa. Ver [custos e planos](../features/discovery/custos-e-planos.md).
 
 ## Se ela pedir exemplos
 

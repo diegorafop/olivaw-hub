@@ -34,6 +34,21 @@ public sealed class CreateInventoryResourceValidator : AbstractValidator<CreateI
 {
     public CreateInventoryResourceValidator()
     {
+        RuleFor(item => item.Technology).NotNull().MaximumLength(80);
+        RuleFor(item => item.TechnologyVersion).NotNull().MaximumLength(40);
+        RuleFor(item => item.LogicalName).NotNull().MaximumLength(120);
+        RuleFor(item => item.Technology).Empty().When(item => !InventoryResourceData.SupportsTechnology(item.Type));
+        RuleFor(item => item.TechnologyVersion).Empty().When(item => !InventoryResourceData.SupportsTechnology(item.Type));
+        RuleFor(item => item.Technology).NotEmpty().When(item => !string.IsNullOrEmpty(item.TechnologyVersion));
+        RuleFor(item => item.LogicalName).Empty().When(item => !InventoryResourceData.SupportsLogicalName(item.Type));
+        RuleFor(item => item.RenewalAt).Null().When(item => item.Type != "domain");
+        RuleFor(item => item.CertificateExpiresAt).Null().When(item => item.Type != "certificate");
+        RuleFor(item => item.RenewalAt).Must(InventoryResourceData.IsCalendarDate);
+        RuleFor(item => item.CertificateExpiresAt).Must(InventoryResourceData.IsCalendarDate);
+        RuleFor(item => item.BackupIntervalHours).Null().When(item => item.Type != "backup");
+        RuleFor(item => item.BackupRetentionDays).Null().When(item => item.Type != "backup");
+        RuleFor(item => item.BackupIntervalHours).InclusiveBetween(1, 87600);
+        RuleFor(item => item.BackupRetentionDays).InclusiveBetween(1, 36500);
         RuleFor(item => item.Name).NotNull().MaximumLength(120);
         RuleFor(item => item.Type).NotNull().MaximumLength(30);
         RuleFor(item => item.Purpose).NotNull().MaximumLength(1000);

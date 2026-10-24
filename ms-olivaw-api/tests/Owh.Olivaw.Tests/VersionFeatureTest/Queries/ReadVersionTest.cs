@@ -81,4 +81,29 @@ public class ReadVersionTest
 
         response.ShouldNotHaveAnyValidationErrors();
     }
+    [Theory]
+    [InlineData(null, null, "", "")]
+    [InlineData("", "", "", "")]
+    [InlineData("1.2.3", null, "1.2.3", "")]
+    [InlineData(null, "Olivaw API", "", "Olivaw API")]
+    public async Task Handle_should_default_missing_version_and_title_independently(string? version, string? title, string expectedVersion, string expectedTitle)
+    {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new System.Collections.Generic.Dictionary<string, string?>
+        {
+            ["swagger:version"] = version,
+            ["swagger:title"] = title
+        }).Build();
+        using var cancellation = new CancellationTokenSource();
+
+        var response = await new ReadVersionQueryHandler(configuration).Handle(new(), cancellation.Token);
+
+        Assert.Equal(expectedVersion, response.Version);
+        Assert.Equal(expectedTitle, response.Title);
+    }
+
+    [Fact]
+    public void Constructor_should_reject_missing_configuration()
+    {
+        Assert.Equal("configuration", Assert.Throws<ArgumentNullException>(() => new ReadVersionQueryHandler(null!)).ParamName);
+    }
 }

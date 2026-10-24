@@ -141,7 +141,11 @@ for (const mobile of [false, true]) {
   }, testInfo) => {
     await page.setViewportSize({ width: mobile ? 390 : 1440, height: 1000 });
     const writes = await setup(page);
-    await page.getByRole('link', { name: 'Serviços', exact: true }).click();
+    await page.getByRole('link', { name: 'Configuração', exact: true }).click();
+    await page
+      .getByRole('navigation', { name: 'Cadastros e ferramentas' })
+      .getByRole('link', { name: 'Serviços', exact: true })
+      .click();
     await expect(page.getByText('Nenhum serviço neste recorte.')).toBeVisible();
     await page.getByRole('link', { name: 'Cadastrar serviço', exact: true }).click();
     await page.getByLabel('Nome de apresentação').fill('Aplicação compartilhada');

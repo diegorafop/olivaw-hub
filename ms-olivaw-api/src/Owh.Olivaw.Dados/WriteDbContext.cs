@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Olivaw.Identity.Dados;
 using Microsoft.Extensions.Configuration;
 using Owh.OlivawCore.Dados.Extensions;
@@ -25,6 +25,8 @@ public class WriteDbContext
         modelBuilder.AddOlivawIdentity();
         modelBuilder.SetupTables();
         modelBuilder.SetupConstraints();
+        modelBuilder.Entity<Owh.Olivaw.Domain.HealthReading>().HasIndex(item => new { item.InventoryResourceId, item.ObservedAt, item.Id }).HasDatabaseName("healthreading_latest_ix");
+        modelBuilder.Entity<Owh.Olivaw.Domain.SupportRequest>().HasIndex(item => new { item.CustomerId, item.PortalSubmissionKey }).HasDatabaseName("supportrequest_submission_ix");
     }
 
     protected override void OnConfiguring

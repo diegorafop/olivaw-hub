@@ -29,7 +29,7 @@
             >Identificador técnico *<input formControlName="technicalId" maxlength="80"
           /></label>
           <label
-            >Tipo<select formControlName="type">
+            >Tipo<select formControlName="type" (change)="changeTypeDetails()">
               @for (option of typeOptions; track option[0]) {
                 <option [value]="option[0]">{{ option[1] }}</option>
               }
@@ -129,6 +129,56 @@
           Deixe vazio quando desconhecido. Capacidade cadastrada não é consumo medido nem custo.
         </p>
       </section>
+      <section class="surface">
+        <h2>Detalhes do tipo de recurso</h2>
+        <p class="help">
+          Preencha somente informações conhecidas. Ao trocar o tipo, os detalhes incompatíveis são
+          limpos antes de salvar.
+        </p>
+        <div class="fields">
+          @if (supportsTechnology()) {
+            <label>Tecnologia<input formControlName="technology" maxlength="80" /></label>
+            <label
+              >Versão da tecnologia<input formControlName="technologyVersion" maxlength="40"
+            /></label>
+          }
+          @if (supportsLogicalName()) {
+            <label
+              >Identificação lógica<input formControlName="logicalName" maxlength="120"
+            /></label>
+          }
+          @if (resourceType() === 'domain') {
+            <label>Data de renovação<input type="date" formControlName="renewalAt" /></label>
+          }
+          @if (resourceType() === 'certificate') {
+            <label
+              >Data de validade<input type="date" formControlName="certificateExpiresAt"
+            /></label>
+          }
+          @if (resourceType() === 'backup') {
+            <label
+              >Intervalo previsto (horas)<input
+                type="number"
+                formControlName="backupIntervalHours"
+                min="1"
+                max="87600"
+                step="1"
+            /></label>
+            <label
+              >Retenção prevista (dias)<input
+                type="number"
+                formControlName="backupRetentionDays"
+                min="1"
+                max="36500"
+                step="1"
+            /></label>
+          }
+        </div>
+        <p class="help">
+          Identificação lógica não comprova isolamento. Datas e políticas são declaradas: não
+          executam renovação, backup ou verificação de validade.
+        </p>
+      </section>
       <footer>
         <small>* Campos obrigatórios</small
         ><button class="primary" type="submit" [disabled]="saving() || loading() || conflict()">
@@ -212,6 +262,24 @@
             {{ change.memoryCapacityGiB ?? '—' }} GiB · armazenamento
             {{ change.storageCapacityGiB ?? '—' }} GiB
           </p>
+          @if (change.technology) {
+            <p>Tecnologia: {{ change.technology }} {{ change.technologyVersion }}</p>
+          }
+          @if (change.logicalName) {
+            <p>Identificação lógica: {{ change.logicalName }}</p>
+          }
+          @if (change.renewalAt) {
+            <p>Renovação: {{ change.renewalAt | date: 'dd/MM/yyyy' : 'UTC' }}</p>
+          }
+          @if (change.certificateExpiresAt) {
+            <p>Validade: {{ change.certificateExpiresAt | date: 'dd/MM/yyyy' : 'UTC' }}</p>
+          }
+          @if (change.type === 'backup') {
+            <p>
+              Backup previsto: intervalo {{ change.backupIntervalHours ?? '—' }} horas · retenção
+              {{ change.backupRetentionDays ?? '—' }} dias
+            </p>
+          }
           <p>Fonte: {{ change.source || 'Não informada' }}</p>
         </details>
       }

@@ -68,6 +68,13 @@ export interface ResourceInput {
   cpuCapacity: number | null;
   memoryCapacityGiB: number | null;
   storageCapacityGiB: number | null;
+  technology?: string;
+  technologyVersion?: string;
+  logicalName?: string;
+  renewalAt?: string | null;
+  certificateExpiresAt?: string | null;
+  backupIntervalHours?: number | null;
+  backupRetentionDays?: number | null;
 }
 export interface ResourceOrigin {
   kind: string;

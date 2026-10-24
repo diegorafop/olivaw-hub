@@ -107,7 +107,7 @@ Frases de apoio para usar com moderação:
 
 Este material apresenta a proposta da Olivaw, não uma oferta com preço ou escopo fechado.
 
-- Valores, capacidades e condições dos planos ainda precisam ser calculados: consultar [custos e planos](../features/custos-e-planos.md).
+- Valores, capacidades e condições dos planos ainda precisam ser calculados: consultar [custos e planos](../features/discovery/custos-e-planos.md).
 - Não anunciar plano gratuito, armazenamento específico, alterações ilimitadas, prazo fixo de entrega ou atendimento permanente sem definição e aprovação.
 - Não prometer retorno financeiro ou afirmar que qualquer projeto será barato.
 - Domínio, operação, backups, manutenção e melhorias dependem do escopo e das condições acordadas. Apresentar essas partes como trabalho a planejar, sem presumir inclusão universal.

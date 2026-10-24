@@ -25,3 +25,11 @@ Não publique imagens, implante, faça finish ou push como efeito da validação
 Preserve compatibilidade entre Angular, CLI, Material/CDK, TypeScript e Node. Angular 22.2 requer TypeScript 6.0.x; não instalar TypeScript 7 apenas por ser a versão latest. Os tipos do Node acompanham o runtime 24 usado pelo projeto. Atualize também o lockfile e valide build, lint, testes unitários e E2E.
 
 O `overrides.vite` fixa o patch 8.3.5 para corrigir avisos da versão 8.3.2 exigida pelo Angular Build 22.2.3. Reavalie o override em futuras atualizações e remova quando a cadeia oficial incorporar uma versão corrigida equivalente; não mantenha um pin antigo sem consultar auditoria e compatibilidade.
+
+## Navegação da operação
+
+- A navegação principal usa Visão geral, Leads e Configuração. Cadastros e ferramentas internas ficam nos cards de `/admin/configuration`, sem novos menus ou submenus laterais para cada funcionalidade.
+- Ao acrescentar um cadastro, acrescente seu card ao hub e mantenha a autorização da rota e da API. O menu Configuração permanece ativo ao navegar pelos cadastros.
+- O breadcrumb acompanha os níveis de cada rota e mantém os ancestrais clicáveis: Visão geral, Configuração, cadastro e ficha/criação. O item atual usa `aria-current="page"`; query strings não alteram a hierarquia. Implantações retornam a Serviços, sem criar um link para uma lista de ambientes inexistente.
+- Preserve navegação por teclado, cards responsivos e acesso de volta à Configuração. Operadores sem root não veem nem acessam os módulos restritos.
+- Estudos de planos são cenários internos, com limites e funcionalidades em elaboração; não os apresente como ofertas aprovadas nem altere contratos ao salvar cenários.

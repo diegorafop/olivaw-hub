@@ -6,7 +6,7 @@ Mantenha os documentos em português, com títulos descritivos, exemplos concret
 
 ## Precisão
 
-- Features com desenvolvimento concluído ficam em `features/done/`, com índice e referências atualizados. Preserve pendências de publicação e validação do ambiente no documento; evolução não implementada deve permanecer no planejamento, em arquivo próprio quando apenas um recorte foi concluído.
+- Siga o formato e os estados definidos em [features/AGENTS.md](features/AGENTS.md). O índice principal é [features/index.md](features/index.md) e lista somente funcionalidades concluídas. Features com desenvolvimento concluído ficam em `features/done/`, com índice e referências atualizados. Preserve pendências de publicação e validação do ambiente no documento; evolução não implementada deve permanecer no planejamento, em arquivo próprio quando apenas um recorte foi concluído.
 
 - Confira nomes, caminhos e comandos na implementação antes de documentá-los.
 - Identifique exemplos futuros, como a API da pastelaria, para não apresentá-los como componentes existentes.

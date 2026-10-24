@@ -27,6 +27,13 @@ public sealed class ReadInventoryResourceByIdResponse
     public decimal? CpuCapacity { get; set; }
     public decimal? MemoryCapacityGiB { get; set; }
     public decimal? StorageCapacityGiB { get; set; }
+    public string Technology { get; set; } = string.Empty;
+    public string TechnologyVersion { get; set; } = string.Empty;
+    public string LogicalName { get; set; } = string.Empty;
+    public DateTime? RenewalAt { get; set; }
+    public DateTime? CertificateExpiresAt { get; set; }
+    public int? BackupIntervalHours { get; set; }
+    public int? BackupRetentionDays { get; set; }
     public int CustomerCount { get; set; }
     public List<InventoryCustomerItem> Customers { get; set; } = new();
     public decimal? ReservedCpu { get; set; }
@@ -62,4 +69,11 @@ public sealed class InventoryResourceHistoryItem
     public decimal? CpuCapacity { get; set; }
     public decimal? MemoryCapacityGiB { get; set; }
     public decimal? StorageCapacityGiB { get; set; }
+    public string Technology { get; set; } = string.Empty;
+    public string TechnologyVersion { get; set; } = string.Empty;
+    public string LogicalName { get; set; } = string.Empty;
+    public DateTime? RenewalAt { get; set; }
+    public DateTime? CertificateExpiresAt { get; set; }
+    public int? BackupIntervalHours { get; set; }
+    public int? BackupRetentionDays { get; set; }
 }

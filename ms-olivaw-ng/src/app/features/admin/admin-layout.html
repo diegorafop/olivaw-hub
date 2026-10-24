@@ -50,43 +50,14 @@
         </a>
         @if (isRoot()) {
           <a
-            routerLink="/admin/customers"
-            routerLinkActive="nav-active"
-            ariaCurrentWhenActive="page"
-            aria-label="Clientes"
-            title="Clientes"
+            routerLink="/admin/configuration"
+            [class.nav-active]="isConfiguration()"
+            [attr.aria-current]="isConfiguration() ? 'page' : null"
+            aria-label="Configuração"
+            title="Configuração"
             ><svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M3 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M18 8a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-2-3.5"
-              />
-              <circle cx="10" cy="7" r="4" /></svg
-            ><span class="menu-label">Clientes</span
-            ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
-          >
-        }
-        @if (isRoot()) {
-          <a
-            routerLink="/admin/services"
-            routerLinkActive="nav-active"
-            ariaCurrentWhenActive="page"
-            aria-label="Serviços"
-            title="Serviços"
-            ><svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 4h18v6H3zM3 14h18v6H3zM7 7h2M7 17h2" /></svg
-            ><span class="menu-label">Serviços</span
-            ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
-          >
-        }
-        @if (isRoot()) {
-          <a
-            routerLink="/admin/resources"
-            routerLinkActive="nav-active"
-            ariaCurrentWhenActive="page"
-            aria-label="Recursos"
-            title="Recursos"
-            ><svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 4h18v6H3zM3 14h18v6H3zM7 7h2M7 17h2" /></svg
-            ><span class="menu-label">Recursos</span
+              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" /></svg
+            ><span class="menu-label">Configuração</span
             ><span class="menu-label nav-arrow" aria-hidden="true">↗</span></a
           >
         }
@@ -143,9 +114,7 @@
             <path [attr.d]="collapsed() ? 'm13 9 3 3-3 3' : 'm16 9-3 3 3 3'" />
           </svg>
         </button>
-        <div class="breadcrumb">
-          <span>Operação</span><span aria-hidden="true">/</span><strong>{{ section() }}</strong>
-        </div>
+        <app-breadcrumb [items]="breadcrumbs()" />
       </div>
       <span class="internal-badge"
         ><svg viewBox="0 0 24 24" aria-hidden="true">

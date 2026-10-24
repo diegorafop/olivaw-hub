@@ -150,4 +150,4 @@ Se a edição própria de produtos tornar a primeira entrega grande demais, comb
 - Prazo desejado, disposição de investimento e restrições.
 - Hipótese de MVP, dúvidas abertas e próximo contato combinado.
 
-Referências internas: [descoberta do cliente](../protocolo-descoberta-cliente.md) e [custos e planos pendentes](../features/custos-e-planos.md).
+Referências internas: [descoberta do cliente](../protocolo-descoberta-cliente.md) e [custos e planos pendentes](../features/discovery/custos-e-planos.md).

@@ -1,8 +1,38 @@
 # 04b — Inventário de recursos e ambientes
 
+## user-history
+
+Como operador da Olivaw,
+quero inventariar recursos, ambientes e implantações,
+para conhecer seus vínculos, reservas e histórico.
+
+## acceptance-criteria
+
+- Escopo, dependências e limites do registro original são respeitados.
+- Entregas têm validações e pendências documentadas, sem apresentar planejamento como funcionalidade disponível.
+
+## ai-prompt
+
+Concluída no desenvolvimento; preserve pendências de publicação e ambiente.
+
+Trabalhe somente no recorte autorizado desta feature. Confira os AGENTS.md aplicáveis, a implementação atual e o registro completo em `user-feedback`. Preserve os limites e as evidências históricas; registre testes e pendências. Migrations, finish, push e publicação dependem de autorização explícita.
+
+### Estado
+
+Implementado e validado localmente na branch `feature/issue020-inventario-recursos`. Complementa o [cadastro de serviços](04a-cadastro-de-servicos.md) e conclui a base de inventário prevista na [feature 04](../discovery/painel-olivaw/04-inventario-de-recursos.md). A evolução por tipo permanece na 04c, e medição/custos nas features 07/17.
+
+O schema permanece coberto pela única migration PostgreSQL `Issue020`, gerada na correção de startup. Esta conclusão não gerou outra migration, não aplicou SQL nem publicou a nova interface/API. O mantenedor informou a recuperação da API anterior na AWS; os fluxos novos descritos aqui ainda precisam de publicação e smoke test no ambiente.
+
+## user-feedback
+
+Registro original preservado; somente caminhos de links foram ajustados à reorganização. Não representa uma nova solicitação de execução.
+
+```markdown
+# 04b — Inventário de recursos e ambientes
+
 ## Estado
 
-Implementado e validado localmente na branch `feature/issue020-inventario-recursos`. Complementa o [cadastro de serviços](04a-cadastro-de-servicos.md) e conclui a base de inventário prevista na [feature 04](../painel-olivaw/04-inventario-de-recursos.md). A evolução por tipo permanece na 04c, e medição/custos nas features 07/17.
+Implementado e validado localmente na branch `feature/issue020-inventario-recursos`. Complementa o [cadastro de serviços](04a-cadastro-de-servicos.md) e conclui a base de inventário prevista na [feature 04](../discovery/painel-olivaw/04-inventario-de-recursos.md). A evolução por tipo permanece na 04c, e medição/custos nas features 07/17.
 
 O schema permanece coberto pela única migration PostgreSQL `Issue020`, gerada na correção de startup. Esta conclusão não gerou outra migration, não aplicou SQL nem publicou a nova interface/API. O mantenedor informou a recuperação da API anterior na AWS; os fluxos novos descritos aqui ainda precisam de publicação e smoke test no ambiente.
 
@@ -69,3 +99,4 @@ Os comandos reproduzíveis ficam nos READMEs da [API](../../../ms-olivaw-api/REA
 ## Próximas evoluções
 
 A 04c mantém propriedades específicas por tipo, referências detalhadas de backup/renovação e refinamentos de alocação. Coleta e saúde dependem das fontes das features 05–07. Despesas, preços, rateio e reconciliação de custos ficam na feature 17. O inventário não escolhe percentuais, altera plano, gera cobrança nem comprova política de backup executada.
+```

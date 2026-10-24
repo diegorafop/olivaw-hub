@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AutenticacaoStore } from '../../../core/auth/autenticacao.store';
 import { InventoryLinks } from './inventory-links';
@@ -90,11 +90,61 @@ export class ResourceEditor {
       Validators.min(0),
       Validators.max(1000000000),
     ]),
+    technology: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(80)] }),
+    technologyVersion: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(40)],
+    }),
+    logicalName: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(120)],
+    }),
+    renewalAt: new FormControl('', { nonNullable: true }),
+    certificateExpiresAt: new FormControl('', { nonNullable: true }),
+    backupIntervalHours: new FormControl<number | null>(null, [
+      Validators.min(1),
+      Validators.max(87600),
+      Validators.pattern(/^\d+$/),
+    ]),
+    backupRetentionDays: new FormControl<number | null>(null, [
+      Validators.min(1),
+      Validators.max(36500),
+      Validators.pattern(/^\d+$/),
+    ]),
     storageCapacityGiB: new FormControl<number | null>(null, [
       Validators.min(0),
       Validators.max(1000000000),
     ]),
   });
+  readonly resourceType = toSignal(this.form.controls.type.valueChanges, {
+    initialValue: 'compute',
+  });
+  supportsTechnology() {
+    return [
+      'compute',
+      'database-instance',
+      'database',
+      'message-broker',
+      'cache-instance',
+      'proxy',
+      'observability',
+      'registry',
+      'external-service',
+    ].includes(this.resourceType());
+  }
+  supportsLogicalName() {
+    return ['database', 'message-namespace', 'cache-namespace', 'subdomain', 'dns-record'].includes(
+      this.resourceType(),
+    );
+  }
+  changeTypeDetails() {
+    if (!this.supportsTechnology()) this.form.patchValue({ technology: '', technologyVersion: '' });
+    if (!this.supportsLogicalName()) this.form.controls.logicalName.setValue('');
+    if (this.resourceType() !== 'domain') this.form.controls.renewalAt.setValue('');
+    if (this.resourceType() !== 'certificate') this.form.controls.certificateExpiresAt.setValue('');
+    if (this.resourceType() !== 'backup')
+      this.form.patchValue({ backupIntervalHours: null, backupRetentionDays: null });
+  }
   constructor() {
     this.load();
   }
@@ -112,7 +162,16 @@ export class ResourceEditor {
       .subscribe({
         next: (data) => {
           this.data.set(data);
-          this.form.reset(data);
+          this.form.reset({
+            ...data,
+            technology: data.technology ?? '',
+            technologyVersion: data.technologyVersion ?? '',
+            logicalName: data.logicalName ?? '',
+            renewalAt: data.renewalAt?.slice(0, 10) ?? '',
+            certificateExpiresAt: data.certificateExpiresAt?.slice(0, 10) ?? '',
+            backupIntervalHours: data.backupIntervalHours ?? null,
+            backupRetentionDays: data.backupRetentionDays ?? null,
+          });
           this.lockIdentity();
         },
         error: (error) => this.error.set(inventoryError(error)),
@@ -144,7 +203,14 @@ export class ResourceEditor {
       this.error.set('Confira nome, identificador e os limites dos campos.');
       return;
     }
-    const { technicalId, ...input } = this.form.getRawValue();
+    const { technicalId, ...values } = this.form.getRawValue();
+    const input = {
+      ...values,
+      renewalAt: values.renewalAt ? values.renewalAt + 'T00:00:00Z' : null,
+      certificateExpiresAt: values.certificateExpiresAt
+        ? values.certificateExpiresAt + 'T00:00:00Z'
+        : null,
+    };
     if (input.status === 'verified' && !input.source.trim()) {
       this.error.set('Informe a fonte da conferência.');
       return;

@@ -1,8 +1,61 @@
 # 02b — Acompanhamento comercial de leads
 
+## user-history
+
+Como integrante da equipe comercial,
+quero acompanhar etapas, notas e histórico dos leads,
+para organizar o próximo passo sem alterar o envio original.
+
+## acceptance-criteria
+
+- Etapas Novo contato, Em conversa, Em análise, Em desenvolvimento, Em validação, Entregue e Sem continuidade, com transições livres entre todas elas.
+- Sem responsável atribuído; root ou operador com a permissão interna `leads.manage` consulta e movimenta o acompanhamento.
+- Notas internas de até 3.000 caracteres, preservadas no histórico com autor e data. Não há edição ou exclusão de notas pela API/interface.
+- Histórico paginado em blocos de 20 alterações, com etapa anterior/nova, nota e identificação do operador. Autoria e data são obtidas no servidor.
+- Filtro por etapa na lista e contagens gerais por etapa persistida. Total recebido e recebido nos últimos sete dias continuam sendo indicadores de recebimento, não de pendências.
+- Revisão própria e resposta HTTP 409 para conflitos; o formulário conserva o texto quando o salvamento falha.
+- Lista compacta e painel de detalhes maior no desktop; uma coluna com detalhes antes da lista no celular.
+
+## ai-prompt
+
+Concluída no desenvolvimento; preserve pendências de publicação e ambiente.
+
+Trabalhe somente no recorte autorizado desta feature. Confira os AGENTS.md aplicáveis, a implementação atual e o registro completo em `user-feedback`. Preserve os limites e as evidências históricas; registre testes e pendências. Migrations, finish, push e publicação dependem de autorização explícita.
+
+### Estado e objetivo
+
+Desenvolvimento concluído e validado localmente em 22/10/2026 na branch `feature/issue017-followup-comercial`. Evolução da [consulta administrativa](02-leads-administrativos.md), vinculada à [épica de administração e portal](../discovery/painel-administrativo-e-portal-do-cliente.md).
+
+A equipe acompanha contatos e etapas do projeto sem modificar o snapshot original enviado pelo visitante. Publicação e validação no PostgreSQL do ambiente continuam pendentes.
+
+### Entrega implementada
+
+- Etapas Novo contato, Em conversa, Em análise, Em desenvolvimento, Em validação, Entregue e Sem continuidade, com transições livres entre todas elas.
+- Sem responsável atribuído; root ou operador com a permissão interna `leads.manage` consulta e movimenta o acompanhamento.
+- Notas internas de até 3.000 caracteres, preservadas no histórico com autor e data. Não há edição ou exclusão de notas pela API/interface.
+- Histórico paginado em blocos de 20 alterações, com etapa anterior/nova, nota e identificação do operador. Autoria e data são obtidas no servidor.
+- Filtro por etapa na lista e contagens gerais por etapa persistida. Total recebido e recebido nos últimos sete dias continuam sendo indicadores de recebimento, não de pendências.
+- Revisão própria e resposta HTTP 409 para conflitos; o formulário conserva o texto quando o salvamento falha.
+- Lista compacta e painel de detalhes maior no desktop; uma coluna com detalhes antes da lista no celular.
+
+`Stage`, `Revision`, `Snapshot` e data do envio público não são alterados por movimentações internas. Reenvios idempotentes e novas revisões públicas preservam o acompanhamento. Registro da alteração e atualização do lead são salvos na mesma unidade transacional.
+
+### Fora desta entrega
+
+- Campanhas, mensagens automáticas, exportações e CRM completo.
+- Login de empresa, solicitações de alteração, linha do tempo pública de entregas e gestão de recursos/planos, que permanecem nas features próprias do portal.
+- Criação automática de clientes, contas ou recursos. A conversão manual pertence ao [cadastro de clientes](03-cadastro-de-clientes.md).
+
+## user-feedback
+
+Registro original preservado; somente caminhos de links foram ajustados à reorganização. Não representa uma nova solicitação de execução.
+
+```markdown
+# 02b — Acompanhamento comercial de leads
+
 ## Estado e objetivo
 
-Desenvolvimento concluído e validado localmente em 22/10/2026 na branch `feature/issue017-followup-comercial`. Evolução da [consulta administrativa](02-leads-administrativos.md), vinculada à [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md).
+Desenvolvimento concluído e validado localmente em 22/10/2026 na branch `feature/issue017-followup-comercial`. Evolução da [consulta administrativa](02-leads-administrativos.md), vinculada à [épica de administração e portal](../discovery/painel-administrativo-e-portal-do-cliente.md).
 
 A equipe acompanha contatos e etapas do projeto sem modificar o snapshot original enviado pelo visitante. Publicação e validação no PostgreSQL do ambiente continuam pendentes.
 
@@ -22,7 +75,7 @@ A equipe acompanha contatos e etapas do projeto sem modificar o snapshot origina
 
 A autorização usa o `PermissionHandler` existente da identidade interna: root tem acesso global e os demais precisam de `leads.manage` vigente. Uma permissão revogada não continua autorizando pelo token antigo. Usuários externos sem essa permissão não consultam leads ou notas. Clientes e Visão geral continuam exclusivos de root nesta entrega; operador delegado entra diretamente em Leads.
 
-Não foram criados access profiles, usuários de empresa ou vínculos de portal. A hierarquia proposta permanece no planejamento da [feature 11](../painel-olivaw/11-identidade-do-portal.md). Notas internas não são notas de versão; a linha do tempo pública está na [feature 18](../painel-olivaw/18-historico-de-entregas.md).
+Não foram criados access profiles, usuários de empresa ou vínculos de portal. A hierarquia proposta permanece no planejamento da [feature 11](painel-olivaw/11-identidade-do-portal.md). Notas internas não são notas de versão; a linha do tempo pública está na [feature 18](painel-olivaw/18-historico-de-entregas.md).
 
 O histórico é preservado sem expurgo automático. Sem continuidade substitui a proposta anterior de arquivamento; é possível voltar de qualquer etapa, inclusive após entrega. Nenhuma mudança dispara publicação, criação de cliente, contratação ou cobrança.
 
@@ -53,3 +106,4 @@ Contratos e comandos reproduzíveis no [README da API](../../../ms-olivaw-api/RE
 - Campanhas, mensagens automáticas, exportações e CRM completo.
 - Login de empresa, solicitações de alteração, linha do tempo pública de entregas e gestão de recursos/planos, que permanecem nas features próprias do portal.
 - Criação automática de clientes, contas ou recursos. A conversão manual pertence ao [cadastro de clientes](03-cadastro-de-clientes.md).
+```

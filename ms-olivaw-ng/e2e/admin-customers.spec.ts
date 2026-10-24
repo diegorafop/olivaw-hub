@@ -168,6 +168,10 @@ for (const mobile of [false, true]) {
     });
     await page
       .getByRole('navigation', { name: 'Navegação da operação' })
+      .getByRole('link', { name: 'Configuração', exact: true })
+      .click();
+    await page
+      .getByRole('navigation', { name: 'Cadastros e ferramentas' })
       .getByRole('link', { name: 'Clientes', exact: true })
       .click();
     await expect(page.getByRole('heading', { name: 'Clientes', exact: true })).toBeVisible();

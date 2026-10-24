@@ -21,5 +21,12 @@ public sealed class CreateInventoryResourceCommand
     public decimal? CpuCapacity { get; set; }
     public decimal? MemoryCapacityGiB { get; set; }
     public decimal? StorageCapacityGiB { get; set; }
+    public string Technology { get; set; } = string.Empty;
+    public string TechnologyVersion { get; set; } = string.Empty;
+    public string LogicalName { get; set; } = string.Empty;
+    public DateTime? RenewalAt { get; set; }
+    public DateTime? CertificateExpiresAt { get; set; }
+    public int? BackupIntervalHours { get; set; }
+    public int? BackupRetentionDays { get; set; }
 }
 public sealed class CreateInventoryResourceResponse { public Guid ExternalId { get; set; } public long Revision { get; set; } }

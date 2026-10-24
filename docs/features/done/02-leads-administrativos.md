@@ -1,8 +1,62 @@
 # 02 — Consulta administrativa de leads
 
+## user-history
+
+Como integrante da equipe comercial,
+quero consultar os contatos recebidos,
+para entender o interesse de cada pessoa e dar continuidade ao atendimento.
+
+## acceptance-criteria
+
+- Operador root localiza e lê o lead; pessoa sem permissão não acessa consultas administrativas.
+- Contato por e-mail, só WhatsApp e snapshots antigos são apresentados corretamente.
+- Envio idempotente continua funcionando e registros não são duplicados por uma atualização comercial.
+- Paginação, ausência de resultados, falha de leitura e dados ainda não carregados têm estados distintos.
+
+## ai-prompt
+
+Concluída no desenvolvimento; preserve pendências de publicação e ambiente.
+
+Trabalhe somente no recorte autorizado desta feature. Confira os AGENTS.md aplicáveis, a implementação atual e o registro completo em `user-feedback`. Preserve os limites e as evidências históricas; registre testes e pendências. Migrations, finish, push e publicação dependem de autorização explícita.
+
+### Estado e objetivo
+
+Recorte de consulta concluído. O [acompanhamento comercial](02-acompanhamento-comercial-de-leads.md) foi implementado posteriormente em recorte próprio. Parte da [épica de administração e portal](../discovery/painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
+
+Dar à equipe acesso aos JSONs recebidos pela jornada e pelo contato direto. É a primeira fonte comercial útil para o dashboard, sem transformar automaticamente um interessado em cliente.
+
+### Dependências
+
+[Dashboard administrativo](01-dashboard-administrativo.md) e persistência de leads disponível no ambiente. Envio público e consultas administrativas protegidas estão implementados. A evolução comercial é independente deste recorte.
+
+### Escopo da entrega
+
+- Lista paginada de leads, com busca e filtros úteis por origem e data.
+- Ficha legível com negócio, ideia, escolhas, plano de interesse, e-mail ou WhatsApp e histórico da jornada. Aceitar snapshots antigos sem WhatsApp.
+- Criar consultas administrativas autorizadas, preservando o envio público sem oferecer leitura pública do lead ou revelar sua chave de escrita.
+- Conectar ao dashboard o total recebido e a quantidade recebida nos últimos sete dias, com navegação para a lista. Esses números não representam pendências comerciais.
+
+### Fora desta entrega
+
+- Envio automático de WhatsApp ou e-mail, campanhas e CRM completo.
+- Conversão automática em cliente ou criação de recursos.
+- Exposição de contatos em logs, métricas gerais ou notificações sem necessidade.
+
+### Decisões antes de implementar
+
+- Permissões de leitura e acompanhamento; estados comerciais e responsável.
+- Retenção, arquivamento, necessidade de exportação e separação entre snapshot recebido e acompanhamento interno.
+
+## user-feedback
+
+Registro original preservado; somente caminhos de links foram ajustados à reorganização. Não representa uma nova solicitação de execução.
+
+```markdown
+# 02 — Consulta administrativa de leads
+
 ## Estado e objetivo
 
-Recorte de consulta concluído. O [acompanhamento comercial](02-acompanhamento-comercial-de-leads.md) foi implementado posteriormente em recorte próprio. Parte da [épica de administração e portal](../painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
+Recorte de consulta concluído. O [acompanhamento comercial](02-acompanhamento-comercial-de-leads.md) foi implementado posteriormente em recorte próprio. Parte da [épica de administração e portal](../discovery/painel-administrativo-e-portal-do-cliente.md). A numeração organiza o planejamento, sem criar issues ou autorizar publicação, migrations e operações remotas.
 
 Dar à equipe acesso aos JSONs recebidos pela jornada e pelo contato direto. É a primeira fonte comercial útil para o dashboard, sem transformar automaticamente um interessado em cliente.
 
@@ -62,3 +116,4 @@ A conversão explícita de lead foi entregue no [cadastro de clientes](03-cadast
 - Testes de navegador com fontes simuladas para lista, detalhes, origem, período, paginação, falhas, contatos e layout desktop/celular.
 
 Comandos e contratos no [README da API](../../../ms-olivaw-api/README.md#consulta-administrativa-de-leads) e no [README do frontend](../../../ms-olivaw-ng/README.md#leads-administrativos).
+```

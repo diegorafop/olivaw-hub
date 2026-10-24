@@ -41,6 +41,17 @@ public sealed class InventoryMappingTest
         Assert.Contains(resource.GetIndexes(), index => index.IsUnique && index.GetFilter() == "provideridentitykey IS NOT NULL");
         Assert.Equal(3, resource.FindProperty("MemoryCapacityGiB")!.GetScale());
         Assert.True(context.Model.FindEntityType(typeof(InventoryRevision))!.FindProperty("Revision")!.IsConcurrencyToken);
+        foreach (var type in new[] { typeof(InventoryResource), typeof(InventoryResourceChange) })
+        {
+            var details = context.Model.FindEntityType(type)!;
+            Assert.Equal(80, details.FindProperty("Technology")!.GetMaxLength());
+            Assert.Equal(40, details.FindProperty("TechnologyVersion")!.GetMaxLength());
+            Assert.Equal(120, details.FindProperty("LogicalName")!.GetMaxLength());
+            Assert.Equal(typeof(DateTime?), details.FindProperty("RenewalAt")!.ClrType);
+            Assert.Equal(typeof(DateTime?), details.FindProperty("CertificateExpiresAt")!.ClrType);
+            Assert.Equal(typeof(int?), details.FindProperty("BackupIntervalHours")!.ClrType);
+            Assert.Equal(typeof(int?), details.FindProperty("BackupRetentionDays")!.ClrType);
+        }
         var source = InventoryFakerBuilder.Resource(); var target = InventoryFakerBuilder.Deployment();
         source.Changes.Clear(); target.Changes.Clear(); target.ManagedService.Changes.Clear();
         context.Attach(source); context.Attach(target);

@@ -39,6 +39,13 @@ public sealed class ReadInventoryResourceByIdHandler(IRepository<InventoryResour
             CpuCapacity = resource.CpuCapacity,
             MemoryCapacityGiB = resource.MemoryCapacityGiB,
             StorageCapacityGiB = resource.StorageCapacityGiB,
+            Technology = resource.Technology,
+            TechnologyVersion = resource.TechnologyVersion,
+            LogicalName = resource.LogicalName,
+            RenewalAt = resource.RenewalAt,
+            CertificateExpiresAt = resource.CertificateExpiresAt,
+            BackupIntervalHours = resource.BackupIntervalHours,
+            BackupRetentionDays = resource.BackupRetentionDays,
             CustomerCount = context.CustomerCount, Customers = context.Customers.Select(item => new InventoryCustomerItem { ExternalId = item.ExternalId, Business = item.Business }).ToList(),
             ReservedCpu = context.ReservedCpu, ReservedMemoryGiB = context.ReservedMemoryGiB, ReservedStorageGiB = context.ReservedStorageGiB, IncompleteReservations = context.IncompleteReservations,
             OriginCount = context.OriginCount, Origins = context.Origins.Select(InventoryReadMapping.Origin).ToList(),
@@ -63,6 +70,13 @@ public sealed class ReadInventoryResourceByIdHandler(IRepository<InventoryResour
                 CpuCapacity = item.CpuCapacity,
                 MemoryCapacityGiB = item.MemoryCapacityGiB,
                 StorageCapacityGiB = item.StorageCapacityGiB,
+                Technology = item.Technology,
+                TechnologyVersion = item.TechnologyVersion,
+                LogicalName = item.LogicalName,
+                RenewalAt = item.RenewalAt,
+                CertificateExpiresAt = item.CertificateExpiresAt,
+                BackupIntervalHours = item.BackupIntervalHours,
+                BackupRetentionDays = item.BackupRetentionDays,
             }).ToList()
         };
     }

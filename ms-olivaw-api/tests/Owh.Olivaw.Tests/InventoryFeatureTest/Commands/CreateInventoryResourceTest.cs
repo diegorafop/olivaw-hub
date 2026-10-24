@@ -17,14 +17,46 @@ namespace Owh.Olivaw.Tests.InventoryFeatureTest.Commands;
 public sealed class CreateInventoryResourceTest
 {
     [Fact]
+    public void Validator_should_validate_typed_details_and_public_field_names()
+    {
+        var payload = new CreateInventoryResourceCommand { Name = "Backup", Type = "backup", TechnicalId = "backup-test" };
+        var validator = new CreateInventoryResourceValidator();
+        Assert.True(validator.Validate(payload).IsValid);
+        payload.BackupIntervalHours = 0;
+        payload.BackupRetentionDays = 36501;
+        Assert.Contains(validator.Validate(payload).Errors, item => item.PropertyName == "BackupIntervalHours");
+        Assert.Contains(validator.Validate(payload).Errors, item => item.PropertyName == "BackupRetentionDays");
+        payload.BackupIntervalHours = 24;
+        payload.BackupRetentionDays = 30;
+        Assert.True(validator.Validate(payload).IsValid);
+        payload.Type = "domain";
+        Assert.False(validator.Validate(payload).IsValid);
+        payload.BackupIntervalHours = null;
+        payload.BackupRetentionDays = null;
+        payload.RenewalAt = InventoryResourceDetailsTest.Date();
+        Assert.True(validator.Validate(payload).IsValid);
+        payload.RenewalAt = payload.RenewalAt.Value.AddHours(1);
+        Assert.Contains(validator.Validate(payload).Errors, item => item.PropertyName == "RenewalAt");
+        payload.RenewalAt = null;
+        payload.Type = "database";
+        payload.TechnologyVersion = "18";
+        Assert.Contains(validator.Validate(payload).Errors, item => item.PropertyName == "Technology");
+        payload.Technology = "PostgreSQL";
+        payload.LogicalName = "application";
+        Assert.True(validator.Validate(payload).IsValid);
+    }
+
+    [Fact]
     public async Task Handle_should_create_snapshot_and_propagate_token_and_cancel()
     {
         using var cancellation = new CancellationTokenSource();
         var repository = InventoryFakerBuilder.Repository<InventoryResource>();
         var request = Request();
+        request.Payload.Technology = "Linux";
+        request.Payload.TechnologyVersion = "6";
         var result = await new CreateInventoryResourceHandler(repository.Object).Handle(request, cancellation.Token);
         Assert.Null(result.Conflict); Assert.NotEqual(Guid.Empty, result.Response.ExternalId); Assert.Equal(1, result.Response.Revision);
-        repository.Verify(item => item.AddAsync(It.Is<InventoryResource>(resource => resource.Changes.Count == 1 && resource.MemoryCapacityGiB == null && resource.ActorUserId == request.ActorUserId), cancellation.Token), Times.Once);
+        repository.Verify(item => item.AddAsync(It.Is<InventoryResource>(resource => resource.Changes.Count == 1 && resource.MemoryCapacityGiB == null && resource.Technology == "Linux" && resource.Changes.Single().TechnologyVersion == "6" && resource.ActorUserId == request.ActorUserId), cancellation.Token), Times.Once);
         repository.Verify(item => item.SaveChangesAsync(cancellation.Token), Times.Once);
         repository.Setup(item => item.ExistsAsync(It.IsAny<Expression<Func<InventoryResource, bool>>>(), cancellation.Token)).ThrowsAsync(new OperationCanceledException(cancellation.Token));
         await Assert.ThrowsAsync<OperationCanceledException>(() => new CreateInventoryResourceHandler(repository.Object).Handle(request, cancellation.Token));

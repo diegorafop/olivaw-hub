@@ -19,9 +19,10 @@ public class ReadyController
     [AllowAnonymous]
     public async Task<IActionResult> Get
     (
-        [FromQuery] ReadReadyQuery request
+        [FromQuery] ReadReadyQuery request,
+        CancellationToken cancellationToken
     )
     {
-        return Ok(await _mediator.Send(request));
+        return Ok(await _mediator.Send(request, cancellationToken));
     }
 }

@@ -351,6 +351,10 @@ for (const mobile of [false, true]) {
     const { writes } = await setup(page);
     await page
       .getByRole('navigation', { name: 'Navegação da operação' })
+      .getByRole('link', { name: 'Configuração', exact: true })
+      .click();
+    await page
+      .getByRole('navigation', { name: 'Cadastros e ferramentas' })
       .getByRole('link', { name: 'Recursos', exact: true })
       .click();
     await page.getByRole('link', { name: 'Cadastrar recurso' }).click();
@@ -490,4 +494,25 @@ test('recurso com alterações pede confirmação antes de sair', async ({ page 
   await page.getByRole('link', { name: 'Voltar aos recursos', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(resourceId));
   await expect(page.getByLabel('Nome *', { exact: true })).toHaveValue('Alteração pendente');
+});
+
+test('detalhes por tipo preservam datas UTC e limpam campos incompatíveis', async ({ page }) => {
+  const { writes } = await setup(page);
+  await page.goto('/admin/resources/new');
+  await page.getByLabel('Nome *', { exact: true }).fill('Domínio de teste');
+  await page.getByLabel('Identificador técnico').fill('domain-test');
+  await page.getByRole('combobox', { name: 'Tipo', exact: true }).selectOption('backup');
+  await page.getByLabel('Intervalo previsto (horas)').fill('24');
+  await page.getByLabel('Retenção prevista (dias)').fill('30');
+  await page.getByRole('combobox', { name: 'Tipo', exact: true }).selectOption('domain');
+  await expect(page.getByLabel('Intervalo previsto (horas)')).toHaveCount(0);
+  await page.getByLabel('Data de renovação').fill('2027-01-10');
+  await page.getByRole('button', { name: 'Salvar recurso' }).click();
+  await expect(page.getByRole('heading', { name: 'Ficha do recurso' })).toBeVisible();
+  expect(writes[0].body['renewalAt']).toBe('2027-01-10T00:00:00Z');
+  expect(writes[0].body['backupIntervalHours']).toBeNull();
+  expect(writes[0].body['backupRetentionDays']).toBeNull();
+  await expect(page.getByLabel('Data de renovação')).toHaveValue('2027-01-10');
+  await page.getByText('Revisão 1 · Operador').click();
+  await expect(page.getByText('Renovação: 10/01/2027')).toBeVisible();
 });

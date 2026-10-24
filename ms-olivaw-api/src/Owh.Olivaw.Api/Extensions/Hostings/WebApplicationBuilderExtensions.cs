@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Owh.Olivaw.Api.Features.PortalFeature.Internals;
+using Microsoft.EntityFrameworkCore;
 using Olivaw.Identity.Api.Services;
 using Owh.Olivaw.Dados;
 using Owh.Olivaw.Dados.Extensions.Facades;
@@ -23,6 +24,12 @@ public static class WebApplicationBuilderExtensions
         await using var scope = webApplication.Services.CreateAsyncScope();
         var database = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
         await database.Database.MigrateAsync(cancellationToken);
+        var portal = scope.ServiceProvider.GetService<PortalIdentityDbContext>();
+        if (portal != null)
+        {
+            if (portal.Database.HasPendingModelChanges()) throw new InvalidOperationException("A identidade do portal possui modelo pendente de migration própria.");
+            await portal.Database.MigrateAsync(cancellationToken);
+        }
         await scope.ServiceProvider.GetRequiredService<RootBootstrap>()
             .EnsureAsync(webApplication.Configuration, cancellationToken);
     }
