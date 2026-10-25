@@ -1,0 +1,56 @@
+{
+  "settingsVersion": 1,
+  "agent": {
+    "id": "baley",
+    "module": "ms_baley"
+  },
+  "schedule": {
+    "enabled": false,
+    "intervalHours": 6
+  },
+  "execution": {
+    "enabled": false,
+    "timeoutSeconds": 900,
+    "status": "awaiting-analysis-contract"
+  },
+  "ai": {
+    "provider": null,
+    "model": null
+  },
+  "skill": {
+    "path": "../skills/safety-docker/SKILL.md"
+  },
+  "localState": {
+    "directory": ".state",
+    "maxBytes": 20971520,
+    "retentionDays": 7
+  },
+  "update": {
+    "timeoutSeconds": 15,
+    "maxResponseBytes": 8388608,
+    "maxCandidates": 100,
+    "lookbackDays": 7,
+    "discovery": {
+      "provider": "bing-rss",
+      "timeoutSeconds": 10,
+      "maxResults": 10,
+      "queries": [
+        "\"security advisories\" Docker containerd runc sources",
+        "\"NgRx\" \"security\" vulnerability advisories"
+      ]
+    }
+  },
+  "ssh": {
+    "enabled": false,
+    "host": "98.95.250.122",
+    "port": 22,
+    "user": "ec2-user",
+    "privateKeyPath": "../../_secrets/olivaw-admin-2026.pem",
+    "knownHostsPath": "~/.ssh/known_hosts",
+    "strictHostKeyChecking": true,
+    "connectTimeoutSeconds": 10,
+    "connectionAttempts": 1,
+    "validationStatus": "pending-new-key-authentication",
+    "publicDns": "ec2-98-95-250-122.compute-1.amazonaws.com"
+  }
+}

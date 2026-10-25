@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sources": [
+    {"id": "cisa-kev", "publisher": "CISA", "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json", "kind": "feed", "enabled": true},
+    {"id": "nvd", "publisher": "NIST NVD", "url": "https://services.nvd.nist.gov/rest/json/cves/2.0", "kind": "feed", "enabled": true},
+    {"id": "docker", "publisher": "Docker", "url": "https://docs.docker.com/security/", "kind": "page", "enabled": true},
+    {"id": "traefik", "publisher": "Traefik", "url": "https://github.com/traefik/traefik/security/advisories", "kind": "page", "enabled": true},
+    {"id": "postgresql", "publisher": "PostgreSQL", "url": "https://www.postgresql.org/support/security/", "kind": "page", "enabled": true},
+    {"id": "rabbitmq", "publisher": "RabbitMQ", "url": "https://www.rabbitmq.com/docs/security", "kind": "page", "enabled": true},
+    {"id": "redis", "publisher": "Redis", "url": "https://redis.io/docs/latest/operate/oss_and_stack/management/security/", "kind": "page", "enabled": true},
+    {"id": "amazon-linux", "publisher": "Amazon Linux", "url": "https://alas.aws.amazon.com/", "kind": "page", "enabled": true}
+  ]
+}

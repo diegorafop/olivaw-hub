@@ -44,3 +44,10 @@ Thumbs.db
 # Cache dos scripts Python
 __pycache__/
 *.py[cod]
+
+# Chaves privadas SSH permanecem somente na máquina do operador.
+*.pem
+*.key
+id_rsa
+id_ed25519
+_secrets/
