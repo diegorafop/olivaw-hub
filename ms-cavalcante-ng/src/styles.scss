@@ -1,0 +1,68 @@
+@use '@angular/material' as mat;
+@use './theme/brand' as brand;
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: brand.$primary,
+        tertiary: brand.$tertiary,
+      ),
+      typography: brand.$font,
+      density: 0,
+    )
+  );
+  color-scheme: light;
+}
+body {
+  margin: 0;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font-family: brand.$font;
+}
+:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 4px;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 110px;
+}
+* {
+  box-sizing: border-box;
+}
+:focus-visible {
+  outline: 3px solid #896200;
+  outline-offset: 5px;
+}
+section[id],
+main[id] {
+  scroll-margin-top: 110px;
+}
+.sr-only,
+.skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.skip:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  padding: 16px;
+  background: #ffcb45;
+  color: #252824;
+  z-index: 100;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

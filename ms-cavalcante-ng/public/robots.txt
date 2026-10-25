@@ -1,0 +1,9 @@
+# Permite as prévias de compartilhamento do protótipo.
+User-agent: WhatsApp
+User-agent: facebookexternalhit
+User-agent: Facebot
+Allow: /
+
+# A indexação de busca continua bloqueada até a aprovação da versão oficial.
+User-agent: *
+Disallow: /

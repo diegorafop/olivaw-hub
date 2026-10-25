@@ -1,0 +1,17 @@
+name: ms-cavalcante-api-stg
+services:
+  ms-cavalcante-api:
+    container_name: ms-cavalcante-api-stg
+    image: ms-cavalcante-api:stg
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-cavalcante-api-stg.rule: Host(`${PUBLIC_HOST:-api.cavalcante-stg.olivaw.com.br}`)
+      traefik.http.routers.ms-cavalcante-api-stg.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-cavalcante-api-stg.tls: 'true'
+      traefik.http.routers.ms-cavalcante-api-stg.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-cavalcante-api-stg.service: ms-cavalcante-api-stg
+      traefik.http.services.ms-cavalcante-api-stg.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-cavalcante-api-stg.loadbalancer.server.scheme: http

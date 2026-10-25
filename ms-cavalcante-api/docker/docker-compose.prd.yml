@@ -1,0 +1,17 @@
+name: ms-cavalcante-api-prd
+services:
+  ms-cavalcante-api:
+    container_name: ms-cavalcante-api-prd
+    image: ms-cavalcante-api:prd
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-cavalcante-api-prd.rule: Host(`${PUBLIC_HOST:-api.cavalcante.olivaw.com.br}`)
+      traefik.http.routers.ms-cavalcante-api-prd.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-cavalcante-api-prd.tls: 'true'
+      traefik.http.routers.ms-cavalcante-api-prd.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-cavalcante-api-prd.service: ms-cavalcante-api-prd
+      traefik.http.services.ms-cavalcante-api-prd.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-cavalcante-api-prd.loadbalancer.server.scheme: http

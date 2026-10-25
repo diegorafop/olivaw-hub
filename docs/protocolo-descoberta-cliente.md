@@ -89,4 +89,4 @@ Não automatizar a escolha por uma pontuação sem contexto. A análise humana r
 
 ## Primeiro experimento: LTMJ
 
-Aplicação detalhada em [LTMJ: briefing e MVP](../ms-ltmj-ng/docs/briefing-e-mvp.md). O teste deve avaliar se o cliente consegue descrever o negócio sem ajuda técnica, se o resumo representa suas prioridades e se o MVP é compreensível. Registrar dúvidas e abandono por etapa, sem coletar conteúdo privado desnecessário.
+Aplicação detalhada em [LTMJ: briefing e MVP](clients/ltmj/briefing-e-mvp.md). O teste deve avaliar se o cliente consegue descrever o negócio sem ajuda técnica, se o resumo representa suas prioridades e se o MVP é compreensível. Registrar dúvidas e abandono por etapa, sem coletar conteúdo privado desnecessário.
