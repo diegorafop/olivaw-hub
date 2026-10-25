@@ -1,0 +1,17 @@
+name: ms-cavalcante-ng-dev
+services:
+  ms-cavalcante-ng:
+    container_name: ms-cavalcante-ng-dev
+    image: ${FRONTEND_IMAGE:-ms-cavalcante-ng:dev}
+    environment:
+      API_URL: ${API_URL:-https://api.cavalcante-dev.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-cavalcante-ng-dev.rule: Host(`${PUBLIC_HOST:-cavalcante-dev.olivaw.com.br}`)
+      traefik.http.routers.ms-cavalcante-ng-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-cavalcante-ng-dev.tls: 'true'
+      traefik.http.routers.ms-cavalcante-ng-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-cavalcante-ng-dev.service: ms-cavalcante-ng-dev
+      traefik.http.services.ms-cavalcante-ng-dev.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-cavalcante-ng-dev.loadbalancer.server.scheme: http

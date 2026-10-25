@@ -1,0 +1,17 @@
+name: ms-cavalcante-api-rls
+services:
+  ms-cavalcante-api:
+    container_name: ms-cavalcante-api-rls
+    image: ms-cavalcante-api:rls
+    environment:
+      ASPNETCORE_ENVIRONMENT: Release
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-cavalcante-api-rls.rule: Host(`${PUBLIC_HOST:-api.cavalcante-rls.olivaw.com.br}`)
+      traefik.http.routers.ms-cavalcante-api-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-cavalcante-api-rls.tls: 'true'
+      traefik.http.routers.ms-cavalcante-api-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-cavalcante-api-rls.service: ms-cavalcante-api-rls
+      traefik.http.services.ms-cavalcante-api-rls.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-cavalcante-api-rls.loadbalancer.server.scheme: http

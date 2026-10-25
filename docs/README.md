@@ -50,3 +50,5 @@ Comece pelo guia de desenvolvimento para entender como os componentes se relacio
 - [Migração dos serviços para o domínio próprio](registrobr/migracao-servicos.md): DNS, Traefik, banco e scripts de deploy.
 
 - [Baley e safety-docker — Base concluída](features/done/baley-lifecycle-e-safety-docker.md): start/stop/status, update revisável e cópia da skill instalada no Codex.
+
+- [Cavalcante — estudo e protótipo](cavalcante/README.md): inventário do site, cores, funcionalidades propostas, guia do Nicolas e publicação em cavalcante.olivaw.com.br.

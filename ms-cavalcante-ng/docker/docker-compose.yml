@@ -1,0 +1,20 @@
+name: ms-cavalcante-ng-local
+services:
+  ms-cavalcante-ng:
+    image: ${FRONTEND_IMAGE:-ms-cavalcante-ng:local}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    expose:
+      - '8080'
+    environment:
+      API_URL: ${API_URL:-http://localhost:5137}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - traefik-net
+networks:
+  traefik-net:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik-net}
