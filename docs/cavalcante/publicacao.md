@@ -37,6 +37,18 @@ A implantação deve usar os mecanismos existentes do Olivaw, ambiente `prd` e b
 - Definir como o domínio antigo se relaciona com o novo endereço antes de redirecionamentos ou mudança de canonical no site antigo.
 - Após implantação autorizada, verificar HTTP/HTTPS, certificado, HTML prerenderizado, fotos, favicon, links e configuração runtime sem cache persistente. Validar no celular.
 
-## Estado
+## Publicação autorizada — 24/10/2026
 
-Arquivos preparados localmente. Nenhum DNS, imagem remota, serviço em produção ou publicação foi alterado nesta tarefa. O endereço solicitado ainda precisa de implantação para servir esta versão.
+O mantenedor autorizou executar a publicação do frontend na branch `feature/issue024-cavalcante`. DNS público de `cavalcante.olivaw.com.br` e `api.cavalcante.olivaw.com.br` confirmado em `98.95.250.122`. A API não foi implantada: o registro DNS apenas reserva o endereço.
+
+Foi configurada a conta técnica de deployment da Cavalcante na identidade Olivaw, sem root e com somente `devops.deploy` e `devops.deploy:olivaw/ms-cavalcante-ng`. A credencial fica em `ms-cavalcante-ng/deployment/olivaw-credentials.env`, conforme a política do repositório privado; o Docker já exclui esse caminho.
+
+A allowlist da VM recebeu somente `olivaw/ms-cavalcante-ng`. O checkout anterior falhava porque dez arquivos de infraestrutura já existiam fora do índice. O conteúdo era idêntico ao da branch; foram preservados em backup privado na VM, restaurados após o checkout e conferidos com `git status` limpo. Nenhum serviço de infraestrutura foi reiniciado.
+
+Comando reproduzível na raiz:
+
+```bash
+bash scripts/deployment/deploy.sh ms-cavalcante-ng prd feature/issue024-cavalcante
+```
+
+Job: `45bd5895-ed3d-4d1b-aefb-6ea4ad7286b0`. Execução em acompanhamento. Fetch, checkout e pull concluíram; o worker segue ativo no build Angular. A consulta HTTP de acompanhamento sofreu timeout durante a construção na VM de 1 GB; o job não foi reenviado. O resultado e a verificação HTTPS serão registrados ao terminar. O protótipo mantém o bloqueio de indexação até a aprovação da versão oficial.
