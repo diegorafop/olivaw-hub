@@ -3027,6 +3027,119 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.ToTable("resourcedependency", (string)null);
                 });
 
+            modelBuilder.Entity("Owh.Olivaw.Domain.SecurityRemediation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActiveHostKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("activehostkey");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<DateTime>("ApprovalExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approvalexpiresat");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<Guid>("ExecutorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("executoruserid");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<int>("FindingIndex")
+                        .HasColumnType("integer")
+                        .HasColumnName("findingindex");
+
+                    b.Property<string>("HostId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("hostid");
+
+                    b.Property<DateTime?>("LeaseExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("leaseexpiresat");
+
+                    b.Property<Guid?>("LeaseToken")
+                        .HasColumnType("uuid")
+                        .HasColumnName("leasetoken");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("PlanJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("planjson");
+
+                    b.Property<string>("ResultJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("resultjson");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("revision");
+
+                    b.Property<int>("SecurityReportId")
+                        .HasColumnType("integer")
+                        .HasColumnName("securityreportid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("securityremediation_pk");
+
+                    b.HasIndex("ActiveHostKey")
+                        .IsUnique()
+                        .HasDatabaseName("securityremediation_activehostkey_ix")
+                        .HasFilter("activehostkey IS NOT NULL");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("securityremediation_externalid_ix");
+
+                    b.HasIndex("SecurityReportId", "FindingIndex")
+                        .IsUnique()
+                        .HasDatabaseName("securityremediation_securityreportid_ix");
+
+                    b.HasIndex("ExecutorUserId", "HostId", "Status")
+                        .HasDatabaseName("securityremediation_executoruserid_ix");
+
+                    b.ToTable("securityremediation", (string)null);
+                });
+
             modelBuilder.Entity("Owh.Olivaw.Domain.SecurityReport", b =>
                 {
                     b.Property<int>("Id")
@@ -4088,6 +4201,18 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.Navigation("SourceResource");
 
                     b.Navigation("TargetResource");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.SecurityRemediation", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.SecurityReport", "SecurityReport")
+                        .WithMany()
+                        .HasForeignKey("SecurityReportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("securityreport_securityremediation_securityreportid_fk");
+
+                    b.Navigation("SecurityReport");
                 });
 
             modelBuilder.Entity("Owh.Olivaw.Domain.ServiceDeployment", b =>

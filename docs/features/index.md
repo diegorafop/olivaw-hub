@@ -26,3 +26,5 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 
 - [Baley — Auditoria agendada, relatórios por API e interface Agents](done/agentes-python-baley-e-relatorios.md): implementação local validada, migration PostgreSQL incluída; publicação pelo mantenedor pendente.
 - [Baley — Auditoria do host e filtros de segurança](done/baley-host-e-filtros-de-seguranca.md): regras de host, tags e contagens por gravidade, filtros e detalhes expansíveis; revisão visual aguardando publicação do mantenedor.
+
+- [Baley — Correções aprovadas e saúde da infraestrutura](done/baley-correcao-aprovada-e-saude.md): aprovações individuais/em lote, catálogo limitado de correções, gates de saúde, recuperação e migration PostgreSQL; publicação pelo mantenedor pendente.

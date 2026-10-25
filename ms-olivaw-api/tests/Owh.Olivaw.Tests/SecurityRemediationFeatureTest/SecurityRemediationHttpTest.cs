@@ -63,5 +63,7 @@ public sealed class SecurityRemediationHttpTest
         Assert.Equal((HttpStatusCode)queueStatus,queue.StatusCode);
         using var attempt = await client.PutAsJsonAsync("/security-remediations/"+Guid.NewGuid(),new { action="claim",leaseToken=Guid.NewGuid(),resultJson="{}" });
         Assert.Equal(queueStatus == 200 ? HttpStatusCode.Conflict : (HttpStatusCode)queueStatus,attempt.StatusCode);
+        using var review = await client.PutAsJsonAsync("/security-remediations/"+Guid.NewGuid()+"/review",new { confirmedStopped=true,note="Processo encerrado e infraestrutura revisada pelo operador." });
+        Assert.Equal(adminStatus == 200 ? HttpStatusCode.Conflict : (HttpStatusCode)adminStatus,review.StatusCode);
     }
 }

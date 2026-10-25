@@ -53,3 +53,22 @@ describe('Severity groups', () => {
     expect(findingCounts(findings).map((group) => group.count)).toEqual([2, 1, 1, 0, 1]);
   });
 });
+
+describe('Approval target identity', () => {
+  it('preserves the original finding index when malformed entries are hidden', () => {
+    const data = reportContent({
+      ...report(),
+      rawData: JSON.stringify({
+        result: {
+          findings: [
+            null,
+            { title: 'Primeiro válido', severity: 'high' },
+            { title: 'Sem gravidade' },
+            { title: 'Segundo válido', severity: 'low' },
+          ],
+        },
+      }),
+    });
+    expect(data.findings.map((item) => item.findingIndex)).toEqual([1, 3]);
+  });
+});

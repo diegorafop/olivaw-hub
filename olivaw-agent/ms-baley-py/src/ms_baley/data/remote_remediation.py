@@ -27,7 +27,7 @@ def health():
   template = '{"id":{{json .Id}},"name":{{json .Name}},"state":{{json .State.Status}},"health":{{if .State.Health}}{{json .State.Health.Status}}{{else}}"none"{{end}},"paused":{{json .State.Paused}},"restarts":{{json .RestartCount}},"startedAt":{{json .State.StartedAt}}}'
   rows = [json.loads(run(['docker', 'inspect', '--format', template, identifier])) for identifier in ids]
   names = {row['name'].lstrip('/') for row in rows}
-  healthy = all(row['state'] == 'running' and not row['paused'] and row['health'] in ('healthy', 'none') for row in rows) and set(REQUIRED).issubset(names)
+  healthy = all(row['state'] == 'running' and not row['paused'] and row['health'] in ('healthy', 'none') and (row['health'] != 'none' or row['name'].lstrip('/') in REQUIRED) for row in rows) and set(REQUIRED).issubset(names)
   probes = []
   if healthy:
     for host in READY_HOSTS:

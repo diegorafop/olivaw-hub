@@ -28,7 +28,7 @@ class RemediationTests(unittest.TestCase):
     self.client=Mock();self.client.login.return_value='test'
     self.service=RemediationService(self.runtime,client=self.client,sleeper=lambda _:None)
     self.service.token='test'
-    self.task={'externalId':'123','hostId':settings['audit']['hostId'],'planJson':json.dumps({'Action':'restrict-permissions','Target':'authorizedKeys','ExpectedMode':0o622})}
+    self.task={'externalId':'30000000-0000-0000-0000-000000000001','hostId':settings['audit']['hostId'],'planJson':json.dumps({'Action':'restrict-permissions','Target':'authorizedKeys','ExpectedMode':0o622})}
     self.receipt={'before':{'inode':1,'device':1,'owner':1,'mode':0o622},'appliedMode':0o600}
 
   def test_unhealthy_or_stopped_container_blocks_mutation_and_cleanup(self):
@@ -70,7 +70,7 @@ class RemediationTests(unittest.TestCase):
     self.assertFalse(list(self.directory.glob('*.json')))
 
   def test_interrupted_job_never_replays_and_unknown_plan_or_host_never_executes(self):
-    (self.directory/'123.json').write_text(json.dumps({'externalId':'123','leaseToken':'token','phase':'changed'}))
+    (self.directory/'30000000-0000-0000-0000-000000000001.json').write_text(json.dumps({'externalId':'30000000-0000-0000-0000-000000000001','leaseToken':'token','phase':'changed'}))
     self.client.request.side_effect=[{}, {'items':[]}]
     self.service.remote=Mock()
     self.service.poll();self.service.remote.assert_not_called()

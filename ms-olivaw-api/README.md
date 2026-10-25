@@ -350,7 +350,7 @@ O pacote não inicia outro serviço permanente, agendador ou coletor na VM. Sem 
 
 `SecurityReport : Entity` fica no domínio. Tabela `securityreport`, GUID público, autor autenticado e datas herdados; colunas estáveis `RunId`, `AgentId`, `HostId`, `SchemaVersion`, `StartedAt`, `CompletedAt`, `ExecutionStatus` e `RawData` string. Índice único por agente/RunId impede duplicação; repetição com outro autor/conteúdo é rejeitada. Campos adicionais do objeto `result` são preservados sem mudar o schema relacional. Não há rota de escrita anônima, exclusão automática ou acesso do agente ao banco.
 
-O envelope 1.0 exige `runId` GUID não vazio, `agentId=baley`, `hostId`, timestamps UTC ordenados, `executionStatus` completed/partial/failed e objeto `result`. Metadados são extraídos do JSON pelo servidor; o cliente não escolhe o autor. A conta `baley-agent` não é root e tem somente `security.reports.write`. Consulte a [operação do Baley](../../olivaw-agent/ms-baley-py/README.md) e a [feature concluída localmente](../../docs/features/done/agentes-python-baley-e-relatorios.md).
+O envelope 1.0 exige `runId` GUID não vazio, `agentId=baley`, `hostId`, timestamps UTC ordenados, `executionStatus` completed/partial/failed e objeto `result`. Metadados são extraídos do JSON pelo servidor; o cliente não escolhe o autor. A conta `baley-agent` não é root e tem somente `security.reports.write`. Consulte a [operação do Baley](../olivaw-agent/ms-baley-py/README.md) e a [feature concluída localmente](../docs/features/done/agentes-python-baley-e-relatorios.md).
 
 Somente PostgreSQL está autorizado nesta entrega. A migration `20261025121719_Issue025` cria somente `securityreport` e seus índices, preservando tabelas e dados existentes. No deploy, o startup aplica migrations pendentes automaticamente; geração e revisão locais não aplicam alterações em bancos reais. SQL Server fica para uma entrega futura.
 
@@ -367,7 +367,7 @@ Não executamos `database update`; o deploy do mantenedor aplicará a migration 
 
 ## Correções aprovadas do Baley
 
-Implementação de `security-remediations` em andamento; **não publicar sem a migration PostgreSQL nova**. `Issue025` publicada permanece inalterada. A feature de [correção aprovada](../../docs/features/in-progress/baley-correcao-aprovada-e-saude.md) acompanha checks e autorização da migration.
+Fluxo implementado com a migration PostgreSQL `20261025220842_Issue025Remediation`. `Issue025` publicada permanece inalterada. A feature de [correção aprovada](../docs/features/done/baley-correcao-aprovada-e-saude.md) registra checks e pendência de publicação.
 
 - `GET /security-remediations?reportExternalId=<guid>`: root consulta estado e plano de cada verificação, sem revelar reserva de execução.
 - `POST /security-remediations`: root autoriza `{ "reportExternalId": "...", "findingIndex": 0 }`; índice corresponde ao array original e imutável. Relatório antigo ou procedimento não disponível exige intervenção.
@@ -380,3 +380,16 @@ Implementação de `security-remediations` em andamento; **não publicar sem a m
 ## Categorias de serviços
 
 O campo continua `type` no contrato para preservar os consumidores; o rótulo administrativo é **Categoria**. Novos valores aceitos: unknown, dotnet, angular, postgres, rabbitmq e redis. Categoria e situação são obrigatórias no cadastro; “Todos” existe apenas nos filtros. A UI inicia categoria unknown. Valores legados não confirmam uma tecnologia e são apresentados/filtrados como unknown, sem reescrever históricos existentes. Situações mantêm códigos planned/onboarding/active/closed, exibidos como Em análise/Em implantação/Em operação/Encerrado.
+
+- `PUT /security-remediations/{externalId}/review`: root registra revisão de uma execução incerta após o prazo expirar, com `confirmedStopped=true` e nota de pelo menos 20 caracteres. Libera somente a reserva do host; o achado continua em intervenção. Não executar enquanto o processo remoto ainda puder estar em andamento.
+
+Migration já gerada, **não repetir add**. Comandos reproduzíveis, sem iniciar o host ou conectar a banco real:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+dotnet ef migrations add Issue025Remediation --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue025 Issue025Remediation --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue025-remediation.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+O startup aplicará a nova tabela durante o deploy; não foi executado database update ou redeploy nesta entrega. O modelo do PortalIdentity foi conferido sem alterações pendentes. Somente PostgreSQL contemplado.

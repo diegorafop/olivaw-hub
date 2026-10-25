@@ -20,6 +20,13 @@ public sealed class SecurityRemediationController(IMediator mediator, CurrentAct
     public async Task<IActionResult> Create([FromBody] CreateSecurityRemediationCommand command, CancellationToken token) => Ok(await mediator.Send(new CreateSecurityRemediationMediatorCommand { Payload = command, ActorUserId = actor.Id }, token));
     [HttpPost("batch"), Authorize(Policy = "olivaw.root"), EnableRateLimiting("security-report-write")]
     public async Task<IActionResult> CreateBatch([FromBody] CreateSecurityRemediationBatchCommand command, CancellationToken token) => Ok(await mediator.Send(new CreateSecurityRemediationBatchMediatorCommand { Payload = command, ActorUserId = actor.Id }, token));
+    [HttpPut("{externalId:guid}/review"), Authorize(Policy = "olivaw.root")]
+    public async Task<IActionResult> Review(Guid externalId, [FromBody] UpdateSecurityRemediationReviewCommand command, CancellationToken token)
+    {
+        var result = await mediator.Send(new UpdateSecurityRemediationReviewMediatorCommand { ExternalId = externalId, ActorUserId = actor.Id, Payload = command }, token);
+        if (result.Conflict) return Conflict(new { detail = "Revisão exige intervenção, prazo expirado e confirmação da parada." });
+        return Ok(result);
+    }
     [HttpGet("queue"), Authorize(Policy = "security.remediations.execute")]
     public async Task<IActionResult> ReadQueue([FromQuery] string hostId, CancellationToken token) => Ok(await mediator.Send(new ReadSecurityRemediationQueueMediatorQuery { HostId = hostId, ActorUserId = actor.Id }, token));
     [HttpPut("{externalId:guid}"), Authorize(Policy = "security.remediations.execute")]

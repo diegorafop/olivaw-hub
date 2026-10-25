@@ -50,4 +50,23 @@ public class ManagedServiceDomainTest
         Assert.Throws<ArgumentException>(() => ManagedService.Create("UPPER_case", "Nome", "dotnet", "", "", "internal", "active", ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now));
         Assert.Throws<ArgumentException>(() => ManagedServiceCustomer.Create(ManagedServiceFakerBuilder.Create(), ManagedServiceFakerBuilder.Customer(), ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now));
     }
+    [Theory]
+    [InlineData("unknown")]
+    [InlineData("dotnet")]
+    [InlineData("angular")]
+    [InlineData("postgres")]
+    [InlineData("rabbitmq")]
+    [InlineData("redis")]
+    public void Create_should_accept_each_explicit_administrative_category(string category)
+    {
+        var service = ManagedService.Create("ms-sample-api", "Serviço", category, "", "", "internal", "planned", ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now);
+        Assert.Equal(category,service.Type);
+    }
+    [Fact]
+    public void Legacy_category_should_be_unclassified_without_guessing_technology()
+    {
+        Assert.Equal("unknown",ManagedService.NormalizeType("api"));
+        Assert.False(ManagedService.IsType("Todos"));
+        Assert.False(ManagedService.IsType(""));
+    }
 }

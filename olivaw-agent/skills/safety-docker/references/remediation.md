@@ -20,3 +20,5 @@ Após a alteração, obter ao menos duas amostras de saúde, conferir o mesmo sn
 Gravar metadados de recuperação privados antes de alterar o alvo. Se a comunicação ou processo falhar após uma alteração, reenviar somente o recibo e exigir revisão; nunca repetir a mutação por timeout. Uma execução sem confirmação não é sucesso. A API reserva a execução por host e impede transições sem a identidade e a reserva corretas.
 
 Para limpeza, aplicar também [limpeza.md](cleanup.md). Não há autorização para realizar manutenção como efeito colateral de `update`.
+
+Uma execução incerta pode manter a reserva do host bloqueada. A liberação manual exige root, prazo expirado, confirmação de que a execução terminou e registro de revisão em `PUT /security-remediations/{id}/review`. Isso libera somente a reserva e mantém Requer intervenção; nunca representa correção ou saúde automaticamente confirmada.

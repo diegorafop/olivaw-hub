@@ -30,6 +30,12 @@ public sealed class UpdateSecurityRemediationHandler(IRepository<SecurityRemedia
             entity.ActiveHostKey = entity.HostId; entity.Status = "executing"; entity.LeaseToken = input.LeaseToken;
             entity.LeaseExpiresAt = DateTime.UtcNow.AddMinutes(10); entity.Message = "Baley está verificando pré-condições e aplicando o procedimento autorizado.";
         }
+        else if (input.Action == "intervention" && entity.Status == "authorized" && entity.LeaseToken == null)
+        {
+            // Lost claim response may mean no reservation was ever persisted. Abandon safely; never execute it again.
+            entity.Status = "intervention"; entity.Message = "Execução não iniciada ou reserva não confirmada; revisão necessária.";
+            entity.ResultJson = input.ResultJson;
+        }
         else
         {
             if (entity.LeaseToken != input.LeaseToken || entity.LeaseToken == null) return new() { Conflict = true };
@@ -53,7 +59,14 @@ public sealed class UpdateSecurityRemediationHandler(IRepository<SecurityRemedia
             }
             entity.ResultJson = input.ResultJson;
         }
-        if (entity.Status is "resolved" or "intervention") entity.ActiveHostKey = null;
+        if (entity.Status == "resolved") entity.ActiveHostKey = null;
+        if (entity.Status == "intervention")
+        {
+            using var result = JsonDocument.Parse(input.ResultJson);
+            var uncertain = result.RootElement.TryGetProperty("executionUncertain", out var flag) && flag.ValueKind == JsonValueKind.True;
+            if (!uncertain) entity.ActiveHostKey = null;
+            else entity.Message = "Execução ou recuperação incerta; correções deste host bloqueadas até revisão manual.";
+        }
         entity.UpdatedAt = DateTime.UtcNow; entity.Revision++;
         await repository.UpdateAsync(entity, token);
         try { await repository.SaveChangesAsync(token); }

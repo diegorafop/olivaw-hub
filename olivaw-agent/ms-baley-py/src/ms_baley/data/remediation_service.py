@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import time
 from urllib.parse import urlencode
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from ms_baley.data.audit_service import AuditService, ReportClient, ReportHTTPError
 from ms_baley.data.local_runtime import atomic_json, exclusive_lock
@@ -33,8 +33,9 @@ class RemediationService:
     return result
 
   def update(self, job, action, result):
+    identifier = str(UUID(job['externalId']))
     payload = {'action':action,'leaseToken':job['leaseToken'],'resultJson':json.dumps(result,ensure_ascii=False)}
-    self.client.request('/security-remediations/'+job['externalId'],payload,self.token,method='PUT')
+    self.client.request('/security-remediations/'+identifier,payload,self.token,method='PUT')
 
   def process(self, task, directory):
     # No arbitrary command, filename, hostname or script comes from a report or model.
@@ -42,8 +43,9 @@ class RemediationService:
     plan = json.loads(task['planJson'])
     if plan.get('Action') != 'restrict-permissions' or plan.get('Target') not in ('sshDirectory','authorizedKeys','dockerSocket') or type(plan.get('ExpectedMode')) is not int:
       raise ValueError('Plano não implementado com segurança.')
+    identifier = str(UUID(task['externalId']))
     operation = {'action':'restrict-permissions','target':plan['Target'],'expectedMode':plan['ExpectedMode']}
-    job = {'externalId':task['externalId'],'leaseToken':str(uuid4()),'phase':'claiming','result':{}}
+    job = {'externalId':identifier,'leaseToken':str(uuid4()),'phase':'claiming','result':{}}
     path = directory/(job['externalId']+'.json')
     atomic_json(path,job)
     receipt = None
@@ -87,6 +89,7 @@ class RemediationService:
         try: rollback['confirmed']=self.remote({**operation,'operation':'rollback','receipt':receipt}).get('rolledBack') is True
         except Exception: pass
       result={'healthBefore':baseline or {'healthy':False},'rollback':rollback,'findingAbsent':False,
+              'executionUncertain':changed and rollback.get('confirmed') is not True,
               'summary':'Intervenção necessária: pré-condição, saúde, procedimento ou comunicação não pôde ser confirmada com segurança.'}
       job.update(phase='result',action='intervention',result=result);atomic_json(path,job)
     # Failed delivery never repeats the remote mutation; only this immutable receipt is retried.
@@ -111,7 +114,7 @@ class RemediationService:
           job=json.loads(path.read_text())
           if job.get('phase')!='result':
             # A crash may have happened after mutation: do not replay it or claim success.
-            job.update(phase='result',action='intervention',result={'summary':'Execução interrompida; revisão manual obrigatória antes de nova ação.','findingAbsent':False})
+            job.update(phase='result',action='intervention',result={'summary':'Execução interrompida; revisão manual obrigatória antes de nova ação.','findingAbsent':False,'executionUncertain':job.get('phase') in ('prepared','changed')})
             atomic_json(path,job)
           self.update(job,job['action'],job['result']);path.unlink()
         query=urlencode({'hostId':self.runtime.settings['audit']['hostId']})
