@@ -34,3 +34,15 @@ Acesse `http://localhost:4200`. A landing não precisa do backend. Fotos locais 
 Endereço definido: **https://cavalcante.olivaw.com.br**. API reservada: `https://api.cavalcante.olivaw.com.br`. Host, TLS do Traefik, Nginx e canonical estão alinhados. Não há proxy para API. Os ambientes e Docker preservam o fluxo do template.
 
 Ver [preparação da publicação](../docs/cavalcante/publicacao.md), [estudo e planejamento](../docs/cavalcante/README.md), [validação](../docs/cavalcante/validacao.md) e [template Angular](../ms-limpo-ng/README.md). O protótipo foi publicado com HTTPS validado; veja o registro e o job no guia de publicação. A API permanece sem implantação.
+
+## Prévia de compartilhamento
+
+O HTML prerenderizado define `og:image` com a URL HTTPS absoluta de `public/images/tractor-share-v1.png` (PNG, 1200 × 630), gerado do avatar SVG original. Título, descrição, tipo, dimensões e texto alternativo acompanham a imagem conforme [Open Graph](https://ogp.me/).
+
+Para regenerar a imagem dentro desta pasta, com o Chromium do Playwright instalado:
+
+```bash
+node scripts/generate-social-preview.mjs
+```
+
+O `robots.txt` permite WhatsApp, facebookexternalhit e Facebot; o bloqueio geral de busca e o `noindex` do protótipo permanecem. A publicação verifica página e imagem sem JavaScript, inclusive com user-agent de compartilhamento. Isso não comprova a atualização do cache nem a exibição em todas as versões do WhatsApp; mensagens já enviadas podem conservar a prévia anterior.
