@@ -51,4 +51,8 @@ Comando reproduzível na raiz:
 bash scripts/deployment/deploy.sh ms-cavalcante-ng prd feature/issue024-cavalcante
 ```
 
-Job: `45bd5895-ed3d-4d1b-aefb-6ea4ad7286b0`. Execução em acompanhamento. Fetch, checkout e pull concluíram; o worker segue ativo no build Angular. A consulta HTTP de acompanhamento sofreu timeout durante a construção na VM de 1 GB; o job não foi reenviado. O resultado e a verificação HTTPS serão registrados ao terminar. O protótipo mantém o bloqueio de indexação até a aprovação da versão oficial.
+Job: `45bd5895-ed3d-4d1b-aefb-6ea4ad7286b0`, concluído com `succeeded`. Container `ms-cavalcante-ng` em `running/healthy`. A imagem contém os fontes do commit `550b37e`; os commits posteriores registram credencial e documentação, sem alteração no frontend publicado.
+
+Verificação externa: landing e `/health` HTTP 200; favicon, avatar, foto principal e `config.json` HTTP 200; asset inexistente HTTP 404. Certificado TLS válido para `cavalcante.olivaw.com.br`, com expiração em 23/01/2027. O HTML público contém a landing prerenderizada e mantém `noindex` para o protótipo.
+
+A consulta HTTP do job sofreu timeout durante o build na VM de 1 GB; o worker continuou e foi acompanhado por SSH até concluir. O job não foi reenviado. O resolver local da VM ainda mantinha o resultado DNS anterior; a resolução pública e os testes HTTPS externos funcionaram. Não foi necessário reiniciar a infraestrutura.

@@ -12,7 +12,7 @@ Cliente **Cavalcante Terraplenagem e Locação**, projeto **Olivaw**, issue **#2
 
 Esta etapa entrega as cascas geradas dos templates e um protótipo Angular navegável. Não implementa regras de negócio de API, reservas, contratos ou persistência de orçamentos. A infraestrutura de autenticação e a feature de exemplo são herdadas do template. Não foi iniciado o host da API nem acessado banco real. Nenhuma migration nova foi gerada.
 
-O domínio definido pelo mantenedor é **https://cavalcante.olivaw.com.br**. Configuração preparada não significa implantação concluída.
+O domínio definido pelo mantenedor é **https://cavalcante.olivaw.com.br**. Frontend publicado como protótipo, com HTTPS validado; a API não foi implantada. Ver [registro da publicação](publicacao.md).
 
 ## Prévias
 

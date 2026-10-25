@@ -14,11 +14,11 @@ para pedir orientação sem percorrer conteúdo repetido.
 - Avatar e favicon vetoriais originais e fotos locais com procedência.
 - Domínio de produção configurado como cavalcante.olivaw.com.br; protótipo identificado e sem indexação.
 - Documentação de descoberta, cores, planejamento e orientação ao Nicolas.
-- Build, testes e verificações registrados sem banco, nova migration ou implantação.
+- Build e testes locais registrados sem banco ou nova migration; publicação do frontend documentada separadamente.
 
 ## ai-prompt
 
-Implementação local em revisão. Responsável: Codex; issue #24; branch feature/issue024-cavalcante; worktree /home/makina/projects/olivaw. Nicolas acompanha como aprendiz. Arquivos compartilhados: Olivaw.sln, docs/README.md e workflow de frontend. API preserva o esqueleto gerado; identidade e exemplo são herança do template. Publicação, integração e validação comercial pendentes. Ver [estudo](../../cavalcante/estudo-site.md), [validação](../../cavalcante/validacao.md) e [publicação](../../cavalcante/publicacao.md). Não implementar o backlog como efeito desta entrega.
+Implementação local em revisão. Responsável: Codex; issue #24; branch feature/issue024-cavalcante; worktree /home/makina/projects/olivaw. Nicolas acompanha como aprendiz. Arquivos compartilhados: Olivaw.sln, docs/README.md e workflow de frontend. API preserva o esqueleto gerado; identidade e exemplo são herança do template. Frontend publicado como protótipo em https://cavalcante.olivaw.com.br, com HTTPS e saúde verificados. API não implantada; integração e validação comercial pendentes. Ver [estudo](../../cavalcante/estudo-site.md), [validação](../../cavalcante/validacao.md) e [publicação](../../cavalcante/publicacao.md). Não implementar o backlog como efeito desta entrega.
 
 ## user-feedback
 
@@ -40,4 +40,12 @@ por n codifique nada com API, apenas crie os projetos limpos e faça um prototip
 
 ```text
 eu quero que o link de acesso seja cavalcante.olivaw.com.br, ja ajuste a publicação para que o link seja esse
+```
+
+```text
+acho que foi pode continuar o deploy
+```
+
+```text
+ja pode fazer push nas alterações locais para ficar tudo certo
 ```

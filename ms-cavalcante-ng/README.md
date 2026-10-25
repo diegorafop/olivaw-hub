@@ -33,4 +33,4 @@ Acesse `http://localhost:4200`. A landing não precisa do backend. Fotos locais 
 
 Endereço definido: **https://cavalcante.olivaw.com.br**. API reservada: `https://api.cavalcante.olivaw.com.br`. Host, TLS do Traefik, Nginx e canonical estão alinhados. Não há proxy para API. Os ambientes e Docker preservam o fluxo do template.
 
-Ver [preparação da publicação](../docs/cavalcante/publicacao.md), [estudo e planejamento](../docs/cavalcante/README.md), [validação](../docs/cavalcante/validacao.md) e [template Angular](../ms-limpo-ng/README.md). Não houve implantação nesta etapa.
+Ver [preparação da publicação](../docs/cavalcante/publicacao.md), [estudo e planejamento](../docs/cavalcante/README.md), [validação](../docs/cavalcante/validacao.md) e [template Angular](../ms-limpo-ng/README.md). O protótipo foi publicado com HTTPS validado; veja o registro e o job no guia de publicação. A API permanece sem implantação.
