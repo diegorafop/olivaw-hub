@@ -121,3 +121,24 @@ class AuditTests(unittest.TestCase):
     result=AIReview({'enabled':True,'provider':'codex-cli'},runner).analyze({'executionStatus':'completed','hostId':'fixture','result':{}},'Somente leitura')
     self.assertEqual('completed',result['status']);args=runner.call_args.args[0]
     self.assertIn('--ignore-user-config',args);self.assertIn('shell_tool',args);self.assertIn('--ephemeral',args)
+
+  def test_host_rules_distinguish_sensitive_listener_loopback_and_expected_ports(self):
+    findings = findings_for({'host': {'listeners': [
+      {'protocol':'tcp','address':'0.0.0.0','port':5432},
+      {'protocol':'tcp','address':'127.0.0.1','port':6379},
+      {'protocol':'tcp','address':'::','port':443},
+      {'protocol':'tcp','address':'0.0.0.0','port':8080}],
+      'firewallIPv4': {'inputPolicy':'ACCEPT','inputRuleCount':0}, 'imdsTokenlessStatus':200,
+      'permissions': {'dockerSocket': {'mode':0o666}, 'authorizedKeys': {'mode':0o622}},
+      'kernelControls': {'protected_symlinks':0}}})
+    rules = [row['ruleId'] for row in findings]
+    for rule in ['host.sensitive-listener','host.unexpected-listener','host.firewall-input','host.imdsv1','host.socket-permissions','host.ssh-permissions','host.kernel-links']:
+      self.assertIn(rule,rules)
+    self.assertEqual(1,rules.count('host.sensitive-listener'))
+    self.assertNotIn('invasão',json.dumps(findings))
+
+  def test_ss_listener_parser_handles_ipv4_and_ipv6_without_process_arguments(self):
+    from ms_baley.data.remote_probe import parse_listeners
+    rows = parse_listeners('tcp LISTEN 0 128 0.0.0.0:22 0.0.0.0:*\ntcp LISTEN 0 128 [::]:443 [::]:*')
+    self.assertEqual([22,443],[row['port'] for row in rows])
+    self.assertEqual('::',rows[1]['address'])

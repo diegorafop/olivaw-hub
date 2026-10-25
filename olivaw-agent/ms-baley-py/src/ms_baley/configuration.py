@@ -56,6 +56,9 @@ def load_settings(path):
         raise ValueError("Timeout IA deve ficar entre 10 e 180 segundos.")
     if type(settings["ssh"].get("port")) is not int or not 1 <= settings["ssh"]["port"] <= 65535:
       raise ValueError("Porta SSH inválida.")
+    ports = settings["audit"].get("expectedPublicTcpPorts", [22, 80, 443])
+    if not isinstance(ports, list) or len(ports) > 32 or any(type(port) is not int or not 1 <= port <= 65535 for port in ports):
+      raise ValueError("Portas TCP previstas inválidas.")
     if settings["schedule"]["intervalHours"] < 0.05:
       raise ValueError("Intervalo mínimo de execução: três minutos.")
     for key, minimum, maximum in (("maxBytes", 262144, 104857600), ("retentionDays", 1, 30)):

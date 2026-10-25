@@ -1,13 +1,14 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, JsonPipe, KeyValuePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
-import { AgentsApi, reportContent, reportRisk } from './agents-api';
+import { AgentsApi, reportContent } from './agents-api';
+import { findingCounts, riskTag, severityGroup, type SeverityGroup } from './report-severity';
 @Component({
   selector: 'app-report-detail',
   imports: [DatePipe, JsonPipe, KeyValuePipe, RouterLink],
-  styleUrl: './agents.scss',
+  styleUrls: ['./agents.scss', './report-tags.scss'],
   template: `<main id="operation-content" tabindex="-1">
     <header>
       <div>
@@ -23,56 +24,109 @@ import { AgentsApi, reportContent, reportRisk } from './agents-api';
       <p role="alert">Relatório indisponível, removido ou sem permissão de acesso.</p>
     }
     @if (state().report; as report) {
-      <section class="report-summary">
-        <span [class]="'risk ' + risk(report).tone"
-          ><span class="dot" aria-hidden="true"></span>{{ risk(report).label }}</span
-        >
-        <h2>{{ report.hostId }}</h2>
-        <p>{{ report.completedAt | date: 'dd/MM/yyyy · HH:mm:ss' }}</p>
-        <p class="reference">Execução {{ report.runId }}</p>
+      <section class="report-summary compact-summary">
+        <div>
+          <h2>{{ report.hostId }}</h2>
+          <span class="reference">{{ report.completedAt | date: 'dd/MM/yyyy · HH:mm' }}</span>
+        </div>
+        <span [class]="'tag ' + risk(report).tone" [attr.title]="risk(report).label">{{
+          risk(report).tag
+        }}</span>
+        @if (report.executionStatus === 'partial') {
+          <span class="tag unknown">Coleta parcial</span>
+        }
+      </section>
+      <section aria-label="Verificações de segurança">
+        <div class="findings-title">
+          <h2>Verificações</h2>
+          <span class="reference" aria-live="polite"
+            >{{ filteredFindings().length }} de {{ findings().length }}</span
+          >
+        </div>
+        <div class="severity-filters" role="group" aria-label="Filtrar por gravidade">
+          <button
+            type="button"
+            [attr.aria-pressed]="selected() === 'all'"
+            (click)="selected.set('all')"
+          >
+            Todos <span>{{ findings().length }}</span>
+          </button>
+          @for (group of counts(); track group.id) {
+            @if (group.id !== 'unknown' || group.count) {
+              <button
+                type="button"
+                [class]="group.tone"
+                [attr.aria-pressed]="selected() === group.id"
+                [disabled]="!group.count"
+                (click)="selected.set(group.id)"
+              >
+                {{ group.label }} <span>{{ group.count }}</span>
+              </button>
+            }
+          }
+        </div>
+        @for (finding of filteredFindings(); track $index) {
+          <article class="finding">
+            <div class="finding-heading">
+              <h3>{{ finding.title }}</h3>
+              <span [class]="'tag ' + group(finding.severity)">{{
+                severity(finding.severity)
+              }}</span>
+            </div>
+            <p>{{ finding.recommendation }}</p>
+            @if (finding.evidence) {
+              <details class="evidence">
+                <summary>Evidência</summary>
+                <p>{{ finding.evidence }}</p>
+              </details>
+            }
+          </article>
+        } @empty {
+          <p class="empty">
+            {{
+              findings().length
+                ? 'Nenhuma verificação neste nível.'
+                : 'Nenhum achado registrado nos controles avaliados.'
+            }}
+          </p>
+        }
       </section>
       @if (content(report).analysis; as analysis) {
-        <section class="report-summary">
-          <h2>Leitura do Baley</h2>
+        <details class="report-summary">
+          <summary>Leitura do Baley</summary>
           <p>{{ analysis.summary }}</p>
           <ul>
             @for (recommendation of analysis.recommendations; track $index) {
               <li>{{ recommendation }}</li>
             }
           </ul>
-        </section>
+        </details>
       }
-      <h2>Achados e recomendações</h2>
-      @for (finding of content(report).findings; track $index) {
-        <article class="finding">
-          <span class="severity">{{ severity(finding.severity) }}</span>
-          <h3>{{ finding.title }}</h3>
-          <p>{{ finding.evidence }}</p>
-          <p>{{ finding.recommendation }}</p>
-        </article>
-      } @empty {
-        <p>
-          Nenhum achado registrado. Confira a cobertura e as limitações antes de concluir sobre o
-          ambiente.
-        </p>
-      }
-      <h2>Cobertura da coleta</h2>
-      <dl class="coverage">
-        @for (entry of content(report).coverage | keyvalue; track entry.key) {
-          <div>
-            <dt>{{ entry.key }}</dt>
-            <dd>{{ entry.value | json }}</dd>
-          </div>
-        }
-      </dl>
-      <h2>Limitações</h2>
-      <ul>
-        @for (limitation of content(report).limitations; track $index) {
-          <li>{{ limitation }}</li>
-        }
-      </ul>
+      <details class="report-summary">
+        <summary>
+          Cobertura e limitações
+          <span class="reference"
+            >{{ content(report).limitations.length }}
+            {{ content(report).limitations.length === 1 ? 'observação' : 'observações' }}</span
+          >
+        </summary>
+        <dl class="coverage">
+          @for (entry of content(report).coverage | keyvalue; track entry.key) {
+            <div>
+              <dt>{{ entry.key }}</dt>
+              <dd>{{ entry.value | json }}</dd>
+            </div>
+          }
+        </dl>
+        <ul>
+          @for (limitation of content(report).limitations; track $index) {
+            <li>{{ limitation }}</li>
+          }
+        </ul>
+      </details>
       <details>
-        <summary>JSON completo do relatório</summary>
+        <summary>Dados técnicos</summary>
+        <p class="reference">Execução {{ report.runId }}</p>
         <pre>{{ raw() }}</pre>
       </details>
     }
@@ -101,7 +155,19 @@ export class ReportDetail {
     }
   });
   readonly content = reportContent;
-  readonly risk = reportRisk;
+  readonly risk = riskTag;
+  readonly group = severityGroup;
+  readonly selected = signal<SeverityGroup | 'all'>('all');
+  readonly findings = computed(() => {
+    const report = this.state().report;
+    return report ? reportContent(report).findings : [];
+  });
+  readonly counts = computed(() => findingCounts(this.findings()));
+  readonly filteredFindings = computed(() =>
+    this.findings().filter(
+      (finding) => this.selected() === 'all' || severityGroup(finding.severity) === this.selected(),
+    ),
+  );
   severity(value: string): string {
     return (
       (

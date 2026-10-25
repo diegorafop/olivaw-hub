@@ -39,3 +39,17 @@ describe('Security report risk', () => {
     ).toHaveLength(1);
   });
 });
+
+describe('Severity groups', () => {
+  it('counts critical and high as Danger and preserves unknown severities', async () => {
+    const { findingCounts } = await import('./report-severity');
+    const findings = ['critical', 'high', 'medium', 'low', 'future'].map((severity) => ({
+      ruleId: severity,
+      title: severity,
+      severity,
+      evidence: '',
+      recommendation: '',
+    }));
+    expect(findingCounts(findings).map((group) => group.count)).toEqual([2, 1, 1, 0, 1]);
+  });
+});

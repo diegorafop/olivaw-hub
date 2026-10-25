@@ -2,6 +2,9 @@
 import collections
 import datetime
 import json
+import http.client
+import os
+import stat
 import re
 import subprocess
 import time
@@ -58,6 +61,53 @@ def access_summary(text):
           "attribution": "IP observado pelo proxy; não comprova identidade ou origem real."}
 
 
+def parse_listeners(text):
+  listeners = []
+  for line in text.splitlines()[:100]:
+    fields = line.split()
+    if len(fields) < 5: continue
+    address, separator, port = fields[4].rpartition(":")
+    if not separator or not port.isdigit(): continue
+    listeners.append({"protocol": fields[0], "address": address.strip("[]"), "port": int(port)})
+  return listeners
+
+
+def host_controls():
+  host, coverage = {}, {}
+  firewall = command(["sudo", "-n", "iptables", "-S", "INPUT"])
+  coverage["hostFirewallIPv4"] = firewall["status"]
+  if firewall["status"] == "collected":
+    lines = firewall["text"].splitlines()
+    host["firewallIPv4"] = {"inputPolicy": next((line.split()[-1] for line in lines if line.startswith("-P INPUT ")), "unknown"),
+                            "inputRuleCount": sum(line.startswith("-A INPUT ") for line in lines)}
+  for name, path in (("sshDirectory", os.path.expanduser("~/.ssh")), ("authorizedKeys", os.path.expanduser("~/.ssh/authorized_keys")), ("dockerSocket", "/var/run/docker.sock")):
+    try:
+      metadata = os.lstat(path)
+      host.setdefault("permissions", {})[name] = {"mode": stat.S_IMODE(metadata.st_mode), "symlink": stat.S_ISLNK(metadata.st_mode)}
+      coverage[name+"Permissions"] = "collected"
+    except OSError:
+      coverage[name+"Permissions"] = "unavailable"
+  for control in ("protected_hardlinks", "protected_symlinks"):
+    try:
+      with open("/proc/sys/fs/"+control) as file: value = int(file.read(16))
+      host.setdefault("kernelControls", {})[control] = value
+      coverage[control] = "collected"
+    except (OSError, ValueError):
+      coverage[control] = "unavailable"
+  connection = http.client.HTTPConnection("169.254.169.254", timeout=2)
+  try:
+    # No token, IAM role, user-data, credential body or redirects are accessed.
+    connection.request("GET", "/latest/meta-data/")
+    response = connection.getresponse()
+    host["imdsTokenlessStatus"] = response.status
+    coverage["imdsPolicy"] = "collected"
+  except (OSError, http.client.HTTPException):
+    coverage["imdsPolicy"] = "unavailable"
+  finally:
+    connection.close()
+  return host, coverage
+
+
 def collect():
   import os
   result = {"collectedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(), "coverage": {},
@@ -74,7 +124,11 @@ def collect():
   listeners = command(["ss", "-H", "-lntu"])
   result["coverage"]["listeners"] = listeners["status"]
   if listeners["status"] == "collected":
-    result["host"]["listeners"] = [line.split()[4] for line in listeners["text"].splitlines()[:100] if len(line.split()) > 4]
+    result["host"]["listeners"] = parse_listeners(listeners["text"])
+    result["coverage"]["listenerLimitReached"] = len(listeners["text"].splitlines()) > 100
+  controls, coverage = host_controls()
+  result["host"].update(controls)
+  result["coverage"].update(coverage)
   policy = command(["sudo", "-n", "/usr/sbin/sshd", "-T"])
   result["coverage"]["sshPolicy"] = policy["status"]
   if policy["status"] == "collected":

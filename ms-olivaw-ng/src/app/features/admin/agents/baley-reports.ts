@@ -2,20 +2,18 @@ import { Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AgentsApi, reportRisk, reportContent, type SecurityReport } from './agents-api';
+import { AgentsApi, reportContent, type SecurityReport } from './agents-api';
+import { findingCounts, riskTag } from './report-severity';
 @Component({
   selector: 'app-baley-reports',
   imports: [RouterLink, DatePipe],
-  styleUrl: './agents.scss',
+  styleUrls: ['./agents.scss', './report-tags.scss'],
   template: `<main id="operation-content" tabindex="-1">
     <header>
       <div>
         <p class="eyebrow">AGENTS / SEGURANÇA</p>
         <h1>Baley</h1>
-        <p>
-          Auditorias mais recentes primeiro. Cada resultado representa os controles avaliados
-          naquele momento.
-        </p>
+        <p>Verificações do servidor e dos serviços.</p>
       </div>
       <button type="button" [disabled]="loading()" (click)="load(true)">Atualizar</button>
     </header>
@@ -34,18 +32,27 @@ import { AgentsApi, reportRisk, reportContent, type SecurityReport } from './age
     <div class="report-grid" aria-label="Relatórios do Baley">
       @for (report of reports(); track report.externalId) {
         <a class="report-card" [routerLink]="['/admin/agents/baley', report.externalId]">
-          <span class="risk" [class]="'risk ' + risk(report).tone"
-            ><span class="dot" aria-hidden="true"></span>{{ risk(report).label }}</span
+          <span [class]="'tag ' + risk(report).tone" [attr.title]="risk(report).label"
+            ><span class="dot" aria-hidden="true"></span>{{ risk(report).tag }}</span
           >
           <div class="report-heading">
             <strong>{{ report.hostId }}</strong
             ><span>{{ report.completedAt | date: 'dd/MM/yyyy · HH:mm' }}</span>
           </div>
-          <span class="report-count"
-            >{{ content(report).findings.length }}
-            {{ content(report).findings.length === 1 ? 'achado' : 'achados' }}
-            <span aria-hidden="true">↗</span></span
-          >
+          <div class="report-tags" aria-label="Achados por gravidade">
+            @for (group of counts(content(report).findings); track group.id) {
+              @if (group.count) {
+                <span [class]="'tag ' + group.tone"
+                  >{{ group.count }}
+                  {{ group.count === 1 ? group.singular : group.description.toLowerCase() }}</span
+                >
+              }
+            }
+            @if (report.executionStatus === 'partial') {
+              <span class="tag unknown">Coleta parcial</span>
+            }
+          </div>
+          <span class="report-arrow" aria-hidden="true">↗</span>
         </a>
       }
     </div>
@@ -63,7 +70,8 @@ export class BaleyReports {
   readonly nextBeforeId = signal<number | null>(null);
   readonly loading = signal(false);
   readonly error = signal(false);
-  readonly risk = reportRisk;
+  readonly risk = riskTag;
+  readonly counts = findingCounts;
   readonly content = reportContent;
   constructor() {
     this.load(true);

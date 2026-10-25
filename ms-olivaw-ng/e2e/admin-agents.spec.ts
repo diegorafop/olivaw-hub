@@ -1,8 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
 const reportId = 'a0000000-0000-0000-0000-000000000001';
-async function setup(page: Page, root = true, failure = false) {
+async function setup(page: Page, root = true, failure = false, mixed = false) {
   const rawData = JSON.stringify({
-    ai: { status: 'completed', summary: 'Resumo das evidências observadas.', recommendations: ['Revisar permissões.'] },
+    ai: {
+      status: 'completed',
+      summary: 'Resumo das evidências observadas.',
+      recommendations: ['Revisar permissões.'],
+    },
     result: {
       findings: [
         {
@@ -12,6 +16,24 @@ async function setup(page: Page, root = true, failure = false) {
           evidence: 'Proxy',
           recommendation: 'Revisar acesso mínimo.',
         },
+        ...(mixed
+          ? [
+              {
+                ruleId: 'host.firewall',
+                title: 'Revisar firewall',
+                severity: 'medium',
+                evidence: 'INPUT ACCEPT',
+                recommendation: 'Conferir regras.',
+              },
+              {
+                ruleId: 'host.permissions',
+                title: 'Permissões adicionais',
+                severity: 'low',
+                evidence: 'Metadados',
+                recommendation: 'Revisar permissões.',
+              },
+            ]
+          : []),
       ],
       coverage: { docker: 'collected' },
       limitations: ['Amostra limitada.'],
@@ -60,10 +82,11 @@ test('root navega por Agents, relatórios e detalhes com breadcrumb', async ({ p
   await setup(page);
   await page.getByRole('link', { name: 'Agents', exact: true }).click();
   await page.getByRole('link', { name: /SEGURANÇA Baley/ }).click();
-  await expect(page.getByText('Risco elevado', { exact: true })).toBeVisible();
+  await expect(page.getByText('Danger', { exact: true })).toBeVisible();
   await page.getByRole('link', { name: /Servidor principal/ }).click();
   await expect(page.getByRole('heading', { name: 'Detalhes da auditoria' })).toBeVisible();
   await expect(page.getByText('Socket Docker acessível', { exact: true })).toBeVisible();
+  await page.getByText('Leitura do Baley', { exact: true }).click();
   await expect(page.getByText('Resumo das evidências observadas.', { exact: true })).toBeVisible();
   await page
     .getByRole('navigation', { name: /breadcrumb|caminho/i })
@@ -101,4 +124,32 @@ test('lista de relatórios fica compacta e sem overflow no celular', async ({ pa
     'rgb(255, 255, 255)',
   );
   await page.screenshot({ path: test.info().outputPath('baley-mobile.png'), fullPage: true });
+});
+
+test('filtros por gravidade preservam contagens e recolhem textos complementares', async ({
+  page,
+}) => {
+  await setup(page, true, false, true);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto('/admin/agents/baley');
+  await expect(page.getByText('1 warning', { exact: true })).toBeVisible();
+  await page.getByRole('link', { name: /Servidor principal/ }).click();
+  await expect(page.locator('article.finding')).toHaveCount(3);
+  await expect(
+    page.getByText('Resumo das evidências observadas.', { exact: true }),
+  ).not.toBeVisible();
+  await page.getByRole('button', { name: 'Warning 1', exact: true }).click();
+  await expect(page.locator('article.finding')).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Revisar firewall', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Warning 1', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('button', { name: 'Danger 1', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Socket Docker acessível', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Todos 3', exact: true }).click();
+  await expect(page.locator('article.finding')).toHaveCount(3);
+  await page.screenshot({ path: test.info().outputPath('baley-details.png'), fullPage: true });
 });

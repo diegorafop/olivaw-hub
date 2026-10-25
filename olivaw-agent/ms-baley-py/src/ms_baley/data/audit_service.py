@@ -26,7 +26,7 @@ def private_file(path):
   return path
 
 
-def findings_for(evidence):
+def findings_for(evidence, expected_ports=(22, 80, 443)):
   findings = []
   def add(rule, title, severity, detail, recommendation):
     findings.append({"ruleId": rule, "title": title, "severity": severity, "confidence": "confirmed",
@@ -42,6 +42,31 @@ def findings_for(evidence):
     add("ssh.root", "SSH permite login root", "high", "Política efetiva permitrootlogin=yes", "Restringir acesso administrativo após validar recuperação.")
   if host.get("selinux") in ("Permissive", "Disabled"):
     add("host.selinux", "SELinux sem aplicação de políticas", "low", host["selinux"], "Avaliar políticas compatíveis com os serviços.")
+  for listener in host.get("listeners", []):
+    if not isinstance(listener, dict): continue  # Compatibility with older stored reports.
+    if listener.get("address") not in ("0.0.0.0", "::", "*"): continue
+    port = listener.get("port")
+    if listener.get("protocol") == "tcp" and port in expected_ports: continue
+    sensitive = port in (2375, 2376, 5432, 3306, 6379, 5672, 15672, 27017, 9200, 11211, 111, 161)
+    add("host.sensitive-listener" if sensitive else "host.unexpected-listener", "Serviço sensível escutando nas interfaces do host" if sensitive else "Porta não prevista escutando nas interfaces do host",
+        "high" if sensitive else "medium", str(listener.get("protocol"))+"/"+str(port),
+        "Verificar necessidade e regras de firewall/Security Group. Listener não comprova acesso pela internet.")
+  firewall = host.get("firewallIPv4", {})
+  if firewall.get("inputPolicy") == "ACCEPT" and firewall.get("inputRuleCount") == 0:
+    add("host.firewall-input", "Cadeia INPUT IPv4 sem regras de entrada", "medium", "INPUT ACCEPT, sem regras nesta cadeia.",
+        "Revisar proteção do host e Security Group; coordenar regras preservando SSH, Docker e sites. Não comprova exposição na AWS.")
+  if host.get("imdsTokenlessStatus") == 200:
+    add("host.imdsv1", "Metadados EC2 aceitam requisição sem token", "high", "GET de índice de metadados sem token retornou 200, sem ler credenciais.",
+        "Avaliar exigir IMDSv2 após conferir dependências da instância.")
+  for name, metadata in host.get("permissions", {}).items():
+    mode = metadata.get("mode", 0)
+    if name == "dockerSocket" and mode & 0o002:
+      add("host.socket-permissions", "Socket Docker permite escrita a outros usuários", "critical", "Permissão de escrita global no socket.", "Restringir acesso ao daemon a identidades administrativas autorizadas.")
+    if name in ("sshDirectory", "authorizedKeys") and mode & 0o022:
+      add("host.ssh-permissions", "Permissões de escrita amplas no acesso SSH", "high", name+" modo "+oct(mode), "Revisar proprietário e remover escrita de grupo/outros sem invalidar o acesso legítimo.")
+  for control, value in host.get("kernelControls", {}).items():
+    if value == 0:
+      add("host.kernel-links", "Proteção de links do kernel desabilitada", "medium", control+"=0", "Avaliar habilitar a proteção de links após validar compatibilidade.")
   for container in evidence.get("containers", []):
     name = container.get("name", "container")
     if container.get("privileged"):
@@ -149,7 +174,7 @@ class AuditService:
     report["skill"] = {"name": "safety-docker", "sha256": hashlib.sha256(skill.read_bytes()).hexdigest()}
     try:
       evidence = self.collect()
-      findings = findings_for(evidence)
+      findings = findings_for(evidence, self.settings["audit"].get("expectedPublicTcpPorts", (22, 80, 443)))
       coverage = evidence.get("coverage", {})
       coverage["accessSampleLimitReached"] = evidence.get("access", {}).get("sampleLimited", False)
       coverage["sshSampleLimitReached"] = evidence.get("authentication", {}).get("sampleLimited", False)
@@ -157,7 +182,8 @@ class AuditService:
       if not evidence.get("access", {}).get("events"):
         limitations.append("Sem eventos de access log observados; não comprova ausência de tráfego.")
       limitations.extend(["Amostra limitada de logs; intervalos podem se sobrepor.",
-                          "Não inclui exploração, varredura de CVEs, revisão de código ou Security Groups AWS."])
+                          "Não inclui exploração, varredura de CVEs, revisão de código ou Security Groups AWS.",
+                          "Listeners mostram interfaces locais; alcance externo, regras nftables nativas e firewall IPv6 não foram comprovados."])
       if not evidence.get("access", {}).get("events"):
         coverage["accessLogObservation"] = "partial"
       report.update(executionStatus="partial" if any(value is True or value in ("unavailable", "limited", "partial") for value in coverage.values()) else "completed",

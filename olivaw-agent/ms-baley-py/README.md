@@ -24,6 +24,7 @@ O arquivo real é `setting.json`. Caminhos são relativos a esta pasta; a chave 
 
 - `schedule.enabled` e `schedule.intervalHours`: repetição e intervalo do supervisor.
 - `execution.enabled`: habilita auditoria; nunca habilita remediação.
+- `audit.expectedPublicTcpPorts`: portas TCP previstas nas interfaces do host, inicialmente 22/80/443. A lista não libera portas nem substitui firewall ou Security Group. Listeners fora dela recebem achado para revisão; serviços sensíveis recebem gravidade alta.
 - `audit.logWindowHours`: janela de leitura de logs entre uma e 24 horas, independente do intervalo; manter pelo menos o intervalo escolhido para reduzir lacunas. Há limite de linhas, então janela não garante cobertura integral.
 - `ai.enabled`, `ai.provider=codex-cli`, `ai.model` e `ai.timeoutSeconds`: usa Codex instalado e autenticado nesta máquina. Modelo nulo preserva o padrão do CLI; consumo e limites pertencem à conta local. Sem shell, apps, plugins, web ou configuração pessoal de ferramentas; JSON estruturado e timeout. Falha de IA preserva a análise determinística e é registrada.
 - `reportApi.baseUrl`: destino HTTPS fixo `https://api.olivaw.com.br`; arquivo privado `../../_secrets/admin.json`, seção `baley` com `login`/`password`. JWT somente em memória. Não usar root no runtime.
@@ -33,7 +34,7 @@ O arquivo real é `setting.json`. Caminhos são relativos a esta pasta; a chave 
 
 `POST /security-reports` exige `security.reports.write`. `GET /security-reports` e `GET /security-reports/{externalId}` exigem root. O envelope JSON 1.0 contém GUID `runId`, `agentId`, `hostId`, timestamps UTC, status e `result` flexível. A API armazena `RawData` como string mais metadados estáveis; campos novos no resultado são preservados. Reenvios reutilizam o GUID e conteúdo originais; confirmação da API precede exclusão local. Até quatro entregas por ciclo, com fila persistente limitada; falhas 401/403/429/5xx não viram sucesso.
 
-Coleta até 40 containers, com campos selecionados de inspect, sem `Env`, labels ou argumentos. Consulta pressão de recursos, listeners, política SSH, SELinux, privilégios/capabilities, publicação de portas sensíveis, socket, reinícios e rotação Docker. Access logs Traefik e journal SSH são limitados a 1.200 linhas por janela. Contabiliza códigos HTTP, padrões de scanner, IPs observados e falhas de autenticação sem guardar URLs arbitrárias, query strings, headers ou linhas brutas. IP não identifica autoria. Sem logs/coletores suficientes, o resultado fica parcial, nunca verde por falta de evidência.
+Coleta até 40 containers, com campos selecionados de inspect, sem `Env`, labels ou argumentos. Consulta pressão de recursos, listeners IPv4/IPv6 estruturados, política SSH, permissões de `.ssh`/authorized_keys/socket, política e contagem de regras INPUT IPv4, proteções de links do kernel, exigência de token nos metadados EC2 (status apenas, sem ler credenciais), SELinux, privilégios/capabilities, publicação de portas sensíveis, socket, reinícios e rotação Docker. Access logs Traefik e journal SSH são limitados a 1.200 linhas por janela. Contabiliza códigos HTTP, padrões de scanner, IPs observados e falhas de autenticação sem guardar URLs arbitrárias, query strings, headers ou linhas brutas. IP não identifica autoria. Sem logs/coletores suficientes, o resultado fica parcial, nunca verde por falta de evidência.
 
 Não inclui automaticamente exploração, CVE scan, revisão de código, Security Groups, restauração de backups ou confirmação de invasão. Campo ausente significa não avaliado. A IA apresenta resumo e recomendações; não altera a classificação determinística, a skill ou o servidor.
 
@@ -59,3 +60,5 @@ python3 -m unittest discover -s olivaw-agent/tests -v
 Os testes de coleta/IA/API usam doubles, sem servidor, modelo pago ou banco real. A investigação real é uma operação distinta e explicitamente autorizada. Primeira plataforma comprovada: Linux/POSIX.
 
 Referência do adaptador: [Codex em modo não interativo](https://learn.chatgpt.com/docs/non-interactive-mode), com JSON estruturado e sessão efêmera.
+
+O [plano de restrição do socket Traefik](../../docs/features/discovery/restricao-socket-docker-traefik.md) é uma proposta separada; a auditoria não implanta esse proxy.

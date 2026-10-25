@@ -57,7 +57,12 @@
   },
   "audit": {
     "hostId": "fintalk-server",
-    "logWindowHours": 6
+    "logWindowHours": 6,
+    "expectedPublicTcpPorts": [
+      22,
+      80,
+      443
+    ]
   },
   "reportApi": {
     "enabled": true,
