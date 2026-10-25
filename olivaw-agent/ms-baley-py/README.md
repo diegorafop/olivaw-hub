@@ -62,3 +62,19 @@ Os testes de coleta/IA/API usam doubles, sem servidor, modelo pago ou banco real
 Referência do adaptador: [Codex em modo não interativo](https://learn.chatgpt.com/docs/non-interactive-mode), com JSON estruturado e sessão efêmera.
 
 O [plano de restrição do socket Traefik](../../docs/features/discovery/restricao-socket-docker-traefik.md) é uma proposta separada; a auditoria não implanta esse proxy.
+
+## Correções aprovadas
+
+Aprovação root é separada da auditoria. A UI oferece autorização por achado e **Autorizar todas** (todo o relatório, independente do filtro). Estados: Aguardando revisão → Autorizado → Corrigindo → Validando infraestrutura → Resolvido; problemas ou procedimentos não disponíveis ficam em Requer intervenção.
+
+O agente consulta a fila a cada 30 segundos, em `remediation.pollSeconds`, sem alterar as seis horas da auditoria. Auditoria e correção usam o mesmo lock local; a API mantém uma reserva exclusiva por host, revisão e prazo. O operador aprova um plano fixo por verificação. Texto do modelo, nomes de comandos ou caminhos enviados pelo relatório nunca viram shell.
+
+O catálogo inicial restringe permissões de `.ssh`, `authorized_keys` e acesso de outros usuários ao socket Docker, conferindo tipo, dono, inode e modo. Registra recuperação antes da alteração. Outros achados exigem intervenção: não há correção automática genérica de firewall, SSHD, redes, imagens, serviços ou caches. Nenhuma correção foi aplicada em produção para verificar esta implementação.
+
+O gate considera **todos** os containers, inclusive os parados de rollback: qualquer estado diferente de running/healthy, healthcheck iniciando, pausa, serviço obrigatório ausente ou probe indisponível bloqueia manutenção. Confere readiness das três APIs, PostgreSQL e alcance AMQP, além dos healthchecks Docker existentes. Ausência de healthcheck Docker não é descrita como check aprovado. O futuro agente de disponibilidade não faz parte desta entrega.
+
+Após a alteração, exige duas amostras saudáveis, mesmo inventário e sem reinícios, e confirmação do achado ausente. Falha tenta recuperação limitada e registra intervenção; não anuncia sucesso só porque o comando retornou zero. Se o processo ou comunicação falhar, o recibo privado permite reenviar somente o resultado, nunca repetir a mutação. Uma reserva interrompida pode bloquear novas correções do host até revisão; não existe retomada automática destrutiva.
+
+A credencial Baley continua em `_secrets/admin.json`, seção `baley`. O provisionador revisado concede somente `security.reports.write` e `security.remediations.execute`, sem root; aprovações continuam exclusivas do root. A tabela depende de nova migration e publicação pelo mantenedor; consultar a [feature em andamento](../../docs/features/in-progress/baley-correcao-aprovada-e-saude.md).
+
+A [skill de limpeza](../skills/safety-docker/references/cleanup.md) preserva containers, volumes, redes e recuperação. `docker system prune` não atende ao escopo e não é executado pelo Baley. Enquanto não houver um procedimento catalogado de cache, a skill apenas prepara investigação e plano manual para o operador.

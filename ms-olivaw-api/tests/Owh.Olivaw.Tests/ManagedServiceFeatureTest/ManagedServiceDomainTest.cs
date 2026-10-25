@@ -18,7 +18,7 @@ public class ManagedServiceDomainTest
         var service = ManagedServiceFakerBuilder.Create();
         var first = Assert.Single(service.Changes);
         Assert.Equal(1, first.Revision);
-        var change = service.Apply("Novo nome", "worker", "Descrição atualizada", "Equipe", "internal", status, ManagedServiceFakerBuilder.Actor, "Outro operador", ManagedServiceFakerBuilder.Now.AddMinutes(1));
+        var change = service.Apply("Novo nome", "dotnet", "Descrição atualizada", "Equipe", "internal", status, ManagedServiceFakerBuilder.Actor, "Outro operador", ManagedServiceFakerBuilder.Now.AddMinutes(1));
         Assert.Equal(2, service.Revision);
         Assert.Equal("ms-example-api", service.TechnicalId);
         Assert.Equal(status, service.Status);
@@ -47,7 +47,7 @@ public class ManagedServiceDomainTest
     [Fact]
     public void Create_should_reject_invalid_identifier_and_link_for_internal_service()
     {
-        Assert.Throws<ArgumentException>(() => ManagedService.Create("UPPER_case", "Nome", "api", "", "", "internal", "active", ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now));
+        Assert.Throws<ArgumentException>(() => ManagedService.Create("UPPER_case", "Nome", "dotnet", "", "", "internal", "active", ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now));
         Assert.Throws<ArgumentException>(() => ManagedServiceCustomer.Create(ManagedServiceFakerBuilder.Create(), ManagedServiceFakerBuilder.Customer(), ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now));
     }
 }

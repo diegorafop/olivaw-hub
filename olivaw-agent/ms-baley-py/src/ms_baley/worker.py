@@ -38,8 +38,11 @@ def main(argv=None):
              "lastAnalysis": None}
     heartbeat = 0.0
     next_analysis = time.monotonic()
+    next_remediation = time.monotonic()
+    job_kind = "audit"
     import concurrent.futures
     from ms_baley.data.audit_service import AuditService
+    from ms_baley.data.remediation_service import RemediationService
     from ms_baley.features.audit.commands.run_audit import RunAuditHandler
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
     future = None
@@ -48,20 +51,28 @@ def main(argv=None):
         if read_state(runtime.state / "stop.json").get("instanceId") == args.token:
           break
         if future is not None and future.done():
-          try:
-            state["lastAnalysis"] = future.result()
-          except Exception:
-            state["lastAnalysis"] = {"executionStatus": "failed", "error": "audit-cycle-failed"}
+          try: outcome = future.result()
+          except Exception: outcome = {"executionStatus":"failed","error":"cycle-failed"}
           future = None
-          next_analysis = time.monotonic() + runtime.settings["schedule"]["intervalHours"] * 3600
-          from datetime import datetime, timezone, timedelta
-          state["nextAnalysisAt"] = (datetime.now(timezone.utc) + timedelta(hours=runtime.settings["schedule"]["intervalHours"])).isoformat()
+          if job_kind == "audit":
+            state["lastAnalysis"] = outcome
+            next_analysis = time.monotonic() + runtime.settings["schedule"]["intervalHours"] * 3600
+            from datetime import datetime, timezone, timedelta
+            state["nextAnalysisAt"] = (datetime.now(timezone.utc) + timedelta(hours=runtime.settings["schedule"]["intervalHours"])).isoformat()
+          else:
+            state["lastRemediation"] = outcome
+            next_remediation = time.monotonic() + runtime.settings["remediation"]["pollSeconds"]
           state["state"] = "scheduled" if runtime.settings["schedule"]["enabled"] else "idle"
         if future is None and state["analysisEnabled"] and time.monotonic() >= next_analysis:
           if runtime.settings["schedule"]["enabled"] or state["lastAnalysis"] is None:
+            job_kind = "audit"
             future = executor.submit(RunAuditHandler(runtime, AuditService(runtime)).handle)
             state["state"] = "auditing"
             state["nextAnalysisAt"] = None
+        if future is None and state["analysisEnabled"] and runtime.settings.get("remediation",{}).get("enabled") and time.monotonic() >= next_remediation:
+          job_kind = "remediation"
+          future = executor.submit(RemediationService(runtime).poll)
+          state["state"] = "checking-approvals"
         if time.monotonic() >= heartbeat:
           state["heartbeatAt"] = now()
           atomic_json(runtime.state / "status.json", state)

@@ -39,6 +39,17 @@ async function setup(page: Page, root = true, failure = false, mixed = false) {
       limitations: ['Amostra limitada.'],
     },
   });
+  let approvals = JSON.parse(rawData).result.findings.map((_finding: unknown, index: number) => ({
+    externalId: '',
+    findingIndex: index,
+    status: 'review',
+    message: '',
+    supported: index === 0,
+    planTitle:
+      index === 0
+        ? 'Restringir permissões e validar a infraestrutura.'
+        : 'Procedimento seguro indisponível; revisão manual.',
+  }));
   const report = {
     externalId: reportId,
     runId: reportId,
@@ -64,6 +75,32 @@ async function setup(page: Page, root = true, failure = false, mixed = false) {
           userProfileId: 'test',
         },
       });
+    if (path === '/security-remediations' && route.request().method() === 'GET')
+      return route.fulfill({ json: { items: approvals } });
+    if (path === '/security-remediations' && route.request().method() === 'POST') {
+      const index = route.request().postDataJSON().findingIndex;
+      approvals = approvals.map(
+        (item: { findingIndex: number; status: string; supported: boolean }) =>
+          item.findingIndex === index
+            ? { ...item, status: item.supported ? 'authorized' : 'intervention' }
+            : item,
+      );
+      return route.fulfill({ json: { externalId: reportId, status: approvals[index].status } });
+    }
+    if (path === '/security-remediations/batch') {
+      approvals = approvals.map((item: { status: string; supported: boolean }) =>
+        item.status === 'review'
+          ? { ...item, status: item.supported ? 'authorized' : 'intervention' }
+          : item,
+      );
+      return route.fulfill({
+        json: {
+          authorizedCount: 1,
+          interventionCount: approvals.length - 1,
+          alreadyHandledCount: 0,
+        },
+      });
+    }
     if (path === '/security-reports')
       return route.fulfill(
         failure ? { status: 503, json: {} } : { json: { items: [report], nextBeforeId: null } },
@@ -86,7 +123,6 @@ test('root navega por Agents, relatórios e detalhes com breadcrumb', async ({ p
   await page.getByRole('link', { name: /Servidor principal/ }).click();
   await expect(page.getByRole('heading', { name: 'Detalhes da auditoria' })).toBeVisible();
   await expect(page.getByText('Socket Docker acessível', { exact: true })).toBeVisible();
-  await page.getByText('Leitura do Baley', { exact: true }).click();
   await expect(page.getByText('Resumo das evidências observadas.', { exact: true })).toBeVisible();
   await page
     .getByRole('navigation', { name: /breadcrumb|caminho/i })
@@ -135,9 +171,7 @@ test('filtros por gravidade preservam contagens e recolhem textos complementares
   await expect(page.getByText('1 warning', { exact: true })).toBeVisible();
   await page.getByRole('link', { name: /Servidor principal/ }).click();
   await expect(page.locator('article.finding')).toHaveCount(3);
-  await expect(
-    page.getByText('Resumo das evidências observadas.', { exact: true }),
-  ).not.toBeVisible();
+  await expect(page.getByText('Resumo das evidências observadas.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Warning 1', exact: true }).click();
   await expect(page.locator('article.finding')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Revisar firewall', exact: true })).toBeVisible();
@@ -152,4 +186,34 @@ test('filtros por gravidade preservam contagens e recolhem textos complementares
   await page.getByRole('button', { name: 'Todos 3', exact: true }).click();
   await expect(page.locator('article.finding')).toHaveCount(3);
   await page.screenshot({ path: test.info().outputPath('baley-details.png'), fullPage: true });
+});
+
+test('aprovação em lote abrange todo o relatório e evidência fica visível sem clique', async ({
+  page,
+}) => {
+  await setup(page, true, false, true);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto('/admin/agents/baley/' + reportId);
+  await expect(page.getByText('Proxy', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Danger 1', exact: true }).click();
+  await page.getByRole('button', { name: 'Autorizar todas', exact: true }).click();
+  await expect(
+    page.getByText('Autorizar as 3 verificações pendentes deste relatório?'),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Confirmar autorizações', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('1 autorizadas');
+  await expect(page.getByText('Autorizado', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Todos 3', exact: true }).click();
+  await expect(page.getByText('Requer intervenção', { exact: true })).toHaveCount(2);
+});
+test('autorização individual exige confirmação do procedimento', async ({ page }) => {
+  await setup(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto('/admin/agents/baley/' + reportId);
+  await page.getByRole('button', { name: 'Autorizar correção', exact: true }).click();
+  await expect(
+    page.getByText('Restringir permissões e validar a infraestrutura.', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Confirmar autorização', exact: true }).click();
+  await expect(page.getByText('Autorizado', { exact: true })).toBeVisible();
 });

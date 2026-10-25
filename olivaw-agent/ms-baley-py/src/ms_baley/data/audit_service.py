@@ -121,7 +121,7 @@ class ReportClient:
     finally:
       connection.close()
 
-  def send(self, report):
+  def login(self):
     path = private_file(self.project / self.settings["credentialsPath"])
     credentials = json.loads(path.read_text())[self.settings["credentialsSection"]]
     # Autenticar em cada lote; JWT permanece apenas em memória.
@@ -129,6 +129,10 @@ class ReportClient:
     token = auth.get("accessToken") or auth.get("token")
     if not isinstance(token, str) or not token or len(token) > 32768:
       raise ValueError("Login sem token compatível.")
+    return token
+
+  def send(self, report):
+    token = self.login()
     response = self.request("/security-reports", {"rawData": json.dumps(report, ensure_ascii=False, separators=(",", ":"))}, token)
     if response.get("runId") != report["runId"] or not response.get("externalId"):
       raise ValueError("Confirmação de entrega incompatível.")
@@ -142,7 +146,7 @@ class AuditService:
     self.runner = runner or bounded_run
     self.client = client or ReportClient(self.settings.get("reportApi", {}), runtime.path.parent)
 
-  def collect(self):
+  def remote(self, source):
     ssh = self.settings["ssh"]
     if not ssh.get("enabled") or ssh.get("strictHostKeyChecking") is not True:
       raise ValueError("SSH exige habilitação e validação estrita de host.")
@@ -151,9 +155,6 @@ class AuditService:
     key = private_file(self.runtime.path.parent / ssh["privateKeyPath"])
     known = Path(ssh["knownHostsPath"]).expanduser()
     if not known.is_file(): raise ValueError("known_hosts obrigatório.")
-    window = self.settings["audit"]["logWindowHours"]
-    source = Path(__file__).with_name("remote_probe.py").read_text().replace("WINDOW_HOURS = 6", "WINDOW_HOURS = " + str(window))
-    source = Path(__file__).with_name("process_io.py").read_text() + "\n" + source.replace("from ms_baley.data.process_io import bounded_run", "")
     args = ["ssh", "-F", "/dev/null", "-T", "-o", "BatchMode=yes", "-o", "IdentitiesOnly=yes",
             "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile="+str(known),
             "-o", "ConnectTimeout=10", "-o", "ConnectionAttempts=1", "-o", "ServerAliveInterval=15",
@@ -166,6 +167,12 @@ class AuditService:
     evidence = json.loads(result.stdout)
     if not isinstance(evidence, dict): raise ValueError("Coleta incompatível.")
     return evidence
+
+  def collect(self):
+    window = self.settings["audit"]["logWindowHours"]
+    source = Path(__file__).with_name("remote_probe.py").read_text().replace("WINDOW_HOURS = 6", "WINDOW_HOURS = " + str(window))
+    source = Path(__file__).with_name("process_io.py").read_text() + "\n" + source.replace("from ms_baley.data.process_io import bounded_run", "")
+    return self.remote(source)
 
   def audit(self):
     report = {"schemaVersion": "1.0", "runId": str(uuid4()), "agentId": "baley",

@@ -17,3 +17,7 @@ Projeto base para contratos públicos e cliente REST do microservice. Adicione a
 ## Relatórios de segurança
 
 `Features/SecurityReportFeature` contém payloads planos para envio e consulta dos relatórios Baley. `CreateSecurityReportCommand.RawData` preserva o JSON evolutivo; os campos internos de auditoria não pertencem ao payload. Envio exige `security.reports.write`; listagem e detalhes exigem root. O projeto fornece contratos, sem transporte HTTP ou aquisição de JWT. Consulte o [guia da API](../../README.md#relatórios-de-segurança-do-baley).
+
+## Correções de segurança
+
+`Features/SecurityRemediationFeature` contém contratos planos de aprovação individual/em lote, consulta por relatório e fila técnica, e atualização de execução. A aprovação é root; execução depende de permissão própria, autor do relatório, reserva, estado e saúde. Não há comandos livres nos payloads. Consulte o [contrato da API](../../README.md#correções-aprovadas-do-baley).

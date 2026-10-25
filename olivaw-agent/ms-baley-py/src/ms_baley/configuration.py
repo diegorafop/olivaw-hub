@@ -65,4 +65,11 @@ def load_settings(path):
       value = settings["localState"].get(key)
       if type(value) is not int or not minimum <= value <= maximum:
         raise ValueError("Retenção local inválida: " + key)
+  remediation = settings.get("remediation", {"enabled": False})
+  if not isinstance(remediation, dict) or type(remediation.get("enabled")) is not bool:
+    raise ValueError("Configuração de correção inválida.")
+  if remediation["enabled"]:
+    value = remediation.get("pollSeconds")
+    if type(value) is not int or not 15 <= value <= 300:
+      raise ValueError("Consulta de aprovações deve ficar entre 15 e 300 segundos.")
   return settings

@@ -15,6 +15,7 @@ MAX_LINES = 1200
 
 
 def command(args, timeout=12):
+  if args and args[0] == "docker": args = ["docker", "-H", "unix:///var/run/docker.sock", *args[1:]]
   try:
     result = bounded_run(args, input="", timeout=timeout, maximum=2097152)
     if result.returncode:

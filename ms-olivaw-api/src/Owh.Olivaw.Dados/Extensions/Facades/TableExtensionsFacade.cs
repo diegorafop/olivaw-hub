@@ -23,5 +23,6 @@ internal static class TableExtensionsFacade
         modelBuilder.SetupSupportRequest();
         modelBuilder.SetupIncident();
         modelBuilder.SetupSecurityReport();
+        modelBuilder.SetupSecurityRemediation();
     }
 }

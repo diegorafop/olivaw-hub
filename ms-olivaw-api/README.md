@@ -364,3 +364,19 @@ dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.O
 ```
 
 Não executamos `database update`; o deploy do mantenedor aplicará a migration pelo startup.
+
+## Correções aprovadas do Baley
+
+Implementação de `security-remediations` em andamento; **não publicar sem a migration PostgreSQL nova**. `Issue025` publicada permanece inalterada. A feature de [correção aprovada](../../docs/features/in-progress/baley-correcao-aprovada-e-saude.md) acompanha checks e autorização da migration.
+
+- `GET /security-remediations?reportExternalId=<guid>`: root consulta estado e plano de cada verificação, sem revelar reserva de execução.
+- `POST /security-remediations`: root autoriza `{ "reportExternalId": "...", "findingIndex": 0 }`; índice corresponde ao array original e imutável. Relatório antigo ou procedimento não disponível exige intervenção.
+- `POST /security-remediations/batch`: root envia `{ "reportExternalId": "..." }`; autoriza pendentes do relatório inteiro e preserva registros existentes. Salva a coleção em uma unidade de persistência; restrição única impede duplicações concorrentes. Retorna contagens autorizadas, encaminhadas e já tratadas.
+- `GET /security-remediations/queue?hostId=<id>`: `security.remediations.execute`, somente tarefas do próprio autor técnico e host solicitado, aprovadas e não expiradas.
+- `PUT /security-remediations/{externalId}`: mesma permissão, identidade do executor, reserva e estado corretos. Ações fixas claim/validating/resolved/intervention, nunca comandos. Reserva de dez minutos e autorização de 24 horas. Resolvido exige fase de validação e evidências de saúde antes/depois, duas amostras e achado ausente. Reserva expirada não permite sucesso; intervenção ainda pode registrar a execução interrompida.
+
+`SecurityRemediation : Entity` referencia o relatório sem alterar RawData, registra aprovador, executor, índice do achado, host, plano/resultado JSON, mensagem, prazo e revisão. Índice exclusivo da chave de host ativa impede correções simultâneas por processos diferentes. Execução interrompida pode exigir revisão manual antes de liberar esse host; nunca liberar e repetir a mutação automaticamente.
+
+## Categorias de serviços
+
+O campo continua `type` no contrato para preservar os consumidores; o rótulo administrativo é **Categoria**. Novos valores aceitos: unknown, dotnet, angular, postgres, rabbitmq e redis. Categoria e situação são obrigatórias no cadastro; “Todos” existe apenas nos filtros. A UI inicia categoria unknown. Valores legados não confirmam uma tecnologia e são apresentados/filtrados como unknown, sem reescrever históricos existentes. Situações mantêm códigos planned/onboarding/active/closed, exibidos como Em análise/Em implantação/Em operação/Encerrado.

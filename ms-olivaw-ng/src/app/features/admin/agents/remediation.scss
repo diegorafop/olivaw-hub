@@ -1,0 +1,88 @@
+.finding-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 14px;
+}
+.finding-body p {
+  margin: 0;
+  font-size: 13px;
+}
+.finding-evidence {
+  border-left: 1px solid #e1e8df;
+  padding-left: 18px;
+  min-width: 0;
+}
+.finding-evidence > span {
+  color: #53675d;
+  font-size: 11px;
+  display: block;
+  margin-bottom: 5px;
+}
+.remediation-footer {
+  border-top: 1px solid #edf1ed;
+  padding-top: 14px;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.remediation-footer p {
+  margin: 5px 0 0;
+}
+.remediation-footer button {
+  font-size: 12px;
+}
+.workflow-state {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #f0f3f5;
+  color: #52616e;
+}
+.workflow-state.authorized {
+  background: #eef4fa;
+  color: #3e6487;
+}
+.workflow-state.executing,
+.workflow-state.validating {
+  color: #80570b;
+  background: #fcf5e6;
+}
+.workflow-state.resolved {
+  color: #2f6846;
+  background: #edf5ee;
+}
+.workflow-state.intervention {
+  color: #a13b3b;
+  background: #fbefef;
+}
+.approval-box {
+  padding: 16px;
+  margin-top: 14px;
+  background: #f5f8f4;
+  border: 1px solid #dce5de;
+  border-radius: 8px;
+}
+.approval-box p {
+  margin-top: 0;
+}
+.approval-box button {
+  margin: 4px 8px 0 0;
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .finding-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .finding-evidence {
+    border-left: 0;
+    border-top: 1px solid #e1e8df;
+    padding: 12px 0 0;
+  }
+}

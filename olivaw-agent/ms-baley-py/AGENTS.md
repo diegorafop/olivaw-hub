@@ -9,3 +9,5 @@
 - `update` consulta fontes aprovadas e busca fontes candidatas, com limites, somente para listar source/discovery/learn. Não cria propostas em disco, não altera Baley/skill/cópia do Codex e não executa conteúdo externo. Só o operador decide o que incorporar.
 - Skill canônica está em `olivaw-agent/skills/safety-docker`; o setting do Baley usa `../skills/safety-docker/SKILL.md`, relativo à pasta do projeto, não ao cwd.
 - Testes sem SSH/IA/API reais, em diretórios temporários; encerrar workers criados em testes. Primeiro ciclo Linux; Windows não comprovado.
+
+- Correção exige ticket root na API, reserva exclusiva por host, procedimento fixo permitido e saúde confirmada antes/depois. Sem geração de shell pela IA. Qualquer container parado/instável bloqueia manutenção; limpeza nunca remove containers, volumes, redes ou dados de rollback. O catálogo inicial corrige apenas permissões delimitadas; limpeza não catalogada exige intervenção.

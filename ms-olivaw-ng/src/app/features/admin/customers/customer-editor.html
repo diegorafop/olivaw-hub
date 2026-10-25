@@ -67,14 +67,15 @@
                 >CNPJ <span class="optional">opcional</span
                 ><input
                   formControlName="document"
-                  maxlength="14"
+                  maxlength="18"
+                  (input)="maskDocument($event)"
                   inputmode="numeric"
-                  placeholder="Somente os 14 números"
+                  placeholder="00.000.000/0000-00"
                   [attr.aria-invalid]="form.controls.document.invalid && attempted()"
               /></label>
             </div>
             @if (form.controls.document.invalid && attempted()) {
-              <p class="field-error">Use os 14 números do CNPJ ou deixe em branco.</p>
+              <p class="field-error">Informe o CNPJ completo ou deixe em branco.</p>
             }
             <label
               >Responsável na Olivaw <span class="optional">opcional</span

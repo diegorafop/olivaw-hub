@@ -23,6 +23,8 @@ public static class WebApplicationBuilderFacadeExtensions
             policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement("leads.manage"))));
         builder.Services.AddAuthorization(options => options.AddPolicy("security.reports.write", policy =>
             policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement("security.reports.write"))));
+        builder.Services.AddAuthorization(options => options.AddPolicy("security.remediations.execute", policy =>
+            policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement("security.remediations.execute"))));
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

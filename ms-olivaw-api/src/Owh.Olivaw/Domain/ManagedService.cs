@@ -19,7 +19,8 @@ public sealed class ManagedService : Entity
     public ICollection<ManagedServiceChange> Changes { get; private set; } = new List<ManagedServiceChange>();
     private ManagedService() { }
 
-    public static bool IsType(string type) => type is "frontend" or "api" or "worker" or "scheduled" or "other";
+    public static string NormalizeType(string type) => IsType(type) ? type : "unknown";
+    public static bool IsType(string type) => type is "unknown" or "dotnet" or "angular" or "postgres" or "rabbitmq" or "redis";
     public static bool IsStatus(string status) => status is "planned" or "onboarding" or "active" or "closed";
     public static bool IsScope(string scope) => scope is "internal" or "customer";
 
@@ -38,7 +39,7 @@ public sealed class ManagedService : Entity
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Nome obrigatório.", nameof(name));
         if (name.Length > 120) throw new ArgumentException("Nome muito longo.", nameof(name));
-        if (!IsType(type)) throw new ArgumentException("Tipo inválido.", nameof(type));
+        if (!IsType(type)) throw new ArgumentException("Categoria inválida.", nameof(type));
         if (!IsStatus(status)) throw new ArgumentException("Situação inválida.", nameof(status));
         if (!IsScope(scope)) throw new ArgumentException("Escopo inválido.", nameof(scope));
         if (description == null) throw new ArgumentNullException(nameof(description));

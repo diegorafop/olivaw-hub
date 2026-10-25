@@ -15,7 +15,12 @@ public sealed class RepositoryManagedService(WriteDbContext context) : Repositor
             query = query.Where(item => item.Name.ToLower().Contains(term) || item.TechnicalId.Contains(term));
         }
         if (!string.IsNullOrEmpty(status)) query = query.Where(item => item.Status == status);
-        if (!string.IsNullOrEmpty(type)) query = query.Where(item => item.Type == type);
+        if (type == "unknown")
+        {
+            var classified = new[] { "dotnet", "angular", "postgres", "rabbitmq", "redis" };
+            query = query.Where(item => !classified.Contains(item.Type));
+        }
+        else if (!string.IsNullOrEmpty(type)) query = query.Where(item => item.Type == type);
         if (customer.HasValue) query = query.Where(item => item.Customers.Any(link => link.Customer.ExternalId == customer.Value && link.EndedAt == null && link.DeletedAt == null && link.Customer.DeletedAt == null));
         return query;
     }

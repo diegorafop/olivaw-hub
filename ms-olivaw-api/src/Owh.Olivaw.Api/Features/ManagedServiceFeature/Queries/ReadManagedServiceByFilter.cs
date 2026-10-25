@@ -23,7 +23,7 @@ public sealed class ReadManagedServiceByFilterHandler(IRepositoryManagedService 
             Page = payload.Page, PageSize = payload.PageSize, Total = page.Total,
             Items = page.Items.Select(item => new ManagedServiceListItem
             {
-                ExternalId = item.ExternalId, TechnicalId = item.TechnicalId, Name = item.Name, Type = item.Type,
+                ExternalId = item.ExternalId, TechnicalId = item.TechnicalId, Name = item.Name, Type = ManagedService.NormalizeType(item.Type),
                 Scope = item.Scope, Status = item.Status, CustomerCount = item.CustomerCount
             }).ToList()
         };

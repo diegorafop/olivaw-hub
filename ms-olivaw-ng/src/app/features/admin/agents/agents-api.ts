@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { timeout } from 'rxjs';
 import { RuntimeConfig } from '../../../core/config/runtime-config';
-import { LOCAL_ERROR } from '../../../core/http/http-context';
+import { LOCAL_ERROR, SKIP_LOADING } from '../../../core/http/http-context';
 export interface SecurityReport {
   externalId: string;
   runId: string;
@@ -14,6 +14,7 @@ export interface SecurityReport {
   rawData: string;
 }
 export interface Finding {
+  findingIndex?: number;
   ruleId: string;
   title: string;
   severity: string;
@@ -33,10 +34,12 @@ export function reportContent(report: SecurityReport): {
       throw new Error('Invalid report');
     return {
       findings: Array.isArray(raw.result.findings)
-        ? raw.result.findings.filter(
-            (item: Finding) =>
-              item && typeof item.title === 'string' && typeof item.severity === 'string',
-          )
+        ? raw.result.findings
+            .map((item: Finding, index: number) => item && { ...item, findingIndex: index })
+            .filter(
+              (item: Finding) =>
+                item && typeof item.title === 'string' && typeof item.severity === 'string',
+            )
         : [],
       limitations: Array.isArray(raw.result.limitations)
         ? raw.result.limitations.filter((item: unknown) => typeof item === 'string')
@@ -75,6 +78,22 @@ export function reportRisk(report: SecurityReport): { tone: string; label: strin
   if (data.findings.length) return { tone: 'warning', label: 'Requer atenção' };
   return { tone: 'good', label: 'Sem achados nos controles avaliados' };
 }
+export interface SecurityRemediation {
+  externalId: string;
+  findingIndex: number;
+  status: string;
+  message: string;
+  planTitle: string;
+  supported: boolean;
+}
+export const remediationLabels: Record<string, string> = {
+  review: 'Aguardando revisão',
+  authorized: 'Autorizado',
+  executing: 'Corrigindo',
+  validating: 'Validando infraestrutura',
+  resolved: 'Resolvido',
+  intervention: 'Requer intervenção',
+};
 @Injectable({ providedIn: 'root' })
 export class AgentsApi {
   private readonly http = inject(HttpClient);
@@ -87,6 +106,32 @@ export class AgentsApi {
           params: new HttpParams().set('beforeId', beforeId),
           context: new HttpContext().set(LOCAL_ERROR, true),
         },
+      )
+      .pipe(timeout(15000));
+  }
+  remediations(reportId: string) {
+    return this.http
+      .get<{ items: SecurityRemediation[] }>(this.config.endpoint('security-remediations'), {
+        params: new HttpParams().set('reportExternalId', reportId),
+        context: new HttpContext().set(LOCAL_ERROR, true).set(SKIP_LOADING, true),
+      })
+      .pipe(timeout(15000));
+  }
+  authorize(reportId: string, findingIndex: number) {
+    return this.http
+      .post<{ externalId: string; status: string }>(
+        this.config.endpoint('security-remediations'),
+        { reportExternalId: reportId, findingIndex },
+        { context: new HttpContext().set(LOCAL_ERROR, true) },
+      )
+      .pipe(timeout(15000));
+  }
+  authorizeAll(reportId: string) {
+    return this.http
+      .post<{ authorizedCount: number; interventionCount: number; alreadyHandledCount: number }>(
+        this.config.endpoint('security-remediations/batch'),
+        { reportExternalId: reportId },
+        { context: new HttpContext().set(LOCAL_ERROR, true) },
       )
       .pipe(timeout(15000));
   }

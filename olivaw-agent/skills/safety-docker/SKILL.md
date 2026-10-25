@@ -16,6 +16,12 @@ Investigue o alvo autorizado e entregue um diagnóstico proporcional às evidên
 5. Classifique achados como confirmados, hipóteses ou não verificados. Uma versão antiga ou um CVE no feed é candidato: verifique produto, versão, distribuição, backports, configuração e acessibilidade antes de afirmar aplicabilidade. Use [as fontes](references/sources.md) para consultas atuais; cite a fonte específica, datas e limites.
 6. Gere um objeto JSON conforme [o contrato do relatório](references/report.md). Separe resultado da execução de gravidade dos achados. Inclua cobertura, limitações e recomendações; falha de coleta não significa vulnerabilidade nem ambiente seguro.
 
+## Correções e manutenção
+
+Quando houver pedido de correção, siga [o contrato de aprovação e saúde](references/remediation.md). No Baley, só execute procedimentos catalogados vinculados a ticket autenticado e a um alvo específico. Não gerar comandos livres a partir da IA. Saúde ruim ou desconhecida bloqueia manutenção; uma correção só é Resolvida depois de verificação do achado e da infraestrutura. Falhas e procedimentos sem segurança comprovada exigem intervenção.
+
+Pedidos de limpeza seguem [o procedimento de caches](references/cleanup.md): preservar todos os containers, inclusive parados, e bloquear a limpeza se qualquer container não estiver saudável. `docker system prune` remove containers parados e não atende a essa política.
+
 ## Preservação operacional
 
 Não alterar firewall/SSHD, remover chaves, atualizar imagens, reiniciar serviços ou executar Compose como consequência de auditar. Se a tarefa autorizar uma correção, faça uma mudança delimitada, com pré-condição verificável, recuperação e conferência posterior. Nunca executar `down -v` ou prune para resolver erro de configuração.

@@ -39,23 +39,31 @@ def provision(root_login, root_password):
     user=request('userprofiles', {**credentials,'name':'Baley','email':'baley@olivaw.com.br','isServiceAccount':True,'isActive':True})['item']
   if not user.get('isServiceAccount') or not user.get('isActive'):
     raise ValueError('Conta existente não é a conta técnica ativa esperada.')
-  permission=next((row for row in items('authorizations') if row['key']=='security.reports.write'),None)
-  if permission is None:permission=request('authorizations',{'key':'security.reports.write','name':'Enviar relatórios de segurança'})['item']
+  required_keys={'security.reports.write','security.remediations.execute'}
+  permissions=[]
+  existing_permissions=items('authorizations')
+  for key in sorted(required_keys):
+    permission=next((row for row in existing_permissions if row['key']==key),None)
+    if permission is None: permission=request('authorizations',{'key':key,'name':key})['item']
+    permissions.append(permission)
   profile=next((row for row in items('accessprofiles') if row['name']=='Baley — Relatórios de segurança'),None)
   if profile is None:profile=request('accessprofiles',{'name':'Baley — Relatórios de segurança','description':'Somente envio de relatórios pelo agente Baley.'})['item']
   links=items('accessprofileauthorizations')
   existing=[row for row in links if row['accessProfileId']==profile['id']]
-  if any(row['authorizationId']!=permission['id'] for row in existing):raise ValueError('Perfil existente possui permissões adicionais; revisar manualmente.')
-  if not existing:request('accessprofileauthorizations',{'accessProfileId':profile['id'],'authorizationId':permission['id']})
+  allowed_ids={permission['id'] for permission in permissions}
+  if any(row['authorizationId'] not in allowed_ids for row in existing):raise ValueError('Perfil existente possui permissões adicionais; revisar manualmente.')
+  for permission in permissions:
+    if not any(row['authorizationId']==permission['id'] for row in existing):
+      request('accessprofileauthorizations',{'accessProfileId':profile['id'],'authorizationId':permission['id']})
   links=items('userprofileaccessprofiles')
   existing=[row for row in links if row['userProfileId']==user['id']]
   if any(row['accessProfileId']!=profile['id'] for row in existing):raise ValueError('Conta possui outros perfis; revisar manualmente.')
   if not existing:request('userprofileaccessprofiles',{'userProfileId':user['id'],'accessProfileId':profile['id']})
   access_token=client.request('/identity/authentication/login',credentials)['accessToken']
   access=client.request('/identity/authentication/access',None,access_token,method='GET')
-  if access.get('isRoot') or set(access.get('permissions',[]))!={'security.reports.write'}:
+  if access.get('isRoot') or set(access.get('permissions',[]))!=required_keys:
     raise ValueError('Permissões efetivas diferentes do escopo esperado.')
-  return {'account':'baley-agent','isRoot':False,'permissions':['security.reports.write'],'credentialsFile':'_secrets/admin.json','credentialsSection':'baley'}
+  return {'account':'baley-agent','isRoot':False,'permissions':sorted(required_keys),'credentialsFile':'_secrets/admin.json','credentialsSection':'baley'}
 
 
 def main():

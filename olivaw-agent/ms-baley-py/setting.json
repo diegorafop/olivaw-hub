@@ -69,5 +69,9 @@
     "baseUrl": "https://api.olivaw.com.br",
     "credentialsPath": "../../_secrets/admin.json",
     "credentialsSection": "baley"
+  },
+  "remediation": {
+    "enabled": true,
+    "pollSeconds": 30
   }
 }

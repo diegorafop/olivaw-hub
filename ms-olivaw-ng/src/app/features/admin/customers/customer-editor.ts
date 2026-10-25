@@ -1,3 +1,4 @@
+import { cnpjDigits, formatCnpj } from './customer-document';
 import { CustomerResources } from '../inventory/customer-resources';
 import { CustomerServices } from '../services/customer-services';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
@@ -59,7 +60,7 @@ export class CustomerEditor {
     legalName: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(180)] }),
     document: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.pattern(/^\d{14}$/)],
+      validators: [Validators.pattern(/^(?:\d{14}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})$/)],
     }),
     owner: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(120)] }),
     notes: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(3000)] }),
@@ -127,7 +128,7 @@ export class CustomerEditor {
     this.form.patchValue({
       business: data.business,
       legalName: data.legalName,
-      document: data.document ?? '',
+      document: formatCnpj(data.document ?? ''),
       owner: data.owner,
       notes: data.notes,
       status: data.status,
@@ -144,6 +145,21 @@ export class CustomerEditor {
     if (this.contacts.length <= 1) return;
     this.contacts.removeAt(index);
     this.form.markAsDirty();
+  }
+  maskDocument(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const count = input.value
+      .slice(0, input.selectionStart ?? input.value.length)
+      .replace(/\D/g, '').length;
+    input.value = formatCnpj(input.value);
+    this.form.controls.document.setValue(input.value);
+    let digits = 0,
+      caret = 0;
+    while (caret < input.value.length && digits < count) {
+      if (/\d/.test(input.value[caret])) digits++;
+      caret++;
+    }
+    input.setSelectionRange(caret, caret);
   }
   maskPhone(index: number, event: Event) {
     const input = event.target as HTMLInputElement;
@@ -182,7 +198,7 @@ export class CustomerEditor {
     const input = {
       business: value.business.trim(),
       legalName: value.legalName.trim(),
-      document: value.document || null,
+      document: cnpjDigits(value.document) || null,
       owner: value.owner.trim(),
       notes: value.notes.trim(),
       contacts: value.contacts.map((contact) => ({

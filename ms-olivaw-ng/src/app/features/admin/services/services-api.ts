@@ -4,17 +4,18 @@ import { timeout } from 'rxjs';
 import { RuntimeConfig } from '../../../core/config/runtime-config';
 import { LOCAL_ERROR, SKIP_LOADING } from '../../../core/http/http-context';
 export const serviceStatuses: Record<string, string> = {
-  planned: 'Planejado',
+  planned: 'Em análise',
   onboarding: 'Em implantação',
-  active: 'Ativo',
+  active: 'Em operação',
   closed: 'Encerrado',
 };
 export const serviceTypes: Record<string, string> = {
-  frontend: 'Frontend',
-  api: 'API',
-  worker: 'Worker',
-  scheduled: 'Tarefa agendada',
-  other: 'Outro',
+  unknown: 'Unknown',
+  dotnet: 'Dotnet',
+  angular: 'Angular',
+  postgres: 'PostgreSQL',
+  rabbitmq: 'RabbitMQ',
+  redis: 'Redis',
 };
 export interface ServiceItem {
   externalId: string;
