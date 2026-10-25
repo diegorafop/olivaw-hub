@@ -31,6 +31,17 @@ import { AgentsApi, reportContent, reportRisk } from './agents-api';
         <p>{{ report.completedAt | date: 'dd/MM/yyyy · HH:mm:ss' }}</p>
         <p class="reference">Execução {{ report.runId }}</p>
       </section>
+      @if (content(report).analysis; as analysis) {
+        <section class="report-summary">
+          <h2>Leitura do Baley</h2>
+          <p>{{ analysis.summary }}</p>
+          <ul>
+            @for (recommendation of analysis.recommendations; track $index) {
+              <li>{{ recommendation }}</li>
+            }
+          </ul>
+        </section>
+      }
       <h2>Achados e recomendações</h2>
       @for (finding of content(report).findings; track $index) {
         <article class="finding">

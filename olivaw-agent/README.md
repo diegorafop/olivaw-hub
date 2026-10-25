@@ -102,4 +102,4 @@ PYTHONPATH=olivaw-agent/ms-baley-py/src python3 -m unittest discover -s olivaw-a
 python3 -m unittest discover -s olivaw-agent/tests -v
 ```
 
-As verificações de processos usam projetos/estados temporários e encerram os workers de teste. Fontes de vulnerabilidade são simuladas nos testes, sem produção ou chamadas pagas. A [feature principal](../docs/features/in-progress/agentes-python-baley-e-relatorios.md) mantém pendências de coleta, modelo, API, RawData e migrations.
+As verificações de processos usam projetos/estados temporários e encerram os workers de teste. Fontes de vulnerabilidade são simuladas nos testes, sem produção ou chamadas pagas. A [feature principal](../docs/features/done/agentes-python-baley-e-relatorios.md) mantém pendências de coleta, modelo, API, RawData e migrations.

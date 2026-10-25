@@ -12,5 +12,5 @@ def compose(settings_path):
   runtime = LocalRuntime(settings_path)
   return {"start": StartAgentHandler(runtime), "stop": StopAgentHandler(runtime),
           "status": ReadStatusHandler(runtime),
-          "audit": RunAuditHandler(runtime, AuditService(runtime)) if runtime.settings["execution"]["enabled"] else None,
+          "audit": RunAuditHandler(runtime, AuditService(runtime)),
           "update": UpdateSkillHandler(UpdateReview(runtime))}

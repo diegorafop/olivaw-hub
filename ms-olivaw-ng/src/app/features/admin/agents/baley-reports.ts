@@ -42,7 +42,9 @@ import { AgentsApi, reportRisk, reportContent, type SecurityReport } from './age
             ><span>{{ report.completedAt | date: 'dd/MM/yyyy · HH:mm' }}</span>
           </div>
           <span class="report-count"
-            >{{ content(report).findings.length }} achados <span aria-hidden="true">↗</span></span
+            >{{ content(report).findings.length }}
+            {{ content(report).findings.length === 1 ? 'achado' : 'achados' }}
+            <span aria-hidden="true">↗</span></span
           >
         </a>
       }

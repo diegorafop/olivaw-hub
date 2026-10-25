@@ -57,3 +57,5 @@ python3 -m unittest discover -s olivaw-agent/tests -v
 ```
 
 Os testes de coleta/IA/API usam doubles, sem servidor, modelo pago ou banco real. A investigação real é uma operação distinta e explicitamente autorizada. Primeira plataforma comprovada: Linux/POSIX.
+
+Referência do adaptador: [Codex em modo não interativo](https://learn.chatgpt.com/docs/non-interactive-mode), com JSON estruturado e sessão efêmera.

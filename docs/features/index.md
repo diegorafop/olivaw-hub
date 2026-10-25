@@ -23,3 +23,5 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 - [Infraestrutura compartilhada — Compose e migração preservando volumes](done/infraestrutura-compartilhada.md): instalada e verificada na VM em 24/10/2026.
 - [Baley — Lifecycle local e skill safety-docker](done/baley-lifecycle-e-safety-docker.md): base do agente e agrupador validados; coleta/IA e API ainda pendentes.
 - [Baley — Pesquisa de fontes e aprendizado somente leitura](done/baley-update-fontes-e-aprendizado.md): source/discovery/learn para revisão manual.
+
+- [Baley — Auditoria agendada, relatórios por API e interface Agents](done/agentes-python-baley-e-relatorios.md): implementação local validada, migration PostgreSQL incluída; publicação pelo mantenedor pendente.

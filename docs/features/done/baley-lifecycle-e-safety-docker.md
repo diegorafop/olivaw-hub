@@ -49,7 +49,7 @@ O comportamento de propostas em disco descrito nesta entrega inicial foi substit
 
 O supervisor está em `waiting-configuration`, com `analysisEnabled=false`. Ainda não há coleta periódica de SSH, invocação automática de IA ou envio de relatórios à API. O intervalo de seis horas é configuração preparada; não afirmar que a VM está sendo auditada a cada seis horas. Não há modelo escolhido ou credencial inventada. Lifecycle Windows não validado; wheel fora do checkout exige `--settings` explícito.
 
-API administrativa, entidade `SecurityReport`/RawData, autorização de targets e migrations permanecem na [feature principal em andamento](../in-progress/agentes-python-baley-e-relatorios.md). Atualização semântica e política de promoção da skill serão definidas com o mantenedor; não há autoedição ou remediação baseada em CVEs.
+API administrativa, entidade `SecurityReport`/RawData, autorização de targets e migrations permanecem na [feature principal em andamento](../done/agentes-python-baley-e-relatorios.md). Atualização semântica e política de promoção da skill serão definidas com o mantenedor; não há autoedição ou remediação baseada em CVEs.
 
 ## user-feedback
 

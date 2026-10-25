@@ -13,3 +13,7 @@ Projeto base para contratos públicos e cliente REST do microservice. Adicione a
 ## Serviços administrativos
 
 `Features/ManagedServiceFeature` fornece payloads planos de criação/atualização, listagem e ficha de serviços, com vínculos públicos por GUID. Atualização recebe revisão esperada e não permite substituir o identificador técnico. Períodos e nomes dos autores de abertura/encerramento são dados de saída, definidos pelo servidor. Consulte os [contratos da API](../../README.md#serviços-e-vínculos-com-clientes). O projeto continua sem transporte HTTP próprio ou obtenção de JWT.
+
+## Relatórios de segurança
+
+`Features/SecurityReportFeature` contém payloads planos para envio e consulta dos relatórios Baley. `CreateSecurityReportCommand.RawData` preserva o JSON evolutivo; os campos internos de auditoria não pertencem ao payload. Envio exige `security.reports.write`; listagem e detalhes exigem root. O projeto fornece contratos, sem transporte HTTP ou aquisição de JWT. Consulte o [guia da API](../../README.md#relatórios-de-segurança-do-baley).

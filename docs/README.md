@@ -2,7 +2,7 @@
 
 - [Clientes](clients/README.md): documentação e funcionalidades específicas de Cavalcante e LTMJ.
 
-- [Agentes Python — Baley e relatórios por API](features/in-progress/agentes-python-baley-e-relatorios.md): agrupador/scaffold/skill implementados; coleta, IA e persistência JSON por API planejadas em discovery.
+- [Agentes Python — Baley e relatórios por API](features/done/agentes-python-baley-e-relatorios.md): coleta, interpretação, agendamento, relatórios por API e interface Agents implementados; publicação pelo mantenedor pendente.
 
 - [Segurança e infraestrutura — Auditoria inicial](features/discovery/seguranca-e-infraestrutura.md): achados do servidor e rotas anônimas, contenção de chave SSH e plano de correções.
 - [Infraestrutura compartilhada](../ms-infrastructure-app/README.md): Compose de PostgreSQL, RabbitMQ, Traefik e Redis opcional, volumes e reconstrução de VM.

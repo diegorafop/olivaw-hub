@@ -341,3 +341,26 @@ A base PostgreSQL está pronta para gerar/publicar uma nova imagem a partir dest
 Para habilitar login do cliente, configure `PortalIdentity:Issuer`, `PortalIdentity:Audience`, `PortalIdentity:SigningKey` (segredo próprio com ao menos 32 bytes) e `PortalIdentity:TokenMinutes` (1 a 120). Emissor, audiência e chave devem diferir da administração interna. O portal usa `ConnectionStrings:PortalIdentity` quando informado, ou `ConnectionStrings:DbContext`; o schema deve estar disponível para os dois contextos. Sem configuração válida de identidade, o login retorna 503; os módulos administrativos continuam disponíveis. Convites são entregues manualmente pela operação; não há envio automático de e-mail.
 
 O pacote não inicia outro serviço permanente, agendador ou coletor na VM. Sem `Monitoring:AllowedUrls`, a verificação HTTP permanece bloqueada. Financeiro, IA, automações e aceite comercial formal continuam no planejamento; veja o [índice das entregas](../docs/features/index.md) e o [guia de operação](../docs/operacao-interna.md). Consulte também os [comandos de migrations do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
+
+## Relatórios de segurança do Baley
+
+- `POST /security-reports`: conta autenticada com `security.reports.write`, corpo `{ "rawData": "<JSON do relatório>" }`. Retorna 201 na primeira entrega e 200 em reenvio idêntico do mesmo autor. Limite HTTP de 1 MiB e RawData de 262.144 caracteres; envelope JSON até profundidade 32. Limite de 12 escritas por hora por identidade. Corpo e autenticação ficam fora do HTTP logging.
+- `GET /security-reports?beforeId=0&hostId=<opcional>`: somente root, blocos de 20 com `nextBeforeId`, mais recentes primeiro.
+- `GET /security-reports/{externalId}`: somente root, resposta `{ "item": ... }`, 404 para ID ausente.
+
+`SecurityReport : Entity` fica no domínio. Tabela `securityreport`, GUID público, autor autenticado e datas herdados; colunas estáveis `RunId`, `AgentId`, `HostId`, `SchemaVersion`, `StartedAt`, `CompletedAt`, `ExecutionStatus` e `RawData` string. Índice único por agente/RunId impede duplicação; repetição com outro autor/conteúdo é rejeitada. Campos adicionais do objeto `result` são preservados sem mudar o schema relacional. Não há rota de escrita anônima, exclusão automática ou acesso do agente ao banco.
+
+O envelope 1.0 exige `runId` GUID não vazio, `agentId=baley`, `hostId`, timestamps UTC ordenados, `executionStatus` completed/partial/failed e objeto `result`. Metadados são extraídos do JSON pelo servidor; o cliente não escolhe o autor. A conta `baley-agent` não é root e tem somente `security.reports.write`. Consulte a [operação do Baley](../../olivaw-agent/ms-baley-py/README.md) e a [feature concluída localmente](../../docs/features/done/agentes-python-baley-e-relatorios.md).
+
+Somente PostgreSQL está autorizado nesta entrega. A migration `20261025121719_Issue025` cria somente `securityreport` e seus índices, preservando tabelas e dados existentes. No deploy, o startup aplica migrations pendentes automaticamente; geração e revisão locais não aplicam alterações em bancos reais. SQL Server fica para uma entrega futura.
+
+Comandos reproduzíveis da issue025 (migration já gerada; não repetir `add`):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+dotnet ef migrations add Issue025 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue020Panel Issue025 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue025.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+Não executamos `database update`; o deploy do mantenedor aplicará a migration pelo startup.

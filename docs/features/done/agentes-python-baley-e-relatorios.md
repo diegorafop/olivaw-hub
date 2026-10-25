@@ -20,18 +20,21 @@ para acompanhar a infraestrutura periodicamente e guardar relatórios evolutivos
 
 ## ai-prompt
 
-### Execução atual — 25/10/2026
+### Entrega local concluída — 25/10/2026
 
-- Responsável: Codex. Branch: `feature/baley-security-reports`, sincronizado com `develop` após finish da Cavalcante. Sem issue atribuída; não associar à issue024 do cliente.
-- Escopo autorizado: coleta SSH somente leitura, análise por Codex, relatórios autenticados por API, timer serial de seis horas e UI administrativa Agents → Baley → relatórios → detalhes.
-- API: `POST /security-reports` com `security.reports.write`; consulta e detalhes somente `olivaw.root`. `RawData` string preserva JSON evolutivo; `RunId` por agente impede duplicações. Identidade do autor vem do JWT.
-- Runtime: `audit` executa um ciclo; `start` executa imediatamente e repete após o intervalo configurado. Estado e fila locais privados, limitados a 20 MiB e sete dias; descarte contabilizado. `update` continua somente leitura.
-- Evidência real: coleta leu 11 containers e 187 eventos de acesso na VM; política SSH, listeners, SELinux e logs foram consultados sem alterar serviços. Interpretação Codex com dados simulados e JSON estruturado aprovada.
-- Verificações locais: 22 testes Python aprovados; API compila sem warnings. Suíte API: 373 testes aprovados e uma falha esperada por modelo PostgreSQL ainda sem a nova migration. Build Angular aprovado; validação final e E2E em andamento.
-- Pendências: nome da migration `BaleySecurityReports` aguardando confirmação do mantenedor, somente PostgreSQL autorizado; validação final; recebimento real após deploy do mantenedor. Não está publicado. SQL Server não contemplado.
-- Conta técnica `baley-agent` provisionada pela API, não root e somente `security.reports.write`; credencial local ignorada em `_secrets/admin.json`.
-- Frontend: três testes de navegação e três testes de classificação aprovados; build sem warning novo. Interpretação Codex estruturada verificada.
-- Primeiro ciclo real concluído com relatório na fila privada; entrega ainda pendente da rota publicada pelo mantenedor.
+- Responsável: Codex. Issue: #25. Branch: `feature/issue025-baley-agent`, sincronizado com `develop` após o finish da Cavalcante. Worktree: monorepo local.
+- Implementado: coleta SSH somente leitura, regras determinísticas, interpretação via Codex CLI com ferramentas desabilitadas, relatório JSON evolutivo e envio autenticado por API. Sem acesso do agente ao banco ou remediação automática.
+- API: `POST /security-reports` com `security.reports.write`; listagem e detalhes somente `olivaw.root`. `RawData` string preserva conteúdo adicional do resultado; `RunId` por agente e autor/conteúdo conferidos no reenvio. Limites de corpo, profundidade JSON e taxa. Timestamps UTC e autoria pelo JWT.
+- Migração PostgreSQL: `20261025121719_Issue025`, criando somente `securityreport` e seus índices. Migration, designer, snapshot e SQL incremental revisados. Modelo sem alterações pendentes. Não foi executado `database update`. SQL Server e outros provedores não contemplados.
+- Runtime: `audit` executa um ciclo; `start` executa imediatamente e repete após seis horas, configuráveis para três. Worker e execução manual compartilham lock. Status inclui execução, entrega, fila e próximo ciclo; parada cooperativa. Não instala serviço de boot automaticamente: a máquina e o supervisor precisam continuar ativos.
+- Coleta: até 40 containers e 1.200 linhas por fonte de logs/janela. Campos selecionados de Docker, pressão de disco/memória, listeners, política SSH, SELinux, acesso Traefik e autenticação SSH. Sem env, headers, query strings ou logs brutos no relatório; origens observadas não comprovam autoria. Cobertura insuficiente é parcial.
+- Fila privada limitada a 20 MiB e sete dias; descarte contabilizado. Até quatro entregas por ciclo. Relatório só sai da fila após confirmação da API. A retenção do banco é independente. `update` permanece estritamente somente leitura.
+- Conta técnica `baley-agent` provisionada pela API: não root e somente `security.reports.write`. Credenciais somente na seção `baley` de `_secrets/admin.json`, ignorado pelo Git e modo 0600; demais acessos administrativos preservados. Runtime lê exclusivamente essa seção.
+- UI: menu Agents → card Baley → cards horizontais de relatórios → detalhes, com breadcrumb clicável, resumo da IA, achados e limitações. Cores discretas com rótulos textuais; coleta falha/incompatível não é verde. Guards de root e autorização correspondente no backend.
+- Verificações: 378 testes da API; 22 testes do Baley e três do agrupador; três testes de classificação UI; quatro E2E, incluindo root, bloqueio de operador, erro de consulta, breadcrumb e celular sem overflow. Build API sem erros/warnings. Build e lint Angular aprovados; apenas warnings de orçamento SCSS anteriores e externos à feature.
+- Evidência real: leitura de 11 containers e 187 eventos de acesso na VM; política SSH/listeners/logs consultados sem alterar serviços. Codex retornou JSON estruturado com dados simulados e executou interpretação no primeiro ciclo real. Um relatório ficou na fila privada; não houve confirmação de persistência na API ainda não publicada.
+- Publicação pendente: o mantenedor fará deploy de API e frontend. O startup da API aplicará `Issue025`; somente depois a rota passa a aceitar os relatórios. Confirmar reenvio, idempotência e visualização no ambiente após deploy. Mover para done registra conclusão local, não publicação. Não houve deploy desta entrega pelo agente.
+- Limites: sem exploração, revisão de código remota, varredura completa de CVEs, leitura de Security Groups ou restauração de backups. Falhas/indisponibilidade da IA ficam explícitas e preservam os achados determinísticos. A IA não pode reclassificar automaticamente o resultado nem alterar a skill.
 - Os registros de planejamento abaixo descrevem o contexto anterior. O estado atual é o deste bloco; somente capacidades comprovadas devem ser apresentadas como operacionais.
 
 
@@ -302,4 +305,36 @@ a saida dele seria salvar dados no olivaw né?
 depois eu confiro na base os reports do nosso agent blz.
 
 otiom, entao deixa isso como feature em discovery
+```
+
+
+```text
+seguinte agora vamos rodar o baley, e executei ele no terminal mas voce disse que ele ainda não ta fazendo tudo. vamos deixar ele 100% operacional e colocando o resultado via API na api.olivaw blz.
+
+precisamos tbm configurar um timer pra ele, por exemplo rodar a cada 3 hroas ou 6 horas .
+e ele precisa tbm olhar mais coiass relacionadas a um servidor docker, olhar algum log de acesso ver se tem algo esquisito etc.
+
+se quiser que eu pare a execucao dele me avise por favor
+
+tbm pense em uma interface para mostrar essa informacoes em olivaw-ng,
+
+vamos fazer o seguinte teremos um menu chamado Agents e nesse menu vários cards, cada card é um agent no caso o primeiro é o baley.
+ao clicar no card vai abrir a tela de consulta de reports com cards em retangulares que ocupam a width inteira e pouca heigth, uma lista de cards estilo grid sacou?
+
+cada card ordenado é um report que foi feito e vai mostrar informacoes genericas com algo visual em verde tudo ok , warning algo em amarelo e red perigo.
+a UI precisa ser fluida e delicada, n é necessário pintar o card tudo de vermelho enfim voce sabe muito bem seguir nosso desisgn system e identidade visual.
+
+ao clicar em um desses itens ai vamos para tela details.
+
+obviamente voce sabe que todas as APIs e telas da area administrativa precisam ser protegidas blz.
+
+apenas postgreSql, outros bancos faremos no futuro se necessario
+
+pow, mas deixa que eu subo me passa o command que eu levanto a API lá na aws
+
+o front tbm deixa comigo que eu subo qdo voce dar o OK
+
+coloca em admin.md, n deixa separado em arquivo a senha. eu tbm gostei da sua ideia pode mudar o arquivo admin.md para admin.json e deixar tudo ali
+
+sim, renomeia o branch ai ou recria outra branch enfim faz certinho nosso feature branch. deve ser feature/issue025-baley-agent
 ```

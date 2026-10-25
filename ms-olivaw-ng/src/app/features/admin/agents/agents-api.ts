@@ -25,6 +25,7 @@ export function reportContent(report: SecurityReport): {
   limitations: string[];
   coverage: Record<string, unknown>;
   valid: boolean;
+  analysis: { summary: string; recommendations: string[] } | null;
 } {
   try {
     const raw = JSON.parse(report.rawData);
@@ -43,6 +44,15 @@ export function reportContent(report: SecurityReport): {
       coverage:
         raw.result.coverage && typeof raw.result.coverage === 'object' ? raw.result.coverage : {},
       valid: Array.isArray(raw.result.findings),
+      analysis:
+        raw.ai?.status === 'completed' && typeof raw.ai.summary === 'string'
+          ? {
+              summary: raw.ai.summary,
+              recommendations: Array.isArray(raw.ai.recommendations)
+                ? raw.ai.recommendations.filter((item: unknown) => typeof item === 'string')
+                : [],
+            }
+          : null,
     };
   } catch {
     return {
@@ -50,6 +60,7 @@ export function reportContent(report: SecurityReport): {
       limitations: ['Conteúdo incompatível ou indisponível.'],
       coverage: {},
       valid: false,
+      analysis: null,
     };
   }
 }

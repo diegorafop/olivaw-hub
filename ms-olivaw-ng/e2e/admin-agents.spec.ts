@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 const reportId = 'a0000000-0000-0000-0000-000000000001';
 async function setup(page: Page, root = true, failure = false) {
   const rawData = JSON.stringify({
+    ai: { status: 'completed', summary: 'Resumo das evidências observadas.', recommendations: ['Revisar permissões.'] },
     result: {
       findings: [
         {
@@ -63,6 +64,7 @@ test('root navega por Agents, relatórios e detalhes com breadcrumb', async ({ p
   await page.getByRole('link', { name: /Servidor principal/ }).click();
   await expect(page.getByRole('heading', { name: 'Detalhes da auditoria' })).toBeVisible();
   await expect(page.getByText('Socket Docker acessível', { exact: true })).toBeVisible();
+  await expect(page.getByText('Resumo das evidências observadas.', { exact: true })).toBeVisible();
   await page
     .getByRole('navigation', { name: /breadcrumb|caminho/i })
     .getByRole('link', { name: 'Baley', exact: true })
@@ -92,7 +94,11 @@ test('lista de relatórios fica compacta e sem overflow no celular', async ({ pa
   await page.goto('/admin/agents/baley');
   const card = page.getByRole('link', { name: /Servidor principal/ });
   await expect(card).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  expect(await card.evaluate(element => getComputedStyle(element).backgroundColor)).toBe('rgb(255, 255, 255)');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  expect(await card.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(
+    'rgb(255, 255, 255)',
+  );
   await page.screenshot({ path: test.info().outputPath('baley-mobile.png'), fullPage: true });
 });

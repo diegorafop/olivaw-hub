@@ -115,7 +115,7 @@ class AuditService:
     self.runtime = runtime
     self.settings = runtime.settings
     self.runner = runner or bounded_run
-    self.client = client or ReportClient(self.settings["reportApi"], runtime.path.parent)
+    self.client = client or ReportClient(self.settings.get("reportApi", {}), runtime.path.parent)
 
   def collect(self):
     ssh = self.settings["ssh"]

@@ -16,9 +16,12 @@ def main(argv=None):
   try:
     result = compose(args.settings)[args.operation].handle()
     print(review_text(result) if args.format == "text" else json.dumps(result, ensure_ascii=False, indent=2))
-    return 1 if result.get("status") in ("failed", "partial") else 0
+    failed = result.get("status") in ("failed", "partial") or result.get("executionStatus") == "failed"
+    if args.operation == "audit" and result.get("delivery") != "delivered":
+      failed = True
+    return 1 if failed else 0
   except (OSError, ValueError, KeyError, TypeError) as error:
     # Não imprimir resposta remota, traceback ou conteúdo do setting.
     print(json.dumps({"agentId": "baley", "operation": args.operation,
-                      "error": type(error).__name__, "message": "Operação não concluída; confira configuração, permissões e limites."}), file=sys.stderr)
+                      "error": type(error).__name__, "message": "Operação não concluída; confira configuração, permissões e limites."}, ensure_ascii=False, indent=2), file=sys.stderr)
     return 1
