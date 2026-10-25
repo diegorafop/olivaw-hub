@@ -69,7 +69,7 @@ Todas essas combinações superam 4,5:1. Esse cálculo não certifica o contrast
 
 - [Desktop](preview-desktop.png), 1440 px de largura.
 - [Celular](preview-mobile.png), 390 px de largura.
-- [Avatar vetorial](../../ms-cavalcante-ng/public/tractor.svg).
+- [Avatar vetorial](../../../ms-cavalcante-ng/public/tractor.svg).
 
 ## Limites e pendências
 

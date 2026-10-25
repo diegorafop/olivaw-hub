@@ -23,16 +23,16 @@ Docker: `docker compose -f docker/docker-compose.yml -f docker/docker-compose.ov
 
 ## Protótipo LTMJ Eventos
 
-Projeto gerado por Schematics, preservando o padrão Angular standalone, SignalStore, Material, Tailwind e frontend separado da API. O estudo do cliente, as fontes e o plano de evolução estão em [briefing e MVP](docs/briefing-e-mvp.md). O protocolo reutilizável do Olivaw está em [descoberta de clientes](../docs/protocolo-descoberta-cliente.md).
+Projeto gerado por Schematics, preservando o padrão Angular standalone, SignalStore, Material, Tailwind e frontend separado da API. O estudo do cliente, as fontes e o plano de evolução estão em [briefing e MVP](../docs/clients/ltmj/briefing-e-mvp.md). O protocolo reutilizável do Olivaw está em [descoberta de clientes](../docs/protocolo-descoberta-cliente.md).
 
 A landing page apresenta serviços reais descritos no briefing, o logo obtido do perfil público e os links sociais oficiais. O assistente prepara um resumo local; não registra dados nem simula envio. Para ativar o link de WhatsApp, preencha o número comercial confirmado em `src/app/features/public/ltmj-content.ts`, com país e DDD, somente dígitos. O número ainda não foi informado.
 
 Fotos de eventos ainda não foram fornecidas/recuperadas. O mural próprio tem filtros por ocasião e detalhes com galeria. Enquanto o acervo real não chega, exibe modelos identificados, com acesso às redes oficiais; nenhum modelo é apresentado como trabalho realizado. O logo e sua origem estão em `public/assets/ltmj/`.
 
-Domínios técnicos propostos: `ltmj.olivaw.com.br` e `api.ltmj.olivaw.com.br`. Os cinco ambientes e dotenv acompanham o padrão do template; não houve publicação, registro DNS ou criação de banco. A gestão de eventos está implementada em `/gestao`, com login em `/gestao/entrar`; requer API, schema e permissão preparados. Consulte [gestão de portfólio](docs/gestao-portfolio.md). Para publicar, preparar infraestrutura, autorizar o serviço no executor e obter aprovação do cliente.
+Domínios técnicos propostos: `ltmj.olivaw.com.br` e `api.ltmj.olivaw.com.br`. Os cinco ambientes e dotenv acompanham o padrão do template; não houve publicação, registro DNS ou criação de banco. A gestão de eventos está implementada em `/gestao`, com login em `/gestao/entrar`; requer API, schema e permissão preparados. Consulte [gestão de portfólio](../docs/clients/ltmj/gestao-portfolio.md). Para publicar, preparar infraestrutura, autorizar o serviço no executor e obter aprovação do cliente.
 
 Os testes E2E simulam a API futura e validam login, mobile e orçamento local. O protocolo de briefing em `docs/prototipos` da raiz é uma prova de conceito separada, não uma nova tela do site institucional.
 
 Para execução simultânea com o site do Olivaw, use `npm start -- --port 4201`. No Docker local, use `FRONTEND_PORT=8083` para evitar disputar a porta 8081. Os hosts e valores de publicação são propostas técnicas e não representam domínio já aprovado pelo cliente.
 
-O [índice da documentação do cliente](docs/README.md) reúne o briefing inicial e o histórico de conversas/decisões, atualizado a cada nova informação relevante.
+O [índice da documentação do cliente](../docs/clients/ltmj/README.md) reúne o briefing inicial e o histórico de conversas/decisões, atualizado a cada nova informação relevante.

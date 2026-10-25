@@ -18,3 +18,10 @@ Mantenha os documentos em português, com títulos descritivos, exemplos concret
 ## Validação
 
 Confira links locais, exemplos de caminhos e a estrutura do Markdown. Mudanças apenas documentais não exigem executar builds, testes, geração de clientes, migrations ou publicações. Não execute comandos com efeitos externos apenas para conferir um exemplo.
+
+## Documentação de clientes
+
+- Centralize briefings, brainstorms, acervo, decisões e melhorias específicas em `clients/<cliente>/`.
+- `features/` contém apenas funcionalidades do hub: infraestrutura, site e API Olivaw, agents, identidade e componentes compartilhados. Uma referência a um cliente como exemplo não transforma uma feature do hub em feature do cliente.
+- Cada cliente tem `README.md`, `brainstorm/` para estudos livres e `features/` com os mesmos estados e quatro blocos das features do hub. Preserve os estados ao reorganizar documentos.
+- READMEs de execução e instruções junto ao código permanecem nos módulos e apontam para a documentação central do cliente. Não duplique especificações entre os dois locais.

@@ -140,4 +140,11 @@ Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:
 - **Origem:** instrução do mantenedor do Olivaw na issue 011, após compra do domínio e associação do Elastic IP.
 - **Decisão confirmada pelo mantenedor:** site em `ltmj.olivaw.com.br` e API em `api.ltmj.olivaw.com.br`, substituindo os hosts DuckDNS. Não representa aprovação comercial adicional da LTMJ.
 - **Impacto:** atualizar Compose, settings públicos, metadados e deploy; preservar `ltmj_prd` e o volume de fotos existente.
-- **Validação remota:** registrar o resultado em [migração dos serviços](../../docs/registrobr/migracao-servicos.md).
+- **Validação remota:** registrar o resultado em [migração dos serviços](../../registrobr/migracao-servicos.md).
+
+## 25/10/2026 — Centralização da documentação
+
+- **Origem:** solicitação do mantenedor no desenvolvimento do hub.
+- **Decisão confirmada:** documentos antes mantidos em `ms-ltmj-ng/docs` e `ms-ltmj-api/docs` foram reunidos em `docs/clients/ltmj`, incluindo acervo e guias da API.
+- **Impacto:** novas conversas, brainstorms e features específicas da LTMJ ficam nesta pasta; a decisão anterior de localização é histórica. READMEs técnicos permanecem junto ao código.
+- **Pendências:** nenhuma alteração de escopo funcional ou publicação decorrente desta reorganização.

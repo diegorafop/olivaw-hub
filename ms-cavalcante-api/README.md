@@ -6,7 +6,7 @@ Template ASP.NET Core/.NET 10 para novos clientes do Olivaw. O host mantém suas
 
 Esqueleto gerado por `bash ms-limpo-api/scripts/new-microservice.sh cavalcante`, sem implementação de domínio, endpoints de catálogo/orçamento ou novas migrations nesta tarefa. Os projetos estão em `Olivaw.sln`. Identidade local independente e segredos iniciais foram criados pelo gerador oficial; não reutilizam os do template.
 
-A infraestrutura e a feature de exemplo são herdadas. O frontend funciona sem iniciar este host. Não iniciar para validar o protótipo: o startup aplica migrations pendentes e pode inicializar identidade. Oracle permanece reservado. Consulte o [planejamento](../docs/cavalcante/README.md).
+A infraestrutura e a feature de exemplo são herdadas. O frontend funciona sem iniciar este host. Não iniciar para validar o protótipo: o startup aplica migrations pendentes e pode inicializar identidade. Oracle permanece reservado. Consulte o [planejamento](../docs/clients/cavalcante/README.md).
 
 Validação local sem executar o host, a partir da raiz:
 

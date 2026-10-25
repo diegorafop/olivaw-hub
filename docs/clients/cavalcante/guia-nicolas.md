@@ -57,4 +57,4 @@ npm run build
 npm run e2e
 ```
 
-O build deve manter conteúdo prerenderizado em `dist/ms-cavalcante-ng/browser/index.html`. Testes de identidade herdados simulam HTTP; não precisam de usuário ou banco real. Ler o [Git Flow](../gitflow.md) antes de iniciar outra tarefa. A tarefa atual usa issue #24; não criar branch ou commit sem combinar o fluxo com o responsável.
+O build deve manter conteúdo prerenderizado em `dist/ms-cavalcante-ng/browser/index.html`. Testes de identidade herdados simulam HTTP; não precisam de usuário ou banco real. Ler o [Git Flow](../../gitflow.md) antes de iniciar outra tarefa. A tarefa atual usa issue #24; não criar branch ou commit sem combinar o fluxo com o responsável.

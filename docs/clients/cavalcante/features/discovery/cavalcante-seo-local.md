@@ -17,7 +17,7 @@ para chegar ao canal oficial da empresa.
 
 ## ai-prompt
 
-Proposta futura. Domínio e metadados básicos preparados; protótipo bloqueia indexação. Dependências: controle de DNS, estratégia para o domínio antigo, revisão de 356 publicações, confirmação de dados locais e titularidade das contas. Ver [estudo](../../cavalcante/estudo-site.md) e [publicação](../../cavalcante/publicacao.md).
+Proposta futura. Domínio e metadados básicos preparados; protótipo bloqueia indexação. Dependências: controle de DNS, estratégia para o domínio antigo, revisão de 356 publicações, confirmação de dados locais e titularidade das contas. Ver [estudo](../../estudo-site.md) e [publicação](../../publicacao.md).
 
 ## user-feedback
 

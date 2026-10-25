@@ -18,7 +18,7 @@ para pedir orientação sem percorrer conteúdo repetido.
 
 ## ai-prompt
 
-Implementação local em revisão. Responsável: Codex; issue #24; branch feature/issue024-cavalcante; worktree /home/makina/projects/olivaw. Nicolas acompanha como aprendiz. Arquivos compartilhados: Olivaw.sln, docs/README.md e workflow de frontend. API preserva o esqueleto gerado; identidade e exemplo são herança do template. Frontend publicado como protótipo em https://cavalcante.olivaw.com.br, com HTTPS e saúde verificados. API não implantada; integração e validação comercial pendentes. Ver [estudo](../../cavalcante/estudo-site.md), [validação](../../cavalcante/validacao.md) e [publicação](../../cavalcante/publicacao.md). Não implementar o backlog como efeito desta entrega.
+Implementação local em revisão. Responsável: Codex; issue #24; branch feature/issue024-cavalcante; worktree /home/makina/projects/olivaw. Nicolas acompanha como aprendiz. Arquivos compartilhados: Olivaw.sln, docs/README.md e workflow de frontend. API preserva o esqueleto gerado; identidade e exemplo são herança do template. Frontend publicado como protótipo em https://cavalcante.olivaw.com.br, com HTTPS e saúde verificados. API não implantada; integração e validação comercial pendentes. Ver [estudo](../../estudo-site.md), [validação](../../validacao.md) e [publicação](../../publicacao.md). Não implementar o backlog como efeito desta entrega.
 
 ## user-feedback
 

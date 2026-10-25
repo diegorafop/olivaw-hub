@@ -1,5 +1,7 @@
 # Documentação do Olivaw
 
+- [Clientes](clients/README.md): documentação e funcionalidades específicas de Cavalcante e LTMJ.
+
 - [Agentes Python — Baley e relatórios por API](features/discovery/agentes-python-baley-e-relatorios.md): agrupador/scaffold/skill implementados; coleta, IA e persistência JSON por API planejadas em discovery.
 
 - [Segurança e infraestrutura — Auditoria inicial](features/discovery/seguranca-e-infraestrutura.md): achados do servidor e rotas anônimas, contenção de chave SSH e plano de correções.
@@ -20,11 +22,11 @@
 
 - [Apresentação da Olivaw](approach/apresentacao-olivaw.md): versões resumida, média e completa, com adaptações para cada conversa.
 - [Abordagem — Rodrigo / Impressão](approach/rodrigo-impressao.md): sequência de conversa, catálogo e possíveis etapas para o negócio de impressão.
-- [Abordagem — Cavalcanti Terraplanagem](approach/cavalcanti-terraplanagem.md): divulgação da frota, locações e organização interna por etapas.
+- [Abordagem — Cavalcanti Terraplanagem](clients/cavalcante/brainstorm/abordagem-inicial.md): divulgação da frota, locações e organização interna por etapas.
 - [Abordagem — Andrea / Vendas](approach/andrea-vendas.md): conversa sobre gestão comercial, necessidades pontuais e indicações para a Olivaw.
 - [Protocolo de descoberta do cliente](protocolo-descoberta-cliente.md): questionário, análise de negócio e evolução por MVP.
 - [Protótipo navegável do briefing](prototipos/briefing-cliente.html): fluxo local com exemplo LTMJ e exportação de resumo.
-- [Briefing e MVP da LTMJ](../ms-ltmj-ng/docs/briefing-e-mvp.md): dados confirmados, redes consultadas, pendências e fases.
+- [Briefing e MVP da LTMJ](clients/ltmj/briefing-e-mvp.md): dados confirmados, redes consultadas, pendências e fases.
 - [Executor de deploy via SSH](deploy-executor.md): API assíncrona, script na VM, instalação e testes.
 - [Configuração AWS, DuckDNS e Traefik](cloud.md): ambientes, credenciais locais, redes e comandos de validação/subida.
 - [Renomeação para Olivaw](renomeacao-olivaw.md): escopo local, transição operacional e domínio pendente.
@@ -51,4 +53,4 @@ Comece pelo guia de desenvolvimento para entender como os componentes se relacio
 
 - [Baley e safety-docker — Base concluída](features/done/baley-lifecycle-e-safety-docker.md): start/stop/status, update revisável e cópia da skill instalada no Codex.
 
-- [Cavalcante — estudo e protótipo](cavalcante/README.md): inventário do site, cores, funcionalidades propostas, guia do Nicolas e publicação em cavalcante.olivaw.com.br.
+- [Cavalcante — estudo e protótipo](clients/cavalcante/README.md): inventário do site, cores, funcionalidades propostas, guia do Nicolas e publicação em cavalcante.olivaw.com.br.

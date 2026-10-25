@@ -2,7 +2,7 @@
 
 ## Estado e origem
 
-Landing e backoffice do primeiro cliente, criados a partir de `ms-limpo-ng`; backend derivado de `ms-limpo-api`. A implantação da issue 009 não foi executada nesta alteração. O [protocolo Olivaw](../../docs/protocolo-descoberta-cliente.md) é reutilizável em outros negócios; este documento aplica o processo à LTMJ.
+Landing e backoffice do primeiro cliente, criados a partir de `ms-limpo-ng`; backend derivado de `ms-limpo-api`. A implantação da issue 009 não foi executada nesta alteração. O [protocolo Olivaw](../../protocolo-descoberta-cliente.md) é reutilizável em outros negócios; este documento aplica o processo à LTMJ.
 
 Briefing fornecido pelo responsável via WhatsApp, em 17/10/2026. O texto abaixo é uma síntese; não replica nomes pessoais ou a conversa privada completa.
 

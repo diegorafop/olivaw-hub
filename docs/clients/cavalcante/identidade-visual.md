@@ -17,7 +17,7 @@ As fotos existentes já trazem amarelo, terra, cinza e vegetação. A interface 
 | `--cv-line` | `#DCE0D5` | Separadores decorativos |
 | `--cv-green` | `#35483C` | Reserva para evolução de apoio; não multiplica CTAs |
 
-Os tokens estão no [tema do cliente](../../ms-cavalcante-ng/src/theme/_brand.scss). O Material herdado usa paletas públicas laranja/amarelo; a landing usa os tokens próprios. A fonte de sistema Arial dispensa download de fontes e mantém a primeira renderização independente de terceiros.
+Os tokens estão no [tema do cliente](../../../ms-cavalcante-ng/src/theme/_brand.scss). O Material herdado usa paletas públicas laranja/amarelo; a landing usa os tokens próprios. A fonte de sistema Arial dispensa download de fontes e mantém a primeira renderização independente de terceiros.
 
 ## Comparação de alternativas
 
@@ -42,8 +42,8 @@ Fonte normativa: [W3C — WCAG 2.2](https://www.w3.org/TR/WCAG22/).
 
 Avatar original vetorial, estilo emoji: corpo amarelo, contorno grafite, cabine clara, pneus arredondados e silhueta curta. É um símbolo de marca; não promete locação de trator agrícola. O catálogo apresenta as máquinas de fato divulgadas no site atual.
 
-- [Avatar SVG](../../ms-cavalcante-ng/public/tractor.svg), `viewBox` de 128 × 128, fundo amarelo com cantos arredondados.
-- [Favicon SVG](../../ms-cavalcante-ng/public/favicon.svg), mesma identidade, referenciado no HTML.
+- [Avatar SVG](../../../ms-cavalcante-ng/public/tractor.svg), `viewBox` de 128 × 128, fundo amarelo com cantos arredondados.
+- [Favicon SVG](../../../ms-cavalcante-ng/public/favicon.svg), mesma identidade, referenciado no HTML.
 - Sem letras no desenho; não depende de emoji do sistema, fontes ou CDN.
 - Conferir em 16, 32, 48 e 128 px. Em 16 px, priorizar reconhecimento de cabine/rodas, sem exigir detalhes.
 
