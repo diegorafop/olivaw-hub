@@ -63,14 +63,41 @@
             <a
               [routerLink]="['/admin/services', item.externalId]"
               [queryParams]="{ customer: contextCustomer || null }"
-              ><strong>{{ item.name }}</strong
-              ><span>{{ item.technicalId }} · {{ types[item.type] }}</span
-              ><span
-                >{{ statuses[item.status] }} ·
-                {{
-                  item.scope === 'internal' ? 'Interno Olivaw' : item.customerCount + ' cliente(s)'
-                }}</span
-              ></a
+              class="service-card"
+              ><span class="service-monogram" aria-hidden="true">{{
+                item.name.slice(0, 2).toUpperCase()
+              }}</span>
+              <div class="service-identity">
+                <strong>{{ item.name }}</strong
+                ><span class="technical-id">{{ item.technicalId }}</span>
+              </div>
+              <div class="service-meta">
+                <span class="meta-label">Categoria</span
+                ><span class="category">{{ types[item.type] || 'Unknown' }}</span>
+              </div>
+              <div class="service-meta service-audience">
+                <span class="meta-label">Atendimento</span
+                ><span>{{
+                  item.scope === 'internal'
+                    ? 'Interno Olivaw'
+                    : item.customerCount +
+                      (item.customerCount === 1 ? ' cliente vinculado' : ' clientes vinculados')
+                }}</span>
+              </div>
+              <div class="service-meta service-date">
+                <span class="meta-label">Cadastrado em</span>
+                @if (item.createdAt) {
+                  <time [attr.datetime]="item.createdAt">{{
+                    item.createdAt | date: 'dd/MM/yyyy'
+                  }}</time>
+                } @else {
+                  <span>Não informado</span>
+                }
+              </div>
+              <span class="service-status" [attr.data-status]="item.status"
+                ><i aria-hidden="true"></i>{{ statuses[item.status] || item.status }}</span
+              >
+              <span class="service-arrow" aria-hidden="true">↗</span></a
             >
           </li>
         } @empty {

@@ -1,0 +1,233 @@
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 18px;
+}
+.card {
+  background: white;
+  border: 1px solid #e3eae1;
+  border-radius: 13px;
+  padding: 22px;
+  min-width: 0;
+}
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.card-top > app-portal-icon {
+  color: #8ea79a;
+}
+.badge {
+  background: #fff9;
+  border: 1px solid #d9e5d5;
+  border-radius: 5px;
+  padding: 4px 7px;
+  font-size: 9px;
+  color: #547450;
+}
+.plan-card {
+  position: relative;
+  overflow: hidden;
+  background: #edf3e8;
+}
+.plan-card h2 {
+  font-size: 20px;
+  letter-spacing: -0.6px;
+  margin: 22px 0 6px;
+}
+.plan-card p {
+  font-size: 10px;
+  margin-bottom: 19px;
+}
+.plan-card .text-button {
+  position: relative;
+  z-index: 1;
+}
+.plan-art {
+  position: absolute;
+  right: -10px;
+  bottom: -35px;
+  font-size: 145px;
+  color: #d9e7cf;
+  line-height: 1;
+  pointer-events: none;
+}
+.metric {
+  font-size: 32px;
+  letter-spacing: -1px;
+  margin: 22px 0 16px;
+}
+.metric small {
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.metric small span {
+  color: #9aa79d;
+  font-size: 11px;
+}
+.card > p {
+  font-size: 10px;
+  margin-bottom: 0;
+}
+progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+  appearance: none;
+  border: 0;
+  border-radius: 5px;
+  overflow: hidden;
+  background: #edf2e9;
+}
+progress::-webkit-progress-bar {
+  background: #edf2e9;
+}
+progress::-webkit-progress-value {
+  background: #8cb79d;
+  border-radius: 5px;
+}
+progress::-moz-progress-bar {
+  background: #8cb79d;
+}
+progress.attention::-webkit-progress-value {
+  background: #c7a06a;
+}
+progress.attention::-moz-progress-bar {
+  background: #c7a06a;
+}
+.text-button {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #4b7059;
+  font-size: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+.text-button span {
+  margin-left: 12px;
+}
+.usage-note {
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: #6b8372;
+  padding: 12px 16px;
+  background: #edf4ec;
+  border-radius: 8px;
+}
+.usage-note strong {
+  font-weight: 600;
+}
+.usage-note button {
+  border: 0;
+  background: none;
+  font-size: 10px;
+  color: inherit;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.usage-note.warning {
+  background: #faf2e6;
+  color: #96703c;
+}
+.chart-grid,
+.activity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.card h3 {
+  font-size: 13px;
+  margin: 0;
+}
+.card-top p {
+  font-size: 10px;
+  margin: 7px 0 0;
+}
+.chart-metric {
+  font-size: 27px;
+  letter-spacing: -0.7px;
+  margin: 24px 0 18px;
+}
+.chart-metric small {
+  font-size: 10px;
+  color: #8c9c91;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+.activity-grid {
+  margin-top: 22px;
+}
+.title-icon {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.title-icon app-portal-icon {
+  color: #799a83;
+}
+.counters {
+  display: flex;
+  gap: 32px;
+  margin: 26px 0 12px;
+}
+.counters strong {
+  display: block;
+  font-size: 25px;
+  font-weight: 500;
+}
+.counters span {
+  display: block;
+  font-size: 10px;
+  color: #89998e;
+  margin-top: 6px;
+}
+.counters .amber {
+  color: #b99360;
+}
+.small-note {
+  font-size: 9px !important;
+  color: #96a399;
+  margin: 0 0 12px !important;
+}
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #f0f3ec;
+  background: none;
+  padding: 15px 0;
+  text-align: left;
+}
+.list-row small {
+  display: block;
+  font-size: 9px;
+  color: #93a297;
+  margin-bottom: 6px;
+}
+.list-row strong {
+  font-size: 10px;
+  font-weight: 500;
+  display: block;
+}
+.tag {
+  display: inline-block;
+  white-space: nowrap;
+  background: #eff4ed;
+  color: #748b75;
+  padding: 5px 7px;
+  border-radius: 5px;
+  font-size: 9px;
+}
+.amber-tag {
+  background: #faf2e6;
+  color: #aa8855;
+}

@@ -191,6 +191,8 @@ Validação: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.
 
 ## Serviços e vínculos com clientes
 
+A listagem `GET /services` também retorna `createdAt` por serviço, para mostrar a data de cadastro nos cards administrativos. Esse campo não representa a data de implantação e utiliza a auditoria existente, sem migration adicional.
+
 Base 04a implementada na issue 018, ainda sem migration nem publicação. Cadastro manual de aplicações lógicas, distinto de recursos e de provisionamento. Root interno pode executar:
 
 - `POST /services`: payload com `technicalId`, `name`, `type`, `description`, `owner`, `scope`, `status` e `customerExternalIds` (até 100 GUIDs públicos). Retorna HTTP 201 com `externalId` e `revision`.
@@ -393,3 +395,7 @@ dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.O
 ```
 
 O startup aplicará a nova tabela durante o deploy; não foi executado database update ou redeploy nesta entrega. O modelo do PortalIdentity foi conferido sem alterações pendentes. Somente PostgreSQL contemplado.
+
+### Escopo dos servidores no inventário
+
+Novos recursos usam `shared` (Compartilhado, padrão) ou `individual` (Individual), sem exigir vínculo a cliente. Os códigos anteriores `platform` e `customer` continuam aceitos para preservar cadastros; não são convertidos automaticamente, pois não indicam compartilhamento. A UI oferece apenas Servidor (`compute`) para novos cadastros; tipos anteriores continuam legíveis e editáveis. Provedor identifica o fornecedor (ex.: AWS); `providerResourceId` identifica a instância no fornecedor (ex.: ID EC2). Nenhuma migration é necessária para esses valores.

@@ -5,6 +5,13 @@ import { Routes } from '@angular/router';
 import { operationGuard, rootGuard, operationHomeGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   {
+    path: 'portal',
+    canMatch: [operationGuard, rootGuard],
+    title: 'Olivaw - Prévia do Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
     path: 'meu-negocio/entrar',
     title: 'Olivaw - Entrar no Meu negócio',
     loadComponent: () =>

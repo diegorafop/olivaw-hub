@@ -496,23 +496,21 @@ test('recurso com alterações pede confirmação antes de sair', async ({ page 
   await expect(page.getByLabel('Nome *', { exact: true })).toHaveValue('Alteração pendente');
 });
 
-test('detalhes por tipo preservam datas UTC e limpam campos incompatíveis', async ({ page }) => {
+test('novo recurso simplifica tipo e salva escopo sem selecionar cliente', async ({ page }) => {
   const { writes } = await setup(page);
   await page.goto('/admin/resources/new');
-  await page.getByLabel('Nome *', { exact: true }).fill('Domínio de teste');
-  await page.getByLabel('Identificador técnico').fill('domain-test');
-  await page.getByRole('combobox', { name: 'Tipo', exact: true }).selectOption('backup');
-  await page.getByLabel('Intervalo previsto (horas)').fill('24');
-  await page.getByLabel('Retenção prevista (dias)').fill('30');
-  await page.getByRole('combobox', { name: 'Tipo', exact: true }).selectOption('domain');
-  await expect(page.getByLabel('Intervalo previsto (horas)')).toHaveCount(0);
-  await page.getByLabel('Data de renovação').fill('2027-01-10');
+  const type = page.getByRole('combobox', { name: 'Tipo', exact: true });
+  await expect(type.getByRole('option')).toHaveCount(1);
+  await expect(type).toHaveValue('compute');
+  await expect(page.getByRole('combobox', { name: 'Escopo', exact: true })).toHaveValue('shared');
+  await page.getByRole('combobox', { name: 'Escopo', exact: true }).selectOption('individual');
+  await page.getByLabel('Nome *', { exact: true }).fill('Servidor dedicado');
+  await page.getByLabel('Identificador técnico').fill('vm-dedicated');
+  await page.getByLabel('Provedor', { exact: true }).fill('AWS');
+  await page.getByLabel('Identificador no provedor', { exact: true }).fill('i-0123456789abcdef0');
   await page.getByRole('button', { name: 'Salvar recurso' }).click();
   await expect(page.getByRole('heading', { name: 'Ficha do recurso' })).toBeVisible();
-  expect(writes[0].body['renewalAt']).toBe('2027-01-10T00:00:00Z');
-  expect(writes[0].body['backupIntervalHours']).toBeNull();
-  expect(writes[0].body['backupRetentionDays']).toBeNull();
-  await expect(page.getByLabel('Data de renovação')).toHaveValue('2027-01-10');
-  await page.getByText('Revisão 1 · Operador').click();
-  await expect(page.getByText('Renovação: 10/01/2027')).toBeVisible();
+  expect(writes[0].body['scope']).toBe('individual');
+  expect(writes[0].body['type']).toBe('compute');
+  expect(writes[0].body['provider']).toBe('AWS');
 });

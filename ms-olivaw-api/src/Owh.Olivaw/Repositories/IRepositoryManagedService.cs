@@ -26,4 +26,5 @@ public sealed class ManagedServiceReadItem
     public string Status { get; set; } = string.Empty;
     public string Scope { get; set; } = string.Empty;
     public int CustomerCount { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

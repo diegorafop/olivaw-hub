@@ -15,16 +15,18 @@ public class ReadManagedServiceByFilterTest
     public async Task Handle_should_forward_filters_and_pagination_and_map_shared_count()
     {
         var id = Guid.NewGuid();
+        var createdAt = new DateTime(2026, 10, 22, 12, 0, 0, DateTimeKind.Utc);
         using var cancellation = new CancellationTokenSource();
         var repository = new Mock<IRepositoryManagedService>();
         repository.Setup(item => item.ReadPageAsync("dotnet", "active", "dotnet", id, 2, 10, cancellation.Token))
-            .ReturnsAsync(new ManagedServiceReadPage { Total = 11, Items = new() { new() { ExternalId = id, Name = "API", TechnicalId = "ms-example-api", Type = "dotnet", Scope = "customer", Status = "active", CustomerCount = 2 } } });
+            .ReturnsAsync(new ManagedServiceReadPage { Total = 11, Items = new() { new() { ExternalId = id, Name = "API", TechnicalId = "ms-example-api", Type = "dotnet", Scope = "customer", Status = "active", CustomerCount = 2, CreatedAt = createdAt } } });
         var handler = new ReadManagedServiceByFilterHandler(repository.Object);
         var result = await handler.Handle(new() { Payload = new() { Search = "dotnet", Status = "active", Type = "dotnet", CustomerExternalId = id, Page = 2, PageSize = 10 } }, cancellation.Token);
         Assert.Equal(11, result.Total);
         Assert.Equal(2, result.Page);
         Assert.Equal(2, Assert.Single(result.Items).CustomerCount);
         Assert.Equal("ms-example-api", result.Items[0].TechnicalId);
+        Assert.Equal(createdAt, result.Items[0].CreatedAt);
         repository.VerifyAll();
         await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null!, cancellation.Token));
     }

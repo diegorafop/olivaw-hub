@@ -1,0 +1,174 @@
+@media (min-width: 1500px) {
+  main {
+    padding-top: 34px;
+  }
+  .welcome {
+    margin-top: 40px;
+  }
+}
+@media (max-width: 1050px) {
+  .sidebar {
+    width: 185px;
+    padding: 30px 12px;
+  }
+  main {
+    padding: 22px;
+  }
+  .topbar {
+    padding: 0 22px;
+  }
+  .welcome {
+    align-items: flex-start;
+  }
+  h1 {
+    font-size: 26px;
+  }
+  .preview-bar {
+    flex-wrap: wrap;
+  }
+  .preview-bar label {
+    margin-left: 0;
+  }
+  .preview-bar a {
+    margin-left: auto;
+  }
+}
+@media (max-width: 760px) {
+  .sidebar {
+    width: 100%;
+    padding: 18px 20px 8px;
+    border-right: 0;
+    border-bottom: 1px solid #e6ece7;
+  }
+  .portal-shell {
+    display: block;
+  }
+  .brand {
+    font-size: 27px;
+    padding: 0;
+  }
+  .brand span {
+    display: inline;
+    margin-left: 18px;
+    font-size: 8px;
+  }
+  .company,
+  .sidebar-help,
+  .signature {
+    display: none;
+  }
+  nav {
+    display: flex;
+    overflow: auto;
+    margin-top: 16px;
+    gap: 4px;
+  }
+  nav a,
+  nav button {
+    padding: 10px;
+    font-size: 10px;
+    white-space: nowrap;
+    gap: 6px;
+  }
+  nav small,
+  nav b,
+  nav app-portal-icon {
+    display: none;
+  }
+  .topbar {
+    height: 54px;
+    padding: 0 18px;
+    font-size: 10px;
+  }
+  .account {
+    gap: 6px;
+  }
+  .account .online {
+    display: none;
+  }
+  main {
+    padding: 18px;
+  }
+  .preview-bar {
+    margin-bottom: 26px;
+    font-size: 9px;
+    gap: 10px;
+  }
+  .preview-bar a {
+    margin-left: 0;
+  }
+  .welcome {
+    display: block;
+  }
+  .welcome .primary {
+    margin-top: 8px;
+  }
+  h1 {
+    font-size: 28px;
+  }
+  .eyebrow {
+    font-size: 8px;
+  }
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .periods {
+    align-self: stretch;
+  }
+  .periods button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 1100px) {
+  .summary-grid {
+    gap: 12px;
+  }
+  .card {
+    padding: 18px;
+  }
+  .counters {
+    gap: 22px;
+  }
+  .plan-card h2 {
+    font-size: 18px;
+  }
+}
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .plan-card {
+    grid-column: 1/-1;
+  }
+  .plan-card h2 {
+    margin-top: 12px;
+  }
+  .chart-grid,
+  .activity-grid {
+    grid-template-columns: 1fr;
+  }
+  .usage-note {
+    align-items: flex-start;
+    line-height: 1.6;
+  }
+  .usage-note button {
+    padding: 0;
+  }
+  .counters {
+    gap: 40px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  button,
+  a {
+    transition: background 0.15s ease;
+  }
+  .list-row:hover {
+    background: #f7f9f4;
+  }
+  .primary:hover {
+    background: #3c6551;
+  }
+}

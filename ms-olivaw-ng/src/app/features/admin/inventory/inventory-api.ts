@@ -3,8 +3,15 @@ import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { timeout } from 'rxjs';
 import { RuntimeConfig } from '../../../core/config/runtime-config';
 import { LOCAL_ERROR, SKIP_LOADING } from '../../../core/http/http-context';
+export const resourceCreationTypes: Record<string, string> = { compute: 'Servidor (VM ou físico)' };
+export const resourceScopes: Record<string, string> = {
+  shared: 'Compartilhado',
+  individual: 'Individual',
+  platform: 'Plataforma Olivaw (anterior)',
+  customer: 'Atendimento a clientes (anterior)',
+};
 export const resourceTypes: Record<string, string> = {
-  compute: 'Computação',
+  compute: 'Servidor (VM ou físico)',
   volume: 'Volume / armazenamento',
   'database-instance': 'Instância de banco',
   database: 'Banco lógico',

@@ -1,0 +1,135 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.chart {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  color: #4b9f88;
+}
+.axis-y {
+  width: 45px;
+  flex-shrink: 0;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: 8px;
+  box-sizing: border-box;
+  color: #7b8984;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.plot {
+  flex: 1;
+  min-width: 0;
+}
+svg {
+  height: 180px;
+  width: 100%;
+  display: block;
+  overflow: visible;
+  border-radius: 4px;
+}
+.grid-line {
+  stroke: #eaf0ec;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.data-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.area {
+  fill: currentColor;
+  opacity: 0.07;
+}
+.limit-line {
+  stroke: #bc9874;
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+  vector-effect: non-scaling-stroke;
+}
+.cursor-line {
+  stroke: currentColor;
+  opacity: 0.2;
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+.point {
+  fill: #fff;
+  stroke: currentColor;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.axis-x {
+  display: flex;
+  justify-content: space-between;
+  color: #7b8984;
+  font-size: 10px;
+  margin-top: 10px;
+}
+.chart-foot {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  color: #7b8984;
+}
+.readout b {
+  color: #213e34;
+  font-size: 11px;
+  margin-left: 8px;
+}
+.limit-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.limit-label i {
+  width: 14px;
+  border-top: 1px dashed #bc9874;
+}
+.blue {
+  color: #739cb0;
+}
+.empty-chart {
+  height: 247px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #75887e;
+}
+.empty-chart span {
+  font-size: 36px;
+  font-weight: 300;
+}
+.empty-chart strong {
+  font-size: 13px;
+}
+.empty-chart p {
+  font-size: 11px;
+  margin-bottom: 0;
+}
+@media (max-width: 600px) {
+  .axis-y {
+    width: 39px;
+  }
+  .chart {
+    gap: 9px;
+  }
+  .chart-foot {
+    font-size: 9px;
+  }
+  .axis-x {
+    font-size: 9px;
+  }
+}

@@ -1,0 +1,64 @@
+dialog {
+  border: 1px solid #dce6db;
+  border-radius: 16px;
+  padding: 26px;
+  width: min(580px, calc(100% - 32px));
+  max-height: 85vh;
+  color: #294537;
+  box-sizing: border-box;
+}
+dialog::backdrop {
+  background: #1b342b60;
+  backdrop-filter: blur(3px);
+}
+.dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dialog-heading h2 {
+  font-size: 20px;
+  margin: 0;
+}
+.icon-button {
+  background: none;
+  border: 0;
+  padding: 6px;
+}
+.demo-note {
+  font-size: 10px;
+  color: #8b9a8e;
+  border-bottom: 1px solid #e4ebe0;
+  padding-bottom: 16px;
+}
+.dialog-row {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #edf1e9;
+  font-size: 12px;
+}
+dialog p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #718274;
+}
+form label {
+  display: block;
+  font-size: 12px;
+  margin: 20px 0;
+}
+form input,
+form textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dce5d9;
+  border-radius: 7px;
+  margin-top: 8px;
+  font: inherit;
+}

@@ -22,7 +22,7 @@ public sealed class InventoryResource : Entity
     public string Owner { get; private set; } = string.Empty;
     public string Payer { get; private set; } = string.Empty;
     public string Operator { get; private set; } = string.Empty;
-    public string Scope { get; private set; } = "platform";
+    public string Scope { get; private set; } = "shared";
     public string Status { get; private set; } = "reported";
     public string Source { get; private set; } = string.Empty;
     public string Monitoring { get; private set; } = "none";

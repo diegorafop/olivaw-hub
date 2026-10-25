@@ -14,7 +14,7 @@ public sealed class InventoryResourceData
     public string Owner { get; set; } = string.Empty;
     public string Payer { get; set; } = string.Empty;
     public string Operator { get; set; } = string.Empty;
-    public string Scope { get; set; } = "platform";
+    public string Scope { get; set; } = "shared";
     public string Status { get; set; } = "reported";
     public string Source { get; set; } = string.Empty;
     public string Monitoring { get; set; } = "none";
@@ -32,7 +32,7 @@ public sealed class InventoryResourceData
     public static bool IsType(string value) => value is "compute" or "volume" or "database-instance" or "database" or "message-broker" or "message-namespace" or "cache-instance" or "cache-namespace" or "domain" or "subdomain" or "public-ip" or "dns-zone" or "dns-record" or "proxy" or "certificate" or "backup" or "observability" or "registry" or "external-service" or "other";
     public static bool IsStatus(string value) => value is "reported" or "verified" or "retired";
     public static bool IsMonitoring(string value) => value is "none" or "planned";
-    public static bool IsScope(string value) => value is "platform" or "customer";
+    public static bool IsScope(string value) => value is "shared" or "individual" or "platform" or "customer";
     public static bool IsReferenceUrl(string value)
     {
         if (value == "") return true;

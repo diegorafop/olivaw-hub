@@ -1,5 +1,8 @@
 # Documentação do Olivaw
 
+- [Segurança JWT — Portal e DevOps](features/discovery/seguranca-jwt-portal-e-devops.md): isolamento de roles, audiences e autorização cruzada; requisito em discovery, ainda não implementado.
+- [Estudo dos painéis Olivaw](features/discovery/portal-olivaw-identidade-e-navegacao.md): público, nome, endereços e distinção entre operação interna e portal do cliente; sem alteração de código.
+
 - [Clientes](clients/README.md): documentação e funcionalidades específicas de Cavalcante e LTMJ.
 
 - [Agentes Python — Baley e relatórios por API](features/done/agentes-python-baley-e-relatorios.md): coleta, interpretação, agendamento, relatórios por API e interface Agents implementados; publicação pelo mantenedor pendente.

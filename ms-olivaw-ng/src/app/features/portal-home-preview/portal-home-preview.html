@@ -1,0 +1,307 @@
+<div class="portal-shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/portal">olivaw<span>PORTAL DO CLIENTE</span></a>
+    <div class="company">
+      <span class="avatar">A</span>
+      <div><strong>Empresa Aurora</strong><small>Seu espaço na Olivaw</small></div>
+    </div>
+    <nav aria-label="Portal do cliente">
+      <a routerLink="/portal" class="active" aria-current="page"
+        ><app-portal-icon name="home" />Início</a
+      >
+      <button (click)="open('Seus chamados')">
+        <app-portal-icon name="message" />Chamados <b>{{ opened() }}</b>
+      </button>
+      <button (click)="open('Suas melhorias')"><app-portal-icon name="spark" />Melhorias</button>
+      <button (click)="open('Seu plano')"><app-portal-icon name="plan" />Meu plano</button>
+      <button (click)="open('Área técnica')">
+        <app-portal-icon name="code" />Área técnica <small>Em estudo</small>
+      </button>
+    </nav>
+    <div class="sidebar-help">
+      <app-portal-icon name="message" /><strong>Estamos por perto.</strong>
+      <p>Conte com a gente para cuidar do seu site.</p>
+      <button (click)="open('Nova solicitação')">Falar com a Olivaw <span>↗</span></button>
+    </div>
+    <small class="signature">Tecnologia com cuidado.</small>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <span>Seu negócio <span class="muted">/</span> <strong>Visão geral</strong></span
+      ><span class="account"
+        ><span class="online"></span> Empresa Aurora <span class="avatar small">A</span></span
+      >
+    </header>
+    <main>
+      <div class="preview-bar">
+        <span><i></i> Prévia do portal · dados ilustrativos</span
+        ><label
+          >Cenário
+          <select [value]="scenario()" (change)="scenario.set($any($event.target).value)">
+            <option value="normal">Uso normal</option>
+            <option value="attention">Próximo do limite</option>
+            <option value="missing">Sem leituras</option>
+          </select></label
+        ><a routerLink="/admin">Voltar à operação ↗</a>
+      </div>
+      <section class="welcome">
+        <div>
+          <div class="eyebrow">SEU NEGÓCIO, ACOMPANHADO DE PERTO</div>
+          <h1>Bom ver você por aqui.</h1>
+          <p>Um olhar simples sobre seu site, seu plano e o que estamos fazendo juntos.</p>
+        </div>
+        <button class="primary" (click)="open('Nova solicitação')">
+          <app-portal-icon name="message" /> Nova solicitação
+        </button>
+      </section>
+      <section class="summary-grid" aria-label="Resumo atual do plano">
+        <article class="card plan-card">
+          <div class="card-top">
+            <span class="eyebrow">SEU PLANO</span><span class="badge">Bronze</span>
+          </div>
+          <h2>Espaço para crescer.</h2>
+          <p>1 site · 1 GB de armazenamento</p>
+          <button class="text-button" (click)="open('Seu plano')">
+            Conhecer meu plano <span>↗</span>
+          </button>
+          <div class="plan-art" aria-hidden="true">✳</div>
+        </article>
+        <article class="card">
+          <div class="card-top">
+            <span class="eyebrow">ARMAZENAMENTO</span><app-portal-icon name="disk" />
+          </div>
+          <div class="metric">
+            {{ missing() ? '—' : used() }} <small>MB <span>/ 1 GB</span></small>
+          </div>
+          <progress
+            [value]="missing() ? 0 : used()"
+            max="1000"
+            [class.attention]="scenario() === 'attention'"
+            aria-label="Armazenamento utilizado"
+            [attr.aria-valuetext]="missing() ? 'Sem leitura disponível' : used() + ' MB de 1 GB'"
+          ></progress>
+          <p>
+            {{
+              missing()
+                ? 'Aguardando a primeira leitura.'
+                : 1000 - used() + ' MB livres no seu plano.'
+            }}
+          </p>
+        </article>
+        <article class="card">
+          <div class="card-top">
+            <span class="eyebrow">TRANSFERÊNCIA NO MÊS</span><app-portal-icon name="globe" />
+          </div>
+          <div class="metric">
+            {{ missing() ? '—' : '3,4' }} <small>GB <span>/ 10 GB</span></small>
+          </div>
+          <progress
+            [value]="missing() ? 0 : 34"
+            max="100"
+            aria-label="Transferência mensal utilizada"
+            [attr.aria-valuetext]="missing() ? 'Sem leitura disponível' : '3,4 GB de 10 GB'"
+          ></progress>
+          <p>Dados enviados aos visitantes · outubro.</p>
+        </article>
+      </section>
+      <div class="usage-note" [class.warning]="scenario() === 'attention'">
+        <app-portal-icon
+          [name]="missing() ? 'clock' : scenario() === 'attention' ? 'info' : 'check'"
+        /><span>
+          @if (missing()) {
+            Ainda não há dados de consumo. Assim que houver leituras, mostramos aqui.
+          } @else {
+            <strong>{{ used() / 10 }}% do armazenamento utilizado.</strong>
+            {{
+              scenario() === 'attention'
+                ? 'Está perto do limite. Vamos avaliar juntos antes de mudar seu plano.'
+                : 'É o recurso mais próximo do limite. Ainda há espaço disponível.'
+            }}
+          }</span
+        ><button (click)="open('Seu plano')">Ver detalhes <span>→</span></button>
+      </div>
+      <section class="section-heading">
+        <div>
+          <h2>Seu site ao longo do tempo</h2>
+          <p>{{ caption() }} · exemplo ilustrativo</p>
+        </div>
+        <div class="periods" role="group" aria-label="Período dos gráficos">
+          @for (item of periods; track item.id) {
+            <button
+              [class.selected]="period() === item.id"
+              [attr.aria-pressed]="period() === item.id"
+              (click)="period.set(item.id)"
+            >
+              {{ item.label }}
+            </button>
+          }
+        </div>
+      </section>
+      <section class="chart-grid">
+        <article class="card chart-card">
+          <div class="card-top">
+            <div>
+              <h3>Espaço ocupado</h3>
+              <p>Arquivos, imagens e banco de dados</p>
+            </div>
+            <app-portal-icon name="disk" />
+          </div>
+          <div class="chart-metric">{{ missing() ? '—' : used() }} <small>MB agora</small></div>
+          <app-portal-line-chart
+            [points]="storage()"
+            kind="storage"
+            [limit]="1000"
+            [empty]="missing()"
+          />
+        </article>
+        <article class="card chart-card">
+          <div class="card-top">
+            <div>
+              <h3>Acessos ao site</h3>
+              <p>Visualizações de páginas no período</p>
+            </div>
+            <app-portal-icon name="activity" />
+          </div>
+          <div class="chart-metric">
+            {{ missing() ? '—' : total() }} <small>visualizações</small>
+          </div>
+          <app-portal-line-chart [points]="accesses()" kind="accesses" [empty]="missing()" />
+        </article>
+      </section>
+      <section class="activity-grid">
+        <article class="card">
+          <div class="card-top">
+            <div class="title-icon">
+              <app-portal-icon name="message" />
+              <h3>Seus chamados</h3>
+            </div>
+            <button class="text-button" (click)="open('Seus chamados')">Ver todos ↗</button>
+          </div>
+          <div class="counters">
+            <div>
+              <strong>{{ opened() }}</strong
+              ><span>em aberto</span>
+            </div>
+            <div><strong class="amber">1</strong><span>aguarda você</span></div>
+            <div><strong>8</strong><span>atendidos</span></div>
+          </div>
+          <p class="small-note">“Aguarda você” faz parte dos chamados em aberto.</p>
+          @for (item of requests().slice(0, 2); track item.id) {
+            <button class="list-row" (click)="open('Seus chamados')">
+              <span
+                ><small>#{{ item.id }}</small
+                ><strong>{{ item.title }}</strong></span
+              ><span class="tag" [class.amber-tag]="item.status === 'waiting'">{{
+                labels[item.status]
+              }}</span>
+            </button>
+          }
+        </article>
+        <article class="card">
+          <div class="card-top">
+            <div class="title-icon">
+              <app-portal-icon name="spark" />
+              <h3>Suas melhorias</h3>
+            </div>
+            <button class="text-button" (click)="open('Suas melhorias')">Ver todas ↗</button>
+          </div>
+          <div class="counters">
+            <div><strong>1</strong><span>em andamento</span></div>
+            <div><strong>2</strong><span>em espera</span></div>
+            <div><strong>4</strong><span>entregues</span></div>
+          </div>
+          <p class="small-note">Evoluções do site acompanhadas com você.</p>
+          @for (item of improvements.slice(0, 2); track item.id) {
+            <button class="list-row" (click)="open('Suas melhorias')">
+              <span
+                ><small>Melhoria #{{ item.id }}</small
+                ><strong>{{ item.title }}</strong></span
+              ><span class="tag">{{ labels[item.status] }}</span>
+            </button>
+          }
+        </article>
+      </section>
+      <footer>
+        Olivaw <span>·</span> Clareza para acompanhar. Cuidado para evoluir.<small
+          >Valores e limites demonstrativos, sem vínculo com um plano contratado.</small
+        >
+      </footer>
+    </main>
+  </div>
+</div>
+<dialog #dialog aria-labelledby="dialog-title">
+  <div class="dialog-heading">
+    <h2 id="dialog-title">{{ modal() }}</h2>
+    <button class="icon-button" aria-label="Fechar" (click)="close()">
+      <app-portal-icon name="close" />
+    </button>
+  </div>
+  <p class="demo-note">Prévia interativa · nenhuma informação é enviada ou salva.</p>
+  @switch (modal()) {
+    @case ('Seu plano') {
+      <h3>Bronze · exemplo de composição</h3>
+      <p>1 site, 1 GB de armazenamento e 10 GB de transferência por mês.</p>
+      <p>
+        Armazenamento é o espaço dos arquivos e do banco. Transferência é a quantidade de dados
+        enviada aos visitantes; são recursos diferentes.
+      </p>
+      <p>O espaço não reinicia a cada mês. A transferência acompanha o ciclo mensal.</p>
+      <p>
+        Uso atual: {{ missing() ? 'sem leitura' : used() + ' MB de 1.000 MB' }}. Neste estudo, 1 GB
+        equivale a 1.000 MB.
+      </p>
+      <p>Preço, regras de excedente e limites finais serão definidos antes da contratação.</p>
+    }
+    @case ('Seus chamados') {
+      @for (item of requests(); track item.id) {
+        <div class="dialog-row">
+          <span>#{{ item.id }} · {{ item.title }}</span
+          ><span class="tag">{{ labels[item.status] }}</span>
+        </div>
+      }
+    }
+    @case ('Suas melhorias') {
+      @for (item of improvements; track item.id) {
+        <div class="dialog-row">
+          <span>{{ item.title }}</span
+          ><span class="tag">{{ labels[item.status] }}</span>
+        </div>
+      }
+    }
+    @case ('Área técnica') {
+      <h3>Mais detalhes, quando você precisar.</h3>
+      <p>
+        Proposta para uma próxima etapa: histórico de disponibilidade, consumo por serviço e
+        informações técnicas para a equipe de TI do cliente.
+      </p>
+      <p>
+        As métricas devem ser atribuídas ao serviço do cliente. O consumo total da VM compartilhada
+        não representa o consumo de uma única empresa.
+      </p>
+    }
+    @case ('Nova solicitação') {
+      @if (sent()) {
+        <p role="status">
+          Solicitação simulada! Ela aparece na lista desta prévia até recarregar a página. Nenhum
+          chamado real foi aberto.
+        </p>
+      } @else {
+        <form (submit)="submit($event)">
+          <label
+            >Como podemos ajudar?<input
+              name="title"
+              required
+              maxlength="140"
+              placeholder="Ex.: atualizar uma informação do site" /></label
+          ><label
+            >Conte um pouco mais<textarea
+              name="description"
+              rows="3"
+              placeholder="Este formulário é apenas uma demonstração."
+            ></textarea></label
+          ><button class="primary" type="submit">Simular solicitação</button>
+        </form>
+      }
+    }
+  }
+</dialog>
