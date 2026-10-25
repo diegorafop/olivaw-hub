@@ -30,7 +30,7 @@
       >Buscar nome ou identificador<input formControlName="search" type="search" maxlength="100"
     /></label>
     <label
-      >Tipo<select formControlName="type">
+      >Categoria<select formControlName="type">
         <option value="">Todos</option>
         @for (option of typeOptions; track option[0]) {
           <option [value]="option[0]">{{ option[1] }}</option>

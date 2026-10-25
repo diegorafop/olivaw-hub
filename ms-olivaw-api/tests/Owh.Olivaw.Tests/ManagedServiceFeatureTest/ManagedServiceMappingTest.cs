@@ -23,7 +23,7 @@ public class ManagedServiceMappingTest
         else options.UseSqlServer("Server=localhost;Database=unused;Integrated Security=true;");
         options.UseLowerCaseNamingConvention();
         using var context = new WriteDbContext(options.Options, new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> { ["DatabaseProvider"] = provider }).Build());
-        var sql = new RepositoryManagedService(context).ReadRows("api", "active", "api", Guid.NewGuid()).OrderBy(item => item.Id).Skip(20).Take(20).ToQueryString();
+        var sql = new RepositoryManagedService(context).ReadRows("dotnet", "active", "dotnet", Guid.NewGuid()).OrderBy(item => item.Id).Skip(20).Take(20).ToQueryString();
         Assert.Contains("OFFSET", sql, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("endedat", sql);
         var service = context.Model.FindEntityType(typeof(ManagedService))!;
@@ -46,7 +46,7 @@ public class ManagedServiceMappingTest
         existing.Changes.Clear();
         context.Attach(existing);
         context.Attach(customer);
-        var change = existing.Apply("Atualizado", "api", "", "", "customer", "active", ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now);
+        var change = existing.Apply("Atualizado", "dotnet", "", "", "customer", "active", ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now);
         existing.Customers.Add(ManagedServiceCustomer.Create(existing, customer, ManagedServiceFakerBuilder.Actor, "Operador", ManagedServiceFakerBuilder.Now));
         context.Add(change);
         context.ChangeTracker.DetectChanges();

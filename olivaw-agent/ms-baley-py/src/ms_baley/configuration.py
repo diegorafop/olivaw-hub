@@ -35,4 +35,41 @@ def load_settings(path):
     raise ValueError("Identidade do agente obrigatória.")
   if not isinstance(settings["localState"].get("directory"), str) or not settings["localState"]["directory"]:
     raise ValueError("Diretório de estado obrigatório.")
+  if settings["execution"]["enabled"]:
+    for section in ("ssh", "audit", "reportApi"):
+      if not isinstance(settings.get(section), dict):
+        raise ValueError("Seção de execução obrigatória: " + section)
+    if type(settings["audit"].get("logWindowHours")) is not int or not 1 <= settings["audit"]["logWindowHours"] <= 24:
+      raise ValueError("Janela de logs deve ser inteira entre 1 e 24 horas.")
+    if not isinstance(settings["audit"].get("hostId"), str) or not 1 <= len(settings["audit"]["hostId"]) <= 128:
+      raise ValueError("Identificador do host obrigatório.")
+    if settings["ssh"].get("enabled") is not True or settings["ssh"].get("strictHostKeyChecking") is not True:
+      raise ValueError("SSH habilitado com host verificado é obrigatório.")
+    if type(settings["reportApi"].get("enabled")) is not bool:
+      raise ValueError("Habilitação da API deve ser booleana.")
+    if type(settings["ai"].get("enabled", False)) is not bool:
+      raise ValueError("Habilitação da IA deve ser booleana.")
+    if settings["ai"].get("enabled"):
+      if settings["ai"].get("provider") != "codex-cli":
+        raise ValueError("Provedor IA não suportado.")
+      if type(settings["ai"].get("timeoutSeconds")) is not int or not 10 <= settings["ai"]["timeoutSeconds"] <= 180:
+        raise ValueError("Timeout IA deve ficar entre 10 e 180 segundos.")
+    if type(settings["ssh"].get("port")) is not int or not 1 <= settings["ssh"]["port"] <= 65535:
+      raise ValueError("Porta SSH inválida.")
+    ports = settings["audit"].get("expectedPublicTcpPorts", [22, 80, 443])
+    if not isinstance(ports, list) or len(ports) > 32 or any(type(port) is not int or not 1 <= port <= 65535 for port in ports):
+      raise ValueError("Portas TCP previstas inválidas.")
+    if settings["schedule"]["intervalHours"] < 0.05:
+      raise ValueError("Intervalo mínimo de execução: três minutos.")
+    for key, minimum, maximum in (("maxBytes", 262144, 104857600), ("retentionDays", 1, 30)):
+      value = settings["localState"].get(key)
+      if type(value) is not int or not minimum <= value <= maximum:
+        raise ValueError("Retenção local inválida: " + key)
+  remediation = settings.get("remediation", {"enabled": False})
+  if not isinstance(remediation, dict) or type(remediation.get("enabled")) is not bool:
+    raise ValueError("Configuração de correção inválida.")
+  if remediation["enabled"]:
+    value = remediation.get("pollSeconds")
+    if type(value) is not int or not 15 <= value <= 300:
+      raise ValueError("Consulta de aprovações deve ficar entre 15 e 300 segundos.")
   return settings

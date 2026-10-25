@@ -5,17 +5,19 @@
     "module": "ms_baley"
   },
   "schedule": {
-    "enabled": false,
+    "enabled": true,
     "intervalHours": 6
   },
   "execution": {
-    "enabled": false,
+    "enabled": true,
     "timeoutSeconds": 900,
-    "status": "awaiting-analysis-contract"
+    "status": "configured"
   },
   "ai": {
-    "provider": null,
-    "model": null
+    "enabled": true,
+    "provider": "codex-cli",
+    "model": null,
+    "timeoutSeconds": 120
   },
   "skill": {
     "path": "../skills/safety-docker/SKILL.md"
@@ -41,7 +43,7 @@
     }
   },
   "ssh": {
-    "enabled": false,
+    "enabled": true,
     "host": "98.95.250.122",
     "port": 22,
     "user": "ec2-user",
@@ -50,7 +52,26 @@
     "strictHostKeyChecking": true,
     "connectTimeoutSeconds": 10,
     "connectionAttempts": 1,
-    "validationStatus": "pending-new-key-authentication",
+    "validationStatus": "new-key-validated",
     "publicDns": "ec2-98-95-250-122.compute-1.amazonaws.com"
+  },
+  "audit": {
+    "hostId": "fintalk-server",
+    "logWindowHours": 6,
+    "expectedPublicTcpPorts": [
+      22,
+      80,
+      443
+    ]
+  },
+  "reportApi": {
+    "enabled": true,
+    "baseUrl": "https://api.olivaw.com.br",
+    "credentialsPath": "../../_secrets/admin.json",
+    "credentialsSection": "baley"
+  },
+  "remediation": {
+    "enabled": true,
+    "pollSeconds": 30
   }
 }

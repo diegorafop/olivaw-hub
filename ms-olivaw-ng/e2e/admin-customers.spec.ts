@@ -187,11 +187,14 @@ for (const mobile of [false, true]) {
     await contact.getByLabel('Nome').fill('Maria');
     await contact.getByLabel('WhatsApp com DDD').fill('11987654321');
     await expect(contact.getByLabel('WhatsApp com DDD')).toHaveValue('(11) 98765-4321');
+    await page.getByLabel('CNPJ').fill('11.222.333/0001-44');
+    await expect(page.getByLabel('CNPJ')).toHaveValue('11.222.333/0001-44');
     await page.getByLabel('Observações internas').fill('Organizar pedidos');
     await page.getByRole('button', { name: 'Cadastrar cliente' }).click();
     await expect(page).toHaveURL(new RegExp(`/admin/customers/${id}$`));
     await expect(page.getByRole('heading', { level: 1, name: 'Pastelaria Aurora' })).toBeVisible();
     expect(writes).toHaveLength(1);
+    expect(writes[0].body['document']).toBe('11222333000144');
     expect(writes[0].body['contacts']).toEqual([
       { name: 'Maria', role: '', email: '', whatsapp: '11987654321' },
     ]);

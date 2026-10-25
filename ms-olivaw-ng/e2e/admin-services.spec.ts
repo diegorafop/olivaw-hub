@@ -149,6 +149,15 @@ for (const mobile of [false, true]) {
     await expect(page.getByText('Nenhum serviço neste recorte.')).toBeVisible();
     await page.getByRole('link', { name: 'Cadastrar serviço', exact: true }).click();
     await page.getByLabel('Nome de apresentação').fill('Aplicação compartilhada');
+    await expect(page.getByRole('combobox', { name: 'Categoria', exact: true })).toHaveValue(
+      'unknown',
+    );
+    await expect(
+      page
+        .getByRole('combobox', { name: 'Categoria', exact: true })
+        .getByRole('option', { name: 'Todos', exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole('combobox', { name: 'Categoria', exact: true }).selectOption('dotnet');
     await page.getByLabel('Identificador técnico').fill('ms-example-api');
     await page.getByRole('button', { name: 'Cadastrar serviço', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('ao menos um cliente');

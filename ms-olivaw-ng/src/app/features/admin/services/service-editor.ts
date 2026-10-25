@@ -67,9 +67,9 @@ export class ServiceEditor {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(120)],
     }),
-    type: new FormControl('api', { nonNullable: true }),
+    type: new FormControl('unknown', { nonNullable: true, validators: [Validators.required] }),
     scope: new FormControl('customer', { nonNullable: true }),
-    status: new FormControl('planned', { nonNullable: true }),
+    status: new FormControl('planned', { nonNullable: true, validators: [Validators.required] }),
     description: new FormControl('', {
       nonNullable: true,
       validators: [Validators.maxLength(1000)],
@@ -96,7 +96,7 @@ export class ServiceEditor {
       .subscribe({
         next: (data) => {
           this.data.set(data);
-          this.form.reset(data);
+          this.form.reset({ ...data, type: serviceTypes[data.type] ? data.type : 'unknown' });
           this.form.controls.technicalId.disable();
           this.chosen.set(
             data.customers.map((item) => ({

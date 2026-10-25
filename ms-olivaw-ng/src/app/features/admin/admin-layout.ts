@@ -32,6 +32,7 @@ export class AdminLayout {
   );
   private readonly sectionTitles: Record<string, string> = {
     configuration: 'Configuração',
+    agents: 'Agents',
     deliveries: 'Entregas',
     'portal-access': 'Portal do cliente',
     'portal-preview': 'Prévia do cliente',
@@ -67,7 +68,7 @@ export class AdminLayout {
   );
   readonly section = computed(() => this.sectionTitles[this.pathParts()[1]] ?? 'Visão geral');
   readonly breadcrumbs = computed(() => {
-    const [, section, detail] = this.pathParts();
+    const [, section, detail, reportId] = this.pathParts();
     const items: { label: string; url: string }[] = [];
     if (this.isRoot()) items.push({ label: 'Visão geral', url: '/admin' });
     if (this.isConfiguration()) items.push({ label: 'Configuração', url: '/admin/configuration' });
@@ -83,6 +84,11 @@ export class AdminLayout {
     const label = this.sectionTitles[section];
     if (!label) return items;
     items.push({ label, url: '/admin/' + section });
+    if (section === 'agents' && detail === 'baley') {
+      items.push({ label: 'Baley', url: '/admin/agents/baley' });
+      if (reportId) items.push({ label: 'Relatório', url: this.currentUrl() });
+      return items;
+    }
     if (detail) {
       const singular: Record<string, string> = {
         resources: 'recurso',

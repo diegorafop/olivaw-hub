@@ -341,3 +341,55 @@ A base PostgreSQL está pronta para gerar/publicar uma nova imagem a partir dest
 Para habilitar login do cliente, configure `PortalIdentity:Issuer`, `PortalIdentity:Audience`, `PortalIdentity:SigningKey` (segredo próprio com ao menos 32 bytes) e `PortalIdentity:TokenMinutes` (1 a 120). Emissor, audiência e chave devem diferir da administração interna. O portal usa `ConnectionStrings:PortalIdentity` quando informado, ou `ConnectionStrings:DbContext`; o schema deve estar disponível para os dois contextos. Sem configuração válida de identidade, o login retorna 503; os módulos administrativos continuam disponíveis. Convites são entregues manualmente pela operação; não há envio automático de e-mail.
 
 O pacote não inicia outro serviço permanente, agendador ou coletor na VM. Sem `Monitoring:AllowedUrls`, a verificação HTTP permanece bloqueada. Financeiro, IA, automações e aceite comercial formal continuam no planejamento; veja o [índice das entregas](../docs/features/index.md) e o [guia de operação](../docs/operacao-interna.md). Consulte também os [comandos de migrations do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
+
+## Relatórios de segurança do Baley
+
+- `POST /security-reports`: conta autenticada com `security.reports.write`, corpo `{ "rawData": "<JSON do relatório>" }`. Retorna 201 na primeira entrega e 200 em reenvio idêntico do mesmo autor. Limite HTTP de 1 MiB e RawData de 262.144 caracteres; envelope JSON até profundidade 32. Limite de 12 escritas por hora por identidade. Corpo e autenticação ficam fora do HTTP logging.
+- `GET /security-reports?beforeId=0&hostId=<opcional>`: somente root, blocos de 20 com `nextBeforeId`, mais recentes primeiro.
+- `GET /security-reports/{externalId}`: somente root, resposta `{ "item": ... }`, 404 para ID ausente.
+
+`SecurityReport : Entity` fica no domínio. Tabela `securityreport`, GUID público, autor autenticado e datas herdados; colunas estáveis `RunId`, `AgentId`, `HostId`, `SchemaVersion`, `StartedAt`, `CompletedAt`, `ExecutionStatus` e `RawData` string. Índice único por agente/RunId impede duplicação; repetição com outro autor/conteúdo é rejeitada. Campos adicionais do objeto `result` são preservados sem mudar o schema relacional. Não há rota de escrita anônima, exclusão automática ou acesso do agente ao banco.
+
+O envelope 1.0 exige `runId` GUID não vazio, `agentId=baley`, `hostId`, timestamps UTC ordenados, `executionStatus` completed/partial/failed e objeto `result`. Metadados são extraídos do JSON pelo servidor; o cliente não escolhe o autor. A conta `baley-agent` não é root e tem somente `security.reports.write`. Consulte a [operação do Baley](../olivaw-agent/ms-baley-py/README.md) e a [feature concluída localmente](../docs/features/done/agentes-python-baley-e-relatorios.md).
+
+Somente PostgreSQL está autorizado nesta entrega. A migration `20261025121719_Issue025` cria somente `securityreport` e seus índices, preservando tabelas e dados existentes. No deploy, o startup aplica migrations pendentes automaticamente; geração e revisão locais não aplicam alterações em bancos reais. SQL Server fica para uma entrega futura.
+
+Comandos reproduzíveis da issue025 (migration já gerada; não repetir `add`):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+dotnet ef migrations add Issue025 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue020Panel Issue025 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue025.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+Não executamos `database update`; o deploy do mantenedor aplicará a migration pelo startup.
+
+## Correções aprovadas do Baley
+
+Fluxo implementado com a migration PostgreSQL `20261025220842_Issue025Remediation`. `Issue025` publicada permanece inalterada. A feature de [correção aprovada](../docs/features/done/baley-correcao-aprovada-e-saude.md) registra checks e pendência de publicação.
+
+- `GET /security-remediations?reportExternalId=<guid>`: root consulta estado e plano de cada verificação, sem revelar reserva de execução.
+- `POST /security-remediations`: root autoriza `{ "reportExternalId": "...", "findingIndex": 0 }`; índice corresponde ao array original e imutável. Relatório antigo ou procedimento não disponível exige intervenção.
+- `POST /security-remediations/batch`: root envia `{ "reportExternalId": "..." }`; autoriza pendentes do relatório inteiro e preserva registros existentes. Salva a coleção em uma unidade de persistência; restrição única impede duplicações concorrentes. Retorna contagens autorizadas, encaminhadas e já tratadas.
+- `GET /security-remediations/queue?hostId=<id>`: `security.remediations.execute`, somente tarefas do próprio autor técnico e host solicitado, aprovadas e não expiradas.
+- `PUT /security-remediations/{externalId}`: mesma permissão, identidade do executor, reserva e estado corretos. Ações fixas claim/validating/resolved/intervention, nunca comandos. Reserva de dez minutos e autorização de 24 horas. Resolvido exige fase de validação e evidências de saúde antes/depois, duas amostras e achado ausente. Reserva expirada não permite sucesso; intervenção ainda pode registrar a execução interrompida.
+
+`SecurityRemediation : Entity` referencia o relatório sem alterar RawData, registra aprovador, executor, índice do achado, host, plano/resultado JSON, mensagem, prazo e revisão. Índice exclusivo da chave de host ativa impede correções simultâneas por processos diferentes. Execução interrompida pode exigir revisão manual antes de liberar esse host; nunca liberar e repetir a mutação automaticamente.
+
+## Categorias de serviços
+
+O campo continua `type` no contrato para preservar os consumidores; o rótulo administrativo é **Categoria**. Novos valores aceitos: unknown, dotnet, angular, postgres, rabbitmq e redis. Categoria e situação são obrigatórias no cadastro; “Todos” existe apenas nos filtros. A UI inicia categoria unknown. Valores legados não confirmam uma tecnologia e são apresentados/filtrados como unknown, sem reescrever históricos existentes. Situações mantêm códigos planned/onboarding/active/closed, exibidos como Em análise/Em implantação/Em operação/Encerrado.
+
+- `PUT /security-remediations/{externalId}/review`: root registra revisão de uma execução incerta após o prazo expirar, com `confirmedStopped=true` e nota de pelo menos 20 caracteres. Libera somente a reserva do host; o achado continua em intervenção. Não executar enquanto o processo remoto ainda puder estar em andamento.
+
+Migration já gerada, **não repetir add**. Comandos reproduzíveis, sem iniciar o host ou conectar a banco real:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+dotnet ef migrations add Issue025Remediation --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue025 Issue025Remediation --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue025-remediation.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+O startup aplicará a nova tabela durante o deploy; não foi executado database update ou redeploy nesta entrega. O modelo do PortalIdentity foi conferido sem alterações pendentes. Somente PostgreSQL contemplado.

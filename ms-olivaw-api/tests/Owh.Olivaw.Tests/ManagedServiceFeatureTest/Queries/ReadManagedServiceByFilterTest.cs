@@ -17,10 +17,10 @@ public class ReadManagedServiceByFilterTest
         var id = Guid.NewGuid();
         using var cancellation = new CancellationTokenSource();
         var repository = new Mock<IRepositoryManagedService>();
-        repository.Setup(item => item.ReadPageAsync("api", "active", "api", id, 2, 10, cancellation.Token))
-            .ReturnsAsync(new ManagedServiceReadPage { Total = 11, Items = new() { new() { ExternalId = id, Name = "API", TechnicalId = "ms-example-api", Type = "api", Scope = "customer", Status = "active", CustomerCount = 2 } } });
+        repository.Setup(item => item.ReadPageAsync("dotnet", "active", "dotnet", id, 2, 10, cancellation.Token))
+            .ReturnsAsync(new ManagedServiceReadPage { Total = 11, Items = new() { new() { ExternalId = id, Name = "API", TechnicalId = "ms-example-api", Type = "dotnet", Scope = "customer", Status = "active", CustomerCount = 2 } } });
         var handler = new ReadManagedServiceByFilterHandler(repository.Object);
-        var result = await handler.Handle(new() { Payload = new() { Search = "api", Status = "active", Type = "api", CustomerExternalId = id, Page = 2, PageSize = 10 } }, cancellation.Token);
+        var result = await handler.Handle(new() { Payload = new() { Search = "dotnet", Status = "active", Type = "dotnet", CustomerExternalId = id, Page = 2, PageSize = 10 } }, cancellation.Token);
         Assert.Equal(11, result.Total);
         Assert.Equal(2, result.Page);
         Assert.Equal(2, Assert.Single(result.Items).CustomerCount);

@@ -60,7 +60,7 @@ Dez testes do Baley e três do agrupador/instalador aprovados. Testes verificam 
 
 Consulta pública inicial de validação leu CISA/NVD e páginas aprovadas, produziu seis ações de revisão e sinalizou fonte 404 e limites de resposta/paginação. Busca RSS retornou páginas; o refinamento de relevância descarta páginas genéricas sem relação com segurança. Não declarar que fontes encontradas são confiáveis ou novas vulnerabilidades foram confirmadas.
 
-A [feature ampla](../discovery/agentes-python-baley-e-relatorios.md) continua em andamento: coleta periódica, modelo, API/RawData e migrations não foram implementados nesta entrega. Não houve alteração do acesso SSH ou chave AWS.
+A [feature ampla](../done/agentes-python-baley-e-relatorios.md) continua em andamento: coleta periódica, modelo, API/RawData e migrations não foram implementados nesta entrega. Não houve alteração do acesso SSH ou chave AWS.
 
 ## user-feedback
 

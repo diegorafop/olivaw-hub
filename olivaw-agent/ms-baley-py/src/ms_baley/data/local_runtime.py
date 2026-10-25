@@ -102,8 +102,6 @@ class LocalRuntime:
     return state
 
   def start(self):
-    if self.settings["execution"]["enabled"]:
-      raise ValueError("A coleta/IA ainda aguarda contrato; mantenha execution.enabled=false.")
     self.prepare()
     with exclusive_lock(self.state / "launch.lock", blocking=True):
       current = self.status()
@@ -138,9 +136,12 @@ class LocalRuntime:
       if not state.get("instanceId"):
         raise ValueError("Worker sem identidade; não é seguro solicitar parada.")
       atomic_json(self.state / "stop.json", {"instanceId": state["instanceId"]})
+      state.update(state="stopping", stopRequested=True)
+      atomic_json(self.state / "status.json", state)
       for _ in range(100):
         state = self.status()
         if not state["running"]:
           return state
         time.sleep(0.05)
-      raise ValueError("Worker não confirmou parada; nenhum PID arbitrário foi encerrado.")
+      state.update(state="stopping", stopRequested=True)
+      return state

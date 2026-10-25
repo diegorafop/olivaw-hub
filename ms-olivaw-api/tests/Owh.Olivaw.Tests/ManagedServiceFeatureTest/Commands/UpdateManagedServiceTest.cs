@@ -30,7 +30,7 @@ public class UpdateManagedServiceTest
         var links = new Mock<IRepository<ManagedServiceCustomer>>();
         links.Setup(item => item.GetAsync(It.IsAny<Expression<Func<ManagedServiceCustomer, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<ManagedServiceCustomer, object>>[]>())).ReturnsAsync(new[] { oldLink });
         var changes = new Mock<IRepository<ManagedServiceChange>>();
-        var command = new UpdateManagedServiceMediatorCommand { ExternalId = service.ExternalId, ActorUserId = ManagedServiceFakerBuilder.Actor, ActorName = "Atualização", Payload = new() { Revision = 1, Name = "Novo nome", Type = "api", Status = "active", Scope = "customer", CustomerExternalIds = new() { next.ExternalId } } };
+        var command = new UpdateManagedServiceMediatorCommand { ExternalId = service.ExternalId, ActorUserId = ManagedServiceFakerBuilder.Actor, ActorName = "Atualização", Payload = new() { Revision = 1, Name = "Novo nome", Type = "dotnet", Status = "active", Scope = "customer", CustomerExternalIds = new() { next.ExternalId } } };
         var result = await new UpdateManagedServiceHandler(repository.Object, customers.Object, links.Object, changes.Object, Mock.Of<IRepositoryInventoryRevision>()).Handle(command, CancellationToken.None);
         Assert.Null(result.Conflict);
         Assert.Equal(2, result.Response.Revision);
@@ -53,7 +53,7 @@ public class UpdateManagedServiceTest
         links.Setup(item => item.GetAsync(It.IsAny<Expression<Func<ManagedServiceCustomer, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<ManagedServiceCustomer, object>>[]>())).ReturnsAsync(Array.Empty<ManagedServiceCustomer>());
         var inventory = new Mock<IRepositoryInventoryRevision>();
         var handler = new UpdateManagedServiceHandler(repository.Object, Mock.Of<IRepository<Customer>>(), links.Object, Mock.Of<IRepository<ManagedServiceChange>>(), inventory.Object);
-        var result = await handler.Handle(new() { ExternalId = service.ExternalId, ActorUserId = ManagedServiceFakerBuilder.Actor, ActorName = "Operador", Payload = new() { Revision = 1, Name = "Nome", Type = "api", Scope = "internal", Status = "closed" } }, CancellationToken.None);
+        var result = await handler.Handle(new() { ExternalId = service.ExternalId, ActorUserId = ManagedServiceFakerBuilder.Actor, ActorName = "Operador", Payload = new() { Revision = 1, Name = "Nome", Type = "dotnet", Scope = "internal", Status = "closed" } }, CancellationToken.None);
         Assert.NotNull(result.Conflict);
         inventory.Verify(item => item.CloseServiceDeploymentsAsync(service.Id, ManagedServiceFakerBuilder.Actor, "Operador", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null!, CancellationToken.None));
@@ -61,7 +61,7 @@ public class UpdateManagedServiceTest
     [Fact]
     public void Validator_should_reject_closed_service_with_active_links_and_empty_revision()
     {
-        var request = new Client.Features.ManagedServiceFeature.Commands.UpdateManagedServiceCommand { Revision = 1, Name = "Nome", Type = "api", Scope = "customer", Status = "closed" };
+        var request = new Client.Features.ManagedServiceFeature.Commands.UpdateManagedServiceCommand { Revision = 1, Name = "Nome", Type = "dotnet", Scope = "customer", Status = "closed" };
         var validator = new UpdateManagedServiceValidator();
         Assert.True(validator.Validate(request).IsValid);
         request.CustomerExternalIds.Add(Guid.NewGuid());

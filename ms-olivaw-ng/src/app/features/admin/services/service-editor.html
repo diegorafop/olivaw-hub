@@ -35,14 +35,14 @@
         /></label>
         <p class="help">Letras minúsculas, números e hífens. Único e preservado após o cadastro.</p>
         <label
-          >Tipo<select formControlName="type">
+          >Categoria<select formControlName="type" required>
             @for (option of typeOptions; track option[0]) {
               <option [value]="option[0]">{{ option[1] }}</option>
             }
           </select></label
         >
         <label
-          >Situação cadastral<select formControlName="status">
+          >Situação cadastral<select formControlName="status" required>
             @for (option of statusOptions; track option[0]) {
               <option [value]="option[0]">{{ option[1] }}</option>
             }
