@@ -16,7 +16,10 @@ class LifecycleTests(unittest.TestCase):
     self.directory = TemporaryDirectory()
     self.addCleanup(self.directory.cleanup)
     self.path = Path(self.directory.name) / "setting.json"
-    self.path.write_text((ROOT / "setting.json").read_text())
+    settings = json.loads((ROOT / "setting.json").read_text())
+    settings["execution"]["enabled"] = False
+    settings["schedule"]["enabled"] = False
+    self.path.write_text(json.dumps(settings))
     self.runtime = LocalRuntime(self.path)
     self.addCleanup(self.runtime.stop)
 
@@ -43,9 +46,10 @@ class LifecycleTests(unittest.TestCase):
     (self.runtime.state / "status.json").write_text(json.dumps({"pid": os.getpid(), "instanceId": "old", "state": "running"}))
     self.assertFalse(self.runtime.stop()["running"])
 
-  def test_enabled_analysis_fails_without_starting_or_network(self):
+  def test_invalid_analysis_config_fails_without_starting_or_network(self):
     settings = json.loads(self.path.read_text())
     settings["execution"]["enabled"] = True
+    del settings["ssh"]
     self.path.write_text(json.dumps(settings))
     with self.assertRaises(ValueError):
       LocalRuntime(self.path).start()

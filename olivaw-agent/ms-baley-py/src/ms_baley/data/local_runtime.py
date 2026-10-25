@@ -102,8 +102,6 @@ class LocalRuntime:
     return state
 
   def start(self):
-    if self.settings["execution"]["enabled"]:
-      raise ValueError("A coleta/IA ainda aguarda contrato; mantenha execution.enabled=false.")
     self.prepare()
     with exclusive_lock(self.state / "launch.lock", blocking=True):
       current = self.status()

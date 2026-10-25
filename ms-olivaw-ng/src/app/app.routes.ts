@@ -46,6 +46,9 @@ export const routes: Routes = [
     canMatch: [operationGuard],
     loadComponent: () => import('./features/admin/admin-frame').then((m) => m.AdminFrame),
     children: [
+      { path: 'agents', canMatch: [rootGuard], title: 'Olivaw - Agents', loadComponent: () => import('./features/admin/agents/agents-page').then(m => m.AgentsPage) },
+      { path: 'agents/baley', canMatch: [rootGuard], title: 'Olivaw - Baley', loadComponent: () => import('./features/admin/agents/baley-reports').then(m => m.BaleyReports) },
+      { path: 'agents/baley/:reportId', canMatch: [rootGuard], title: 'Olivaw - Relatório Baley', loadComponent: () => import('./features/admin/agents/report-detail').then(m => m.ReportDetail) },
       {
         path: 'deliveries',
         canMatch: [rootGuard],
