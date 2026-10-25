@@ -96,6 +96,16 @@ class AuditTests(unittest.TestCase):
       with self.assertRaises(BlockingIOError):RunAuditHandler(self.runtime,service).handle()
     service.cycle.assert_not_called()
 
+  def test_report_client_reads_only_baley_section_from_shared_admin_json(self):
+    path = self.base/'admin.json'
+    path.write_text(json.dumps({'cloud': {'pass': 'never-send'}, 'baley': {'login': 'baley-agent', 'password': 'fixture'}}))
+    path.chmod(0o600)
+    client = ReportClient({'credentialsPath': 'admin.json', 'credentialsSection': 'baley'}, self.base)
+    client.request = Mock(side_effect=[{'accessToken': 'test'}, {'runId': 'run', 'externalId': 'id'}])
+    client.send({'runId': 'run'})
+    self.assertEqual({'login':'baley-agent','password':'fixture'},client.request.call_args_list[0].args[1])
+    self.assertNotIn('never-send',str(client.request.call_args_list))
+
   def test_http_rejects_destination_change_before_sending_credentials(self):
     client=ReportClient({'baseUrl':'https://evil.example'},self.base)
     with self.assertRaises(ValueError):client.request('/login',{'password':'fixture'})

@@ -43,6 +43,17 @@ def load_settings(path):
       raise ValueError("Janela de logs deve ser inteira entre 1 e 24 horas.")
     if not isinstance(settings["audit"].get("hostId"), str) or not 1 <= len(settings["audit"]["hostId"]) <= 128:
       raise ValueError("Identificador do host obrigatório.")
+    if settings["ssh"].get("enabled") is not True or settings["ssh"].get("strictHostKeyChecking") is not True:
+      raise ValueError("SSH habilitado com host verificado é obrigatório.")
+    if type(settings["reportApi"].get("enabled")) is not bool:
+      raise ValueError("Habilitação da API deve ser booleana.")
+    if type(settings["ai"].get("enabled", False)) is not bool:
+      raise ValueError("Habilitação da IA deve ser booleana.")
+    if settings["ai"].get("enabled"):
+      if settings["ai"].get("provider") != "codex-cli":
+        raise ValueError("Provedor IA não suportado.")
+      if type(settings["ai"].get("timeoutSeconds")) is not int or not 10 <= settings["ai"]["timeoutSeconds"] <= 180:
+        raise ValueError("Timeout IA deve ficar entre 10 e 180 segundos.")
     if type(settings["ssh"].get("port")) is not int or not 1 <= settings["ssh"]["port"] <= 65535:
       raise ValueError("Porta SSH inválida.")
     if settings["schedule"]["intervalHours"] < 0.05:

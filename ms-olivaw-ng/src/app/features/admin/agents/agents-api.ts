@@ -32,16 +32,25 @@ export function reportContent(report: SecurityReport): {
       throw new Error('Invalid report');
     return {
       findings: Array.isArray(raw.result.findings)
-        ? raw.result.findings.filter((item: Finding) => item && typeof item.title === 'string' && typeof item.severity === 'string')
+        ? raw.result.findings.filter(
+            (item: Finding) =>
+              item && typeof item.title === 'string' && typeof item.severity === 'string',
+          )
         : [],
       limitations: Array.isArray(raw.result.limitations)
         ? raw.result.limitations.filter((item: unknown) => typeof item === 'string')
         : [],
-      coverage: raw.result.coverage && typeof raw.result.coverage === 'object' ? raw.result.coverage : {},
+      coverage:
+        raw.result.coverage && typeof raw.result.coverage === 'object' ? raw.result.coverage : {},
       valid: Array.isArray(raw.result.findings),
     };
   } catch {
-    return { findings: [], limitations: ['Conteúdo incompatível ou indisponível.'], coverage: {}, valid: false };
+    return {
+      findings: [],
+      limitations: ['Conteúdo incompatível ou indisponível.'],
+      coverage: {},
+      valid: false,
+    };
   }
 }
 export function reportRisk(report: SecurityReport): { tone: string; label: string } {
@@ -60,15 +69,22 @@ export class AgentsApi {
   private readonly http = inject(HttpClient);
   private readonly config = inject(RuntimeConfig);
   list(beforeId = 0) {
-    return this.http.get<{ items: SecurityReport[]; nextBeforeId: number | null }>(
-      this.config.endpoint('security-reports'),
-      { params: new HttpParams().set('beforeId', beforeId), context: new HttpContext().set(LOCAL_ERROR, true) },
-    ).pipe(timeout(15000));
+    return this.http
+      .get<{ items: SecurityReport[]; nextBeforeId: number | null }>(
+        this.config.endpoint('security-reports'),
+        {
+          params: new HttpParams().set('beforeId', beforeId),
+          context: new HttpContext().set(LOCAL_ERROR, true),
+        },
+      )
+      .pipe(timeout(15000));
   }
   detail(id: string) {
-    return this.http.get<{ item: SecurityReport }>(
-      this.config.endpoint('security-reports/' + encodeURIComponent(id)),
-      { context: new HttpContext().set(LOCAL_ERROR, true) },
-    ).pipe(timeout(15000));
+    return this.http
+      .get<{ item: SecurityReport }>(
+        this.config.endpoint('security-reports/' + encodeURIComponent(id)),
+        { context: new HttpContext().set(LOCAL_ERROR, true) },
+      )
+      .pipe(timeout(15000));
   }
 }

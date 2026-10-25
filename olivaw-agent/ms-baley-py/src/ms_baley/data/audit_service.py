@@ -68,11 +68,17 @@ def findings_for(evidence):
   return findings
 
 
+class ReportHTTPError(ValueError):
+  def __init__(self, status):
+    super().__init__("Report API request failed")
+    self.status = status
+
+
 class ReportClient:
   def __init__(self, settings, project):
     self.settings, self.project = settings, project
 
-  def request(self, path, payload, token=None):
+  def request(self, path, payload, token=None, method="POST"):
     endpoint = urlsplit(self.settings["baseUrl"])
     if endpoint.scheme != "https" or endpoint.hostname != "api.olivaw.com.br" or endpoint.port not in (None, 443) or endpoint.path not in ("", "/") or endpoint.query or endpoint.fragment or endpoint.username:
       raise ValueError("API de destino não autorizada.")
@@ -80,19 +86,19 @@ class ReportClient:
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
     if token: headers["Authorization"] = "Bearer " + token
     try:
-      connection.request("POST", path, json.dumps(payload, ensure_ascii=False).encode(), headers)
+      connection.request(method, path, None if payload is None else json.dumps(payload, ensure_ascii=False).encode(), headers)
       response = connection.getresponse()
       data = response.read(131073)
       if len(data) > 131072: raise ValueError("Resposta excede limite.")
       if response.status not in (200, 201):
-        raise ValueError("HTTP-" + str(response.status))
+        raise ReportHTTPError(response.status)
       return json.loads(data)
     finally:
       connection.close()
 
   def send(self, report):
     path = private_file(self.project / self.settings["credentialsPath"])
-    credentials = json.loads(path.read_text())
+    credentials = json.loads(path.read_text())[self.settings["credentialsSection"]]
     # Autenticar em cada lote; JWT permanece apenas em memória.
     auth = self.request("/identity/authentication/login", {"login": credentials["login"], "password": credentials["password"]})
     token = auth.get("accessToken") or auth.get("token")
@@ -145,6 +151,8 @@ class AuditService:
       evidence = self.collect()
       findings = findings_for(evidence)
       coverage = evidence.get("coverage", {})
+      coverage["accessSampleLimitReached"] = evidence.get("access", {}).get("sampleLimited", False)
+      coverage["sshSampleLimitReached"] = evidence.get("authentication", {}).get("sampleLimited", False)
       limitations = [key+": "+str(value) for key, value in coverage.items() if value not in ("collected", False)]
       if not evidence.get("access", {}).get("events"):
         limitations.append("Sem eventos de access log observados; não comprova ausência de tráfego.")
@@ -152,7 +160,7 @@ class AuditService:
                           "Não inclui exploração, varredura de CVEs, revisão de código ou Security Groups AWS."])
       if not evidence.get("access", {}).get("events"):
         coverage["accessLogObservation"] = "partial"
-      report.update(executionStatus="partial" if any(value in ("unavailable", "limited", "partial") for value in coverage.values()) else "completed",
+      report.update(executionStatus="partial" if any(value is True or value in ("unavailable", "limited", "partial") for value in coverage.values()) else "completed",
                     result={"summary": {"findingCount": len(findings), "containerCount": len(evidence.get("containers", []))},
                             "coverage": coverage, "findings": findings, "limitations": limitations, "evidence": evidence})
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired):
@@ -170,7 +178,9 @@ class AuditService:
   def prune(self):
     self.runtime.prepare()
     directory = self.runtime.state / "outbox"
+    if directory.is_symlink(): raise ValueError("Fila não pode ser link simbólico.")
     directory.mkdir(mode=0o700, exist_ok=True)
+    directory.chmod(0o700)
     files = sorted(directory.glob("*.json"), key=lambda path: path.stat().st_mtime)
     total = sum(path.stat().st_size for path in files)
     dropped = 0
@@ -193,7 +203,7 @@ class AuditService:
     delivered = 0
     delivery = "pending"
     if self.settings["reportApi"]["enabled"]:
-      for pending in sorted(path.parent.glob("*.json"))[:4]:
+      for pending in sorted(path.parent.glob("*.json"), key=lambda item: item.stat().st_mtime)[:4]:
         if pending.is_symlink(): raise ValueError("Fila não pode conter links.")
         try:
           self.client.send(json.loads(pending.read_text()))

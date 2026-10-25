@@ -59,7 +59,7 @@ def operate(root, operation, only=None):
       result = subprocess.run([str(executable), "-m", agent["module"], operation,
                                "--settings", str(agent["settings"])], cwd=directory,
                               env=environment, capture_output=True, text=True,
-                              timeout=300 if operation == "audit" else 180 if operation == "update" else 15)
+                              timeout=600 if operation == "audit" else 180 if operation == "update" else 15)
       output = result.stdout if result.returncode == 0 else result.stderr or result.stdout
       if len(output.encode()) > 1048576:
         raise ValueError("Saída excedeu limite.")

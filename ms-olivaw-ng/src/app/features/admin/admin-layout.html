@@ -49,9 +49,18 @@
           ><span class="menu-label nav-arrow" aria-hidden="true">↗</span>
         </a>
         @if (isRoot()) {
-          <a routerLink="/admin/agents" routerLinkActive="nav-active" ariaCurrentWhenActive="page" aria-label="Agents" title="Agents">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v14H5zM9 3h6M12 3v4M8 12h1M15 12h1M9 17h6" /></svg>
-            <span class="menu-label">Agents</span><span class="menu-label nav-arrow" aria-hidden="true">↗</span>
+          <a
+            routerLink="/admin/agents"
+            routerLinkActive="nav-active"
+            ariaCurrentWhenActive="page"
+            aria-label="Agents"
+            title="Agents"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 7h14v14H5zM9 3h6M12 3v4M8 12h1M15 12h1M9 17h6" />
+            </svg>
+            <span class="menu-label">Agents</span
+            ><span class="menu-label nav-arrow" aria-hidden="true">↗</span>
           </a>
           <a
             routerLink="/admin/configuration"

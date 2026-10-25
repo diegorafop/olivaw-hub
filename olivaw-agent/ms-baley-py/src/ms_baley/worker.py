@@ -68,6 +68,8 @@ def main(argv=None):
           heartbeat = time.monotonic() + 2
         time.sleep(0.2)
     finally:
+      state.update(state="stopping", stopRequested=True)
+      atomic_json(runtime.state / "status.json", state)
       executor.shutdown(wait=True, cancel_futures=True)
       state.update(state="stopped", stoppedAt=now())
       atomic_json(runtime.state / "status.json", state)

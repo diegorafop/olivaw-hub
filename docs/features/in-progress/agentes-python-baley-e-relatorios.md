@@ -20,6 +20,21 @@ para acompanhar a infraestrutura periodicamente e guardar relatórios evolutivos
 
 ## ai-prompt
 
+### Execução atual — 25/10/2026
+
+- Responsável: Codex. Branch: `feature/baley-security-reports`, sincronizado com `develop` após finish da Cavalcante. Sem issue atribuída; não associar à issue024 do cliente.
+- Escopo autorizado: coleta SSH somente leitura, análise por Codex, relatórios autenticados por API, timer serial de seis horas e UI administrativa Agents → Baley → relatórios → detalhes.
+- API: `POST /security-reports` com `security.reports.write`; consulta e detalhes somente `olivaw.root`. `RawData` string preserva JSON evolutivo; `RunId` por agente impede duplicações. Identidade do autor vem do JWT.
+- Runtime: `audit` executa um ciclo; `start` executa imediatamente e repete após o intervalo configurado. Estado e fila locais privados, limitados a 20 MiB e sete dias; descarte contabilizado. `update` continua somente leitura.
+- Evidência real: coleta leu 11 containers e 187 eventos de acesso na VM; política SSH, listeners, SELinux e logs foram consultados sem alterar serviços. Interpretação Codex com dados simulados e JSON estruturado aprovada.
+- Verificações locais: 22 testes Python aprovados; API compila sem warnings. Suíte API: 373 testes aprovados e uma falha esperada por modelo PostgreSQL ainda sem a nova migration. Build Angular aprovado; validação final e E2E em andamento.
+- Pendências: nome da migration `BaleySecurityReports` aguardando confirmação do mantenedor, somente PostgreSQL autorizado; validação final; recebimento real após deploy do mantenedor. Não está publicado. SQL Server não contemplado.
+- Conta técnica `baley-agent` provisionada pela API, não root e somente `security.reports.write`; credencial local ignorada em `_secrets/admin.json`.
+- Frontend: três testes de navegação e três testes de classificação aprovados; build sem warning novo. Interpretação Codex estruturada verificada.
+- Primeiro ciclo real concluído com relatório na fila privada; entrega ainda pendente da rota publicada pelo mantenedor.
+- Os registros de planejamento abaixo descrevem o contexto anterior. O estado atual é o deste bloco; somente capacidades comprovadas devem ser apresentadas como operacionais.
+
+
 ### Estado e autorização atual
 
 Em discovery, a pedido explícito do mantenedor. Auditoria automática e persistência de relatórios aguardam planejamento e nova autorização de implementação. O mantenedor aprovou criar Baley em `olivaw-agent/ms-baley-py`, skill `safety-docker` em `olivaw-agent/skills`, cópia de execução do Codex e comandos de lifecycle/update. O agrupador deve operar todos os projetos reconhecidos da pasta. Esse recorte local foi implementado; coleta autônoma de SSH/IA, API administrativa, entidade RawData, migrations e agendamento real da auditoria continuam pendentes do contrato detalhado.

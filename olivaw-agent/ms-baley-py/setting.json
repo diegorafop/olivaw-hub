@@ -62,6 +62,7 @@
   "reportApi": {
     "enabled": true,
     "baseUrl": "https://api.olivaw.com.br",
-    "credentialsPath": "../../_secrets/baley-api.json"
+    "credentialsPath": "../../_secrets/admin.json",
+    "credentialsSection": "baley"
   }
 }
