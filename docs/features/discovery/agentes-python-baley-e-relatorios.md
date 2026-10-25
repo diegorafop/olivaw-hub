@@ -1,4 +1,4 @@
-# Agentes Python — Safety e relatórios de segurança por API
+# Baley — Auditoria automática e relatórios pela API Olivaw
 
 ## user-history
 
@@ -8,74 +8,82 @@ para acompanhar a infraestrutura periodicamente e guardar relatórios evolutivos
 
 ## acceptance-criteria
 
-- `ms-agent-py` agrupa agentes independentes; o primeiro é `ms-safety-py`, gerado pelo scaffold de `ms-limpo-py`, preservando CQS, composição por construtor e testes isolados.
-- Template e projeto gerado têm `setting.json` validado, com identidade do agente, periodicidade, modelo, skill e referências de conexão. O scaffold copia a configuração explicitamente e ajusta apenas identificadores previstos.
-- Safety acessa os alvos somente pelo escopo autorizado da futura skill; análise não executa correções automaticamente. Listas de verificações e detalhes de coleta aguardam o próximo prompt.
+- Baley acessa os alvos somente pelo escopo autorizado da futura skill; análise não executa correções automaticamente. Listas de verificações e detalhes de coleta aguardam o próximo prompt.
 - O agente nunca usa driver, DSN, conexão ou usuário de banco. Persistência, consulta e envio de relatórios passam exclusivamente pela API autenticada da Olivaw.
 - Resultado é JSON válido, com envelope versionado e conteúdo flexível. Ausência de campos opcionais e novos campos internos são tolerados; uma falha de coleta não é convertida em evidência de segurança.
 - API valida o envelope, preserva `RawData` como string e guarda metadados mínimos em entidade herdada de `Entity`, sem duplicar seus campos de identidade/auditoria.
-- Reenvio da mesma execução não duplica relatório; repetição com conteúdo divergente retorna conflito. Conta técnica do Safety tem somente permissões específicas, sem root ou deployment.
+- Reenvio da mesma execução não duplica relatório; repetição com conteúdo divergente retorna conflito. Conta técnica do Baley tem somente permissões específicas, sem root ou deployment.
 - Agendamento evita sobreposição e controla duração, tamanho de saída, tentativas, uso de IA e retenção local; desligado até configuração e autorização de execução.
 - Chaves privadas, senhas, cookies, tokens e dados não autorizados não entram no prompt do modelo, no JSON persistido ou nos logs. Chave administrativa existente não é copiada para a VM nem para um container.
 - Testes cobrem configurações inválidas, indisponibilidade de SSH/modelo/API, JSON evolutivo, repetição, autorização, isolamento e ausência de acesso a banco pelo agente.
-- Esta etapa entrega somente a especificação em discovery; código, skill executável, rotas, tabelas, migrations e agendamento aguardam leitura e avanço explícito do mantenedor.
+- Base do Baley, skill e lifecycle local aprovados e implementados; coleta automatizada, IA, API, tabelas e migrations continuam pendentes e não são declarados concluídos.
 
 ## ai-prompt
 
 ### Estado e autorização atual
 
-Em discovery, aguardando leitura do mantenedor e próximo prompt sobre o que analisar e como apresentar/guardar os resultados. A intenção de implementar foi registrada, mas a instrução final delimita esta etapa à escrita da feature. Não gerar projetos, alterar template, criar skill, modificar API, gerar migrations, acessar servidor ou iniciar execução periódica nesta etapa.
+Em discovery, a pedido explícito do mantenedor. Auditoria automática e persistência de relatórios aguardam planejamento e nova autorização de implementação. O mantenedor aprovou criar Baley em `olivaw-agent/ms-baley-py`, skill `safety-docker` em `olivaw-agent/skills`, cópia de execução do Codex e comandos de lifecycle/update. O agrupador deve operar todos os projetos reconhecidos da pasta. Esse recorte local foi implementado; coleta autônoma de SSH/IA, API administrativa, entidade RawData, migrations e agendamento real da auditoria continuam pendentes do contrato detalhado.
 
-Responsável pela especificação: Codex desta sessão. Worktree `/home/makina/projects/olivaw`, branch recebida `feature/issue023-tests-and-adjusts`; sem nova issue criada ou associação automática desta feature à issue do branch. Alterações preexistentes de infraestrutura, chave SSH, VS Code e template devem ser preservadas. Na implementação futura, conferir branch/issue e AGENTS dos módulos.
+Responsável: Codex desta sessão, worktree `/home/makina/projects/olivaw`, branch recebida `feature/issue023-tests-and-adjusts`, sem nova issue criada. Preservar alterações preexistentes e conferir AGENTS antes de avançar. A criação anterior de documentação foi ampliada por autorização explícita, sem autorização implícita para implantar o agente no servidor ou iniciar chamadas de IA pagas.
+
+### Escopo pendente registrado
+
+Esta feature planeja o fluxo **Baley → API Olivaw → banco**: coleta autorizada por SSH, análise com skill/modelo definidos, agendamento sem sobreposição, produção de JSON e envio autenticado para uma rota administrativa. A API deverá validar e persistir uma entidade herdada de Entity, com RawData string e metadados estáveis, e permitir consulta administrativa dos relatórios.
+
+O supervisor atual não coleta, não chama IA nem envia relatórios. Não existem a rota, a tabela e as migrations desta integração; rodar start/status não gera registros na base. O comando update continua somente consulta de source/discovery/learn e não faz parte da persistência das auditorias.
+
+A base já entregue permanece em [lifecycle e skill](../done/baley-lifecycle-e-safety-docker.md) e [update somente leitura](../done/baley-update-fontes-e-aprendizado.md). Este documento guarda o planejamento restante, sem reabrir essas entregas nem autorizar alterações de código, banco ou ambiente agora.
+
+### Recorte entregue em 24/10/2026
+
+- Template recebeu `setting.json`, carregador e whitelist/testes do scaffold. Baley foi gerado por `python3 ms-limpo-py/scripts/new_agent.py baley --output olivaw-agent`; suporte SQL e demonstração removidos do derivado, preservados no template.
+- `start`, `stop` e `status` locais com lock, parada cooperativa e detecção de estado antigo. Supervisor aguarda configuração, sem rede/IA ou coleta periódica; habilitar análise antecipadamente falha.
+- `olivaw-agent/olivaw-agent` descobre projetos coerentes `ms-*-py` e delega operações sequenciais, com resultado por projeto. Usa venv própria quando disponível.
+- `update` agora é estritamente somente leitura: consulta catálogo, pesquisa fontes candidatas e lista source/discovery/learn. Não grava propostas nem altera agente/skill. Operador decide manualmente o que incorporar.
+- Fonte em `olivaw-agent/skills/safety-docker`, cópia instalada em `~/.agents/skills/safety-docker` e invocação `$safety-docker`. A grafia safet-docker no feedback foi tratada como referência à skill chamada safety-docker pelo próprio mantenedor, sem criar alias duplicado.
+- Validação: 16 testes do template, dez do Baley, três do agrupador/instalador; ciclo real local start/status/stop; skill validada pelo quick_validate. Consulta pública de smoke test leu CISA/NVD, sem SSH ou IA; NVD estava truncado na primeira página, portanto não é busca completa de vulnerabilidades.
+
+Recorte concluído documentado em [Baley e safety-docker](../done/baley-lifecycle-e-safety-docker.md).
 
 ### O que foi encontrado
 
 - [Template Python](../../../ms-limpo-py/README.md): scaffold em `scripts/new_agent.py`, arquitetura `domain/core/features/data`, demonstração em memória e suporte opcional a PostgreSQL/migrations.
-- O template não tem `setting.json` e o gerador usa lista fechada de arquivos. Adicionar só o arquivo não o levará aos agentes gerados: atualizar conscientemente essa lista e os testes de independência.
-- O exemplar em `/home/makina/Downloads/ms-giskard-py-develop/ms-giskard-py` contém o esqueleto CQS. Conforme esclarecimento do mantenedor, a skill de code review está no PC de trabalho e seu conteúdo é irrelevante para esta feature. Não solicitar cópia, não procurá-la em outras máquinas e não condicionar Safety a ela.
-- A persistência direta e os comandos PostgreSQL descritos no template/Giskard não são o padrão autorizado para Safety. O agente deve usar adaptador HTTP e não receber configuração ou dependência de banco. Não alterar o projeto externo do Giskard.
-- A [auditoria anterior](seguranca-e-infraestrutura.md) é referência de problemas e limites observados, não uma lista de verificações aprovada para o robô. A [infraestrutura implantada](../done/infraestrutura-compartilhada.md) tem VM pequena; o local de execução do agente ainda precisa ser decidido.
+- Na leitura inicial faltava `setting.json`; agora foi incluído com carregador, identidade ajustada pelo scaffold e testes. O gerador mantém lista fechada de arquivos.
+- O exemplar em `/home/makina/Downloads/ms-giskard-py-develop/ms-giskard-py` contém o esqueleto CQS. Conforme esclarecimento do mantenedor, a skill de code review está no PC de trabalho e seu conteúdo é irrelevante para esta feature. Não solicitar cópia, não procurá-la em outras máquinas e não condicionar Baley a ela.
+- A persistência direta e os comandos PostgreSQL descritos no template/Giskard não são o padrão autorizado para Baley. O agente deve usar adaptador HTTP e não receber configuração ou dependência de banco. Não alterar o projeto externo do Giskard.
+- A [auditoria anterior](../discovery/seguranca-e-infraestrutura.md) é referência de problemas e limites observados, não uma lista de verificações aprovada para o robô. A [infraestrutura implantada](../done/infraestrutura-compartilhada.md) tem VM pequena; o local de execução do agente ainda precisa ser decidido.
 
-### Organização proposta
+### Organização implementada
 
 ```text
-ms-agent-py/
+olivaw-agent/
   AGENTS.md
   README.md
-  ms-safety-py/
+  olivaw-agent
+  hub.py
+  scripts/install_skill.py
+  skills/safety-docker/
+    SKILL.md
+    agents/openai.yaml
+    references/
+  ms-baley-py/
     AGENTS.md
     setting.json
     pyproject.toml
-    .agents/skills/security-analysis/
-      SKILL.md
-    src/ms_safety/
-      domain/
-      core/
-      features/
-      data/
-      bootstrap.py
-      cli.py
+    src/ms_baley/
     tests/
 ```
 
-`ms-agent-py` é um agrupador, sem um único processo obrigatório para todos os agentes. Cada filho tem pacote, dependências, configuração, testes e ciclo de execução próprios. Não criar framework de agentes ou biblioteca compartilhada antes de haver repetição real.
-
-Após autorização, criar o diretório pai e usar o gerador existente a partir da raiz do monorepo:
-
-```bash
-python3 ms-limpo-py/scripts/new_agent.py safety --output ms-agent-py
-```
-
-Esse comando **não foi executado**. O scaffold exige diretório pai existente e recusa sobrescrever destinos. No Safety, retirar a demonstração quando os casos reais existirem e não carregar o adaptador ou comando de migração de banco do template. Considerar no scaffold uma opção `api-only` que omita dependência/comando de banco nos novos projetos, preservando compatibilidade de quem já usa o modo atual. Essa opção é sugestão, não decisão já implementada.
+Cada projeto é independente. A skill canônica é compartilhada pelo agrupador, sem cópias concorrentes no repositório. A cópia instalada no Codex é sincronizada explicitamente, não é editada por update. Consulte [a operação do agrupador](../../../olivaw-agent/README.md) e [o projeto Baley](../../../olivaw-agent/ms-baley-py/README.md).
 
 ### Configuração `setting.json`
 
-Usar o nome singular solicitado, sem `example`. Formato inicial para discussão:
+O setting real já existe no projeto, sem `example`; o modelo/skill usados no supervisor estão explícitos e a coleta desabilitada. O JSON abaixo continua proposta do contrato futuro de análise/API, não a configuração já executada:
 
 ```json
 {
   "settingsVersion": 1,
-  "agent": { "id": "safety", "version": "0.1.0" },
+  "agent": { "id": "baley", "version": "0.1.0" },
   "schedule": {
     "enabled": false,
     "intervalHours": 6,
@@ -97,7 +105,7 @@ Usar o nome singular solicitado, sem `example`. Formato inicial para discussão:
     "maxCallsPerRun": 1
   },
   "skill": {
-    "path": ".agents/skills/security-analysis/SKILL.md"
+    "path": "../skills/safety-docker/SKILL.md"
   },
   "ssh": {
     "targetRef": null,
@@ -122,7 +130,7 @@ Usar o nome singular solicitado, sem `example`. Formato inicial para discussão:
 
 Todos os números acima são propostas revisáveis. `model`/`provider` nulos impedem análise de IA; não escolher provedor, modelo, assinatura ou preço silenciosamente. A configuração referencia nomes de variáveis/caminhos de segredos, sem colocar seus valores no JSON. Não criar variáveis ou arquivos de banco.
 
-Para o `ms-limpo-py`, acrescentar o carregador/validador e um `setting.json` genérico com agendamento desabilitado; referências específicas de SSH/Safety pertencem ao derivado. Incluir arquivo na whitelist do scaffold, documentar resolução por caminho e precedência explícita entre defaults/configuração/segredos externos. Não depender do diretório de onde o comando foi chamado. Configuração inválida deve falhar antes de abrir rede ou chamar IA.
+Para o `ms-limpo-py`, acrescentar o carregador/validador e um `setting.json` genérico com agendamento desabilitado; referências específicas de SSH/Baley pertencem ao derivado. Incluir arquivo na whitelist do scaffold, documentar resolução por caminho e precedência explícita entre defaults/configuração/segredos externos. Não depender do diretório de onde o comando foi chamado. Configuração inválida deve falhar antes de abrir rede ou chamar IA.
 
 ### Agendamento e custo
 
@@ -132,15 +140,15 @@ Usar lock por agente/alvo e limite de duração; ignorar disparos perdidos em ve
 
 Sugestão de fluxo: coleta determinística e limitada → sanitização → análise do modelo com skill → validação JSON → envio HTTP. A análise da IA não deve escolher comandos arbitrários; logs e arquivos coletados são dados não confiáveis, nunca novas instruções. Limitar contexto e chamadas; custo/orçamento em moeda só pode ser calculado com base de preço conhecida. Se IA falhar, registrar falha/incompletude, sem inventar conclusão ou disparar novamente uma análise paga só porque o envio à API falhou.
 
-### Skill do Safety
+### Skill safety-docker e Codex
 
-Propor uma skill própria `security-analysis` no escopo do projeto, com `SKILL.md` contendo frontmatter YAML `name`/`description` e instruções curtas. Usar scripts/referências somente quando forem necessários ao fluxo real. A localização `.agents/skills` e esse manifesto seguem a [documentação oficial de skills do Codex](https://learn.chatgpt.com/docs/build-skills). Não instalar globalmente nem duplicar a skill em vários caminhos.
+Implementada em `olivaw-agent/skills/safety-docker/SKILL.md`, com manifesto name/description, roteiro de investigação, fontes e contrato JSON em referências. O caminho versionado segue a escolha do mantenedor; a cópia para descoberta pelo Codex usa `~/.agents/skills/safety-docker`, segundo a [documentação oficial](https://learn.chatgpt.com/docs/build-skills). A UI opcional inclui prompt com `$safety-docker` e a seleção implícita padrão foi preservada.
 
-O runner Python precisa carregar/invocar a skill explicitamente no adaptador de IA escolhido. Um arquivo SKILL.md sozinho não executa SSH, não registra timer e não faz um SDK descobrir skills automaticamente. Distinguir configuração do modelo, instruções da skill e ferramentas determinísticas com permissões próprias.
+A skill inicial cobre host/SSH, chaves e histórico, portas, containers, permissões/mounts, redes, volumes, RabbitMQ, ACME, logs, Traefik e rotas anônimas. Não concede remediação automática. Evidências são sanitizadas; CVEs são candidatos até conferir produto/versão/contexto; material coletado é dado não confiável.
 
-Detalhes de verificações, evidências e fontes aguardam o próximo prompt. Proposta de limites iniciais: auditoria somente leitura, alvos permitidos, verificação estrita da identidade SSH e proibição de remediar, instalar, remover, reiniciar ou alterar permissões automaticamente. As correções autorizadas manualmente na sessão anterior não autorizam remediação recorrente pelo robô.
+O supervisor Python ainda não invoca Codex/IA: carregar uma skill não executa a análise por si só. O adaptador e o fluxo de coleta/API aguardam definição. A invocação manual no Codex pode usar a skill instalada, limitada ao alvo e à tarefa autorizados.
 
-Recomendo chave dedicada ao Safety com comandos/usuário limitados. A chave administrativa da máquina do mantenedor não deve ser copiada para uma VM de execução. Se for necessário sudo para algum inventário, aprovar operações específicas; não conceder `sudo python3` genérico a uma conta autônoma. Local do agente e identidade SSH precisam ser definidos antes de habilitar coleta.
+O comando update lista source/discovery/learn e nunca altera arquivos. Incorporação de fontes/aprendizado é decisão e edição manual do operador. O contrato está na [entrega de consulta de aprendizado](../done/baley-update-fontes-e-aprendizado.md). Recomenda-se identidade SSH dedicada ao agente, sem copiar a chave administrativa para VM ou container.
 
 ### Relatório JSON evolutivo
 
@@ -150,13 +158,13 @@ Proposta: envelope estável mínimo e conteúdo analítico livre dentro de `resu
 {
   "schemaVersion": "1.0",
   "runId": "80fb8838-cc56-4f81-bdb9-244809fd1253",
-  "agentId": "safety",
+  "agentId": "baley",
   "targetId": "infra-prd",
   "startedAt": "2026-10-24T18:00:00Z",
   "completedAt": "2026-10-24T18:02:00Z",
   "executionStatus": "partial",
   "agentVersion": "0.1.0",
-  "skill": { "name": "security-analysis", "revision": "sha256:..." },
+  "skill": { "name": "safety-docker", "revision": "sha256:..." },
   "ai": { "provider": null, "model": null, "status": "not-configured" },
   "result": {
     "summary": null,
@@ -197,7 +205,7 @@ Proposta de request: `{ "rawData": "<JSON serializado>" }`. A API lê o envelope
 
 Propor unicidade por identidade autenticada do agente + RunId. Mesmo id e mesmo conteúdo aceito retornam o relatório existente; mesmo id com conteúdo diferente retorna 409. Calcular hash de conteúdo canônico com regras documentadas, sem descartar campos desconhecidos; rejeitar duplicatas de chave antes de canonicalizar. Em reenvio incerto, reutilizar os mesmos bytes/RunId, sem gerar nova rodada. Garantir esse comportamento por constraint e tratamento de concorrência, não apenas consulta prévia.
 
-Policies sugeridas `security-reports.write` e `security-reports.read`; cliente técnico não root, sem `devops.deploy`, `identity.manage`, conta de cliente ou acesso direto ao banco. Actor vem do JWT, nunca do body. Definir o cadastro confiável que vincula a identidade técnica aos agentIds/targets permitidos. Não usar a conta root de deployment atual para o Safety.
+Policies sugeridas `security-reports.write` e `security-reports.read`; cliente técnico não root, sem `devops.deploy`, `identity.manage`, conta de cliente ou acesso direto ao banco. Actor vem do JWT, nunca do body. Definir o cadastro confiável que vincula a identidade técnica aos agentIds/targets permitidos. Não usar a conta root de deployment atual para o Baley.
 
 Consultas comuns usam `IRepository<SecurityReport>`; repositório específico só se projeção/filtro/paginação requererem operações ausentes no contrato genérico. Preservar convenções e histórico de migrations do serviço. `RawData` continua propriedade string, com mapping de texto adequado a cada provedor; não presumir jsonb obrigatório ou conversão para objeto fortemente tipado no EF.
 
@@ -209,10 +217,10 @@ Sugestão: API é fonte definitiva; spool local de JSON sanitizado permite reenv
 
 Para SSH e API indisponíveis, distinguir o diagnóstico do alvo da falha do próprio monitor. Não publicar diretamente da VM monitorada usando credenciais de banco. Não registrar chave, bearer, cabeçalhos de autenticação, corpos brutos de login ou saídas de comandos com valores secretos. Coleta, logs, spool e tamanho de RawData precisam de limites independentes.
 
-### Plano de implementação após a leitura
+### Etapas restantes da feature ampla
 
 1. Fechar escopo de coleta, alvos, execução, modelo/provedor e política de retenção com o próximo prompt.
-2. Atualizar `ms-limpo-py` com configuração real, scaffold e testes; gerar Safety sob `ms-agent-py` e documentar AGENTS nos níveis necessários.
+2. Base/scaffold/lifecycle/skill concluídos; evoluir o contrato de análise sem recriar ou sobrescrever o projeto gerado.
 3. Implementar modo API-only, runner, skill própria, coleta autorizada, sanitização e contrato versionado, sem copiar código de review ou conexão direta do Giskard.
 4. Implementar contrato cliente, CQS, policies, entidade, mappings e testes na API. Migration ao final, somente para provedor solicitado e com nome de issue/branch confirmado, preservando todas as migrations publicadas. A intenção de gerar foi registrada, mas **não gerar nesta fase documental**.
 5. Validar configuração/scaffold, filtros de segredos, limite de comandos/saída, idempotência concorrente, JSON flexível e autorização. Testes simulam SSH/modelo/API, sem chamadas pagas ou bancos de clientes.
@@ -223,7 +231,7 @@ Para SSH e API indisponíveis, distinguir o diagnóstico do alvo da falha do pr�
 - Quais alvos, fontes, comandos, permissões e itens entram na análise? O mantenedor já informou que detalhará depois; não antecipar coleta.
 - Onde o agente executa: máquina local, PC de trabalho ou runner separado? Considerar acesso SSH e a restrição de memória da VM.
 - Qual modelo/provedor e como autenticar sua execução? Codex CLI e chamada direta de API são opções diferentes; selecionar uma antes de implementar adaptador/agendamento.
-- A skill de segurança fica restrita ao módulo como proposto? Não precisa do conteúdo da skill de code review.
+- Skill e diretórios já definidos: safety-docker em olivaw-agent/skills; não precisa do conteúdo da skill de code review.
 - Cadência de seis horas, horário fixo, fuso, lock e comportamento quando a máquina estiver desligada.
 - Contrato definitivo dos achados, permissões da API, alvos autorizados, janela de retenção, teto de RawData e necessidade de spool local.
 - Provedor de banco e issue para a migration da API; sem banco/migrations do agente.
@@ -251,4 +259,32 @@ bom começa escrevendo a feature coloca na pasta discovery ai espera eu ler para
 se tiver outras ideias consideracoes ou ainda formas melhores de fazer me avise nesse arquivo dessa feature
 
 a skill fica somente no PC do meu trabalho, ter o conteudo da skill code review agora é irrelevante
+```
+
+
+```text
+pode criar nossa skill chamada safety-docker e o nome do nosso agent será ms-baley-py pode criar o projeto tbm.
+guarde a skill com as diretivas mais modernas e recomendadas pelo codex e tals.
+vamos versionar dentro de olivaw-agent/skills e o codigo do agent fica em olivaw-agent/ms-baley-py, o nosso querido agent baley será o responsável pela segurança.
+
+eu queria que ele tivesse, além das funcionalidades padrao de start/stop/status uma quarta operação 'update' a qual vamos definir melhor depois, mas é uma operação que acessa a internet com famosas e confiaveis que registram falhas de segurança e vai 'listar' as novidades e melhorar a própria skill, a nossa skill versionada fica no projeto mas a copia dela para execucao pelo codex com tipo '$safet-docker' voce coloca no local adequado do codex blz?
+
+pode iniciar a skill com diretivas padrao de investigacao que voce ja fez hj no nosso srvidor docker, depois vamos evoluindo ela blz?
+
+dentro da pasta olivaw-agent teremos tbm um script tipo olivaw-agent start, nesse caso essa funcionalidade vai executar todos os ms-agentName-py que tivermos na pasta versionados, dentro do projeto de agents blzzz
+```
+
+
+```text
+isso, o update em SI não muda nada no baley nem na skill. Ele apenas lista essa informacoes e o operador (que no caso sou eu) vou definir quais usar na skill
+```
+
+
+```text
+boa blz, vou rodar o agent e verificar o status.
+a saida dele seria salvar dados no olivaw né?
+
+depois eu confiro na base os reports do nosso agent blz.
+
+otiom, entao deixa isso como feature em discovery
 ```

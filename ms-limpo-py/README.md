@@ -75,7 +75,7 @@ Features dependem de core/domain. Data implementa os contratos de core; domínio
 
 ## Configuração e migrações
 
-O exemplo não requer configuração. Agentes derivados devem receber segredos externamente, sem gravá-los no repositório, argumentos ou logs. Não há carregamento automático de `.env`.
+O exemplo não requer configuração. O arquivo real `setting.json` acompanha o scaffold, com agendamento/execução desabilitados, identidade ajustada ao agente e modelo/skill ainda não selecionados. `configuration.load_settings(path)` valida o JSON sem abrir rede; comandos que usarem configuração devem receber caminho explícito e resolver caminhos relativos ao arquivo. O JSON não contém senhas. Agentes derivados devem receber segredos externamente, sem gravá-los no repositório, argumentos ou logs. Não há carregamento automático de `.env`.
 
 Para habilitar o comando PostgreSQL:
 

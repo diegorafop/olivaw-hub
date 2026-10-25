@@ -1,6 +1,7 @@
 """Gera um agente independente usando somente os arquivos declarados do template."""
 
 import argparse
+import json
 from pathlib import Path
 import re
 
@@ -8,7 +9,7 @@ import re
 TEMPLATE = Path(__file__).resolve().parents[1]
 # Lista fechada: novos arquivos do template exigem inclusão consciente aqui.
 PACKAGE_FILES = (
-    "__init__.py", "__main__.py", "bootstrap.py", "cli.py",
+    "__init__.py", "__main__.py", "bootstrap.py", "cli.py", "configuration.py",
     "core/__init__.py", "core/execution_repository.py",
     "domain/__init__.py", "domain/execution.py",
     "data/__init__.py", "data/apply_migrations.py",
@@ -19,7 +20,7 @@ PACKAGE_FILES = (
     "features/execution/queries/__init__.py",
     "features/execution/queries/get_execution.py",
 )
-ROOT_FILES = (".editorconfig", ".gitignore", "AGENTS.md", "README.md",
+ROOT_FILES = (".editorconfig", "setting.json", ".gitignore", "AGENTS.md", "README.md",
               "pyproject.toml", "tests/test_template.py",
               ".vscode/settings.json", ".vscode/extensions.json")
 
@@ -58,6 +59,10 @@ def generate(name, output, template=TEMPLATE):
             content = re.sub(r"(?m)^(from|import) ms_limpo(?=[.\s])", rf"\1 {package}", content)
             if source.endswith("data/apply_migrations.py"):
                 content = content.replace('f"ms-limpo:migrations:', f'f"{command}:migrations:')
+        elif source == "setting.json":
+            settings = json.loads(content)
+            settings["agent"] = {"id": name, "module": package}
+            content = json.dumps(settings, ensure_ascii=False, indent=2) + "\n"
         elif source in ("README.md", "AGENTS.md", "pyproject.toml"):
             content = content.replace("ms-limpo-py", project)
             content = content.replace("ms-limpo", command)

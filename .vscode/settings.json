@@ -55,7 +55,8 @@
     "**/coverage": true,
     "**/artifacts": true,
     "**/BenchmarkDotNet.Artifacts": true,
-    "**/.venv": true
+    "**/.venv": true,
+    "**/__pycache__": true
   },
   "search.exclude": {
     "**/bin": true,
@@ -68,7 +69,8 @@
     "**/coverage": true,
     "**/artifacts": true,
     "**/BenchmarkDotNet.Artifacts": true,
-    "**/.venv/**": true
+    "**/.venv/**": true,
+    "**/__pycache__": true
   },
   "files.watcherExclude": {
     "**/bin": true,
@@ -80,7 +82,8 @@
     "**/results": true,
     "**/coverage": true,
     "**/artifacts": true,
-    "**/.venv/**": true
+    "**/.venv/**": true,
+    "**/__pycache__": true
   },
   "python.terminal.useEnvFile": true,
   "dotnet.defaultSolution": "Olivaw.sln"

@@ -19,5 +19,5 @@ def main(argv=None):
         parser.error(str(error))
     result = get.handle(GetExecutionQuery(execution.id))
     print(json.dumps({"id": str(result.id), "name": result.name,
-                      "created_at": result.created_at.isoformat()}, ensure_ascii=False))
+                      "created_at": result.created_at.isoformat()}, ensure_ascii=False, indent=2))
     return 0

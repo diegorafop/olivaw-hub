@@ -1,6 +1,6 @@
 # Documentação do Olivaw
 
-- [Agentes Python — Safety e relatórios por API](features/discovery/agentes-python-safety-e-relatorios.md): proposta do agrupador, scaffold, skill própria, configuração e persistência JSON; aguardando leitura.
+- [Agentes Python — Baley e relatórios por API](features/discovery/agentes-python-baley-e-relatorios.md): agrupador/scaffold/skill implementados; coleta, IA e persistência JSON por API planejadas em discovery.
 
 - [Segurança e infraestrutura — Auditoria inicial](features/discovery/seguranca-e-infraestrutura.md): achados do servidor e rotas anônimas, contenção de chave SSH e plano de correções.
 - [Infraestrutura compartilhada](../ms-infrastructure-app/README.md): Compose de PostgreSQL, RabbitMQ, Traefik e Redis opcional, volumes e reconstrução de VM.
@@ -48,3 +48,5 @@ Comece pelo guia de desenvolvimento para entender como os componentes se relacio
 - [Compra e validação do domínio](registrobr/validacao-dominio.md).
 
 - [Migração dos serviços para o domínio próprio](registrobr/migracao-servicos.md): DNS, Traefik, banco e scripts de deploy.
+
+- [Baley e safety-docker — Base concluída](features/done/baley-lifecycle-e-safety-docker.md): start/stop/status, update revisável e cópia da skill instalada no Codex.

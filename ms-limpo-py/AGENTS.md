@@ -31,3 +31,9 @@ PostgreSQL é opcional. Provisionamento pertence ao `ms-devops-api`; migrações
 ## Commits e pull requests
 
 Sem histórico Git inicial disponível, use assuntos imperativos e concisos. PRs explicam problema, comportamento resultante, alterações de contrato/configuração/schema e validação. Informe testes não executados, inclusive Windows e PostgreSQL quando aplicável. Preserve alterações preexistentes e não faça deploy ou operações remotas como consequência de mudanças locais.
+
+## Configuração de agentes
+
+- `setting.json` é o nome real, sem example, e integra a whitelist do scaffold. Modelo e skill ficam não configurados até definição do agente; execução/agendamento desabilitados por padrão.
+- Use `configuration.load_settings(path)` antes de efeitos externos; rejeite versões inválidas, chaves duplicadas e limites não positivos. Paths relativos usam a pasta do setting. Credenciais não pertencem ao JSON.
+- Agentes API-only, como Baley, não recebem driver, DSN ou comandos de banco. Preservar o template opcional PostgreSQL para consumidores existentes.
