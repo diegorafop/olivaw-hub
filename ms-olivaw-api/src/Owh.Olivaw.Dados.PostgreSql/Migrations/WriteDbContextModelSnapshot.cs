@@ -1179,6 +1179,118 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.ToTable("deploymentresource", (string)null);
                 });
 
+            modelBuilder.Entity("Owh.Olivaw.Domain.Expense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<decimal>("AmountBrl")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amountbrl");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customerid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Digest")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("digest");
+
+                    b.Property<Guid>("EntryKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entrykey");
+
+                    b.Property<decimal>("ExchangeRateToBrl")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)")
+                        .HasColumnName("exchangeratetobrl");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurredat");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("source");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("expense_pk");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("expense_customerid_ix");
+
+                    b.HasIndex("EntryKey")
+                        .IsUnique()
+                        .HasDatabaseName("expense_entrykey_ix");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("expense_externalid_ix");
+
+                    b.HasIndex("OccurredAt", "CustomerId")
+                        .HasDatabaseName("expense_occurredat_ix");
+
+                    b.ToTable("expense", (string)null);
+                });
+
             modelBuilder.Entity("Owh.Olivaw.Domain.HealthReading", b =>
                 {
                     b.Property<int>("Id")
@@ -2835,6 +2947,80 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.ToTable("portalservicelink", (string)null);
                 });
 
+            modelBuilder.Entity("Owh.Olivaw.Domain.PortalUsageSample", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customerid");
+
+                    b.Property<DateTime>("Day")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("day");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<long?>("PageViews")
+                        .HasColumnType("bigint")
+                        .HasColumnName("pageviews");
+
+                    b.Property<Guid>("SampleKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("samplekey");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("source");
+
+                    b.Property<decimal?>("StorageUsedMiB")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)")
+                        .HasColumnName("storageusedmib");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("portalusagesample_pk");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("portalusagesample_externalid_ix");
+
+                    b.HasIndex("SampleKey")
+                        .IsUnique()
+                        .HasDatabaseName("portalusagesample_samplekey_ix");
+
+                    b.HasIndex("CustomerId", "Day")
+                        .IsUnique()
+                        .HasDatabaseName("portalusagesample_customerid_ix");
+
+                    b.ToTable("portalusagesample", (string)null);
+                });
+
             modelBuilder.Entity("Owh.Olivaw.Domain.ResourceCustomer", b =>
                 {
                     b.Property<int>("Id")
@@ -3983,6 +4169,17 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.Navigation("ServiceDeployment");
                 });
 
+            modelBuilder.Entity("Owh.Olivaw.Domain.Expense", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("customer_expense_customerid_fk");
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("Owh.Olivaw.Domain.HealthReading", b =>
                 {
                     b.HasOne("Owh.Olivaw.Domain.InventoryResource", "InventoryResource")
@@ -4159,6 +4356,18 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.Navigation("HealthResource");
 
                     b.Navigation("ManagedService");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.PortalUsageSample", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("customer_portalusagesample_customerid_fk");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Owh.Olivaw.Domain.ResourceCustomer", b =>

@@ -109,10 +109,12 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await setup(page);
     const nav = page.getByRole('navigation', { name: 'Navegação da operação' });
-    await expect(nav.getByRole('link')).toHaveCount(3);
+    await expect(nav.getByRole('link')).toHaveCount(4);
     await nav.getByRole('link', { name: 'Configuração', exact: true }).click();
     const cards = page.getByRole('navigation', { name: 'Cadastros e ferramentas' });
-    await expect(cards.getByRole('link')).toHaveCount(11);
+    await expect(cards.getByRole('link')).toHaveCount(9);
+    for (const name of ['Saúde', 'Incidentes', 'Consumo'])
+      await expect(cards.getByRole('link', { name, exact: true })).toHaveCount(0);
     await cards.getByRole('link', { name: 'Planos', exact: true }).click();
     await expect(
       page.getByRole('heading', { name: 'Estudo dos planos', exact: true }),

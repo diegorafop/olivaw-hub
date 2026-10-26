@@ -47,7 +47,10 @@ export class PortalLineChart {
     ].map((index) => this.points()[index]?.label ?? ''),
   );
   format(value: number): string {
-    if (this.kind() === 'storage') return value === 1000 ? '1 GB' : `${Math.round(value)} MB`;
+    if (this.kind() === 'storage')
+      return value >= 1000
+        ? `${(value / 1000).toLocaleString('pt-BR')} GB`
+        : `${Math.round(value)} MB`;
     return new Intl.NumberFormat('pt-BR').format(Math.round(value));
   }
   preview(event: PointerEvent) {

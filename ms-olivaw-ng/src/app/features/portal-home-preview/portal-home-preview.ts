@@ -1,5 +1,6 @@
-import { Component, computed, ElementRef, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, Injectable, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Breadcrumb } from '../../shared/breadcrumb';
 import { PortalIcon } from './portal-icon';
 import { PortalLineChart } from './portal-line-chart';
 import {
@@ -10,22 +11,62 @@ import {
   type Period,
   type Scenario,
 } from './preview-data';
+@Injectable({ providedIn: 'root' })
+export class PortalPreviewState {
+  readonly requests = signal([...initialRequests]);
+  readonly scenario = signal<Scenario>('normal');
+  readonly period = signal<Period>('month');
+}
 @Component({
   selector: 'app-portal-home-preview',
-  imports: [RouterLink, PortalIcon, PortalLineChart],
+  imports: [RouterLink, PortalIcon, PortalLineChart, Breadcrumb, RouterLinkActive],
   templateUrl: './portal-home-preview.html',
   styleUrls: [
     './portal-home-preview.scss',
     './portal-home-cards.scss',
     './portal-home-dialog.scss',
+    './portal-utilization.scss',
     './portal-home-responsive.scss',
   ],
 })
 export class PortalHomePreview {
+  private readonly state = inject(PortalPreviewState);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  readonly section: string = this.route.snapshot.data['portalSection'] ?? 'home';
+  readonly titles: Record<string, string> = {
+    home: 'Início',
+    requests: 'Seus chamados',
+    improvements: 'Suas melhorias',
+    plan: 'Seu plano',
+    indicator: 'Como calculamos o uso',
+    technical: 'Área técnica',
+    new: 'Nova solicitação',
+    request: 'Detalhes do chamado',
+    improvement: 'Detalhes da melhoria',
+  };
+  readonly title = this.titles[this.section];
+  readonly detailId = Number(this.route.snapshot.paramMap.get('itemId'));
+  readonly request = computed(() => this.requests().find((item) => item.id === this.detailId));
+  readonly improvement = initialImprovements.find((item) => item.id === this.detailId);
+  readonly breadcrumbs = [
+    { label: 'Início', url: '/portal' },
+    ...(['request', 'improvement', 'new'].includes(this.section)
+      ? [
+          {
+            label: this.section === 'improvement' ? 'Melhorias' : 'Chamados',
+            url: this.section === 'improvement' ? '/portal/melhorias' : '/portal/chamados',
+          },
+        ]
+      : []),
+    ...(this.section === 'home' ? [] : [{ label: this.title, url: '' }]),
+  ];
   readonly periods = periods;
-  readonly period = signal<Period>('month');
-  readonly scenario = signal<Scenario>('normal');
-  readonly used = computed(() => (this.scenario() === 'attention' ? 920 : 720));
+  readonly period = this.state.period;
+  readonly scenario = this.state.scenario;
+  readonly used = computed(() => (this.scenario() === 'attention' ? 1840 : 1280));
+  readonly storagePercent = computed(() => Math.round(this.used() / 20));
+  readonly planPercent = computed(() => Math.round((this.storagePercent() + 50) / 2));
   readonly missing = computed(() => this.scenario() === 'missing');
   readonly storage = computed(() => series(this.period(), 'storage', this.used()));
   readonly accesses = computed(() => series(this.period(), 'accesses', this.used()));
@@ -35,12 +76,9 @@ export class PortalHomePreview {
       .toLocaleString('pt-BR'),
   );
   readonly caption = computed(() => periods.find((item) => item.id === this.period())!.caption);
-  readonly requests = signal([...initialRequests]);
+  readonly requests = this.state.requests;
   readonly improvements = initialImprovements;
   readonly opened = computed(() => this.requests().filter((item) => item.status !== 'done').length);
-  readonly modal = signal('');
-  readonly sent = signal(false);
-  readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   readonly labels: Record<string, string> = {
     received: 'Recebido',
     working: 'Em andamento',
@@ -48,14 +86,6 @@ export class PortalHomePreview {
     done: 'Concluído',
     queued: 'Em espera',
   };
-  open(name: string) {
-    this.modal.set(name);
-    this.sent.set(false);
-    this.dialog().nativeElement.showModal();
-  }
-  close() {
-    this.dialog().nativeElement.close();
-  }
   submit(event: Event) {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -70,7 +100,8 @@ export class PortalHomePreview {
       },
       ...items,
     ]);
-    this.sent.set(true);
-    form.reset();
+    void this.router.navigate(['/portal/chamados', this.requests()[0].id], {
+      queryParams: { simulado: 'true' },
+    });
   }
 }

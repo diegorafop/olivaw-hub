@@ -47,23 +47,43 @@
   @if (data(); as current) {
     <h2>{{ current.business }}</h2>
     <nav class="choices" aria-label="Seções do Meu negócio">
-      <button type="button" [attr.aria-pressed]="tab() === 'overview'" (click)="setTab('overview')">
-        Visão geral</button
-      ><button type="button" [attr.aria-pressed]="tab() === 'plan'" (click)="setTab('plan')">
-        Meu plano
-      </button>
-      <button type="button" [attr.aria-pressed]="tab() === 'requests'" (click)="setTab('requests')">
-        Solicitações
-      </button>
-      <button
-        type="button"
-        [attr.aria-pressed]="tab() === 'deliveries'"
-        (click)="setTab('deliveries')"
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ section: 'overview', request: null, customer: customer.value }"
+        queryParamsHandling="merge"
+        [attr.aria-current]="tab() === 'overview' ? 'page' : null"
+        >Visão geral</a
       >
-        Entregas
-      </button>
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ section: 'plan', request: null, customer: customer.value }"
+        queryParamsHandling="merge"
+        [attr.aria-current]="tab() === 'plan' ? 'page' : null"
+        >Meu plano</a
+      >
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ section: 'requests', request: null, customer: customer.value }"
+        queryParamsHandling="merge"
+        [attr.aria-current]="tab() === 'requests' ? 'page' : null"
+        >Solicitações</a
+      >
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ section: 'deliveries', request: null, customer: customer.value }"
+        queryParamsHandling="merge"
+        [attr.aria-current]="tab() === 'deliveries' ? 'page' : null"
+        >Entregas</a
+      >
     </nav>
     @if (tab() === 'overview') {
+      <app-portal-home
+        [customer]="current.customerExternalId"
+        [preview]="preview"
+        [plan]="current.currentPlan"
+        (requests)="setTab('requests')"
+        (seePlan)="setTab('plan')"
+      />
       <div class="resource-grid">
         @for (service of current.services; track service.externalId) {
           <article class="resource-card">

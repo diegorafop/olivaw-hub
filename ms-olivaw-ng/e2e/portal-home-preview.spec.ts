@@ -47,16 +47,22 @@ test('prévia permite explorar períodos, limites, ausência de dados e solicita
   await expect(visits).toHaveText(monthly);
   await page.screenshot({ path: 'test-results/portal-home-desktop.png', fullPage: true });
   await page.getByLabel('Cenário').selectOption('attention');
-  await expect(page.locator('.usage-note')).toContainText('92%');
+  await expect(page.locator('.utilization-details')).toContainText('92%');
   await page.getByLabel('Cenário').selectOption('missing');
   await expect(page.locator('.empty-chart')).toHaveCount(2);
   await expect(page.locator('.chart-card').first().locator('.chart-metric')).toContainText('—');
-  await page.getByRole('button', { name: 'Nova solicitação', exact: true }).click();
+  await page.getByRole('link', { name: 'Nova solicitação', exact: true }).click();
   await page.getByLabel('Como podemos ajudar?').fill('Atualizar horário');
   await page.getByRole('button', { name: 'Simular solicitação' }).click();
-  await expect(page.getByRole('status')).toContainText('Nenhum chamado real foi aberto');
-  await page.getByRole('button', { name: 'Fechar', exact: true }).click();
-  await expect(page.locator('.activity-grid')).toContainText('Atualizar horário');
+  await expect(page).toHaveURL(/portal\/chamados\/1043/);
+  await expect(page.getByRole('heading', { name: '#1043 · Atualizar horário' })).toBeVisible();
+  await expect(page.locator('dialog')).toHaveCount(0);
+  await page.getByRole('link', { name: 'Voltar aos chamados' }).click();
+  await expect(page.getByRole('link', { name: /Atualizar horário/ })).toBeVisible();
+  await page
+    .getByRole('navigation', { name: 'Caminho de navegação' })
+    .getByRole('link', { name: 'Início' })
+    .click();
   expect(apiCalls).toBe(0);
   await page.getByLabel('Cenário').selectOption('normal');
   await page.setViewportSize({ width: 390, height: 844 });

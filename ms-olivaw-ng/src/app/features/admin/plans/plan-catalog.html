@@ -1,0 +1,152 @@
+<main id="operation-content" tabindex="-1">
+  <a routerLink="/admin/plans">Voltar aos estudos</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / ESTUDO COMERCIAL</p>
+      <h1>Planos que fazem sentido.</h1>
+      <p>Presença, conteúdo e gestão. Um passo de cada vez.</p>
+    </div>
+  </header>
+  <p class="surface">
+    Proposta interna em estudo. Valores, câmbio e esforço são hipóteses; editar a calculadora não
+    salva preços, não muda contratos e não registra despesas.
+  </p>
+  <section class="catalog">
+    @for (plan of plans; track plan.name) {
+      <article class="surface">
+        <p class="eyebrow">{{ plan.tag }}</p>
+        <h2>{{ plan.name }}</h2>
+        <p class="price">{{ plan.price | currency: 'BRL' }}<small>/mês</small></p>
+        <p>Implantação: {{ plan.setup }}</p>
+        <ul>
+          <li>{{ plan.domain }}</li>
+          <li>{{ plan.app }}</li>
+          <li>{{ plan.api }}</li>
+          <li>{{ plan.users }}</li>
+          <li>{{ plan.space }} de arquivos e dados</li>
+          <li>{{ plan.improvements }}</li>
+        </ul>
+        <p class="help">
+          Correções do escopo entregue sem cobrança adicional e sem consumir a franquia.
+        </p>
+      </article>
+    }
+  </section>
+  <section class="surface diamond">
+    <p class="eyebrow">DIAMANTE / SOB MEDIDA</p>
+    <h2>Seu projeto pede outro desenho?</h2>
+    <p>
+      Contrato personalizado para integrações, mais usuários, capacidade e operação específicas.
+      Implantação, mensalidade, franquias e atendimento definidos na proposta. Referência inicial de
+      análise: a partir de R$ 2.490/mês, sem oferta universal.
+    </p>
+  </section>
+  <section class="surface">
+    <h2>Quanto custa manter essa entrega?</h2>
+    <p>
+      Infraestrutura e IA são compartilhadas. Trabalho humano varia por plano. Não conte a Olivaw
+      interna como cliente pagante.
+    </p>
+    <div class="assumptions">
+      <label
+        >Infra mensal (US$)<input
+          type="number"
+          min="0"
+          [value]="infra()"
+          (input)="set('infra', $event)" /></label
+      ><label
+        >IA mensal (US$)<input
+          type="number"
+          min="0"
+          [value]="ai()"
+          (input)="set('ai', $event)" /></label
+      ><label
+        >Câmbio de estudo (R$/US$)<input
+          type="number"
+          min="1"
+          step="0.01"
+          [value]="fx()"
+          (input)="set('fx', $event)" /></label
+      ><label
+        >Clientes pagantes<input
+          type="number"
+          min="1"
+          step="1"
+          [value]="clients()"
+          (input)="set('clients', $event)" /></label
+      ><label
+        >Custo por hora humana (R$)<input
+          type="number"
+          min="0"
+          [value]="hourly()"
+          (input)="set('hourly', $event)" /></label
+      ><label
+        >Reserva operacional (%)<input
+          type="number"
+          min="0"
+          max="100"
+          [value]="reserve()"
+          (input)="set('reserve', $event)" /></label
+      ><label
+        >Provisão comercial ilustrativa (%)<input
+          type="number"
+          min="0"
+          max="100"
+          [value]="provision()"
+          (input)="set('provision', $event)"
+      /></label>
+    </div>
+    <p>
+      Base fixa: <strong>{{ fixed() | currency: 'BRL' }}/mês</strong> · Por cliente:
+      <strong>{{ allocation() | currency: 'BRL' }}</strong>
+    </p>
+    <div class="cost-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Plano</th>
+            <th>Horas mensais</th>
+            <th>Custo + reserva</th>
+            <th>Resultado estimado*</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (plan of plans; track plan.name) {
+            <tr>
+              <th>{{ plan.name }}</th>
+              <td>{{ plan.hours }}</td>
+              <td>{{ cost(plan.hours) | currency: 'BRL' }}</td>
+              <td [class.negative]="result(plan.price, plan.hours) < 0">
+                {{ result(plan.price, plan.hours) | currency: 'BRL' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="help">
+      *Mensalidade menos provisão ilustrativa, custos e reserva. Não é lucro contábil nem orientação
+      tributária. A cotação não é consultada automaticamente. Infra US$ 15 é hipótese de orçamento;
+      US$ 10 pode subestimar EC2, IP e disco sem créditos.
+    </p>
+  </section>
+  <section class="surface">
+    <h2>Combinados antes de contratar</h2>
+    <p>
+      Melhoria pequena inclui implementação, teste e publicação dentro do tempo indicado. Módulos,
+      integrações e mudanças maiores recebem orçamento. Franquias não acumulam nesta proposta. O
+      custo previsto é 1 h/mês no Bronze, 4 h no Prata (3 de melhorias + 1 de operação) e 8 h no
+      Ouro (6 + 2).
+    </p>
+    <p>
+      Bronze usa subdomínio Olivaw. A partir do Prata, domínio próprio: registro, renovação e e-mail
+      são custos separados. O Portal de atendimento está incluído em todos os planos e suas contas
+      não consomem as vagas de usuários do aplicativo.
+    </p>
+    <p>
+      Não há promessa de cinco APIs nesta VM, usuários simultâneos ilimitados ou atendimento 24/7.
+      Capacidade e política de backups precisam ser validadas antes do contrato.
+    </p>
+    <a routerLink="/admin/expenses">Consultar despesas reais →</a>
+  </section>
+</main>

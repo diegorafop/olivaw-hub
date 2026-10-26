@@ -1,0 +1,223 @@
+<main id="operation-content" tabindex="-1">
+  <a routerLink="/admin/configuration">Voltar à configuração</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / FINANCEIRO INTERNO</p>
+      <h1>Despesas</h1>
+      <p>O que custa manter e evoluir nossos serviços.</p>
+    </div>
+    <button class="primary" (click)="showForm.set(!showForm())">
+      {{ showForm() ? 'Fechar lançamento' : 'Nova despesa' }}
+    </button>
+  </header>
+  <p class="help">
+    Lançamentos reais, sem projeções automáticas. Custos compartilhados permanecem sem rateio até
+    uma regra ser definida. Apenas a equipe administrativa tem acesso.
+  </p>
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  @if (showForm()) {
+    <form class="surface" [formGroup]="form" (ngSubmit)="save()" aria-label="Lançar despesa">
+      <h2>Novo lançamento</h2>
+      <div class="fields">
+        <label>Descrição<input formControlName="description" maxlength="160" required /></label>
+        <label
+          >Categoria<select formControlName="category">
+            @for (option of categoryOptions; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select></label
+        >
+        <label
+          >Tipo de lançamento<select formControlName="kind">
+            <option value="cost">Custo</option>
+            <option value="credit">Crédito / desconto</option>
+          </select></label
+        >
+        <label>Data<input type="date" formControlName="occurredAt" required /></label>
+        <label
+          >Valor original<input
+            type="number"
+            formControlName="amount"
+            min="0.01"
+            step="0.01"
+            required
+        /></label>
+        <label
+          >Moeda<select formControlName="currency" aria-label="Moeda">
+            <option value="BRL">Real (BRL)</option>
+            <option value="USD">Dólar (USD)</option>
+          </select></label
+        >
+        @if (currency() === 'USD') {
+          <label
+            >Cotação em reais por US$ 1<input
+              type="number"
+              formControlName="exchangeRateToBrl"
+              min="0.000001"
+              step="0.000001"
+              required
+          /></label>
+        }
+        <label
+          >Cliente / atribuição<select formControlName="customerExternalId">
+            <option value="">Compartilhada / sem rateio</option>
+            @for (c of customers(); track c.externalId) {
+              <option [value]="c.externalId">{{ c.business }}</option>
+            }
+          </select></label
+        >
+        <label
+          >Origem / comprovante<input
+            formControlName="source"
+            maxlength="300"
+            required
+            placeholder="Ex.: AWS Bills · outubro/2026"
+        /></label>
+      </div>
+      <p class="help">
+        Informe créditos em lançamento separado. Registre apenas a parcela atribuída ao cliente; não
+        repita a despesa integral para cada cliente. Não informe dados bancários ou segredos.
+      </p>
+      <button type="submit" class="primary" [disabled]="saving()">
+        {{ saving() ? 'Salvando…' : 'Registrar despesa' }}
+      </button>
+    </form>
+  }
+  <form class="filters" [formGroup]="filters" (ngSubmit)="filter()" aria-label="Filtrar despesas">
+    <label>De<input type="date" formControlName="from" required /></label
+    ><label>Até<input type="date" formControlName="to" required /></label
+    ><label
+      >Agrupar por<select formControlName="groupBy">
+        <option value="day">Dia</option>
+        <option value="month">Mês</option>
+        <option value="year">Ano</option>
+      </select></label
+    ><label
+      >Cliente<select formControlName="customer" aria-label="Cliente">
+        <option value="">Todos os clientes e compartilhadas</option>
+        @for (c of customers(); track c.externalId) {
+          <option [value]="c.externalId">{{ c.business }}</option>
+        }
+      </select></label
+    ><button type="submit" [disabled]="loading()">Aplicar</button>
+  </form>
+  @if (moreCustomers()) {
+    <button (click)="loadCustomers()">Carregar mais clientes nas opções</button>
+  }
+  @if (loading()) {
+    <p role="status">Consultando despesas…</p>
+  }
+  @if (report(); as r) {
+    <section class="expense-summary">
+      <article class="surface">
+        <small>Custo bruto</small><strong>{{ r.grossBrl | currency: 'BRL' }}</strong>
+      </article>
+      <article class="surface">
+        <small>Créditos</small><strong>{{ r.creditsBrl | currency: 'BRL' }}</strong>
+      </article>
+      <article class="surface">
+        <small>Custo líquido</small><strong>{{ r.netBrl | currency: 'BRL' }}</strong>
+      </article>
+    </section>
+    <p class="help">
+      Compartilhadas sem rateio neste período: {{ r.unallocatedBrl | currency: 'BRL' }}.
+      {{
+        filters.controls.customer.value
+          ? 'Esse valor não está incluído no total do cliente.'
+          : 'Esse valor já está incluído no total geral.'
+      }}
+    </p>
+    <section class="surface">
+      <h2>Custo líquido ao longo do tempo</h2>
+      @if (r.total) {
+        <svg
+          class="expense-chart"
+          viewBox="0 0 800 200"
+          role="img"
+          aria-label="Evolução do custo líquido. Valores detalhados na tabela abaixo."
+        >
+          <path
+            [attr.d]="chart()"
+            fill="none"
+            stroke="#589e82"
+            stroke-width="3"
+            vector-effect="non-scaling-stroke"
+          />
+          @for (point of chartPoints(); track point.date) {
+            <circle [attr.cx]="point.x" [attr.cy]="point.y" r="4" fill="#589e82">
+              <title>
+                {{ point.date | date: 'dd/MM/yyyy' : 'UTC' }}: {{ point.value | currency: 'BRL' }}
+              </title>
+            </circle>
+          }
+        </svg>
+        <div class="chart-labels">
+          <span>{{ r.series[0]?.date | date: 'dd/MM/yyyy' : 'UTC' }}</span
+          ><span>Valores em reais (BRL)</span
+          ><span>{{ r.series[r.series.length - 1]?.date | date: 'dd/MM/yyyy' : 'UTC' }}</span>
+        </div>
+        <details>
+          <summary>Valores por período</summary>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Custos</th>
+                  <th>Créditos</th>
+                  <th>Líquido</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (point of r.series; track point.date) {
+                  <tr>
+                    <td>{{ point.date | date: 'dd/MM/yyyy' : 'UTC' }}</td>
+                    <td>{{ point.costBrl | currency: 'BRL' }}</td>
+                    <td>{{ point.creditsBrl | currency: 'BRL' }}</td>
+                    <td>{{ point.netBrl | currency: 'BRL' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </details>
+      } @else {
+        <p>Nenhuma despesa registrada neste recorte.</p>
+      }
+    </section>
+    <section class="surface">
+      <h2>
+        Lançamentos <small>{{ r.total }}</small>
+      </h2>
+      @for (item of r.items; track item.externalId) {
+        <article class="expense-row">
+          <div>
+            <strong>{{ item.description }}</strong
+            ><small
+              >{{ item.customerName }} · {{ categories[item.category] }} ·
+              {{ item.occurredAt | date: 'dd/MM/yyyy' : 'UTC' }}</small
+            ><small>{{ item.source }}</small>
+          </div>
+          <div>
+            <strong
+              >{{ item.kind === 'credit' ? '−' : '' }}{{ item.amountBrl | currency: 'BRL' }}</strong
+            ><small
+              >{{ item.amount | currency: item.currency }} · cotação
+              {{ item.exchangeRateToBrl }}</small
+            >
+          </div>
+        </article>
+      }
+      <footer>
+        <button (click)="go(-1)" [disabled]="page() <= 1">Anterior</button
+        ><span>Página {{ page() }}</span
+        ><button (click)="go(1)" [disabled]="page() * 20 >= r.total">Próxima</button>
+      </footer>
+    </section>
+  }
+</main>

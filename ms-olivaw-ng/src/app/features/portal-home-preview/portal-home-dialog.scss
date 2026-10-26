@@ -1,64 +1,73 @@
-dialog {
-  border: 1px solid #dce6db;
-  border-radius: 16px;
-  padding: 26px;
-  width: min(580px, calc(100% - 32px));
-  max-height: 85vh;
-  color: #294537;
-  box-sizing: border-box;
+.detail-page {
+  margin-top: 28px;
+  max-width: 980px;
+  min-height: 400px;
 }
-dialog::backdrop {
-  background: #1b342b60;
-  backdrop-filter: blur(3px);
+.detail-page h2 {
+  font-size: 21px;
+  line-height: 1.5;
+  margin-top: 28px;
 }
-.dialog-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-.dialog-heading h2 {
-  font-size: 20px;
-  margin: 0;
-}
-.icon-button {
-  background: none;
-  border: 0;
-  padding: 6px;
+.detail-page p {
+  font-size: 13px;
+  line-height: 1.9;
+  max-width: 720px;
 }
 .demo-note {
-  font-size: 10px;
-  color: #8b9a8e;
+  font-size: 11px !important;
+  color: #819486;
   border-bottom: 1px solid #e4ebe0;
-  padding-bottom: 16px;
+  padding-bottom: 20px;
 }
-.dialog-row {
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 0;
-  border-bottom: 1px solid #edf1e9;
-  font-size: 12px;
+.detail-page form {
+  max-width: 700px;
 }
-dialog p {
-  font-size: 13px;
-  line-height: 1.7;
-  color: #718274;
-}
-form label {
+.detail-page label {
   display: block;
   font-size: 12px;
-  margin: 20px 0;
+  margin: 24px 0;
 }
-form input,
-form textarea {
+.detail-page input,
+.detail-page textarea {
   box-sizing: border-box;
   display: block;
   width: 100%;
-  padding: 12px;
+  padding: 13px;
   border: 1px solid #dce5d9;
   border-radius: 7px;
-  margin-top: 8px;
+  margin-top: 9px;
   font: inherit;
+}
+.detail-page .list-row {
+  padding: 22px 0;
+}
+.detail-page .list-row strong {
+  font-size: 13px;
+}
+.detail-page .list-row small {
+  font-size: 10px;
+}
+.detail-page .tag {
+  font-size: 11px;
+}
+.sidebar a.primary {
+  color: #fff;
+}
+.list-row {
+  text-decoration: none;
+}
+a.primary,
+a.text-button {
+  cursor: pointer;
+}
+.sidebar-help a {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  padding-top: 10px;
+}
+
+app-breadcrumb {
+  display: block;
+  margin-bottom: 24px;
 }

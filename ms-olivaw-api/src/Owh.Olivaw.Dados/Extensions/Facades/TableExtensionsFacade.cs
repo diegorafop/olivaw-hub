@@ -15,7 +15,9 @@ internal static class TableExtensionsFacade
         modelBuilder.SetupManagedService();
         modelBuilder.SetupInventory();
         modelBuilder.SetupPlans();
+        modelBuilder.SetupExpenses();
         modelBuilder.SetupPortal();
+        modelBuilder.SetupPortalUsage();
         modelBuilder.SetupDeliveryNotes();
         modelBuilder.SetupCareEvidence();
         modelBuilder.SetupUsageReading();

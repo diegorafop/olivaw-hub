@@ -156,3 +156,22 @@ npm run e2e -- e2e/admin-inventory.spec.ts e2e/admin-services.spec.ts e2e/admin-
 ```
 
 Validação: 33 testes unitários, 31 E2E administrativos (9 de inventário), lint/build e screenshots desktop/mobile revisadas. HTTP simulado, sem dados reais. O build mantém quatro avisos de orçamento preexistentes: três arquivos públicos e a lista de leads; o inventário não introduziu avisos. API e frontend precisam de nova publicação para expor os fluxos concluídos. A única migration `Issue020` existente cobre o modelo; não foi gerada outra nesta conclusão.
+
+## Home, navegação do Portal e despesas — issue026
+
+- `/portal` continua como prévia visual interna protegida por root, com dados ilustrativos. Plano é o primeiro card; o segundo mostra um resumo das franquias. A média ilustrativa de espaço e melhorias está explicada em `/portal/indicador`. Não é uma métrica de capacidade ou desempenho.
+- `/portal/chamados`, `/portal/chamados/novo`, `/portal/chamados/:itemId`, `/portal/melhorias`, `/portal/melhorias/:itemId`, `/portal/plano`, `/portal/indicador` e `/portal/tecnico` são páginas com links e breadcrumb, sem modais. A simulação de pedido não faz POST e dura apenas na sessão em memória.
+- A Home real de `/meu-negocio` e a prévia autorizada de `/admin/portal-preview` consultam os novos endpoints de Home. As seções e detalhes de pedidos usam links com `section`, `customer` e `request` na URL, respeitando a autoridade existente do cliente. A migração definitiva do endereço e identidade visual para `/portal` permanece separada da prévia interna.
+- `/admin/expenses`: lançamentos e gráficos com filtros de data, agrupamento por dia/mês/ano e cliente. Custos compartilhados sem rateio permanecem separados do total individual. Valores USD usam cotação manual explícita; não misturar com despesas em BRL sem conversão.
+- `/admin/plans/catalog`: proposta Bronze, Prata/Silver, Ouro e Diamante, com cálculo local de viabilidade. As hipóteses não alteram contratos nem gravam despesas.
+- Saúde, Incidentes e Consumo ficam ocultos na Configuração; suas rotas protegidas e dados são preservados para reavaliação.
+
+A migration PostgreSQL `20261026102348_Issue026` foi gerada e revisada. Ela será aplicada automaticamente no startup da API quando o mantenedor publicar. A publicação ainda não foi executada nesta entrega. O estudo comercial está em `docs/features/discovery/planos-bronze-prata-ouro-diamante.md`.
+
+Validação de navegação e responsividade:
+
+```bash
+npm run build
+npm run lint
+npm run e2e -- e2e/admin-expenses.spec.ts e2e/portal-home-preview.spec.ts e2e/portal.spec.ts e2e/admin-configuration.spec.ts
+```

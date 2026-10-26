@@ -18,7 +18,7 @@ public sealed class ReadPortalRequestsHandler(PortalAccess access, IRepository<C
         Customer customer;
         if (request.Preview) customer = await InventoryRules.RequireAsync(customers, p.CustomerExternalId, token);
         else customer = (await access.RequireAsync(request.ActorUserId, p.CustomerExternalId, false, false, token)).Customer;
-        var rows = (await requests.TakeOrderedAsync(item => item.CustomerId == customer.Id && item.DeletedAt == null && (p.BeforeId == 0 || item.Id < p.BeforeId), 21, item => item.Id, token, item => item.ManagedService!)).ToList();
+        var rows = (await requests.TakeOrderedAsync(item => item.CustomerId == customer.Id && item.DeletedAt == null && (!p.RequestExternalId.HasValue || item.ExternalId == p.RequestExternalId.Value) && (p.BeforeId == 0 || item.Id < p.BeforeId), 21, item => item.Id, token, item => item.ManagedService!)).ToList();
         var serviceIds = rows.Take(20).Where(item => item.ManagedServiceId.HasValue).Select(item => item.ManagedServiceId!.Value).Distinct().ToArray();
         var names = (await links.GetAsync(item => item.CustomerId == customer.Id && serviceIds.Contains(item.ManagedServiceId) && item.IsActive && item.DeletedAt == null, token)).ToDictionary(item => item.ManagedServiceId, item => item.Label);
         var response = new ReadPortalRequestsResponse();
@@ -31,5 +31,5 @@ public sealed class ReadPortalRequestsHandler(PortalAccess access, IRepository<C
         if (rows.Count > 20) response.NextBeforeId = rows[19].Id; return response;
     }
 }
-public sealed class ReadPortalRequestsValidator : AbstractValidator<ReadPortalRequestsQuery> { public ReadPortalRequestsValidator() { RuleFor(item => item.CustomerExternalId).NotEmpty(); RuleFor(item => item.BeforeId).GreaterThanOrEqualTo(0); } }
+public sealed class ReadPortalRequestsValidator : AbstractValidator<ReadPortalRequestsQuery> { public ReadPortalRequestsValidator() { RuleFor(item => item.CustomerExternalId).NotEmpty(); RuleFor(item => item.RequestExternalId).NotEqual(Guid.Empty); RuleFor(item => item.BeforeId).GreaterThanOrEqualTo(0); } }
 public sealed class ReadPortalRequestsMediatorValidator : AbstractValidator<ReadPortalRequestsMediatorQuery> { public ReadPortalRequestsMediatorValidator() { RuleFor(item => item.ActorUserId).NotEmpty(); RuleFor(item => item.Payload).NotNull().SetValidator(new ReadPortalRequestsValidator()).OverridePropertyName(string.Empty); } }

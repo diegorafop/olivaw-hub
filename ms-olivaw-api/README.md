@@ -399,3 +399,42 @@ O startup aplicará a nova tabela durante o deploy; não foi executado database 
 ### Escopo dos servidores no inventário
 
 Novos recursos usam `shared` (Compartilhado, padrão) ou `individual` (Individual), sem exigir vínculo a cliente. Os códigos anteriores `platform` e `customer` continuam aceitos para preservar cadastros; não são convertidos automaticamente, pois não indicam compartilhamento. A UI oferece apenas Servidor (`compute`) para novos cadastros; tipos anteriores continuam legíveis e editáveis. Provedor identifica o fornecedor (ex.: AWS); `providerResourceId` identifica a instância no fornecedor (ex.: ID EC2). Nenhuma migration é necessária para esses valores.
+
+## Home do Portal e despesas internas — issue026
+
+Implementação local validada, sem publicação. A migration PostgreSQL `20261026102348_Issue026` foi gerada mediante autorização e revisada: cria somente `expense` e `portalusagesample`, sete índices e duas FKs RESTRICT para clientes. Não altera objetos existentes. Será aplicada automaticamente no startup após publicação pelo mantenedor. Nenhum `database update` foi executado. SQL Server e outros provedores não receberam migrations.
+
+| Operação | Autorização | Finalidade |
+| --- | --- | --- |
+| `GET /expenses` | `olivaw.root` | Custos, créditos, total líquido e histórico em BRL |
+| `POST /expenses` | `olivaw.root` | Lançamento idempotente por `entryKey` |
+| `POST /portal-usage-samples` | `olivaw.root` | Amostra diária consolidada e explicitamente atribuída a um cliente |
+| `GET /portal/home` | `portal.member` + vínculo à empresa | Resumo e histórico do próprio cliente |
+| `GET /portal-preview/home` | `olivaw.root` | Consulta interna sem impersonação do cliente |
+| `GET /portal/requests?customerExternalId=…&requestExternalId=…` | `portal.member` + vínculo | Detalhe de solicitação por link, inclusive fora da primeira página |
+
+Despesas: `from` inclusivo e `to` exclusivo em dias UTC, intervalo máximo 366 dias, `groupBy=day|month|year`, `customerExternalId` opcional, `page/pageSize` para os lançamentos. As séries e totais usam todo o período, não apenas a página. A consulta recusa mais de 5.000 lançamentos em vez de exibir total parcial. Valores USD exigem `exchangeRateToBrl` informado; BRL exige taxa 1. Taxa e valor convertido ficam registrados no lançamento. Crédito tem valor positivo e `kind=credit`; o líquido pode ser negativo. Despesas compartilhadas sem cliente aparecem em `unallocatedBrl`, separadas dos totais individuais. Não há importação AWS, câmbio automático ou rateio presumido. Este primeiro recorte oferece criação e consulta; correção/estorno de lançamentos é uma evolução própria, sem exclusão física de histórico.
+
+Home: `period=day|week|month|year` corresponde ao último dia UTC encerrado, últimos 7/30 dias ou último ano, sempre com pontos diários. Uma amostra por cliente/dia, com `sampleKey` único, `storageUsedMiB`, `pageViews` e fonte obrigatória. Ausência é `null`; zero é uma leitura válida. Armazenamento usa MiB/GiB, sem confundir com MB/GB decimais. Visualizações são contagens diárias consolidadas, não pessoas únicas, requisições brutas ou valores acumulados repetidos. Nenhum coletor automático foi implementado nesta etapa; até haver ingestão, a Home exibe ausência de leituras. Uma amostra da VM compartilhada não pode alimentar o consumo de um cliente.
+
+Totais de chamados distinguem problemas/dúvidas de melhorias e respeitam estados terminais existentes. O detalhe mantém a condição de empresa na consulta. Abertura, idempotência, conversa, histórico e transições continuam nos endpoints existentes de Portal/Atendimento. O corpo das mensagens preserva o texto fornecido. Custos internos e fontes das amostras não são expostos no DTO da Home.
+
+Comandos de validação, a partir da raiz:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Api/Owh.Olivaw.Api.csproj -m:1 --no-restore
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-build --no-restore
+```
+
+Comandos reproduzíveis da Issue026 (já gerada; não repetir `add`):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+dotnet ef migrations add Issue026 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+# Recompilar o provedor após gerar os arquivos, antes de revisar o SQL.
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+dotnet ef migrations script Issue025Remediation Issue026 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue026.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+Validações locais: 416 testes da API, build do provedor/API, revisão do SQL e compatibilidade de modelo PostgreSQL. Não houve conexão a bancos reais durante a geração ou validação.

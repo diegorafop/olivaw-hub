@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -56,6 +57,8 @@ public sealed class PortalSecurityTest
         builder.Services.AddSingleton(InventoryFakerBuilder.Repository(link).Object);
         builder.Services.AddSingleton(InventoryFakerBuilder.Repository(plan).Object);
         builder.Services.AddSingleton(health.Object);
+        builder.Services.AddSingleton(InventoryFakerBuilder.Repository<PortalUsageSample>().Object);
+        builder.Services.AddSingleton(InventoryFakerBuilder.Repository<SupportRequest>().Object);
         await using var app = builder.Build(); app.UseSetups(); await app.StartAsync();
         using var client = app.GetTestClient();
         var internalOptions = new global::Olivaw.Identity.Api.Security.IdentityOptions { Issuer = "test-admin", Audience = "test-admin", SigningKey = "admin-test-only-key-at-least-32-bytes", TokenMinutes = 30 };
@@ -74,6 +77,10 @@ public sealed class PortalSecurityTest
             Assert.DoesNotContain("INTERNAL", json); Assert.DoesNotContain("provider", json, StringComparison.OrdinalIgnoreCase); Assert.DoesNotContain("SecurityStamp", json, StringComparison.OrdinalIgnoreCase);
         }
         using (var foreign = await client.GetAsync("/portal/dashboard?customerExternalId=" + other.ExternalId)) Assert.Equal(HttpStatusCode.Forbidden, foreign.StatusCode);
+        using (var home = await client.GetAsync("/portal/home?customerExternalId=" + company.ExternalId)) { Assert.Equal(HttpStatusCode.OK, home.StatusCode); var body = await home.Content.ReadAsStringAsync(); Assert.DoesNotContain("INTERNAL", body); }
+        using (var foreignHome = await client.GetAsync("/portal/home?customerExternalId=" + other.ExternalId)) Assert.Equal(HttpStatusCode.Forbidden, foreignHome.StatusCode);
+        using (var expense = await client.GetAsync("/expenses")) Assert.Equal(HttpStatusCode.Unauthorized, expense.StatusCode);
+        using (var samples = await client.PostAsJsonAsync("/portal-usage-samples", new { })) Assert.Equal(HttpStatusCode.Unauthorized, samples.StatusCode);
         member.Revoke(administrator.ExternalId, "Operador", DateTime.UtcNow);
         using (var revoked = await client.GetAsync("/portal/dashboard?customerExternalId=" + company.ExternalId)) Assert.Equal(HttpStatusCode.Forbidden, revoked.StatusCode);
     }

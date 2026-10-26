@@ -1,8 +1,17 @@
-import { Component, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import {
   PortalApi,
@@ -32,7 +41,7 @@ export const requestStates: Record<string, string> = {
 };
 @Component({
   selector: 'app-portal-requests',
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, RouterLink],
   templateUrl: './portal-requests.html',
   styleUrl: '../admin/inventory/inventory.scss',
 })
@@ -44,6 +53,15 @@ export class PortalRequests {
   private readonly api = inject(PortalApi);
   private readonly destroy = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly query = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
+  readonly detailId = computed(() => {
+    const id = this.query().get('request') ?? '';
+    return id === 'new' ? '' : id;
+  });
+  readonly creating = computed(() => this.query().get('request') === 'new');
   readonly states = requestStates;
   readonly typeOptions = Object.entries(requestTypes);
   readonly requests = signal<PortalRequest[]>([]);
@@ -91,6 +109,8 @@ export class PortalRequests {
   constructor() {
     effect(() => {
       const company = this.customer();
+      this.detailId();
+      this.creating();
       const preview = this.preview();
       untracked(() => {
         this.selected.set(null);
@@ -107,7 +127,7 @@ export class PortalRequests {
   load(beforeId = 0, company = this.customer(), preview = this.preview()) {
     this.loading.set(true);
     this.api
-      .requests(company, preview, beforeId)
+      .requests(company, preview, beforeId, this.detailId())
       .pipe(
         takeUntilDestroyed(this.destroy),
         finalize(() => this.loading.set(false)),
@@ -117,16 +137,16 @@ export class PortalRequests {
           if (company !== this.customer()) return;
           this.requests.set(data.items);
           this.nextRequest.set(data.nextBeforeId);
+          if (this.detailId()) {
+            const detail = data.items.find((x) => x.externalId === this.detailId());
+            if (detail) {
+              this.selected.set(detail);
+              this.loadMessages();
+            } else this.error.set('Solicitação não encontrada para esta empresa.');
+          }
         },
         error: (e) => this.handleError(e),
       });
-  }
-  open(request: PortalRequest) {
-    if (this.reply.dirty && !window.confirm('Descartar a resposta ainda não enviada?')) return;
-    this.selected.set(request);
-    this.reply.reset({ body: '', reopen: false });
-    this.messageKey = crypto.randomUUID();
-    this.loadMessages();
   }
   loadMessages(beforeId = 0) {
     const request = this.selected();
@@ -183,7 +203,15 @@ export class PortalRequests {
             desiredPlan: '',
           });
           this.requestKey = crypto.randomUUID();
-          this.load();
+          void this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+              section: 'requests',
+              customer: this.customer(),
+              request: result.externalId,
+            },
+            queryParamsHandling: 'merge',
+          });
         },
         error: (e) => this.handleError(e),
       });

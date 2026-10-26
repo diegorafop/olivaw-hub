@@ -6,22 +6,29 @@
       <div><strong>Empresa Aurora</strong><small>Seu espaço na Olivaw</small></div>
     </div>
     <nav aria-label="Portal do cliente">
-      <a routerLink="/portal" class="active" aria-current="page"
+      <a
+        routerLink="/portal"
+        [class.active]="section === 'home'"
+        [attr.aria-current]="section === 'home' ? 'page' : null"
         ><app-portal-icon name="home" />Início</a
       >
-      <button (click)="open('Seus chamados')">
+      <a routerLink="/portal/chamados" routerLinkActive="active">
         <app-portal-icon name="message" />Chamados <b>{{ opened() }}</b>
-      </button>
-      <button (click)="open('Suas melhorias')"><app-portal-icon name="spark" />Melhorias</button>
-      <button (click)="open('Seu plano')"><app-portal-icon name="plan" />Meu plano</button>
-      <button (click)="open('Área técnica')">
+      </a>
+      <a routerLink="/portal/melhorias" routerLinkActive="active"
+        ><app-portal-icon name="spark" />Melhorias</a
+      >
+      <a routerLink="/portal/plano" routerLinkActive="active"
+        ><app-portal-icon name="plan" />Meu plano</a
+      >
+      <a routerLink="/portal/tecnico" routerLinkActive="active">
         <app-portal-icon name="code" />Área técnica <small>Em estudo</small>
-      </button>
+      </a>
     </nav>
     <div class="sidebar-help">
       <app-portal-icon name="message" /><strong>Estamos por perto.</strong>
       <p>Conte com a gente para cuidar do seu site.</p>
-      <button (click)="open('Nova solicitação')">Falar com a Olivaw <span>↗</span></button>
+      <a routerLink="/portal/chamados/novo">Falar com a Olivaw <span>↗</span></a>
     </div>
     <small class="signature">Tecnologia com cuidado.</small>
   </aside>
@@ -44,183 +51,286 @@
           </select></label
         ><a routerLink="/admin">Voltar à operação ↗</a>
       </div>
-      <section class="welcome">
-        <div>
-          <div class="eyebrow">SEU NEGÓCIO, ACOMPANHADO DE PERTO</div>
-          <h1>Bom ver você por aqui.</h1>
-          <p>Um olhar simples sobre seu site, seu plano e o que estamos fazendo juntos.</p>
-        </div>
-        <button class="primary" (click)="open('Nova solicitação')">
-          <app-portal-icon name="message" /> Nova solicitação
-        </button>
-      </section>
-      <section class="summary-grid" aria-label="Resumo atual do plano">
-        <article class="card plan-card">
-          <div class="card-top">
-            <span class="eyebrow">SEU PLANO</span><span class="badge">Bronze</span>
+      <app-breadcrumb [items]="breadcrumbs" />
+      @if (section === 'home') {
+        <section class="welcome">
+          <div>
+            <div class="eyebrow">SEU NEGÓCIO, ACOMPANHADO DE PERTO</div>
+            <h1>Bom ver você por aqui.</h1>
+            <p>Um olhar simples sobre seu site, seu plano e o que estamos fazendo juntos.</p>
           </div>
-          <h2>Espaço para crescer.</h2>
-          <p>1 site · 1 GB de armazenamento</p>
-          <button class="text-button" (click)="open('Seu plano')">
-            Conhecer meu plano <span>↗</span>
-          </button>
-          <div class="plan-art" aria-hidden="true">✳</div>
-        </article>
-        <article class="card">
-          <div class="card-top">
-            <span class="eyebrow">ARMAZENAMENTO</span><app-portal-icon name="disk" />
-          </div>
-          <div class="metric">
-            {{ missing() ? '—' : used() }} <small>MB <span>/ 1 GB</span></small>
-          </div>
-          <progress
-            [value]="missing() ? 0 : used()"
-            max="1000"
-            [class.attention]="scenario() === 'attention'"
-            aria-label="Armazenamento utilizado"
-            [attr.aria-valuetext]="missing() ? 'Sem leitura disponível' : used() + ' MB de 1 GB'"
-          ></progress>
-          <p>
-            {{
-              missing()
-                ? 'Aguardando a primeira leitura.'
-                : 1000 - used() + ' MB livres no seu plano.'
-            }}
-          </p>
-        </article>
-        <article class="card">
-          <div class="card-top">
-            <span class="eyebrow">TRANSFERÊNCIA NO MÊS</span><app-portal-icon name="globe" />
-          </div>
-          <div class="metric">
-            {{ missing() ? '—' : '3,4' }} <small>GB <span>/ 10 GB</span></small>
-          </div>
-          <progress
-            [value]="missing() ? 0 : 34"
-            max="100"
-            aria-label="Transferência mensal utilizada"
-            [attr.aria-valuetext]="missing() ? 'Sem leitura disponível' : '3,4 GB de 10 GB'"
-          ></progress>
-          <p>Dados enviados aos visitantes · outubro.</p>
-        </article>
-      </section>
-      <div class="usage-note" [class.warning]="scenario() === 'attention'">
-        <app-portal-icon
-          [name]="missing() ? 'clock' : scenario() === 'attention' ? 'info' : 'check'"
-        /><span>
-          @if (missing()) {
-            Ainda não há dados de consumo. Assim que houver leituras, mostramos aqui.
-          } @else {
-            <strong>{{ used() / 10 }}% do armazenamento utilizado.</strong>
-            {{
-              scenario() === 'attention'
-                ? 'Está perto do limite. Vamos avaliar juntos antes de mudar seu plano.'
-                : 'É o recurso mais próximo do limite. Ainda há espaço disponível.'
-            }}
-          }</span
-        ><button (click)="open('Seu plano')">Ver detalhes <span>→</span></button>
-      </div>
-      <section class="section-heading">
-        <div>
-          <h2>Seu site ao longo do tempo</h2>
-          <p>{{ caption() }} · exemplo ilustrativo</p>
-        </div>
-        <div class="periods" role="group" aria-label="Período dos gráficos">
-          @for (item of periods; track item.id) {
-            <button
-              [class.selected]="period() === item.id"
-              [attr.aria-pressed]="period() === item.id"
-              (click)="period.set(item.id)"
+          <a class="primary" routerLink="/portal/chamados/novo">
+            <app-portal-icon name="message" /> Nova solicitação
+          </a>
+        </section>
+        <section class="summary-grid" aria-label="Resumo atual do plano">
+          <article class="card plan-card">
+            <div class="card-top">
+              <span class="eyebrow">SEU PLANO</span><span class="badge">Bronze</span>
+            </div>
+            <h2>Espaço para crescer.</h2>
+            <p>1 site · 2 GB de armazenamento</p>
+            <a class="text-button" routerLink="/portal/plano" routerLinkActive="active">
+              Conhecer meu plano <span>↗</span>
+            </a>
+            <div class="plan-art" aria-hidden="true">✳</div>
+          </article>
+          <article class="card utilization-card">
+            <div
+              class="utilization-ring"
+              [style.--usage]="missing() ? 0 : planPercent()"
+              [class.no-data]="missing()"
             >
-              {{ item.label }}
-            </button>
+              <span>{{ missing() ? '—' : planPercent() + '%' }}<small>do plano em uso</small></span>
+            </div>
+            <div class="utilization-copy">
+              <span class="eyebrow">SEU PLANO, NUM OLHAR</span>
+              <h2>
+                {{
+                  missing()
+                    ? 'Aguardando suas primeiras leituras.'
+                    : 'Espaço e evolução, lado a lado.'
+                }}
+              </h2>
+              <p>Uma visão dos limites que você pode acompanhar.</p>
+              <div class="utilization-details">
+                <span
+                  >Armazenamento
+                  <strong>{{ missing() ? '—' : storagePercent() + '%' }}</strong></span
+                ><span>Melhorias deste mês <strong>1 de 2</strong></span>
+              </div>
+              <a class="text-button" routerLink="/portal/indicador">
+                Como calculamos esse indicador ↗
+              </a>
+            </div>
+          </article>
+        </section>
+        <section class="section-heading">
+          <div>
+            <h2>Seu site ao longo do tempo</h2>
+            <p>{{ caption() }} · exemplo ilustrativo</p>
+          </div>
+          <div class="periods" role="group" aria-label="Período dos gráficos">
+            @for (item of periods; track item.id) {
+              <button
+                [class.selected]="period() === item.id"
+                [attr.aria-pressed]="period() === item.id"
+                (click)="period.set(item.id)"
+              >
+                {{ item.label }}
+              </button>
+            }
+          </div>
+        </section>
+        <section class="chart-grid">
+          <article class="card chart-card">
+            <div class="card-top">
+              <div>
+                <h3>Espaço ocupado</h3>
+                <p>Arquivos, imagens e banco de dados</p>
+              </div>
+              <app-portal-icon name="disk" />
+            </div>
+            <div class="chart-metric">{{ missing() ? '—' : used() }} <small>MB agora</small></div>
+            <app-portal-line-chart
+              [points]="storage()"
+              kind="storage"
+              [limit]="2000"
+              [empty]="missing()"
+            />
+          </article>
+          <article class="card chart-card">
+            <div class="card-top">
+              <div>
+                <h3>Acessos ao site</h3>
+                <p>Visualizações de páginas no período</p>
+              </div>
+              <app-portal-icon name="activity" />
+            </div>
+            <div class="chart-metric">
+              {{ missing() ? '—' : total() }} <small>visualizações</small>
+            </div>
+            <app-portal-line-chart [points]="accesses()" kind="accesses" [empty]="missing()" />
+          </article>
+        </section>
+        <section class="activity-grid">
+          <article class="card">
+            <div class="card-top">
+              <div class="title-icon">
+                <app-portal-icon name="message" />
+                <h3>Seus chamados</h3>
+              </div>
+              <a class="text-button" routerLink="/portal/chamados" routerLinkActive="active"
+                >Ver todos ↗</a
+              >
+            </div>
+            <div class="counters">
+              <div>
+                <strong>{{ opened() }}</strong
+                ><span>em aberto</span>
+              </div>
+              <div><strong class="amber">1</strong><span>aguarda você</span></div>
+              <div><strong>8</strong><span>atendidos</span></div>
+            </div>
+            <p class="small-note">“Aguarda você” faz parte dos chamados em aberto.</p>
+            @for (item of requests().slice(0, 2); track item.id) {
+              <a class="list-row" [routerLink]="['/portal/chamados', item.id]">
+                <span
+                  ><small>#{{ item.id }}</small
+                  ><strong>{{ item.title }}</strong></span
+                ><span class="tag" [class.amber-tag]="item.status === 'waiting'">{{
+                  labels[item.status]
+                }}</span>
+              </a>
+            }
+          </article>
+          <article class="card">
+            <div class="card-top">
+              <div class="title-icon">
+                <app-portal-icon name="spark" />
+                <h3>Suas melhorias</h3>
+              </div>
+              <a class="text-button" routerLink="/portal/melhorias" routerLinkActive="active"
+                >Ver todas ↗</a
+              >
+            </div>
+            <div class="counters">
+              <div><strong>1</strong><span>em andamento</span></div>
+              <div><strong>2</strong><span>em espera</span></div>
+              <div><strong>4</strong><span>entregues</span></div>
+            </div>
+            <p class="small-note">Evoluções do site acompanhadas com você.</p>
+            @for (item of improvements.slice(0, 2); track item.id) {
+              <a class="list-row" [routerLink]="['/portal/melhorias', item.id]">
+                <span
+                  ><small>Melhoria #{{ item.id }}</small
+                  ><strong>{{ item.title }}</strong></span
+                ><span class="tag">{{ labels[item.status] }}</span>
+              </a>
+            }
+          </article>
+        </section>
+      } @else {
+        <section class="card detail-page">
+          <div class="eyebrow">PORTAL DO CLIENTE · PRÉVIA</div>
+          <h1>{{ title }}</h1>
+          <p class="demo-note">
+            Dados ilustrativos. Nenhuma informação é enviada ou salva no servidor.
+          </p>
+          @switch (section) {
+            @case ('requests') {
+              <a class="primary" routerLink="/portal/chamados/novo">Nova solicitação</a>
+              @for (item of requests(); track item.id) {
+                <a class="list-row" [routerLink]="['/portal/chamados', item.id]"
+                  ><span
+                    ><small>#{{ item.id }} · {{ item.date }}</small
+                    ><strong>{{ item.title }}</strong></span
+                  ><span class="tag">{{ labels[item.status] }} →</span></a
+                >
+              }
+            }
+            @case ('improvements') {
+              @for (item of improvements; track item.id) {
+                <a class="list-row" [routerLink]="['/portal/melhorias', item.id]"
+                  ><strong>{{ item.title }}</strong
+                  ><span class="tag">{{ labels[item.status] }} →</span></a
+                >
+              }
+            }
+            @case ('request') {
+              @if (request(); as item) {
+                <h2>#{{ item.id }} · {{ item.title }}</h2>
+                <span class="tag">{{ labels[item.status] }}</span>
+                <p>
+                  Acompanhamento demonstrativo da solicitação. Na versão real, esta página reúne
+                  conversa, situação e histórico autorizado da empresa.
+                </p>
+                <p>
+                  Pedidos simulados existem somente nesta sessão; ao recarregar, as amostras
+                  iniciais são restauradas.
+                </p>
+              } @else {
+                <p>Chamado não encontrado nesta prévia.</p>
+              }
+              <a routerLink="/portal/chamados" routerLinkActive="active">Voltar aos chamados</a>
+            }
+            @case ('improvement') {
+              @if (improvement; as item) {
+                <h2>{{ item.title }}</h2>
+                <span class="tag">{{ labels[item.status] }}</span>
+                <p>
+                  Detalhamento ilustrativo. Estimativa e aprovação de escopo serão combinadas antes
+                  da execução.
+                </p>
+              } @else {
+                <p>Melhoria não encontrada.</p>
+              }
+              <a routerLink="/portal/melhorias" routerLinkActive="active">Voltar às melhorias</a>
+            }
+            @case ('plan') {
+              <h2>Bronze · Presença</h2>
+              <p>
+                Site estático em endereço da Olivaw, como empresa.olivaw.com.br, e 2 GB de arquivos
+                neste exemplo. Sem API ou banco dedicado ao site.
+              </p>
+              <p>
+                Duas pequenas melhorias por mês, até 30 minutos cada. Correções do escopo entregue
+                não consomem a franquia.
+              </p>
+              <p>
+                A partir do Prata/Silver, domínio próprio e conteúdo gerenciável podem ser
+                contratados. Registro e renovação do domínio têm custo separado.
+              </p>
+              <p>
+                Limites e valores continuam em estudo; esta prévia não modifica contratos
+                existentes.
+              </p>
+              <a routerLink="/portal/indicador">Entender o indicador de uso →</a>
+            }
+            @case ('indicator') {
+              <h2>Um resumo das franquias, sem esconder os detalhes.</h2>
+              <p>
+                Na prévia: média simples entre {{ storagePercent() }}% de espaço e 50% de melhorias
+                usadas no mês (1 de 2), resultando em {{ planPercent() }}%.
+              </p>
+              <p>
+                Não é desempenho, disponibilidade ou capacidade técnica. Os limites individuais
+                permanecem visíveis, pois uma média pode esconder um recurso próximo do limite. Sem
+                leituras, o indicador fica indisponível.
+              </p>
+              <p>
+                Na versão real, somente limites contratados e medidos participam. Se apenas espaço
+                estiver disponível, o indicador é identificado como armazenamento.
+              </p>
+            }
+            @case ('technical') {
+              <h2>Mais detalhes, quando você precisar.</h2>
+              <p>
+                Área futura para equipes de TI: informações dos serviços do cliente, histórico de
+                disponibilidade e consumo identificado por empresa. Nunca o consumo total da VM
+                apresentado como se fosse de um cliente.
+              </p>
+            }
+            @case ('new') {
+              <form (submit)="submit($event)">
+                <label
+                  >Como podemos ajudar?<input
+                    name="title"
+                    required
+                    maxlength="120"
+                    placeholder="Ex.: atualizar o horário de atendimento" /></label
+                ><label
+                  >Conte um pouco mais<textarea
+                    name="description"
+                    rows="5"
+                    placeholder="Formulário demonstrativo; nenhum chamado real será aberto."
+                  ></textarea></label
+                ><button class="primary" type="submit">Simular solicitação</button>
+              </form>
+            }
           }
-        </div>
-      </section>
-      <section class="chart-grid">
-        <article class="card chart-card">
-          <div class="card-top">
-            <div>
-              <h3>Espaço ocupado</h3>
-              <p>Arquivos, imagens e banco de dados</p>
-            </div>
-            <app-portal-icon name="disk" />
-          </div>
-          <div class="chart-metric">{{ missing() ? '—' : used() }} <small>MB agora</small></div>
-          <app-portal-line-chart
-            [points]="storage()"
-            kind="storage"
-            [limit]="1000"
-            [empty]="missing()"
-          />
-        </article>
-        <article class="card chart-card">
-          <div class="card-top">
-            <div>
-              <h3>Acessos ao site</h3>
-              <p>Visualizações de páginas no período</p>
-            </div>
-            <app-portal-icon name="activity" />
-          </div>
-          <div class="chart-metric">
-            {{ missing() ? '—' : total() }} <small>visualizações</small>
-          </div>
-          <app-portal-line-chart [points]="accesses()" kind="accesses" [empty]="missing()" />
-        </article>
-      </section>
-      <section class="activity-grid">
-        <article class="card">
-          <div class="card-top">
-            <div class="title-icon">
-              <app-portal-icon name="message" />
-              <h3>Seus chamados</h3>
-            </div>
-            <button class="text-button" (click)="open('Seus chamados')">Ver todos ↗</button>
-          </div>
-          <div class="counters">
-            <div>
-              <strong>{{ opened() }}</strong
-              ><span>em aberto</span>
-            </div>
-            <div><strong class="amber">1</strong><span>aguarda você</span></div>
-            <div><strong>8</strong><span>atendidos</span></div>
-          </div>
-          <p class="small-note">“Aguarda você” faz parte dos chamados em aberto.</p>
-          @for (item of requests().slice(0, 2); track item.id) {
-            <button class="list-row" (click)="open('Seus chamados')">
-              <span
-                ><small>#{{ item.id }}</small
-                ><strong>{{ item.title }}</strong></span
-              ><span class="tag" [class.amber-tag]="item.status === 'waiting'">{{
-                labels[item.status]
-              }}</span>
-            </button>
-          }
-        </article>
-        <article class="card">
-          <div class="card-top">
-            <div class="title-icon">
-              <app-portal-icon name="spark" />
-              <h3>Suas melhorias</h3>
-            </div>
-            <button class="text-button" (click)="open('Suas melhorias')">Ver todas ↗</button>
-          </div>
-          <div class="counters">
-            <div><strong>1</strong><span>em andamento</span></div>
-            <div><strong>2</strong><span>em espera</span></div>
-            <div><strong>4</strong><span>entregues</span></div>
-          </div>
-          <p class="small-note">Evoluções do site acompanhadas com você.</p>
-          @for (item of improvements.slice(0, 2); track item.id) {
-            <button class="list-row" (click)="open('Suas melhorias')">
-              <span
-                ><small>Melhoria #{{ item.id }}</small
-                ><strong>{{ item.title }}</strong></span
-              ><span class="tag">{{ labels[item.status] }}</span>
-            </button>
-          }
-        </article>
-      </section>
+        </section>
+      }
       <footer>
         Olivaw <span>·</span> Clareza para acompanhar. Cuidado para evoluir.<small
           >Valores e limites demonstrativos, sem vínculo com um plano contratado.</small
@@ -229,79 +339,3 @@
     </main>
   </div>
 </div>
-<dialog #dialog aria-labelledby="dialog-title">
-  <div class="dialog-heading">
-    <h2 id="dialog-title">{{ modal() }}</h2>
-    <button class="icon-button" aria-label="Fechar" (click)="close()">
-      <app-portal-icon name="close" />
-    </button>
-  </div>
-  <p class="demo-note">Prévia interativa · nenhuma informação é enviada ou salva.</p>
-  @switch (modal()) {
-    @case ('Seu plano') {
-      <h3>Bronze · exemplo de composição</h3>
-      <p>1 site, 1 GB de armazenamento e 10 GB de transferência por mês.</p>
-      <p>
-        Armazenamento é o espaço dos arquivos e do banco. Transferência é a quantidade de dados
-        enviada aos visitantes; são recursos diferentes.
-      </p>
-      <p>O espaço não reinicia a cada mês. A transferência acompanha o ciclo mensal.</p>
-      <p>
-        Uso atual: {{ missing() ? 'sem leitura' : used() + ' MB de 1.000 MB' }}. Neste estudo, 1 GB
-        equivale a 1.000 MB.
-      </p>
-      <p>Preço, regras de excedente e limites finais serão definidos antes da contratação.</p>
-    }
-    @case ('Seus chamados') {
-      @for (item of requests(); track item.id) {
-        <div class="dialog-row">
-          <span>#{{ item.id }} · {{ item.title }}</span
-          ><span class="tag">{{ labels[item.status] }}</span>
-        </div>
-      }
-    }
-    @case ('Suas melhorias') {
-      @for (item of improvements; track item.id) {
-        <div class="dialog-row">
-          <span>{{ item.title }}</span
-          ><span class="tag">{{ labels[item.status] }}</span>
-        </div>
-      }
-    }
-    @case ('Área técnica') {
-      <h3>Mais detalhes, quando você precisar.</h3>
-      <p>
-        Proposta para uma próxima etapa: histórico de disponibilidade, consumo por serviço e
-        informações técnicas para a equipe de TI do cliente.
-      </p>
-      <p>
-        As métricas devem ser atribuídas ao serviço do cliente. O consumo total da VM compartilhada
-        não representa o consumo de uma única empresa.
-      </p>
-    }
-    @case ('Nova solicitação') {
-      @if (sent()) {
-        <p role="status">
-          Solicitação simulada! Ela aparece na lista desta prévia até recarregar a página. Nenhum
-          chamado real foi aberto.
-        </p>
-      } @else {
-        <form (submit)="submit($event)">
-          <label
-            >Como podemos ajudar?<input
-              name="title"
-              required
-              maxlength="140"
-              placeholder="Ex.: atualizar uma informação do site" /></label
-          ><label
-            >Conte um pouco mais<textarea
-              name="description"
-              rows="3"
-              placeholder="Este formulário é apenas uma demonstração."
-            ></textarea></label
-          ><button class="primary" type="submit">Simular solicitação</button>
-        </form>
-      }
-    }
-  }
-</dialog>

@@ -44,6 +44,29 @@ async function setup(page: Page) {
           nextBeforeId: null,
         },
       });
+    if (path === '/portal/home')
+      return route.fulfill({
+        json: {
+          openRequests: 0,
+          waitingRequests: 0,
+          completedRequests: 0,
+          workingImprovements: 0,
+          queuedImprovements: 0,
+          completedImprovements: 0,
+          storageUsedMiB: null,
+          storageLimitMiB: null,
+          storagePercent: null,
+          observedAt: null,
+          from: '2026-09-25T00:00:00Z',
+          to: '2026-10-25T00:00:00Z',
+          observedDays: 0,
+          expectedDays: 30,
+          pageViews: null,
+          series: [],
+        },
+      });
+    if (path === '/portal/requests/messages')
+      return route.fulfill({ json: { items: [], nextBeforeId: null } });
     if (path === '/portal/deliveries')
       return route.fulfill({
         json: {
@@ -70,7 +93,26 @@ async function setup(page: Page) {
       return route.fulfill({ status: 201, json: { externalId: service, protocol: 'OW-EXAMPLE' } });
     }
     if (path === '/portal/requests')
-      return route.fulfill({ json: { items: [], nextBeforeId: null } });
+      return route.fulfill({
+        json: {
+          items: writes.length
+            ? [
+                {
+                  externalId: service,
+                  protocol: 'OW-EXAMPLE',
+                  title: 'Mais espaço',
+                  status: 'received',
+                  requestType: 'question',
+                  publicSummary: 'Recebemos seu pedido.',
+                  serviceLabel: '',
+                  createdAt: '2026-10-25T12:00:00Z',
+                  revision: 1,
+                },
+              ]
+            : [],
+          nextBeforeId: null,
+        },
+      });
     return route.fulfill({ status: 404, json: { detail: 'Rota não simulada' } });
   });
   await page.goto('/meu-negocio/entrar');
@@ -90,14 +132,18 @@ for (const width of [1440, 390]) {
     await expect(
       page.getByText('Estamos atualizando a verificação', { exact: true }),
     ).toBeVisible();
-    await page.getByRole('button', { name: 'Entregas', exact: true }).click();
+    await page.getByRole('link', { name: 'Entregas', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Catálogo publicado' })).toBeVisible();
-    await page.getByRole('button', { name: 'Solicitações', exact: true }).click();
+    await page.getByRole('link', { name: 'Solicitações', exact: true }).click();
+    await page.getByRole('link', { name: 'Novo pedido', exact: true }).click();
     await page.getByLabel('Título', { exact: true }).fill('Mais espaço');
     const raw = '  Preciso de espaço.\nQuero avaliar o preço.  ';
     await page.getByLabel('Descreva seu pedido').fill(raw);
     await page.getByRole('button', { name: 'Enviar pedido', exact: true }).click();
     await expect.poll(() => writes.length).toBe(1);
+    await expect(page).toHaveURL(new RegExp('request=' + service));
+    await expect(page.getByRole('heading', { name: 'Conversa · OW-EXAMPLE' })).toBeVisible();
+    await expect(page.locator('dialog')).toHaveCount(0);
     expect(writes[0]['description']).toBe(raw);
     expect(writes[0]['customerExternalId']).toBe(customer);
     expect(writes[0]['requestKey']).toMatch(/^[0-9a-f-]{36}$/);

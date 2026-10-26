@@ -45,6 +45,7 @@ export class AdminLayout {
     incidents: 'Incidentes',
     usage: 'Consumo',
     plans: 'Planos',
+    expenses: 'Despesas',
     care: 'Cuidados',
     support: 'Atendimento',
   };
@@ -62,6 +63,7 @@ export class AdminLayout {
       'incidents',
       'usage',
       'plans',
+      'expenses',
       'care',
       'support',
     ].includes(this.pathParts()[1]),
@@ -87,6 +89,10 @@ export class AdminLayout {
     if (section === 'agents' && detail === 'baley') {
       items.push({ label: 'Baley', url: '/admin/agents/baley' });
       if (reportId) items.push({ label: 'Relatório', url: this.currentUrl() });
+      return items;
+    }
+    if (section === 'plans' && detail === 'catalog') {
+      items.push({ label: 'Proposta comercial', url: '/admin/plans/catalog' });
       return items;
     }
     if (detail) {

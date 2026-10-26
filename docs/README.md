@@ -57,3 +57,7 @@ Comece pelo guia de desenvolvimento para entender como os componentes se relacio
 - [Baley e safety-docker — Base concluída](features/done/baley-lifecycle-e-safety-docker.md): start/stop/status, update revisável e cópia da skill instalada no Codex.
 
 - [Cavalcante — estudo e protótipo](clients/cavalcante/README.md): inventário do site, cores, funcionalidades propostas, guia do Nicolas e publicação em cavalcante.olivaw.com.br.
+
+- [Estudo comercial dos planos](features/discovery/planos-bronze-prata-ouro-diamante.md): Bronze, Prata/Silver, Ouro e Diamante, domínio, franquias e viabilidade.
+- [Home, chamados e despesas](features/done/portal-home-chamados-despesas.md): implementação local validada, com Issue026; publicação pendente.
+- [Reavaliar cards operacionais](features/discovery/reavaliar-cards-saude-incidentes-consumo.md): Saúde, Incidentes e Consumo ocultos na Configuração.

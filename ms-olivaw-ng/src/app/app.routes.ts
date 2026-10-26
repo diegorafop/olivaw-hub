@@ -5,6 +5,70 @@ import { Routes } from '@angular/router';
 import { operationGuard, rootGuard, operationHomeGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   {
+    path: 'portal/chamados/novo',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'new' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
+    path: 'portal/chamados/:itemId',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'request' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
+    path: 'portal/chamados',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'requests' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
+    path: 'portal/melhorias/:itemId',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'improvement' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
+    path: 'portal/melhorias',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'improvements' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
+    path: 'portal/plano',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'plan' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
+    path: 'portal/indicador',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'indicator' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
+    path: 'portal/tecnico',
+    canMatch: [operationGuard, rootGuard],
+    data: { portalSection: 'technical' },
+    title: 'Olivaw - Portal',
+    loadComponent: () =>
+      import('./features/portal-home-preview/portal-home-preview').then((m) => m.PortalHomePreview),
+  },
+  {
     path: 'portal',
     canMatch: [operationGuard, rootGuard],
     title: 'Olivaw - Prévia do Portal',
@@ -157,6 +221,20 @@ export const routes: Routes = [
         data: { operation: 'support' },
         loadComponent: () =>
           import('./features/admin/operations/operations-page').then((m) => m.OperationsPage),
+      },
+      {
+        path: 'expenses',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Despesas',
+        loadComponent: () =>
+          import('./features/admin/expenses/expenses-page').then((m) => m.ExpensesPage),
+      },
+      {
+        path: 'plans/catalog',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Proposta dos planos',
+        loadComponent: () =>
+          import('./features/admin/plans/plan-catalog').then((m) => m.PlanCatalog),
       },
       {
         path: 'plans',
