@@ -21,11 +21,23 @@ public sealed class ExpenseTest
         var request=new ReadExpenseByFilterMediatorQuery{Payload=new(){From=Day,To=Day.AddDays(2),GroupBy="day"}};
         var total=await handler.Handle(request,CancellationToken.None);
         Assert.Equal(82.5m,total.GrossBrl);Assert.Equal(5.5m,total.CreditsBrl);Assert.Equal(77m,total.NetBrl);Assert.Equal(55m,total.UnallocatedBrl);
+        Assert.Single(total.ByCategory); Assert.Equal(total.GrossBrl, total.ByCategory.Single().GrossBrl);
+        Assert.Equal(3, total.ByCustomer.Count); Assert.Equal(total.NetBrl, total.ByCustomer.Sum(x => x.NetBrl));
+        Assert.Equal(55m, total.ByCustomer.Single(x => x.Key == "shared").NetBrl);
+        request.Payload.PageSize = 1;
+        var paged = await handler.Handle(request,CancellationToken.None);
+        Assert.Single(paged.Items); Assert.Equal(total.GrossBrl,paged.GrossBrl); Assert.Equal(3,paged.ByCustomer.Count);
+        request.Payload.PageSize = 20;
         Assert.Equal(2,total.Series.Count);Assert.Equal(0,total.Series[1].NetBrl);
         request.Payload.CustomerExternalId=customer.ExternalId;
         var own=await handler.Handle(request,CancellationToken.None);
         Assert.Equal(5.5m,own.NetBrl);Assert.Equal(55m,own.UnallocatedBrl);Assert.Equal(2,own.Items.Count);Assert.All(own.Items,x=>Assert.Equal(customer.Business,x.CustomerName));
         Assert.True(new ReadExpenseByFilterValidator().Validate(request.Payload).IsValid);
+        request.Payload.CustomerExternalId = null; request.Payload.UnallocatedOnly = true;
+        var shared = await handler.Handle(request,CancellationToken.None);
+        Assert.Equal(55m,shared.GrossBrl); Assert.Single(shared.ByCustomer); Assert.Equal("shared",shared.ByCustomer.Single().Key);
+        request.Payload.CustomerExternalId=customer.ExternalId; Assert.False(new ReadExpenseByFilterValidator().Validate(request.Payload).IsValid);
+        request.Payload.CustomerExternalId=null;
         request.Payload.To=Day.AddDays(367);Assert.False(new ReadExpenseByFilterValidator().Validate(request.Payload).IsValid);
     }
     [Theory][InlineData("BRL",2)][InlineData("USD",0)][InlineData("EUR",1)]

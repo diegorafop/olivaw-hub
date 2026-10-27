@@ -11,11 +11,6 @@ export const configurationCards = [
     title: 'Portal do cliente',
     description: 'Convites, vínculos e prévia por empresa.',
   },
-  {
-    path: 'expenses',
-    title: 'Despesas',
-    description: 'Custos, créditos e histórico por período e cliente.',
-  },
   { path: 'customers', title: 'Clientes', description: 'Empresas, contatos e responsáveis.' },
   { path: 'services', title: 'Serviços', description: 'Aplicações e seus vínculos com clientes.' },
   {

@@ -1,10 +1,10 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { finalize, type Subscription } from 'rxjs';
 import { RuntimeConfig } from '../../../core/config/runtime-config';
 import { LOCAL_ERROR, SKIP_LOADING } from '../../../core/http/http-context';
 import { CustomersApi } from '../customers/customers-api';
@@ -39,6 +39,11 @@ interface Report {
 })
 export class ExpensesPage {
   private readonly http = inject(HttpClient);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly query = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
   private readonly runtime = inject(RuntimeConfig);
   private readonly customersApi = inject(CustomersApi);
   private readonly destroy = inject(DestroyRef);
@@ -61,6 +66,7 @@ export class ExpensesPage {
   readonly categoryOptions = Object.entries(this.categories);
   private entryKey = crypto.randomUUID();
   private submitted: unknown = null;
+  private currentQuery?: Subscription;
   private readonly today = new Date().toISOString().slice(0, 10);
   readonly filters = new FormGroup({
     from: new FormControl(this.today.slice(0, 7) + '-01', {
@@ -125,7 +131,17 @@ export class ExpensesPage {
   }
   constructor() {
     this.loadCustomers();
-    this.load();
+    effect(() => {
+      const params = this.query();
+      this.filters.reset({
+        from: params.get('from') || this.today.slice(0, 7) + '-01',
+        to: params.get('to') || this.today,
+        groupBy: params.get('groupBy') || 'day',
+        customer: params.get('customer') || '',
+      });
+      this.page.set(Math.max(1, Number(params.get('page')) || 1));
+      untracked(() => this.load());
+    });
   }
   loadCustomers() {
     this.customersApi
@@ -144,8 +160,14 @@ export class ExpensesPage {
       });
   }
   filter() {
-    this.page.set(1);
-    this.load();
+    void this.router
+      .navigate([], {
+        relativeTo: this.route,
+        queryParams: { ...this.filters.getRawValue(), page: 1 },
+      })
+      .then((changed) => {
+        if (!changed) this.load();
+      });
   }
   load() {
     if (this.filters.invalid) return;
@@ -158,11 +180,13 @@ export class ExpensesPage {
       .set('to', end.toISOString())
       .set('groupBy', f.groupBy)
       .set('page', this.page());
-    if (f.customer) params = params.set('customerExternalId', f.customer);
+    if (f.customer === 'shared') params = params.set('unallocatedOnly', true);
+    else if (f.customer) params = params.set('customerExternalId', f.customer);
+    this.currentQuery?.unsubscribe();
     this.loading.set(true);
     this.error.set('');
     this.report.set(null);
-    this.http
+    this.currentQuery = this.http
       .get<Report>(this.runtime.endpoint('expenses'), { ...this.options(), params })
       .pipe(
         takeUntilDestroyed(this.destroy),
@@ -174,8 +198,10 @@ export class ExpensesPage {
       });
   }
   go(offset: number) {
-    this.page.update((v) => v + offset);
-    this.load();
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { ...this.filters.getRawValue(), page: this.page() + offset },
+    });
   }
   save() {
     if (this.saving()) return;

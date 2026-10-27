@@ -61,3 +61,7 @@ Comece pelo guia de desenvolvimento para entender como os componentes se relacio
 - [Estudo comercial dos planos](features/discovery/planos-bronze-prata-ouro-diamante.md): Bronze, Prata/Silver, Ouro e Diamante, domínio, franquias e viabilidade.
 - [Home, chamados e despesas](features/done/portal-home-chamados-despesas.md): implementação local validada, com Issue026; publicação pendente.
 - [Reavaliar cards operacionais](features/discovery/reavaliar-cards-saude-incidentes-consumo.md): Saúde, Incidentes e Consumo ocultos na Configuração.
+
+- [Faturas AWS e dados originais](features/discovery/faturas-aws-detalhes-e-dados-originais.md): proposta de resumo em colunas, RawData JSON e evidência recebida; nova estrutura ainda não implementada.
+
+- [Dashboard Financeiro](features/done/dashboard-financeiro.md): área própria de gastos com filtros e navegação para Despesas; validada localmente, publicação pendente.

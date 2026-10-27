@@ -30,3 +30,5 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 - [Baley — Correções aprovadas e saúde da infraestrutura](done/baley-correcao-aprovada-e-saude.md): aprovações individuais/em lote, catálogo limitado de correções, gates de saúde, recuperação e migration PostgreSQL; publicação pelo mantenedor pendente.
 
 - [Home do Portal, chamados e despesas internas](done/portal-home-chamados-despesas.md): navegação por links, indicadores, despesas e migration PostgreSQL Issue026; publicação pelo mantenedor.
+
+- [Financeiro — dashboard e navegação de despesas](done/dashboard-financeiro.md): indicadores, categorias, clientes e filtros temporais; publicação pendente.

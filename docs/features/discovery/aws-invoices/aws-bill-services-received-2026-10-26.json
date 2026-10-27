@@ -1,0 +1,614 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "kind": "operator-pasted-aws-bills",
+    "receivedOn": "2026-10-26",
+    "rawTextFile": "aws-bill-services-received-2026-10-26.txt",
+    "rawTextFormatting": "Layout whitespace normalized; descriptions, quantities and displayed amounts preserved.",
+    "completeness": "service-charge-section-only",
+    "rawTextSha256": "3de73e258bd088be2c1b942a11ec0a6c8e62cd5e371c1cafac7190cf60c05792"
+  },
+  "issuer": "Amazon AWS Serviços Brasil Ltda.",
+  "invoiceNumber": null,
+  "accountReference": null,
+  "billingPeriod": {
+    "year": 2026,
+    "month": 9,
+    "start": "2026-09-01",
+    "endExclusive": "2026-10-01",
+    "confirmation": "operator-confirmed"
+  },
+  "documentStatus": "unknown",
+  "currency": "USD",
+  "activeServices": 9,
+  "totals": {
+    "grossServiceChargesUsd": "4.49",
+    "creditsUsd": "4.49",
+    "netServiceChargesUsd": "0.00",
+    "displayedPreTaxServiceChargesUsd": "0.00",
+    "displayedTaxUsd": "0.00",
+    "netForProvidedSectionUsd": "0.00",
+    "invoiceTotalUsd": null,
+    "paidAmountUsd": null
+  },
+  "exchangeRate": {
+    "to": "BRL",
+    "value": "5.50",
+    "kind": "managerial-estimate",
+    "source": "Premissa gerencial proposta nesta conversa; não representa débito efetivo no cartão."
+  },
+  "services": [
+    {
+      "name": "Data Transfer",
+      "grossUsd": "0.00",
+      "creditsUsd": "0.00",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "Transfer In: Asia Pacific (Tokyo)",
+          "usageType": "USE1-APN1-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: Asia Pacific (Tokyo)",
+          "usageType": "USE1-APN1-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: Asia Pacific (Seoul)",
+          "usageType": "USE1-APN2-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: Asia Pacific (Seoul)",
+          "usageType": "USE1-APN2-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: Asia Pacific (Singapore)",
+          "usageType": "USE1-APS1-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: Asia Pacific (Singapore)",
+          "usageType": "USE1-APS1-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: Asia Pacific (Sydney)",
+          "usageType": "USE1-APS2-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: Asia Pacific (Sydney)",
+          "usageType": "USE1-APS2-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: Asia Pacific (Mumbai)",
+          "usageType": "USE1-APS3-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: Asia Pacific (Mumbai)",
+          "usageType": "USE1-APS3-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: Canada (Central)",
+          "usageType": "USE1-CAN1-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: Canada (Central)",
+          "usageType": "USE1-CAN1-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: EU (Germany)",
+          "usageType": "USE1-EUC1-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: EU (Germany)",
+          "usageType": "USE1-EUC1-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: EU (Stockholm)",
+          "usageType": "USE1-EUN1-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: EU (Stockholm)",
+          "usageType": "USE1-EUN1-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: EU (London)",
+          "usageType": "USE1-EUW2-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: EU (London)",
+          "usageType": "USE1-EUW2-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: EU (Paris)",
+          "usageType": "USE1-EUW3-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: EU (Paris)",
+          "usageType": "USE1-EUW3-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: US East (Ohio)",
+          "usageType": "USE1-USE2-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: US East (Ohio)",
+          "usageType": "USE1-USE2-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.01",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: US West (Northern California)",
+          "usageType": "USE1-USW1-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: US West (Northern California)",
+          "usageType": "USE1-USW1-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer In: US West (Oregon)",
+          "usageType": "USE1-USW2-AWS-In-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Transfer Out: US West (Oregon)",
+          "usageType": "USE1-USW2-AWS-Out-Bytes",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0",
+          "unit": "GB",
+          "rateUsd": "0.02",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Data transfer in per month",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "1.674",
+          "unit": "GB",
+          "rateUsd": "0.000",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Data transfer out under the monthly global free tier",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0.064",
+          "unit": "GB",
+          "rateUsd": "0.000",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "Regional data transfer under the monthly global free tier",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "0.003",
+          "unit": "GB",
+          "rateUsd": "0.000",
+          "amountUsd": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "Elastic Compute Cloud",
+      "grossUsd": "3.29",
+      "creditsUsd": "3.29",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "On Demand Linux t3.micro Instance Hour",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "239.093",
+          "unit": "Hrs",
+          "rateUsd": "0.0104",
+          "amountUsd": "2.49"
+        },
+        {
+          "description": "87 Mbps per t3.micro instance-hour (or partial hour)",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "239.796",
+          "unit": "Hrs",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        },
+        {
+          "description": "General Purpose (gp3) provisioned storage",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "10",
+          "unit": "GB-Mo",
+          "rateUsd": "0.08",
+          "amountUsd": "0.80"
+        },
+        {
+          "description": "AWS Free Tier",
+          "usageType": null,
+          "region": null,
+          "kind": "credit",
+          "quantity": null,
+          "unit": null,
+          "rateUsd": null,
+          "amountUsd": "-3.29"
+        }
+      ]
+    },
+    {
+      "name": "Glue",
+      "grossUsd": "0.00",
+      "creditsUsd": "0.00",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "AWS Glue Data Catalog requests under the free tier",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "20",
+          "unit": "Request",
+          "rateUsd": "0",
+          "amountUsd": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "Key Management Service",
+      "grossUsd": "0.00",
+      "creditsUsd": "0.00",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "Monthly Global Free Tier for KMS requests",
+          "usageType": "us-east-1-KMS-Requests",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "3",
+          "unit": "Requests",
+          "rateUsd": "0.00",
+          "amountUsd": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "Secrets Manager",
+      "grossUsd": "0.00",
+      "creditsUsd": "0.00",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "AWS Secrets Manager API Requests; USD 0.05 per 10000 requests",
+          "usageType": "USE1-AWSSecretsManagerAPIRequest",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "3",
+          "unit": "API Requests",
+          "rateUsd": "0.000005",
+          "amountUsd": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "Simple Notification Service",
+      "grossUsd": "0.00",
+      "creditsUsd": "0.00",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "First 1,000,000 Amazon SNS API Requests per month are free",
+          "usageType": "Requests-Tier1",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "3",
+          "unit": "Requests",
+          "rateUsd": null,
+          "amountUsd": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "Simple Queue Service",
+      "grossUsd": "0.00",
+      "creditsUsd": "0.00",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "First 1,000,000 Amazon SQS Requests per month are free",
+          "usageType": "Requests-RBP",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "3",
+          "unit": "Requests",
+          "rateUsd": null,
+          "amountUsd": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "Simple Storage Service",
+      "grossUsd": "0.00",
+      "creditsUsd": "0.00",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "PUT, COPY, POST, or LIST requests; USD 0.005 per 1000 requests",
+          "usageType": "Requests-Tier1",
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "18",
+          "unit": "Requests",
+          "rateUsd": "0.000005",
+          "amountUsd": "0.00"
+        }
+      ]
+    },
+    {
+      "name": "Virtual Private Cloud",
+      "grossUsd": "1.20",
+      "creditsUsd": "1.20",
+      "netUsd": "0.00",
+      "lineItems": [
+        {
+          "description": "In-use public IPv4 address per hour",
+          "usageType": null,
+          "region": "us-east-1",
+          "kind": "usage",
+          "quantity": "239.098",
+          "unit": "Hrs",
+          "rateUsd": "0.005",
+          "amountUsd": "1.20"
+        },
+        {
+          "description": "AWS Free Tier",
+          "usageType": null,
+          "region": null,
+          "kind": "credit",
+          "quantity": null,
+          "unit": null,
+          "rateUsd": null,
+          "amountUsd": "-1.20"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Amounts are displayed statement amounts, not recalculated price × quantity. Preserve their precision.",
+    "The previous summary USD 4.05 does not match this gross service total USD 4.49; do not assume the same scope or period.",
+    "GB-Mo is provisioned storage prorated over time, not measured current disk usage.",
+    "Zero displayed amount does not imply the absence of usage or perpetual free service.",
+    "Credit line amounts are signed negative; totals.creditsUsd is their positive magnitude.",
+    "Do not add service subtotals and their line items twice.",
+    "No invoice-wide total or settled payment is asserted from a single issuer section.",
+    "Competência setembro/2026 confirmada pelo operador; número da fatura, emissão, vencimento e pagamento permanecem desconhecidos."
+  ],
+  "expenseImport": {
+    "status": "registered-and-verified",
+    "strategy": "one cost and one credit per charged service, avoiding rounding differences from unnecessary sub-line splits",
+    "plannedEntries": [
+      {
+        "service": "Elastic Compute Cloud",
+        "kind": "cost",
+        "amountUsd": "3.29"
+      },
+      {
+        "service": "Elastic Compute Cloud",
+        "kind": "credit",
+        "amountUsd": "3.29"
+      },
+      {
+        "service": "Virtual Private Cloud",
+        "kind": "cost",
+        "amountUsd": "1.20"
+      },
+      {
+        "service": "Virtual Private Cloud",
+        "kind": "credit",
+        "amountUsd": "1.20"
+      }
+    ],
+    "createdEntries": [
+      {
+        "externalId": "f65636a0-d459-455d-9e44-457cad597024",
+        "entryKey": "a494ce06-16b5-590f-a096-21f753a37bdc",
+        "service": "Elastic Compute Cloud",
+        "kind": "cost",
+        "amountUsd": "3.29",
+        "amountBrl": "18.10",
+        "result": "created"
+      },
+      {
+        "externalId": "292c1155-5b0a-4a53-a732-57fa7b684abb",
+        "entryKey": "14990a5f-fce1-5b62-8300-6badda841f04",
+        "service": "Elastic Compute Cloud",
+        "kind": "credit",
+        "amountUsd": "3.29",
+        "amountBrl": "18.10",
+        "result": "created"
+      },
+      {
+        "externalId": "4542e925-6263-4283-8692-fc7f503a7902",
+        "entryKey": "13862a6e-ab73-52fa-bf78-a258d530d3ea",
+        "service": "Virtual Private Cloud",
+        "kind": "cost",
+        "amountUsd": "1.20",
+        "amountBrl": "6.60",
+        "result": "created"
+      },
+      {
+        "externalId": "ac21bda4-9823-4daf-a16a-5aae0005f3a8",
+        "entryKey": "434354cd-7d04-5146-a64d-7194a7a4a7a6",
+        "service": "Virtual Private Cloud",
+        "kind": "credit",
+        "amountUsd": "1.20",
+        "amountBrl": "6.60",
+        "result": "created"
+      }
+    ],
+    "occurredAt": "2026-09-30T00:00:00Z",
+    "dateMeaning": "Data de referência gerencial: último dia da competência confirmada; não data de pagamento.",
+    "reconciliation": {
+      "grossBrl": "24.70",
+      "creditsBrl": "24.70",
+      "netBrl": "0.00",
+      "expenseCount": 4,
+      "attribution": "shared-unallocated"
+    },
+    "notes": [
+      "Quatro lançamentos confirmados via API: custo e crédito para EC2+EBS e custo e crédito para VPC/IPv4.",
+      "EC2 de USD 2.49 e EBS de USD 0.80 estão discriminados em services.lineItems; o lançamento de custo EC2 agrupa USD 3.29 para não duplicar o subtotal.",
+      "USD 4.49 não deve ser arredondado para um novo lançamento de USD 5.00.",
+      "Câmbio gerencial de R$5.50/USD e data de referência 30/09/2026 são identificados nas fontes dos lançamentos, sem afirmar pagamento."
+    ]
+  },
+  "rawData": "{\"issuer\":\"Amazon AWS Serviços Brasil Ltda.\",\"sourceText\":\"Amazon AWS Serviços Brasil Ltda. charges by service  Info\\nCollapse all\\nTotal active services\\n9\\nTotal pre-tax service charges in USD\\nUSD 0.00\\n\\n    1\\n\\nDescription\\nUsage Quantity\\nAmount in USD\\nDescription\\nUsage Quantity\\nAmount in USD\\nData Transfer\\nUSD 0.00\\nUS East (N. Virginia)\\nUSD 0.00\\nAWS Data Transfer USE1-APN1-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Tokyo)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APN1-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Tokyo)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APN2-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Seoul)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APN2-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Seoul)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APS1-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Singapore)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APS1-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Singapore)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APS2-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Sydney)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APS2-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Sydney)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APS3-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Mumbai)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-APS3-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Mumbai)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-CAN1-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from Canada (Central)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-CAN1-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to Canada (Central)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUC1-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from EU (Germany)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUC1-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to EU (Germany)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUN1-AWS-In-Bytes\\nUSD 0.00\\nUSD 0.0 per GB for EUN1-AWS-In-Bytes in EU (Stockholm)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUN1-AWS-Out-Bytes\\nUSD 0.00\\nUSD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUW2-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from EU (London)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUW2-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to EU (London)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUW3-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from EU (Paris)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-EUW3-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to EU (Paris)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-USE2-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from US East (Ohio)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-USE2-AWS-Out-Bytes\\nUSD 0.00\\n$0.01 per GB - US East (Northern Virginia) data transfer to US East (Ohio)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-USW1-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from US West (Northern California)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-USW1-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to US West (Northern California)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-USW2-AWS-In-Bytes\\nUSD 0.00\\n$0.00 per GB - US East (Northern Virginia) data transfer from US West (Oregon)\\n0 GB\\nUSD 0.00\\nAWS Data Transfer USE1-USW2-AWS-Out-Bytes\\nUSD 0.00\\n$0.02 per GB - US East (Northern Virginia) data transfer to US West (Oregon)\\n0 GB\\nUSD 0.00\\nBandwidth\\nUSD 0.00\\n$0.000 per GB - data transfer in per month\\n1.674 GB\\nUSD 0.00\\n$0.000 per GB - data transfer out under the monthly global free tier\\n0.064 GB\\nUSD 0.00\\n$0.000 per GB - regional data transfer under the monthly global free tier\\n0.003 GB\\nUSD 0.00\\nElastic Compute Cloud\\nUSD 0.00\\nNo Region\\n(USD 3.29)\\n(USD 3.29)\\nAWS Free Tier\\nCredit\\n(USD 3.29)\\nUS East (N. Virginia)\\nUSD 3.29\\nAmazon Elastic Compute Cloud running Linux/UNIX\\nUSD 2.49\\n$0.0104 per On Demand Linux t3.micro Instance Hour\\n239.093 Hrs\\nUSD 2.49\\nEBS\\nUSD 0.80\\n$0.00 for 87 Mbps per t3.micro instance-hour (or partial hour)\\n239.796 Hrs\\nUSD 0.00\\n$0.08 per GB-month of General Purpose (gp3) provisioned storage - US East (N. Virginia)\\n10 GB-Mo\\nUSD 0.80\\nGlue\\nUSD 0.00\\nUS East (N. Virginia)\\nUSD 0.00\\nAWS Glue Request\\nUSD 0.00\\n$0 for AWS Glue Data Catalog requests under the free tier\\n20 Request\\nUSD 0.00\\nKey Management Service\\nUSD 0.00\\nUS East (N. Virginia)\\nUSD 0.00\\nAWS Key Management Service us-east-1-KMS-Requests\\nUSD 0.00\\n$0.00 per request - Monthly Global Free Tier for KMS requests\\n3 Requests\\nUSD 0.00\\nSecrets Manager\\nUSD 0.00\\nUS East (N. Virginia)\\nUSD 0.00\\nAWS Secrets Manager USE1-AWSSecretsManagerAPIRequest\\nUSD 0.00\\n$0.05 per 10000 API Requests\\n3 API Requests\\nUSD 0.00\\nSimple Notification Service\\nUSD 0.00\\nUS East (N. Virginia)\\nUSD 0.00\\nAmazon Simple Notification Service Requests-Tier1\\nUSD 0.00\\nFirst 1,000,000 Amazon SNS API Requests per month are free\\n3 Requests\\nUSD 0.00\\nSimple Queue Service\\nUSD 0.00\\nUS East (N. Virginia)\\nUSD 0.00\\nAmazon Simple Queue Service Requests-RBP\\nUSD 0.00\\nFirst 1,000,000 Amazon SQS Requests per month are free\\n3 Requests\\nUSD 0.00\\nSimple Storage Service\\nUSD 0.00\\nUS East (N. Virginia)\\nUSD 0.00\\nAmazon Simple Storage Service Requests-Tier1\\nUSD 0.00\\n$0.005 per 1,000 PUT, COPY, POST, or LIST requests\\n18 Requests\\nUSD 0.00\\nVirtual Private Cloud\\nUSD 0.00\\nNo Region\\n(USD 1.20)\\n(USD 1.20)\\nAWS Free Tier\\nCredit\\n(USD 1.20)\\nUS East (N. Virginia)\\nUSD 1.20\\nAmazon Virtual Private Cloud Public IPv4 Addresses\\nUSD 1.20\\n$0.005 per In-use public IPv4 address per hour\\n239.098 Hrs\\nUSD 1.20\\nTotal tax\\nUSD 0.00\"}"
+}

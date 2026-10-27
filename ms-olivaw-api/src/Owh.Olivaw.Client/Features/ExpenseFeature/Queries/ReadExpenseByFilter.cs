@@ -7,6 +7,7 @@ public sealed class ReadExpenseByFilterQuery
     public DateTime To { get; set; }
     public string GroupBy { get; set; } = "day";
     public Guid? CustomerExternalId { get; set; }
+    public bool UnallocatedOnly { get; set; }
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
 }
@@ -19,6 +20,8 @@ public sealed class ReadExpenseByFilterResponse
     public List<ExpensePoint> Series { get; set; } = new();
     public List<ExpenseItem> Items { get; set; } = new();
     public int Total { get; set; }
+    public List<ExpenseBreakdown> ByCategory { get; set; } = new();
+    public List<ExpenseBreakdown> ByCustomer { get; set; } = new();
 }
 public sealed class ExpensePoint { public DateTime Date { get; set; } public decimal CostBrl { get; set; } public decimal CreditsBrl { get; set; } public decimal NetBrl { get; set; } }
 public sealed class ExpenseItem
@@ -34,4 +37,14 @@ public sealed class ExpenseItem
     public DateTime OccurredAt { get; set; }
     public string Source { get; set; } = string.Empty;
     public string CustomerName { get; set; } = string.Empty;
+}
+
+public sealed class ExpenseBreakdown
+{
+    public string Key { get; set; } = string.Empty;
+    public string Label { get; set; } = string.Empty;
+    public decimal GrossBrl { get; set; }
+    public decimal CreditsBrl { get; set; }
+    public decimal NetBrl { get; set; }
+    public int Entries { get; set; }
 }

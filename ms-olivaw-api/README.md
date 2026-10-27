@@ -438,3 +438,9 @@ dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.O
 ```
 
 Validações locais: 416 testes da API, build do provedor/API, revisão do SQL e compatibilidade de modelo PostgreSQL. Não houve conexão a bancos reais durante a geração ou validação.
+
+### Dashboard Financeiro — agregados de despesas
+
+`GET /expenses` também retorna `byCategory` e `byCustomer`, calculados com todos os registros do recorte antes da paginação de `items`. Cada grupo informa custo bruto, créditos, líquido e quantidade. Custos compartilhados têm chave `shared`; `unallocatedOnly=true` filtra somente esses lançamentos e não pode ser combinado com `customerExternalId`. `unallocatedBrl` continua informando o líquido compartilhado de todo o período, separadamente do total individual.
+
+A ampliação é aditiva e não altera o modelo persistido: nenhuma migration nova é necessária. A autorização permanece `olivaw.root`. Não é cálculo de receita, lucro, saldo bancário ou pagamento confirmado. A série temporal segue a data gerencial registrada no lançamento; não distribui automaticamente uma fatura mensal por dias de consumo.

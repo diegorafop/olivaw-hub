@@ -109,10 +109,10 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await setup(page);
     const nav = page.getByRole('navigation', { name: 'Navegação da operação' });
-    await expect(nav.getByRole('link')).toHaveCount(4);
+    await expect(nav.getByRole('link')).toHaveCount(5);
     await nav.getByRole('link', { name: 'Configuração', exact: true }).click();
     const cards = page.getByRole('navigation', { name: 'Cadastros e ferramentas' });
-    await expect(cards.getByRole('link')).toHaveCount(9);
+    await expect(cards.getByRole('link')).toHaveCount(8);
     for (const name of ['Saúde', 'Incidentes', 'Consumo'])
       await expect(cards.getByRole('link', { name, exact: true })).toHaveCount(0);
     await cards.getByRole('link', { name: 'Planos', exact: true }).click();
@@ -192,7 +192,7 @@ test('incidente exige confirmação e preserva edição quando há conflito', as
   await expect(page.getByLabel('Nota interna / justificativa')).toHaveValue('Texto preservado');
   await page.getByLabel('Estado', { exact: false }).selectOption('observation');
   await page.getByRole('button', { name: 'Salvar registro', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Registro salvo');
+  await expect(page.getByRole('status').filter({ hasText: 'Registro salvo' })).toBeVisible();
 });
 test('configuração permanece protegida para operador sem root', async ({ page }) => {
   await setup(page, false);

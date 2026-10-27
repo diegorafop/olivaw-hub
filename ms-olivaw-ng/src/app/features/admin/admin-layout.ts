@@ -46,6 +46,7 @@ export class AdminLayout {
     usage: 'Consumo',
     plans: 'Planos',
     expenses: 'Despesas',
+    finance: 'Financeiro',
     care: 'Cuidados',
     support: 'Atendimento',
   };
@@ -63,17 +64,22 @@ export class AdminLayout {
       'incidents',
       'usage',
       'plans',
-      'expenses',
       'care',
       'support',
     ].includes(this.pathParts()[1]),
   );
+  readonly isFinance = computed(() => ['finance', 'expenses'].includes(this.pathParts()[1]));
   readonly section = computed(() => this.sectionTitles[this.pathParts()[1]] ?? 'Visão geral');
   readonly breadcrumbs = computed(() => {
     const [, section, detail, reportId] = this.pathParts();
     const items: { label: string; url: string }[] = [];
     if (this.isRoot()) items.push({ label: 'Visão geral', url: '/admin' });
     if (this.isConfiguration()) items.push({ label: 'Configuração', url: '/admin/configuration' });
+    if (this.isFinance()) {
+      items.push({ label: 'Financeiro', url: '/admin/finance' });
+      if (section === 'expenses') items.push({ label: 'Despesas', url: '/admin/expenses' });
+      return items;
+    }
     if (!section || section === 'configuration') return items;
     if (section === 'deployments') {
       items.push({ label: 'Serviços', url: '/admin/services' });

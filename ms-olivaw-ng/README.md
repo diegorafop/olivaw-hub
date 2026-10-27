@@ -175,3 +175,18 @@ npm run build
 npm run lint
 npm run e2e -- e2e/admin-expenses.spec.ts e2e/portal-home-preview.spec.ts e2e/portal.spec.ts e2e/admin-configuration.spec.ts
 ```
+
+## Financeiro
+
+A área financeira fica na navegação lateral, somente para root:
+
+- `/admin/finance`: indicadores, histórico, categorias, clientes e acesso a lançamentos. Filtros `period=day|week|month|year`, `date=YYYY-MM-DD` e `customer=<guid>|shared` ficam na URL. Semana começa na segunda-feira; intervalos são de calendário UTC.
+- `/admin/expenses`: lista e lançamento de despesas, fora da Configuração. O menu Financeiro permanece ativo e o breadcrumb segue Visão geral → Financeiro → Despesas. Links do dashboard carregam `from/to/groupBy/customer`; a listagem preserva esses filtros e a paginação ao voltar/avançar.
+- Gráficos usam custos brutos e créditos separadamente para não esconder custos cobertos por benefícios. Custos por cliente não fazem rateio automático dos compartilhados. Nenhuma receita ou lucro é inferido.
+
+A API precisa da ampliação aditiva de `GET /expenses` para os grupos e o filtro de compartilhadas. Não há migration nova nesta evolução. Backend e frontend ainda precisam ser publicados pelo mantenedor; nenhuma publicação é feita pela validação local.
+
+```bash
+npm run test -- --include=src/app/features/admin/finance/finance-period.spec.ts
+npm run e2e -- e2e/admin-finance.spec.ts e2e/admin-expenses.spec.ts e2e/admin-configuration.spec.ts
+```

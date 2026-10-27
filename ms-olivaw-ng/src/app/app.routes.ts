@@ -223,6 +223,13 @@ export const routes: Routes = [
           import('./features/admin/operations/operations-page').then((m) => m.OperationsPage),
       },
       {
+        path: 'finance',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Financeiro',
+        loadComponent: () =>
+          import('./features/admin/finance/finance-dashboard').then((m) => m.FinanceDashboard),
+      },
+      {
         path: 'expenses',
         canMatch: [rootGuard],
         title: 'Olivaw - Despesas',

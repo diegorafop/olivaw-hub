@@ -104,9 +104,11 @@ test('despesas registra conversão explícita e filtra sem atribuir compartilhad
   await page.screenshot({ path: 'test-results/expenses-mobile.png', fullPage: true });
   const breadcrumb = page.getByRole('navigation', { name: 'Caminho de navegação' });
   await expect(breadcrumb.locator('[aria-current=page]')).toHaveText('Despesas');
-  await breadcrumb.getByRole('link', { name: 'Configuração' }).click();
+  await breadcrumb.getByRole('link', { name: 'Financeiro' }).click();
+  await expect(page).toHaveURL(/admin\/finance/);
+  await page.goto('/admin/configuration');
   const cards = page.getByRole('navigation', { name: 'Cadastros e ferramentas' });
-  for (const name of ['Saúde', 'Incidentes', 'Consumo'])
+  for (const name of ['Saúde', 'Incidentes', 'Consumo', 'Despesas'])
     await expect(cards.getByRole('link', { name, exact: true })).toHaveCount(0);
 });
 test('despesas rejeita navegação de operador sem root', async ({ page }) => {

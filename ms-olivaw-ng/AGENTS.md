@@ -28,7 +28,7 @@ O `overrides.vite` fixa o patch 8.3.5 para corrigir avisos da versão 8.3.2 exig
 
 ## Navegação da operação
 
-- A navegação principal usa Visão geral, Leads, Agents e Configuração. Agents agrupa os agentes e seus relatórios em cards, com lista e detalhes protegidos por root. Cadastros e ferramentas internas ficam nos cards de `/admin/configuration`, sem novos menus ou submenus laterais para cada funcionalidade.
+- A navegação principal usa Visão geral, Leads, Agents, Financeiro e Configuração. Financeiro é uma área própria autorizada pelo mantenedor: dashboard em `/admin/finance` e Despesas em `/admin/expenses`, fora da Configuração, com navegação e breadcrumb próprios. Agents agrupa os agentes e seus relatórios em cards, com lista e detalhes protegidos por root. Cadastros e ferramentas internas ficam nos cards de `/admin/configuration`, sem novos menus ou submenus laterais para cada funcionalidade.
 - Ao acrescentar um cadastro, acrescente seu card ao hub e mantenha a autorização da rota e da API. O menu Configuração permanece ativo ao navegar pelos cadastros.
 - O breadcrumb acompanha os níveis de cada rota e mantém os ancestrais clicáveis: Visão geral, Configuração, cadastro e ficha/criação. O item atual usa `aria-current="page"`; query strings não alteram a hierarquia. Implantações retornam a Serviços, sem criar um link para uma lista de ambientes inexistente.
 - Preserve navegação por teclado, cards responsivos e acesso de volta à Configuração. Operadores sem root não veem nem acessam os módulos restritos.

@@ -63,6 +63,18 @@
             ><span class="menu-label nav-arrow" aria-hidden="true">↗</span>
           </a>
           <a
+            routerLink="/admin/finance"
+            [class.nav-active]="isFinance()"
+            [attr.aria-current]="isFinance() ? 'page' : null"
+            aria-label="Financeiro"
+            title="Financeiro"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 20h16M6 16v-5h3v5M11 16V7h3v9M16 16V3h3v13" /></svg
+            ><span class="menu-label">Financeiro</span
+            ><span class="menu-label nav-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a
             routerLink="/admin/configuration"
             [class.nav-active]="isConfiguration()"
             [attr.aria-current]="isConfiguration() ? 'page' : null"

@@ -1,5 +1,5 @@
 <main id="operation-content" tabindex="-1">
-  <a routerLink="/admin/configuration">Voltar à configuração</a>
+  <a routerLink="/admin/finance">Voltar ao Financeiro</a>
   <header>
     <div>
       <p class="eyebrow">OLIVAW / FINANCEIRO INTERNO</p>
@@ -100,6 +100,7 @@
     ><label
       >Cliente<select formControlName="customer" aria-label="Cliente">
         <option value="">Todos os clientes e compartilhadas</option>
+        <option value="shared">Compartilhadas / sem rateio</option>
         @for (c of customers(); track c.externalId) {
           <option [value]="c.externalId">{{ c.business }}</option>
         }

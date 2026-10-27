@@ -1,0 +1,261 @@
+<main id="operation-content" tabindex="-1">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">OLIVAW / FINANCEIRO</p>
+      <h1>Clareza sobre cada gasto.</h1>
+      <p>Acompanhe os custos da operação e encontre a origem dos valores.</p>
+    </div>
+    <a class="primary" routerLink="/admin/expenses" [queryParams]="expenseParams()"
+      >Consultar despesas <span>↗</span></a
+    >
+  </header>
+  <section class="period-toolbar" aria-label="Filtros financeiros">
+    <div class="periods" role="group" aria-label="Período financeiro">
+      @for (item of periods; track item[0]) {
+        <a
+          [routerLink]="[]"
+          [queryParams]="{ period: item[0], date: anchor(), customer: customer() || null }"
+          [attr.aria-current]="period() === item[0] ? 'true' : null"
+          >{{ item[1] }}</a
+        >
+      }
+    </div>
+    <form [formGroup]="form" (ngSubmit)="apply()">
+      <label>Data de referência<input type="date" formControlName="date" required /></label
+      ><label
+        >Cliente<select aria-label="Cliente" formControlName="customer">
+          <option value="">Todos e compartilhadas</option>
+          <option value="shared">Compartilhadas / sem rateio</option>
+          @for (c of customers(); track c.externalId) {
+            <option [value]="c.externalId">{{ c.business }}</option>
+          }
+        </select></label
+      ><button type="submit">Aplicar</button>
+    </form>
+  </section>
+  @if (customerError()) {
+    <p role="status">
+      Não foi possível consultar os clientes.
+      <button (click)="loadCustomers()">Tentar novamente</button>
+    </p>
+  }
+  @if (moreCustomers()) {
+    <button class="text-action" (click)="loadCustomers()" [disabled]="customersLoading()">
+      Carregar mais clientes
+    </button>
+  }
+  <div class="range-heading">
+    <div class="range-arrows">
+      <button aria-label="Período anterior" (click)="shift(-1)">←</button
+      ><strong
+        >{{ range()?.from | date: 'dd MMM yyyy' : 'UTC' }} —
+        {{ range()?.last | date: 'dd MMM yyyy' : 'UTC' }}</strong
+      ><button aria-label="Próximo período" (click)="shift(1)">→</button>
+    </div>
+    <span>Referência dos lançamentos · UTC</span>
+  </div>
+  @if (error()) {
+    <section class="error-box" role="alert">
+      <strong>Não foi possível consultar o financeiro.</strong>
+      <p>{{ error() }}</p>
+      <button (click)="reload()">Tentar novamente</button>
+    </section>
+  }
+  @if (loading()) {
+    <p role="status" class="loading">Consultando seus lançamentos…</p>
+  }
+  @if (data(); as report) {
+    <section class="metrics" aria-label="Resumo financeiro">
+      <article class="metric">
+        <span>CUSTOS BRUTOS</span><strong>{{ report.grossBrl | currency: 'BRL' }}</strong
+        ><small>Antes de créditos e descontos</small>
+      </article>
+      <article class="metric">
+        <span>CRÉDITOS E DESCONTOS</span><strong>{{ report.creditsBrl | currency: 'BRL' }}</strong
+        ><small>{{
+          creditPercent() === null
+            ? 'Sem base para percentual'
+            : creditPercent() + '% dos custos compensados'
+        }}</small>
+      </article>
+      <article class="metric net">
+        <span>CUSTO LÍQUIDO</span><strong>{{ report.netBrl | currency: 'BRL' }}</strong
+        ><small>Bruto menos créditos registrados</small>
+      </article>
+      <article class="metric">
+        <span>LANÇAMENTOS</span><strong>{{ report.total }}</strong
+        ><small>No período e cliente selecionados</small>
+      </article>
+    </section>
+    @if (report.total === 0) {
+      <section class="empty-state">
+        <span aria-hidden="true">◷</span>
+        <h2>Ainda não há gastos neste recorte.</h2>
+        <p>Selecione outro período ou registre sua primeira despesa.</p>
+        <a class="text-action" routerLink="/admin/expenses" [queryParams]="expenseParams()"
+          >Abrir despesas →</a
+        >
+      </section>
+    } @else {
+      <div class="chart-layout">
+        <section class="panel timeline">
+          <div class="panel-heading">
+            <div>
+              <h2>Como os custos evoluíram</h2>
+              <p>Custos e créditos pela data de referência do lançamento.</p>
+            </div>
+            <div class="legend">
+              <span><i class="cost"></i>Custos</span><span><i class="credit"></i>Créditos</span>
+            </div>
+          </div>
+          <div class="axis-label">{{ chartMax() | currency: 'BRL' }}</div>
+          <svg
+            viewBox="0 0 760 195"
+            role="img"
+            aria-label="Evolução de custos brutos e créditos. Valores acessíveis na tabela do histórico."
+          >
+            <path [attr.d]="path('cost')" class="cost-line" />
+            <path [attr.d]="path('credit')" class="credit-line" />
+            @for (point of chartPoints(); track point.date) {
+              <circle [attr.cx]="point.x" [attr.cy]="point.costY" r="3" class="cost-point">
+                <title>
+                  {{ point.date | date: 'dd/MM/yyyy' : 'UTC' }} · Custos
+                  {{ point.costBrl | currency: 'BRL' }}
+                </title>
+              </circle>
+              <circle [attr.cx]="point.x" [attr.cy]="point.creditY" r="3" class="credit-point">
+                <title>
+                  {{ point.date | date: 'dd/MM/yyyy' : 'UTC' }} · Créditos
+                  {{ point.creditsBrl | currency: 'BRL' }}
+                </title>
+              </circle>
+            }
+          </svg>
+          <div class="axis-x">
+            <span>{{ range()?.from | date: 'dd MMM' : 'UTC' }}</span
+            ><small>Valores em reais</small
+            ><span>{{ range()?.last | date: 'dd MMM' : 'UTC' }}</span>
+          </div>
+          <details class="history">
+            <summary>Consultar valores do histórico</summary>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data UTC</th>
+                    <th>Custos</th>
+                    <th>Créditos</th>
+                    <th>Líquido</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (point of report.series; track point.date) {
+                    <tr>
+                      <td>{{ point.date | date: 'dd/MM/yyyy' : 'UTC' }}</td>
+                      <td>{{ point.costBrl | currency: 'BRL' }}</td>
+                      <td>{{ point.creditsBrl | currency: 'BRL' }}</td>
+                      <td>{{ point.netBrl | currency: 'BRL' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+        <section class="panel categories">
+          <div class="panel-heading">
+            <div>
+              <h2>Onde investimos</h2>
+              <p>Distribuição dos custos brutos por categoria.</p>
+            </div>
+          </div>
+          @for (item of report.byCategory ?? []; track item.key) {
+            <div class="breakdown">
+              <div>
+                <strong>{{ categories[item.key] || item.label }}</strong
+                ><span>{{ item.grossBrl | currency: 'BRL' }}</span>
+              </div>
+              <div class="bar"><i [style.width.%]="(item.grossBrl / categoryMax()) * 100"></i></div>
+              <small
+                >Créditos {{ item.creditsBrl | currency: 'BRL' }} · Líquido
+                {{ item.netBrl | currency: 'BRL' }}</small
+              >
+            </div>
+          }
+          @if (!report.byCategory) {
+            <p class="quiet">Detalhamento por categoria aguarda atualização da API.</p>
+          }
+        </section>
+      </div>
+      <div class="bottom-layout">
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Custos por cliente</h2>
+              <p>Atribuição registrada, sem rateio automático.</p>
+            </div>
+          </div>
+          @for (item of report.byCustomer ?? []; track item.key) {
+            <a
+              class="customer-row"
+              [routerLink]="[]"
+              [queryParams]="{ period: period(), date: anchor(), customer: item.key }"
+              ><div class="customer-label">
+                <span class="customer-avatar">{{
+                  item.key === 'shared' ? '↔' : item.label.slice(0, 1)
+                }}</span
+                ><span
+                  ><strong>{{ item.label }}</strong
+                  ><small
+                    >{{ item.entries }} lançamentos · bruto
+                    {{ item.grossBrl | currency: 'BRL' }}</small
+                  ></span
+                >
+              </div>
+              <strong
+                >{{ item.netBrl | currency: 'BRL' }} <span aria-hidden="true">↗</span></strong
+              ></a
+            >
+          }
+          @if (!report.byCustomer) {
+            <p class="quiet">Detalhamento por cliente aguarda atualização da API.</p>
+          }
+          <p class="shared-note">
+            Compartilhadas sem rateio no período:
+            <strong>{{ report.unallocatedBrl | currency: 'BRL' }}</strong
+            >.
+            {{ customer() ? 'Não incluídas no total individual.' : 'Já incluídas no total geral.' }}
+          </p>
+        </section>
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Últimos lançamentos</h2>
+              <p>Os seis mais recentes deste recorte.</p>
+            </div>
+            <a class="text-action" routerLink="/admin/expenses" [queryParams]="expenseParams()"
+              >Ver todos ↗</a
+            >
+          </div>
+          @for (item of report.items; track item.externalId) {
+            <a class="expense-row" routerLink="/admin/expenses" [queryParams]="expenseParams()"
+              ><div>
+                <strong>{{ item.description }}</strong
+                ><small
+                  >{{ item.occurredAt | date: 'dd MMM' : 'UTC' }} · {{ item.customerName }}</small
+                >
+              </div>
+              <span [class.credit-value]="item.kind === 'credit'"
+                >{{ item.kind === 'credit' ? '−' : '' }}{{ item.amountBrl | currency: 'BRL' }}</span
+              ></a
+            >
+          }
+        </section>
+      </div>
+    }
+    <p class="footnote">
+      Valores registrados em reais com a conversão informada no lançamento. Este painel acompanha
+      gastos; não representa saldo bancário, lucro ou pagamento confirmado.
+    </p>
+  }
+</main>
