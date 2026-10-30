@@ -19,7 +19,20 @@ import { Component } from '@angular/core';
         <span class="logo-caption">GASTRONOMIA & EVENTOS</span>
         <span class="visit">Visitar o site <span aria-hidden="true">↗</span></span>
       </a>
-      <div class="continuity" aria-hidden="true"><span></span><i></i></div>
+      <a
+        class="client-logo client-logo--cavalcante"
+        href="https://cavalcante.olivaw.com.br/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Visitar o site da Cavalcante Terraplanagem (abre em nova aba)"
+      >
+        <span class="cavalcante-wordmark"
+          ><img src="/assets/clients/cavalcante-tractor.svg" width="40" height="40" alt="" />
+          <h3 aria-label="Cavalcante Terraplanagem">CAVALCANTE</h3></span
+        >
+        <span class="logo-caption">TERRAPLENAGEM & LOCAÇÃO</span>
+        <span class="visit">Visitar o site <span aria-hidden="true">↗</span></span>
+      </a>
     </div>
   `,
   styleUrl: './landing-clients.scss',

@@ -13,6 +13,7 @@ namespace Owh.Olivaw.Api.Features.HealthReadingFeature;
 [HttpLogging(HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath | HttpLoggingFields.ResponseStatusCode)]
 public sealed class HealthReadingController(IMediator mediator, CurrentActor actor) : ControllerBase
 {
+    [HttpGet("collector")] public async Task<IActionResult> ReadCollector(CancellationToken token) => Ok(await mediator.Send(new ReadHealthCollectionStatusMediatorQuery(),token));
     [HttpPost("http")] public async Task<IActionResult> CreateHttp([FromBody] CreateHttpHealthReadingCommand command, CancellationToken token)
     {
         var name = User.FindFirst("name")?.Value ?? "Operação Olivaw"; if (name.Length > 120) name = name[..120];

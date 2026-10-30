@@ -1,0 +1,13 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Owh.Olivaw.Domain;
+namespace Owh.Olivaw.Dados.Extensions.Tables;
+internal static class FinancialExtensions
+{
+    internal static void SetupFinancial(this ModelBuilder builder)
+    {
+        var account=builder.Entity<FinancialAccount>();account.ToTable("financialaccount");account.HasKey(x=>x.Id);account.HasIndex(x=>x.ExternalId).IsUnique();account.HasIndex(x=>x.AccountKey).IsUnique();account.Property(x=>x.Name).HasMaxLength(120).IsRequired();account.Property(x=>x.OpeningBalance).HasPrecision(18,2);
+        var entry=builder.Entity<FinancialEntry>();entry.ToTable("financialentry");entry.HasKey(x=>x.Id);entry.HasIndex(x=>x.ExternalId).IsUnique();entry.HasIndex(x=>x.EntryKey).IsUnique();entry.HasIndex(x=>x.ExpenseId).IsUnique();entry.HasIndex(x=>new{x.DueAt,x.CustomerId});entry.Property(x=>x.Description).HasMaxLength(160).IsRequired();entry.Property(x=>x.Direction).HasMaxLength(20).IsRequired();entry.Property(x=>x.Category).HasMaxLength(30).IsRequired();entry.Property(x=>x.Status).HasMaxLength(20).IsRequired();entry.Property(x=>x.Source).HasMaxLength(300).IsRequired();entry.Property(x=>x.CancellationReason).HasMaxLength(500).IsRequired();entry.Property(x=>x.Amount).HasPrecision(18,2);entry.Property(x=>x.SettledAmount).HasPrecision(18,2);entry.Property(x=>x.Revision).IsConcurrencyToken();entry.HasOne(x=>x.Customer).WithMany().HasForeignKey(x=>x.CustomerId).OnDelete(DeleteBehavior.Restrict);entry.HasOne(x=>x.Expense).WithMany().HasForeignKey(x=>x.ExpenseId).OnDelete(DeleteBehavior.Restrict);
+        var settlement=builder.Entity<FinancialSettlement>();settlement.ToTable("financialsettlement");settlement.HasKey(x=>x.Id);settlement.HasIndex(x=>x.ExternalId).IsUnique();settlement.HasIndex(x=>x.SettlementKey).IsUnique();settlement.Property(x=>x.Amount).HasPrecision(18,2);settlement.Property(x=>x.Source).HasMaxLength(300).IsRequired();settlement.HasOne(x=>x.FinancialEntry).WithMany().HasForeignKey(x=>x.FinancialEntryId).OnDelete(DeleteBehavior.Restrict);settlement.HasOne(x=>x.FinancialAccount).WithMany().HasForeignKey(x=>x.FinancialAccountId).OnDelete(DeleteBehavior.Restrict);
+        var transfer=builder.Entity<FinancialTransfer>();transfer.ToTable("financialtransfer");transfer.HasKey(x=>x.Id);transfer.HasIndex(x=>x.ExternalId).IsUnique();transfer.HasIndex(x=>x.TransferKey).IsUnique();transfer.Property(x=>x.Amount).HasPrecision(18,2);transfer.Property(x=>x.Source).HasMaxLength(300).IsRequired();transfer.HasOne(x=>x.FromAccount).WithMany().HasForeignKey(x=>x.FromAccountId).OnDelete(DeleteBehavior.Restrict);transfer.HasOne(x=>x.ToAccount).WithMany().HasForeignKey(x=>x.ToAccountId).OnDelete(DeleteBehavior.Restrict);
+    }
+}

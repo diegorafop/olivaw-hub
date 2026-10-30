@@ -17,6 +17,9 @@ para vender serviços claros e sustentáveis sem prometer capacidade ou trabalho
 
 ## ai-prompt
 
+Atualização em 30/10/2026: a implementação do [catálogo, custeio e versões](../done/planos-versoes-mensais-e-custeio.md) foi concluída localmente. Os preços 299/699/1299 preservados neste estudo são hipóteses históricas, não preços vigentes. O alvo atual do Bronze é R$49, sujeito a composição completa de custos, criação separada e aprovação explícita. Prata/Ouro continuam sem preço comercial aprovado; Diamante é customizado. Este documento fica em discovery como estudo comercial, não como pendência de codificação do catálogo. Sugestões automáticas de upgrade e aplicação de limites Docker não fazem parte do catálogo entregue.
+
+
 Discovery comercial, não tabela de preços aprovada. Responsável: Codex, branch feature/issue026-admin-client, worktree atual, sem commit, push ou deploy. Referências consultadas em 25/10/2026. Valores em reais abaixo são sugestões; câmbio, tributos, horas e capacidade são hipóteses editáveis, não cotações ou orientação tributária.
 
 ### Proposta de catálogo

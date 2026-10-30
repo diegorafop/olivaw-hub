@@ -32,12 +32,6 @@
             }
           </select></label
         >
-        <label
-          >Tipo de lançamento<select formControlName="kind">
-            <option value="cost">Custo</option>
-            <option value="credit">Crédito / desconto</option>
-          </select></label
-        >
         <label>Data<input type="date" formControlName="occurredAt" required /></label>
         <label
           >Valor original<input
@@ -80,8 +74,9 @@
         /></label>
       </div>
       <p class="help">
-        Informe créditos em lançamento separado. Registre apenas a parcela atribuída ao cliente; não
-        repita a despesa integral para cada cliente. Não informe dados bancários ou segredos.
+        Benefícios e créditos Free Tier ficam na evidência da fatura e não são lançados como
+        despesa. Registre apenas a parcela atribuída ao cliente; não repita a despesa integral para
+        cada cliente. Não informe dados bancários ou segredos.
       </p>
       <button type="submit" class="primary" [disabled]="saving()">
         {{ saving() ? 'Salvando…' : 'Registrar despesa' }}
@@ -116,13 +111,14 @@
   @if (report(); as r) {
     <section class="expense-summary">
       <article class="surface">
-        <small>Custo bruto</small><strong>{{ r.grossBrl | currency: 'BRL' }}</strong>
+        <small>Despesas do período</small><strong>{{ r.grossBrl | currency: 'BRL' }}</strong>
       </article>
       <article class="surface">
-        <small>Créditos</small><strong>{{ r.creditsBrl | currency: 'BRL' }}</strong>
+        <small>Lançamentos de despesa</small><strong>{{ r.total }}</strong>
       </article>
       <article class="surface">
-        <small>Custo líquido</small><strong>{{ r.netBrl | currency: 'BRL' }}</strong>
+        <small>Compartilhadas sem rateio</small
+        ><strong>{{ r.unallocatedBrl | currency: 'BRL' }}</strong>
       </article>
     </section>
     <p class="help">
@@ -134,13 +130,13 @@
       }}
     </p>
     <section class="surface">
-      <h2>Custo líquido ao longo do tempo</h2>
+      <h2>Despesas ao longo do tempo</h2>
       @if (r.total) {
         <svg
           class="expense-chart"
           viewBox="0 0 800 200"
           role="img"
-          aria-label="Evolução do custo líquido. Valores detalhados na tabela abaixo."
+          aria-label="Evolução das despesas. Valores detalhados na tabela abaixo."
         >
           <path
             [attr.d]="chart()"
@@ -170,8 +166,6 @@
                 <tr>
                   <th>Data</th>
                   <th>Custos</th>
-                  <th>Créditos</th>
-                  <th>Líquido</th>
                 </tr>
               </thead>
               <tbody>
@@ -179,8 +173,6 @@
                   <tr>
                     <td>{{ point.date | date: 'dd/MM/yyyy' : 'UTC' }}</td>
                     <td>{{ point.costBrl | currency: 'BRL' }}</td>
-                    <td>{{ point.creditsBrl | currency: 'BRL' }}</td>
-                    <td>{{ point.netBrl | currency: 'BRL' }}</td>
                   </tr>
                 }
               </tbody>

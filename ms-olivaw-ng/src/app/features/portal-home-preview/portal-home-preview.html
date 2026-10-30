@@ -1,34 +1,36 @@
 <div class="portal-shell">
   <aside class="sidebar">
-    <a class="brand" routerLink="/portal">olivaw<span>PORTAL DO CLIENTE</span></a>
+    <a class="brand" routerLink="/admin/portal-home-preview"
+      >olivaw<span>PORTAL DO CLIENTE</span></a
+    >
     <div class="company">
       <span class="avatar">A</span>
       <div><strong>Empresa Aurora</strong><small>Seu espaço na Olivaw</small></div>
     </div>
     <nav aria-label="Portal do cliente">
       <a
-        routerLink="/portal"
+        routerLink="/admin/portal-home-preview"
         [class.active]="section === 'home'"
         [attr.aria-current]="section === 'home' ? 'page' : null"
         ><app-portal-icon name="home" />Início</a
       >
-      <a routerLink="/portal/chamados" routerLinkActive="active">
+      <a routerLink="/admin/portal-home-preview/chamados" routerLinkActive="active">
         <app-portal-icon name="message" />Chamados <b>{{ opened() }}</b>
       </a>
-      <a routerLink="/portal/melhorias" routerLinkActive="active"
+      <a routerLink="/admin/portal-home-preview/melhorias" routerLinkActive="active"
         ><app-portal-icon name="spark" />Melhorias</a
       >
-      <a routerLink="/portal/plano" routerLinkActive="active"
+      <a routerLink="/admin/portal-home-preview/plano" routerLinkActive="active"
         ><app-portal-icon name="plan" />Meu plano</a
       >
-      <a routerLink="/portal/tecnico" routerLinkActive="active">
+      <a routerLink="/admin/portal-home-preview/tecnico" routerLinkActive="active">
         <app-portal-icon name="code" />Área técnica <small>Em estudo</small>
       </a>
     </nav>
     <div class="sidebar-help">
       <app-portal-icon name="message" /><strong>Estamos por perto.</strong>
       <p>Conte com a gente para cuidar do seu site.</p>
-      <a routerLink="/portal/chamados/novo">Falar com a Olivaw <span>↗</span></a>
+      <a routerLink="/admin/portal-home-preview/chamados/novo">Falar com a Olivaw <span>↗</span></a>
     </div>
     <small class="signature">Tecnologia com cuidado.</small>
   </aside>
@@ -59,7 +61,7 @@
             <h1>Bom ver você por aqui.</h1>
             <p>Um olhar simples sobre seu site, seu plano e o que estamos fazendo juntos.</p>
           </div>
-          <a class="primary" routerLink="/portal/chamados/novo">
+          <a class="primary" routerLink="/admin/portal-home-preview/chamados/novo">
             <app-portal-icon name="message" /> Nova solicitação
           </a>
         </section>
@@ -70,7 +72,11 @@
             </div>
             <h2>Espaço para crescer.</h2>
             <p>1 site · 2 GB de armazenamento</p>
-            <a class="text-button" routerLink="/portal/plano" routerLinkActive="active">
+            <a
+              class="text-button"
+              routerLink="/admin/portal-home-preview/plano"
+              routerLinkActive="active"
+            >
               Conhecer meu plano <span>↗</span>
             </a>
             <div class="plan-art" aria-hidden="true">✳</div>
@@ -99,7 +105,7 @@
                   <strong>{{ missing() ? '—' : storagePercent() + '%' }}</strong></span
                 ><span>Melhorias deste mês <strong>1 de 2</strong></span>
               </div>
-              <a class="text-button" routerLink="/portal/indicador">
+              <a class="text-button" routerLink="/admin/portal-home-preview/indicador">
                 Como calculamos esse indicador ↗
               </a>
             </div>
@@ -160,7 +166,10 @@
                 <app-portal-icon name="message" />
                 <h3>Seus chamados</h3>
               </div>
-              <a class="text-button" routerLink="/portal/chamados" routerLinkActive="active"
+              <a
+                class="text-button"
+                routerLink="/admin/portal-home-preview/chamados"
+                routerLinkActive="active"
                 >Ver todos ↗</a
               >
             </div>
@@ -174,7 +183,7 @@
             </div>
             <p class="small-note">“Aguarda você” faz parte dos chamados em aberto.</p>
             @for (item of requests().slice(0, 2); track item.id) {
-              <a class="list-row" [routerLink]="['/portal/chamados', item.id]">
+              <a class="list-row" [routerLink]="['/admin/portal-home-preview/chamados', item.id]">
                 <span
                   ><small>#{{ item.id }}</small
                   ><strong>{{ item.title }}</strong></span
@@ -190,7 +199,10 @@
                 <app-portal-icon name="spark" />
                 <h3>Suas melhorias</h3>
               </div>
-              <a class="text-button" routerLink="/portal/melhorias" routerLinkActive="active"
+              <a
+                class="text-button"
+                routerLink="/admin/portal-home-preview/melhorias"
+                routerLinkActive="active"
                 >Ver todas ↗</a
               >
             </div>
@@ -201,7 +213,7 @@
             </div>
             <p class="small-note">Evoluções do site acompanhadas com você.</p>
             @for (item of improvements.slice(0, 2); track item.id) {
-              <a class="list-row" [routerLink]="['/portal/melhorias', item.id]">
+              <a class="list-row" [routerLink]="['/admin/portal-home-preview/melhorias', item.id]">
                 <span
                   ><small>Melhoria #{{ item.id }}</small
                   ><strong>{{ item.title }}</strong></span
@@ -219,9 +231,11 @@
           </p>
           @switch (section) {
             @case ('requests') {
-              <a class="primary" routerLink="/portal/chamados/novo">Nova solicitação</a>
+              <a class="primary" routerLink="/admin/portal-home-preview/chamados/novo"
+                >Nova solicitação</a
+              >
               @for (item of requests(); track item.id) {
-                <a class="list-row" [routerLink]="['/portal/chamados', item.id]"
+                <a class="list-row" [routerLink]="['/admin/portal-home-preview/chamados', item.id]"
                   ><span
                     ><small>#{{ item.id }} · {{ item.date }}</small
                     ><strong>{{ item.title }}</strong></span
@@ -231,7 +245,7 @@
             }
             @case ('improvements') {
               @for (item of improvements; track item.id) {
-                <a class="list-row" [routerLink]="['/portal/melhorias', item.id]"
+                <a class="list-row" [routerLink]="['/admin/portal-home-preview/melhorias', item.id]"
                   ><strong>{{ item.title }}</strong
                   ><span class="tag">{{ labels[item.status] }} →</span></a
                 >
@@ -252,7 +266,9 @@
               } @else {
                 <p>Chamado não encontrado nesta prévia.</p>
               }
-              <a routerLink="/portal/chamados" routerLinkActive="active">Voltar aos chamados</a>
+              <a routerLink="/admin/portal-home-preview/chamados" routerLinkActive="active"
+                >Voltar aos chamados</a
+              >
             }
             @case ('improvement') {
               @if (improvement; as item) {
@@ -265,7 +281,9 @@
               } @else {
                 <p>Melhoria não encontrada.</p>
               }
-              <a routerLink="/portal/melhorias" routerLinkActive="active">Voltar às melhorias</a>
+              <a routerLink="/admin/portal-home-preview/melhorias" routerLinkActive="active"
+                >Voltar às melhorias</a
+              >
             }
             @case ('plan') {
               <h2>Bronze · Presença</h2>
@@ -285,7 +303,7 @@
                 Limites e valores continuam em estudo; esta prévia não modifica contratos
                 existentes.
               </p>
-              <a routerLink="/portal/indicador">Entender o indicador de uso →</a>
+              <a routerLink="/admin/portal-home-preview/indicador">Entender o indicador de uso →</a>
             }
             @case ('indicator') {
               <h2>Um resumo das franquias, sem esconder os detalhes.</h2>

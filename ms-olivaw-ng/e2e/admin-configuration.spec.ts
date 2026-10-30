@@ -117,7 +117,7 @@ for (const width of [1440, 390]) {
       await expect(cards.getByRole('link', { name, exact: true })).toHaveCount(0);
     await cards.getByRole('link', { name: 'Planos', exact: true }).click();
     await expect(
-      page.getByRole('heading', { name: 'Estudo dos planos', exact: true }),
+      page.getByRole('heading', { name: 'Um plano para cada momento', exact: true }),
     ).toBeVisible();
     await expect(nav.getByRole('link', { name: 'Configuração', exact: true })).toHaveAttribute(
       'aria-current',
@@ -139,7 +139,7 @@ test('estudo preserva funcionalidades e 2 GB como hipótese, sem alterar contrat
   page,
 }) => {
   const { writes } = await setup(page);
-  await page.goto('/admin/plans');
+  await page.goto('/admin/plans/simulator');
   await page.getByLabel('Nome da origem').fill('VM de teste');
   await page.getByLabel('Custo mensal (R$)').fill('100');
   await page.getByLabel('Fonte / referência da versão').fill('Valor fictício para teste');

@@ -1,152 +1,386 @@
 <main id="operation-content" tabindex="-1">
-  <a routerLink="/admin/plans">Voltar aos estudos</a>
+  <a [routerLink]="isDetail() ? '/admin/plans' : '/admin/configuration'">{{
+    isDetail() ? 'Voltar aos planos' : 'Voltar à configuração'
+  }}</a>
   <header>
     <div>
-      <p class="eyebrow">OLIVAW / ESTUDO COMERCIAL</p>
-      <h1>Planos que fazem sentido.</h1>
-      <p>Presença, conteúdo e gestão. Um passo de cada vez.</p>
+      <p class="eyebrow">OLIVAW / PLANOS</p>
+      <h1>{{ selected()?.name || 'Um plano para cada momento' }}</h1>
+      <p>Presença, conteúdo, gestão e soluções sob medida.</p>
     </div>
   </header>
-  <p class="surface">
-    Proposta interna em estudo. Valores, câmbio e esforço são hipóteses; editar a calculadora não
-    salva preços, não muda contratos e não registra despesas.
-  </p>
-  <section class="catalog">
-    @for (plan of plans; track plan.name) {
-      <article class="surface">
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  @if (loading()) {
+    <p role="status">Consultando versões publicadas…</p>
+  }
+  @if (!isDetail()) {
+    <p class="surface">
+      Catálogo em definição. Preços atuais ainda não cadastrados; propostas abaixo não alteram
+      contratos de clientes.
+    </p>
+    <section class="catalog" aria-label="Planos disponíveis">
+      @for (plan of plans; track plan.id) {
+        <article class="surface">
+          <p class="eyebrow">{{ plan.tag }}</p>
+          <h2>{{ plan.name }}</h2>
+          <p class="price">
+            {{ plan.proposed === null ? 'A definir' : (plan.proposed | currency: 'BRL')
+            }}<small>{{ plan.proposed === null ? '' : '/mês · proposta' }}</small>
+          </p>
+          <dl>
+            <div>
+              <dt>Valor atual</dt>
+              <dd>
+                {{
+                  versions()[plan.id]?.current
+                    ? (versions()[plan.id].current!.monthlyPrice | currency: 'BRL')
+                    : loading()
+                      ? 'Consultando…'
+                      : error()
+                        ? 'Indisponível'
+                        : 'Não cadastrado'
+                }}
+              </dd>
+            </div>
+            <div>
+              <dt>Custo estimado</dt>
+              <dd>
+                {{
+                  (versions()[plan.id]?.current?.estimatedMonthlyCost ?? null) === null ||
+                  !versions()[plan.id]?.current
+                    ? 'A calcular'
+                    : (versions()[plan.id].current!.estimatedMonthlyCost | currency: 'BRL')
+                }}
+              </dd>
+            </div>
+          </dl>
+          <ul>
+            <li>
+              {{ plan.space }} de armazenamento {{ plan.id === 'diamante' ? '' : 'proposto' }}
+            </li>
+            <li>{{ plan.domain }}</li>
+            <li>{{ plan.app }}</li>
+          </ul>
+          <a [routerLink]="['/admin/plans', plan.id]">Conhecer {{ plan.name }} →</a>
+        </article>
+      }
+    </section>
+    <section class="surface">
+      <h2>Preço com contexto</h2>
+      <p>
+        A mensalidade mantém a operação. Criação do site, novas funcionalidades e manutenção
+        evolutiva precisam ter seu próprio orçamento.
+      </p>
+      <a routerLink="/admin/plans/simulator">Abrir simulador de custos →</a>
+    </section>
+  } @else {
+    @if (selected(); as plan) {
+      <section class="surface">
         <p class="eyebrow">{{ plan.tag }}</p>
-        <h2>{{ plan.name }}</h2>
-        <p class="price">{{ plan.price | currency: 'BRL' }}<small>/mês</small></p>
-        <p>Implantação: {{ plan.setup }}</p>
+        <h2>O que está previsto</h2>
         <ul>
-          <li>{{ plan.domain }}</li>
           <li>{{ plan.app }}</li>
-          <li>{{ plan.api }}</li>
+          <li>{{ plan.domain }}</li>
+          <li>{{ plan.space }} de armazenamento proposto</li>
           <li>{{ plan.users }}</li>
-          <li>{{ plan.space }} de arquivos e dados</li>
           <li>{{ plan.improvements }}</li>
+          <li>{{ plan.setup }}</li>
         </ul>
-        <p class="help">
-          Correções do escopo entregue sem cobrança adicional e sem consumir a franquia.
+        <p>
+          Correções de defeitos do escopo entregue sem cobrança adicional. Domínio próprio,
+          renovação e serviços externos conforme proposta.
         </p>
-      </article>
-    }
-  </section>
-  <section class="surface diamond">
-    <p class="eyebrow">DIAMANTE / SOB MEDIDA</p>
-    <h2>Seu projeto pede outro desenho?</h2>
-    <p>
-      Contrato personalizado para integrações, mais usuários, capacidade e operação específicas.
-      Implantação, mensalidade, franquias e atendimento definidos na proposta. Referência inicial de
-      análise: a partir de R$ 2.490/mês, sem oferta universal.
-    </p>
-  </section>
-  <section class="surface">
-    <h2>Quanto custa manter essa entrega?</h2>
-    <p>
-      Infraestrutura e IA são compartilhadas. Trabalho humano varia por plano. Não conte a Olivaw
-      interna como cliente pagante.
-    </p>
-    <div class="assumptions">
-      <label
-        >Infra mensal (US$)<input
-          type="number"
-          min="0"
-          [value]="infra()"
-          (input)="set('infra', $event)" /></label
-      ><label
-        >IA mensal (US$)<input
-          type="number"
-          min="0"
-          [value]="ai()"
-          (input)="set('ai', $event)" /></label
-      ><label
-        >Câmbio de estudo (R$/US$)<input
-          type="number"
-          min="1"
-          step="0.01"
-          [value]="fx()"
-          (input)="set('fx', $event)" /></label
-      ><label
-        >Clientes pagantes<input
-          type="number"
-          min="1"
-          step="1"
-          [value]="clients()"
-          (input)="set('clients', $event)" /></label
-      ><label
-        >Custo por hora humana (R$)<input
-          type="number"
-          min="0"
-          [value]="hourly()"
-          (input)="set('hourly', $event)" /></label
-      ><label
-        >Reserva operacional (%)<input
-          type="number"
-          min="0"
-          max="100"
-          [value]="reserve()"
-          (input)="set('reserve', $event)" /></label
-      ><label
-        >Provisão comercial ilustrativa (%)<input
-          type="number"
-          min="0"
-          max="100"
-          [value]="provision()"
-          (input)="set('provision', $event)"
-      /></label>
-    </div>
-    <p>
-      Base fixa: <strong>{{ fixed() | currency: 'BRL' }}/mês</strong> · Por cliente:
-      <strong>{{ allocation() | currency: 'BRL' }}</strong>
-    </p>
-    <div class="cost-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Plano</th>
-            <th>Horas mensais</th>
-            <th>Custo + reserva</th>
-            <th>Resultado estimado*</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (plan of plans; track plan.name) {
-            <tr>
-              <th>{{ plan.name }}</th>
-              <td>{{ plan.hours }}</td>
-              <td>{{ cost(plan.hours) | currency: 'BRL' }}</td>
-              <td [class.negative]="result(plan.price, plan.hours) < 0">
-                {{ result(plan.price, plan.hours) | currency: 'BRL' }}
-              </td>
-            </tr>
+      </section>
+      <section class="surface">
+        <h2>Preço e capacidade</h2>
+        <dl>
+          <div>
+            <dt>Valor atual</dt>
+            <dd>
+              {{
+                selectedVersion()
+                  ? (selectedVersion()!.monthlyPrice | currency: 'BRL')
+                  : loading()
+                    ? 'Consultando…'
+                    : error()
+                      ? 'Indisponível'
+                      : 'Não cadastrado'
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>Mensalidade proposta</dt>
+            <dd>{{ plan.proposed === null ? 'Sob estudo' : (plan.proposed | currency: 'BRL') }}</dd>
+          </div>
+          <div>
+            <dt>Custo estimado</dt>
+            <dd>
+              {{
+                (selectedVersion()?.estimatedMonthlyCost ?? null) === null || !selectedVersion()
+                  ? 'A calcular'
+                  : (selectedVersion()!.estimatedMonthlyCost | currency: 'BRL')
+              }}
+            </dd>
+          </div>
+        </dl>
+        <p>{{ plan.resources }}.</p>
+        <p>
+          Limites propostos ainda não foram aplicados aos containers. Armazenamento considera
+          arquivos e dados do cliente; não representa memória RAM.
+        </p>
+        <a routerLink="/admin/plans/simulator">Estudar os custos →</a>
+      </section>
+      @if (linkedStudy(); as study) {
+        <section class="surface">
+          <h2>Cálculo da versão atual</h2>
+          @if (study.costSheetData) {
+            <button type="button" (click)="reuseCostSheet()">Usar este estudo como base</button>
           }
-        </tbody>
-      </table>
-    </div>
-    <p class="help">
-      *Mensalidade menos provisão ilustrativa, custos e reserva. Não é lucro contábil nem orientação
-      tributária. A cotação não é consultada automaticamente. Infra US$ 15 é hipótese de orçamento;
-      US$ 10 pode subestimar EC2, IP e disco sem créditos.
-    </p>
-  </section>
-  <section class="surface">
-    <h2>Combinados antes de contratar</h2>
-    <p>
-      Melhoria pequena inclui implementação, teste e publicação dentro do tempo indicado. Módulos,
-      integrações e mudanças maiores recebem orçamento. Franquias não acumulam nesta proposta. O
-      custo previsto é 1 h/mês no Bronze, 4 h no Prata (3 de melhorias + 1 de operação) e 8 h no
-      Ouro (6 + 2).
-    </p>
-    <p>
-      Bronze usa subdomínio Olivaw. A partir do Prata, domínio próprio: registro, renovação e e-mail
-      são custos separados. O Portal de atendimento está incluído em todos os planos e suas contas
-      não consomem as vagas de usuários do aplicativo.
-    </p>
-    <p>
-      Não há promessa de cinco APIs nesta VM, usuários simultâneos ilimitados ou atendimento 24/7.
-      Capacidade e política de backups precisam ser validadas antes do contrato.
-    </p>
-    <a routerLink="/admin/expenses">Consultar despesas reais →</a>
-  </section>
+          <p>{{ study.name }} · {{ study.missingCosts }} custos sem valor informado.</p>
+          <div class="cost-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Componente</th>
+                  <th>Base mensal</th>
+                  <th>Parcela</th>
+                  <th>Custo atribuído</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of study.costs; track line.name) {
+                  <tr>
+                    <th>{{ line.name }}</th>
+                    <td>
+                      {{
+                        line.monthlyCost === null
+                          ? 'A apurar'
+                          : (line.monthlyCost | currency: 'BRL')
+                      }}
+                    </td>
+                    <td>{{ line.allocationPercent }}%</td>
+                    <td>
+                      {{
+                        line.monthlyCost === null
+                          ? 'A apurar'
+                          : ((line.monthlyCost * line.allocationPercent) / 100 | currency: 'BRL')
+                      }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Operação: {{ study.supportHours }} h × {{ study.hourlyCost | currency: 'BRL' }}.
+            Reserva: {{ study.reservePercent }}%. Margem desejada: {{ study.marginPercent }}%.
+          </p>
+        </section>
+      }
+      <app-plan-cost-sheet [planKey]="plan.id" (saved)="onCostSheetSaved($event)" />
+      @if (selectedVersion(); as version) {
+        <section class="surface">
+          <h2>Condições da versão vigente</h2>
+          <p>Versão {{ version.version }} · {{ version.monthlyPrice | currency: 'BRL' }}/mês</p>
+          <p>
+            Armazenamento: {{ version.storageLimitGiB ?? 'Não definido' }} GiB · Memória:
+            {{ version.memoryLimitMiB ?? 'Não definida' }} MiB · CPU:
+            {{ version.cpuLimit ?? 'Não definida' }} vCPU.
+          </p>
+          <p style="white-space: pre-line">{{ version.conditions }}</p>
+          <button type="button" (click)="useCurrent()">Usar versão atual como base</button>
+        </section>
+      }
+      <section class="surface">
+        <h2>Versões e histórico do cliente</h2>
+        @for (version of selectedHistory(); track version.externalId) {
+          <article>
+            <h3>Versão {{ version.version }} · {{ version.monthlyPrice | currency: 'BRL' }}</h3>
+            <p>
+              Vigência: {{ version.effectiveAt | date: 'MM/yyyy' : 'UTC' }} ·
+              {{ version.conditions }}
+            </p>
+          </article>
+        } @empty {
+          <p>Nenhuma versão disponível nesta consulta.</p>
+        }
+        @if (versions()[plan.id]?.nextBeforeId) {
+          <button type="button" (click)="olderVersions()" [disabled]="loading()">
+            Versões anteriores
+          </button>
+        }
+        <p>
+          Modelo proposto: cada alteração publicada cria uma versão imutável. O cliente ficará
+          vinculado à versão e ao preço acordado em cada mês. Uma nova versão não substituirá o
+          histórico nem reajustará contratos automaticamente.
+        </p>
+        <p>
+          Publicar uma versão exige condições e aprovação explícitas. Vínculos começam na
+          competência escolhida e permanecem até uma nova condição; não há cobrança ou deploy
+          automático.
+        </p>
+      </section>
+      <section class="surface">
+        @if (customerPage() !== null || studyCursor() !== null) {
+          <button type="button" (click)="moreChoices()" [disabled]="choicesLoading()">
+            Carregar mais clientes e estudos
+          </button>
+        }
+        <h2>Publicar nova versão</h2>
+        <p>
+          Valores em reais. Publicação é imutável e não altera os contratos existentes. Limites
+          declarados não são aplicados aos containers automaticamente.
+        </p>
+        <form [formGroup]="costForm" (ngSubmit)="publish()">
+          <div class="fields">
+            <label
+              >Mensalidade aprovada (R$) *<input
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="monthlyPrice"
+            /></label>
+            <label
+              >Armazenamento (GiB)<input
+                type="number"
+                min="0.001"
+                step="0.001"
+                formControlName="storageLimitGiB"
+            /></label>
+            <label
+              >Memória (MiB)<input
+                type="number"
+                min="0.001"
+                step="0.001"
+                formControlName="memoryLimitMiB"
+            /></label>
+            <label
+              >CPU (vCPU)<input type="number" min="0.001" step="0.001" formControlName="cpuLimit"
+            /></label>
+            <label>Vigência (mês) *<input type="month" formControlName="effectiveAt" /></label>
+            <label
+              >Estudo de custos (opcional)<select
+                aria-label="Estudo de custos"
+                formControlName="planStudyExternalId"
+              >
+                <option value="">Sem estudo vinculado</option>
+                @for (study of studies(); track study.externalId) {
+                  <option [value]="study.externalId">{{ study.name }}</option>
+                }
+              </select></label
+            >
+          </div>
+          <label
+            >Condições aprovadas *<textarea
+              rows="5"
+              formControlName="conditions"
+              maxlength="3000"
+            ></textarea></label
+          ><label
+            >Referência da aprovação *<input
+              formControlName="approvalReference"
+              maxlength="300" /></label
+          ><button class="primary" [disabled]="pending()" type="submit">
+            Publicar versão aprovada
+          </button>
+        </form>
+      </section>
+      <section class="surface">
+        <h2>Vincular cliente por competência</h2>
+        <form [formGroup]="assignmentForm" (ngSubmit)="assign()">
+          <div class="fields">
+            <label
+              >Cliente *<select aria-label="Cliente do plano" formControlName="customerExternalId">
+                <option value="">Selecione o cliente</option>
+                @for (customer of customers(); track customer.externalId) {
+                  <option [value]="customer.externalId">{{ customer.business }}</option>
+                }
+              </select></label
+            ><label
+              >Versão *<select formControlName="planVersionExternalId">
+                <option value="">Selecione</option>
+                @for (version of selectedHistory(); track version.externalId) {
+                  <option [value]="version.externalId">
+                    Versão {{ version.version }} · {{ version.monthlyPrice | currency: 'BRL' }}
+                  </option>
+                }
+              </select></label
+            ><label>Competência inicial *<input type="month" formControlName="month" /></label
+            ><label
+              >Mensalidade negociada (R$, opcional)<input
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="agreedMonthlyPrice"
+            /></label>
+          </div>
+          <label
+            >Aprovação do cliente *<input formControlName="approvalReference" maxlength="300"
+          /></label>
+          <p>
+            Sem valor negociado, usa a mensalidade da versão. A mesma condição continua vigente até
+            a próxima alteração.
+          </p>
+          <button type="submit" [disabled]="pending()">Registrar condição aprovada</button>
+        </form>
+        @if (historyLoading()) {
+          <p role="status">Consultando condições do cliente…</p>
+        }
+        @if (customerHistory(); as history) {
+          <h3>Condição no início da competência consultada</h3>
+          @if (history.current; as condition) {
+            <p>
+              {{ condition.name }} ·
+              {{
+                (condition.version ?? null) === null
+                  ? 'Condição anterior ao catálogo'
+                  : 'Versão ' + condition.version
+              }}
+              · {{ condition.monthlyPrice | currency: 'BRL' }}/mês · Desde
+              {{ condition.startsAt | date: 'MM/yyyy' : 'UTC' }}
+            </p>
+          } @else {
+            <p>Nenhuma condição vigente no início deste mês.</p>
+          }
+          <h3>Histórico do cliente</h3>
+          @for (condition of history.items; track condition.externalId) {
+            <article>
+              <p>
+                <strong>{{ condition.name }}</strong> ·
+                {{
+                  (condition.version ?? null) === null
+                    ? 'Condição anterior ao catálogo'
+                    : 'Versão ' + condition.version
+                }}
+                · {{ condition.monthlyPrice | currency: 'BRL' }}/mês · Vigência
+                {{ condition.startsAt | date: 'dd/MM/yyyy' : 'UTC' }}
+              </p>
+              <p>Aprovação: {{ condition.approvalReference }}</p>
+            </article>
+          } @empty {
+            <p>Nenhuma condição registrada para este cliente.</p>
+          }
+          @if (history.nextBeforeId) {
+            <button
+              type="button"
+              (click)="loadCustomerHistory(history.nextBeforeId!)"
+              [disabled]="historyLoading()"
+            >
+              Condições anteriores
+            </button>
+          }
+        }
+      </section>
+    } @else {
+      <section class="surface">
+        <h1>Plano não encontrado</h1>
+        <a routerLink="/admin/plans">Consultar planos</a>
+      </section>
+    }
+  }
 </main>

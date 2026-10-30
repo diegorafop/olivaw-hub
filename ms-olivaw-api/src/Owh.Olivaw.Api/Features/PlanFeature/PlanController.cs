@@ -35,6 +35,22 @@ public sealed class PlanController(IMediator mediator, CurrentActor actor) : Con
         if (result.Conflict != null) return Conflict(new { detail = result.Conflict });
         return StatusCode(201, result.Response);
     }
+    [HttpGet("versions")] public async Task<IActionResult> ReadVersions([FromQuery] ReadPlanVersionByFilterQuery query,CancellationToken token)=>Ok(await mediator.Send(new ReadPlanVersionByFilterMediatorQuery{Payload=query},token));
+    [HttpPost("versions")] public async Task<IActionResult> CreateVersion([FromBody] CreatePlanVersionCommand command,CancellationToken token)
+    {
+        var result=await mediator.Send(new CreatePlanVersionMediatorCommand{Payload=command,ActorUserId=actor.Id},token);
+        return result.Conflict!=null?Conflict(new{detail=result.Conflict}):StatusCode(201,result.Response);
+    }
+    [HttpPost("assignments")] public async Task<IActionResult> CreateAssignment([FromBody] CreatePlanAssignmentCommand command,CancellationToken token)
+    {
+        var result=await mediator.Send(new CreatePlanAssignmentMediatorCommand{Payload=command,ActorUserId=actor.Id,ActorName=Name()},token);
+        return result.Conflict!=null?Conflict(new{detail=result.Conflict}):StatusCode(201,result.Response);
+    }
+    [HttpPost("cost-sheets")] public async Task<IActionResult> CreateCostSheet([FromBody]CreatePlanCostSheetCommand command,CancellationToken token)
+    {
+        var result=await mediator.Send(new CreatePlanCostSheetMediatorCommand{Payload=command,ActorUserId=actor.Id,ActorName=Name()},token);
+        return result.Conflict!=null?Conflict(new{detail=result.Conflict}):StatusCode(201,result.Response);
+    }
     private string Name()
     {
         var name = User.FindFirst("name")?.Value ?? "Operação Olivaw";

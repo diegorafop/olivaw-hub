@@ -13,7 +13,7 @@ public sealed class ReadExpenseByFilterHandler(IRepository<Expense> expenses) : 
     {
         ValidationHelper.ThrowIfNull(request); var p = request.Payload;
         // Consulta limitada ao intervalo solicitado; não devolver totais parciais silenciosamente.
-        var rows = (await expenses.TakeOrderedAsync(x => x.DeletedAt == null && x.OccurredAt >= p.From && x.OccurredAt < p.To, 5001, x => x.OccurredAt, token, x => x.Customer!)).ToList();
+        var rows = (await expenses.TakeOrderedAsync(x => x.DeletedAt == null && (p.IncludeCredits || x.Kind == "cost") && x.OccurredAt >= p.From && x.OccurredAt < p.To, 5001, x => x.OccurredAt, token, x => x.Customer!)).ToList();
         if (rows.Count > 5000) throw new IdentityFailure(422, "Selecione um período menor; há mais de 5.000 lançamentos.");
         var shared = rows.Where(x => x.CustomerId == null).Sum(x => x.Kind == "credit" ? -x.AmountBrl : x.AmountBrl);
         if (p.UnallocatedOnly) rows = rows.Where(x => x.CustomerId == null).ToList();

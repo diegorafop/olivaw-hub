@@ -13,14 +13,22 @@ for (const mobile of [false, true]) {
     await nav.getByRole('link', { name: 'Clientes', exact: true }).click();
     const clients = page.locator('#clientes');
     await expect(clients.getByRole('heading', { name: 'LTMJ Eventos' })).toBeVisible();
-    await expect(clients.getByRole('link', { name: /Visitar o site/ })).toHaveAttribute(
+    await expect(clients.getByRole('link', { name: /Visitar o site da LTMJ/ })).toHaveAttribute(
       'href',
       'https://ltmj.olivaw.com.br/',
     );
-    await expect(clients.getByRole('link', { name: /Visitar o site/ })).toHaveAttribute(
+    await expect(clients.getByRole('link', { name: /Visitar o site da LTMJ/ })).toHaveAttribute(
       'target',
       '_blank',
     );
+    await expect(clients.getByRole('heading', { name: 'Cavalcante Terraplanagem' })).toBeVisible();
+    await expect(
+      clients.getByRole('link', { name: /Visitar o site da Cavalcante/ }),
+    ).toHaveAttribute('href', 'https://cavalcante.olivaw.com.br/');
+    await expect(clients.locator('img')).toHaveJSProperty('complete', true);
+    expect(
+      await clients.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth),
+    ).toBeGreaterThan(0);
     await clients.screenshot({
       path: testInfo.outputPath(`clients-${mobile ? 'mobile' : 'desktop'}.png`),
     });

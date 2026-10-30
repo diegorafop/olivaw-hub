@@ -39,7 +39,7 @@ export const configurationCards = [
   {
     path: 'plans',
     title: 'Planos',
-    description: 'Base de custos e estudos de limites e funcionalidades.',
+    description: 'Bronze, Prata, Ouro e Diamante: condições, recursos e custos.',
   },
   {
     path: 'care',

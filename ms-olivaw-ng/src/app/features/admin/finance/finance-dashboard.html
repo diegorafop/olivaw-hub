@@ -9,6 +9,10 @@
       >Consultar despesas <span>↗</span></a
     >
   </header>
+  <p>
+    <a routerLink="/admin/invoices">Consultar faturas AWS →</a> ·
+    <a routerLink="/admin/finance/control">A pagar, receber e contas →</a>
+  </p>
   <section class="period-toolbar" aria-label="Filtros financeiros">
     <div class="periods" role="group" aria-label="Período financeiro">
       @for (item of periods; track item[0]) {
@@ -66,25 +70,17 @@
   }
   @if (data(); as report) {
     <section class="metrics" aria-label="Resumo financeiro">
-      <article class="metric">
-        <span>CUSTOS BRUTOS</span><strong>{{ report.grossBrl | currency: 'BRL' }}</strong
-        ><small>Antes de créditos e descontos</small>
-      </article>
-      <article class="metric">
-        <span>CRÉDITOS E DESCONTOS</span><strong>{{ report.creditsBrl | currency: 'BRL' }}</strong
-        ><small>{{
-          creditPercent() === null
-            ? 'Sem base para percentual'
-            : creditPercent() + '% dos custos compensados'
-        }}</small>
-      </article>
       <article class="metric net">
-        <span>CUSTO LÍQUIDO</span><strong>{{ report.netBrl | currency: 'BRL' }}</strong
-        ><small>Bruto menos créditos registrados</small>
+        <span>DESPESAS DO PERÍODO</span><strong>{{ report.grossBrl | currency: 'BRL' }}</strong
+        ><small>Gastos sem abatimento de benefícios AWS</small>
       </article>
       <article class="metric">
-        <span>LANÇAMENTOS</span><strong>{{ report.total }}</strong
+        <span>LANÇAMENTOS DE DESPESA</span><strong>{{ report.total }}</strong
         ><small>No período e cliente selecionados</small>
+      </article>
+      <article class="metric">
+        <span>CATEGORIAS COM GASTOS</span><strong>{{ report.byCategory?.length ?? '—' }}</strong
+        ><small>Distribuição detalhada abaixo</small>
       </article>
     </section>
     @if (report.total === 0) {
@@ -92,6 +88,7 @@
         <span aria-hidden="true">◷</span>
         <h2>Ainda não há gastos neste recorte.</h2>
         <p>Selecione outro período ou registre sua primeira despesa.</p>
+        <button class="text-action" (click)="shift(-1)">Consultar período anterior</button>
         <a class="text-action" routerLink="/admin/expenses" [queryParams]="expenseParams()"
           >Abrir despesas →</a
         >
@@ -102,31 +99,24 @@
           <div class="panel-heading">
             <div>
               <h2>Como os custos evoluíram</h2>
-              <p>Custos e créditos pela data de referência do lançamento.</p>
+              <p>Gastos pela data de referência do lançamento.</p>
             </div>
             <div class="legend">
-              <span><i class="cost"></i>Custos</span><span><i class="credit"></i>Créditos</span>
+              <span><i class="cost"></i>Despesas</span>
             </div>
           </div>
           <div class="axis-label">{{ chartMax() | currency: 'BRL' }}</div>
           <svg
             viewBox="0 0 760 195"
             role="img"
-            aria-label="Evolução de custos brutos e créditos. Valores acessíveis na tabela do histórico."
+            aria-label="Evolução das despesas. Valores acessíveis na tabela do histórico."
           >
             <path [attr.d]="path('cost')" class="cost-line" />
-            <path [attr.d]="path('credit')" class="credit-line" />
             @for (point of chartPoints(); track point.date) {
               <circle [attr.cx]="point.x" [attr.cy]="point.costY" r="3" class="cost-point">
                 <title>
                   {{ point.date | date: 'dd/MM/yyyy' : 'UTC' }} · Custos
                   {{ point.costBrl | currency: 'BRL' }}
-                </title>
-              </circle>
-              <circle [attr.cx]="point.x" [attr.cy]="point.creditY" r="3" class="credit-point">
-                <title>
-                  {{ point.date | date: 'dd/MM/yyyy' : 'UTC' }} · Créditos
-                  {{ point.creditsBrl | currency: 'BRL' }}
                 </title>
               </circle>
             }
@@ -144,8 +134,6 @@
                   <tr>
                     <th>Data UTC</th>
                     <th>Custos</th>
-                    <th>Créditos</th>
-                    <th>Líquido</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -153,8 +141,6 @@
                     <tr>
                       <td>{{ point.date | date: 'dd/MM/yyyy' : 'UTC' }}</td>
                       <td>{{ point.costBrl | currency: 'BRL' }}</td>
-                      <td>{{ point.creditsBrl | currency: 'BRL' }}</td>
-                      <td>{{ point.netBrl | currency: 'BRL' }}</td>
                     </tr>
                   }
                 </tbody>
@@ -176,10 +162,7 @@
                 ><span>{{ item.grossBrl | currency: 'BRL' }}</span>
               </div>
               <div class="bar"><i [style.width.%]="(item.grossBrl / categoryMax()) * 100"></i></div>
-              <small
-                >Créditos {{ item.creditsBrl | currency: 'BRL' }} · Líquido
-                {{ item.netBrl | currency: 'BRL' }}</small
-              >
+              <small>Total {{ item.grossBrl | currency: 'BRL' }}</small>
             </div>
           }
           @if (!report.byCategory) {
@@ -213,7 +196,7 @@
                 >
               </div>
               <strong
-                >{{ item.netBrl | currency: 'BRL' }} <span aria-hidden="true">↗</span></strong
+                >{{ item.grossBrl | currency: 'BRL' }} <span aria-hidden="true">↗</span></strong
               ></a
             >
           }

@@ -21,6 +21,8 @@ public sealed class CreateCustomerPlanHandler(IRepository<CustomerPlan> reposito
         ValidationHelper.ThrowIfNull(request);
         var p = request.Payload;
         var customer = await InventoryRules.RequireAsync(customers, p.CustomerExternalId, token);
+        var month=new DateTime(p.StartsAt.Year,p.StartsAt.Month,1,0,0,0,DateTimeKind.Utc);
+        if(await repository.ExistsAsync(x=>x.CustomerId==customer.Id && x.PlanVersionId!=null && x.StartsAt>=month && x.StartsAt<month.AddMonths(1),token)) return new(){Conflict="Cliente já possui uma versão de catálogo nesta competência. Use o histórico de Planos para a próxima alteração."};
         var entity = CustomerPlan.Create(customer, p.Name, p.MonthlyPrice, p.MemoryLimitGiB, p.StorageLimitGiB, p.Conditions, p.ApprovalReference, p.StartsAt, request.ActorUserId, request.ActorName, DateTime.UtcNow);
         await repository.AddAsync(entity, token);
         if (!await InventoryRules.SaveAsync(repository, token)) return new() { Conflict = "Já existe uma versão nesta vigência. Confira o histórico." };

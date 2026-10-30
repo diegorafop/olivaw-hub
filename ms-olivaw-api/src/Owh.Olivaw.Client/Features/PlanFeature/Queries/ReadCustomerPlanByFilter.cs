@@ -16,6 +16,8 @@ public sealed class ReadCustomerPlanByFilterResponse
 public sealed class CustomerPlanItem
 {
     public Guid ExternalId { get; set; }
+    public Guid? PlanVersionExternalId { get; set; }
+    public int? Version { get; set; }
     public string Name { get; set; } = string.Empty;
     public decimal MonthlyPrice { get; set; }
     public decimal? MemoryLimitGiB { get; set; }

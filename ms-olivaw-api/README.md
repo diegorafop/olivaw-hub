@@ -444,3 +444,33 @@ Validações locais: 416 testes da API, build do provedor/API, revisão do SQL e
 `GET /expenses` também retorna `byCategory` e `byCustomer`, calculados com todos os registros do recorte antes da paginação de `items`. Cada grupo informa custo bruto, créditos, líquido e quantidade. Custos compartilhados têm chave `shared`; `unallocatedOnly=true` filtra somente esses lançamentos e não pode ser combinado com `customerExternalId`. `unallocatedBrl` continua informando o líquido compartilhado de todo o período, separadamente do total individual.
 
 A ampliação é aditiva e não altera o modelo persistido: nenhuma migration nova é necessária. A autorização permanece `olivaw.root`. Não é cálculo de receita, lucro, saldo bancário ou pagamento confirmado. A série temporal segue a data gerencial registrada no lançamento; não distribui automaticamente uma fatura mensal por dias de consumo.
+
+### Gastos sem abatimento dos créditos Free Tier
+
+Por decisão do mantenedor, `GET /expenses` retorna **somente custos por padrão**, antes de totais, série, agregados e paginação. Os créditos históricos não são apagados: a consulta administrativa explícita `includeCredits=true` recupera a composição completa para auditoria. Não tratar o líquido da fatura após benefícios como custo da infraestrutura. Essa alteração de consulta não exige migration.
+
+### Incrementos locais da issue026 (ainda não publicados)
+
+- `GET/POST /aws-invoices` e `GET /aws-invoices/{id}`: root, metadados estáveis e `RawData` string JSON extensível; custos não são duplicados pelo cadastro documental. Vínculos com despesas existentes pertencem à mesma competência.
+- `GET/POST /plans/versions`: quatro chaves de catálogo, versões imutáveis, valores em BRL e estudo de custos opcional. `POST /plans/assignments` vincula cliente/versão a partir de uma competência, com aprovação e mensalidade negociada opcional; condições antigas permanecem intactas. Nenhum deploy, quota Docker ou reajuste automático.
+- Despesas conhecidas podem ter competência até doze meses à frente; apropriação de domínio anual não representa doze pagamentos. O filtro de despesas considera custos por padrão; créditos permanecem em evidências.
+- Coleta periódica opcional: `Monitoring:Schedule:Enabled=false` por padrão, `IntervalMinutes=15`, `RetentionDays=30`, `ActorUserId` obrigatório ao habilitar e `ResourceExternalIds` explícitos (até 32). URLs precisam coincidir com `Monitoring:AllowedUrls`; HTTPS público, sem redirects, timeout limitado. `GET /health-readings/collector` é root e mostra a execução desde o startup; reinício não inventa um histórico. Retenção remove no máximo 500 amostras antigas por ciclo, somente da fonte automática configurada. Falha de fonte não é ambiente seguro e coleta não abre incidente automaticamente.
+
+As novas entidades estão na migration PostgreSQL complementar descrita abaixo, preservando a `Issue026` já publicada. O startup aplica migrations pendentes; não houve atualização de banco nesta execução. SQL Server não recebe migration.
+
+### Fechamento local de Planos — Issue026PlansAndFinance
+
+Migration PostgreSQL complementar: `20261030222928_Issue026PlansAndFinance`. A `Issue026` anterior permanece intacta. Cria sete tabelas de catálogo/faturas/controle financeiro e seis colunas aditivas em estudos, condições e leituras de saúde. Mantém dados existentes, FKs RESTRICT e índices únicos. Upgrade sem remoção de tabelas ou colunas. Schema da autoridade PortalIdentity permanece separado e sem mudanças.
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+# Já gerada: não repetir add.
+dotnet ef migrations add Issue026PlansAndFinance --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue026 Issue026PlansAndFinance --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue026-plans-finance.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests -c Release -m:1 --no-restore
+```
+
+`POST /plans/cost-sheets` salva oito bases BRL e o estudo atomicamente, com chave de reenvio e digest. `CostSheetData` preserva as entradas originais em JSON string, inclusive valores anuais e denominadores de rateio. Campos desconhecidos podem ser preservados em evoluções futuras sem reformatar estudos antigos. Custos normalizados, trabalho, reserva, margem e despesas comerciais compõem o preço sugerido. A soma de margem e despesas comerciais deve ser inferior a 100%. A publicação do plano continua explícita e não aplica quotas Docker.
+
+Validação local: 446 testes da API passaram, incluindo compatibilidade entre modelo e migration; nenhuma conexão a banco real ou `database update`. SQL Server não recebeu migration. Build do provedor sem avisos; ferramenta EF 10.0.12 avisa diferença para runtime 10.0.13, sem alteração de dependências. Após publicação pelo mantenedor, o startup aplicará a migration automaticamente; backup e revisão do pacote antecedem a publicação. Não executar `Down` em produção como atalho: estruturas novas podem conter dados.

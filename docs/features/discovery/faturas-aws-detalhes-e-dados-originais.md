@@ -24,7 +24,13 @@ para consultar a origem das despesas e acompanhar custos e créditos sem perder 
 
 ### Estado e escopo autorizado
 
-Discovery, solicitado em 26/10/2026. Responsável: Codex, branch `feature/issue026-admin-client`, worktree atual; execução sequencial. **Nesta etapa: documentar a feature, arquivar JSON e usar a API de despesas existente para os lançamentos autorizados. Não implementar nova entidade, endpoints, telas ou migration desta feature. Sem commit, push ou deploy.** A referência ao campo JSON string é a entidade `SecurityReport` do Baley; a nova entidade deverá seguir a mesma ideia de metadados estáveis mais `RawData` extensível.
+Implementação local iniciada com a autorização de concluir a codificação do backlog em 30/10/2026. Entidade `AwsInvoice`, vínculos `AwsInvoiceExpense`, endpoints root `/aws-invoices`, formulário, lista e detalhes com JSON extensível. Nenhum lançamento financeiro é criado ao registrar uma fatura. Referências às despesas existentes são explícitas, limitadas a cem, à mesma competência e a uma evidência por despesa. A versão documental não substitui ou altera uma despesa silenciosamente.
+
+Responsável: Codex, issue026, branch `feature/issue026-admin-client`, workspace atual. Sem commit, push ou deploy. Migration nova pendente ao estabilizar o pacote, preservando `Issue026` já publicada. Nenhum documento foi importado pela API nova em produção, pois ela ainda não foi publicada. Os lançamentos operacionais abaixo pertencem à API antiga de despesas.
+
+Paginação por cursor de cinquenta documentos; JSON original somente no detalhe. Tamanho limitado, objeto JSON válido e totais reconciliados quando todos informados. Conta e competência obrigatórias; número e totais desconhecidos permanecem nulos. Pago exige documento completo identificado; não inferir pagamento do líquido zero. A evidência de pagamento deve estar na fonte/JSON e ser informada pelo operador. Digest protege repetição do mesmo conjunto de metadados, JSON e vínculos; nova evidência fica separada, sem reimportação de despesas.
+
+Créditos permanecem na evidência documental; o filtro padrão de despesas considera somente custos, conforme decisão posterior do mantenedor. A proposta original de lançar créditos abaixo é histórica e não deve ser repetida em novos cadastros.
 
 ### Evidência recebida
 

@@ -115,11 +115,11 @@ async function setup(page: Page) {
       });
     return route.fulfill({ status: 404, json: { detail: 'Rota não simulada' } });
   });
-  await page.goto('/meu-negocio/entrar');
+  await page.goto('/portal/entrar');
   await page.getByLabel('E-mail', { exact: true }).fill('cliente@example.test');
   await page.getByLabel('Senha', { exact: true }).fill('test-password');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Meu negócio', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Portal Olivaw', exact: true })).toBeVisible();
   return writes;
 }
 for (const width of [1440, 390]) {
@@ -152,3 +152,11 @@ for (const width of [1440, 390]) {
     );
   });
 }
+
+test('endereços antigos preservam parâmetros ao redirecionar ao portal real', async ({ page }) => {
+  await setup(page);
+  await page.goto('/meu-negocio?section=plan&customer=client-1');
+  await expect(page).toHaveURL(/\/portal\?section=plan&customer=client-1/);
+  await page.goto('/meu-negocio/entrar?invite=convite-publico-de-teste');
+  await expect(page).toHaveURL(/\/portal\/entrar\?invite=convite-publico-de-teste/);
+});

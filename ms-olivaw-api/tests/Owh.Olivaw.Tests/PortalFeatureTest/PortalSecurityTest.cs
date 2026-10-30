@@ -80,6 +80,8 @@ public sealed class PortalSecurityTest
         using (var home = await client.GetAsync("/portal/home?customerExternalId=" + company.ExternalId)) { Assert.Equal(HttpStatusCode.OK, home.StatusCode); var body = await home.Content.ReadAsStringAsync(); Assert.DoesNotContain("INTERNAL", body); }
         using (var foreignHome = await client.GetAsync("/portal/home?customerExternalId=" + other.ExternalId)) Assert.Equal(HttpStatusCode.Forbidden, foreignHome.StatusCode);
         using (var expense = await client.GetAsync("/expenses")) Assert.Equal(HttpStatusCode.Unauthorized, expense.StatusCode);
+        using (var invoice = await client.GetAsync("/aws-invoices")) Assert.Equal(HttpStatusCode.Unauthorized, invoice.StatusCode);
+        using (var version = await client.GetAsync("/plans/versions?planKey=bronze")) Assert.Equal(HttpStatusCode.Unauthorized, version.StatusCode);
         using (var samples = await client.PostAsJsonAsync("/portal-usage-samples", new { })) Assert.Equal(HttpStatusCode.Unauthorized, samples.StatusCode);
         member.Revoke(administrator.ExternalId, "Operador", DateTime.UtcNow);
         using (var revoked = await client.GetAsync("/portal/dashboard?customerExternalId=" + company.ExternalId)) Assert.Equal(HttpStatusCode.Forbidden, revoked.StatusCode);

@@ -52,7 +52,7 @@ export class PortalPage {
       );
     });
     if (!this.preview && !this.api.token()) {
-      void this.router.navigate(['/meu-negocio/entrar']);
+      void this.router.navigate(['/portal/entrar']);
       return;
     }
     this.loadCompanies();
@@ -147,7 +147,7 @@ export class PortalPage {
     const status = (error as { status?: number }).status;
     if (!this.preview && status === 401) {
       this.api.session.set(null);
-      void this.router.navigate(['/meu-negocio/entrar']);
+      void this.router.navigate(['/portal/entrar']);
     }
   }
   setTab(value: string) {
@@ -171,7 +171,7 @@ export class PortalPage {
         takeUntilDestroyed(this.destroy),
         finalize(() => {
           this.api.session.set(null);
-          void this.router.navigate(['/meu-negocio/entrar']);
+          void this.router.navigate(['/portal/entrar']);
         }),
       )
       .subscribe({ error: () => undefined });

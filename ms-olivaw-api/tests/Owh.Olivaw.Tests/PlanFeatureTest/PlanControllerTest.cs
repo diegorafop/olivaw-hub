@@ -23,12 +23,16 @@ public sealed class PlanControllerTest
     {
         using var cancellation = new CancellationTokenSource(); var mediator = new Mock<IMediator>();
         var context = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("sub", InventoryFakerBuilder.Actor.ToString()), new Claim("name", "Operador") }, "test")) };
+        var sheet = new CreatePlanCostSheetCommand();var version = new CreatePlanVersionCommand();var assignment = new CreatePlanAssignmentCommand();
         var cost = new CreateCostReferenceCommand(); var study = new CreatePlanStudyCommand(); var plan = new CreateCustomerPlanCommand();
         mediator.Setup(item => item.Send(It.Is<CreateCostReferenceMediatorCommand>(request => request.Payload == cost && request.ActorUserId == InventoryFakerBuilder.Actor && request.ActorName == "Operador"), cancellation.Token)).ReturnsAsync(new CreateCostReferenceResult { Conflict = conflict ? "Mudou" : null });
         mediator.Setup(item => item.Send(It.Is<CreatePlanStudyMediatorCommand>(request => request.Payload == study && request.ActorUserId == InventoryFakerBuilder.Actor), cancellation.Token)).ReturnsAsync(new CreatePlanStudyResult { Conflict = conflict ? "Mudou" : null });
         mediator.Setup(item => item.Send(It.Is<CreateCustomerPlanMediatorCommand>(request => request.Payload == plan && request.ActorUserId == InventoryFakerBuilder.Actor), cancellation.Token)).ReturnsAsync(new CreateCustomerPlanResult { Conflict = conflict ? "Mudou" : null });
+        mediator.Setup(item=>item.Send(It.Is<CreatePlanCostSheetMediatorCommand>(request=>request.Payload==sheet && request.ActorUserId==InventoryFakerBuilder.Actor && request.ActorName=="Operador"),cancellation.Token)).ReturnsAsync(new CreatePlanCostSheetResult{Conflict=conflict?"Mudou":null});
+        mediator.Setup(item=>item.Send(It.Is<CreatePlanVersionMediatorCommand>(request=>request.Payload==version && request.ActorUserId==InventoryFakerBuilder.Actor),cancellation.Token)).ReturnsAsync(new CreatePlanVersionResult{Conflict=conflict?"Mudou":null});
+        mediator.Setup(item=>item.Send(It.Is<CreatePlanAssignmentMediatorCommand>(request=>request.Payload==assignment && request.ActorUserId==InventoryFakerBuilder.Actor && request.ActorName=="Operador"),cancellation.Token)).ReturnsAsync(new CreatePlanAssignmentResult{Conflict=conflict?"Mudou":null});
         var controller = new PlanController(mediator.Object, new CurrentActor(new HttpContextAccessor { HttpContext = context })) { ControllerContext = new() { HttpContext = context } };
-        foreach (var response in new[] { await controller.CreateCost(cost, cancellation.Token), await controller.CreateStudy(study, cancellation.Token), await controller.CreateCondition(plan, cancellation.Token) })
+        foreach (var response in new[] { await controller.CreateCost(cost, cancellation.Token), await controller.CreateStudy(study, cancellation.Token), await controller.CreateCondition(plan, cancellation.Token), await controller.CreateCostSheet(sheet,cancellation.Token), await controller.CreateVersion(version,cancellation.Token), await controller.CreateAssignment(assignment,cancellation.Token) })
         {
             if (conflict) Assert.IsType<ConflictObjectResult>(response); else Assert.Equal(201, Assert.IsType<ObjectResult>(response).StatusCode);
         }
@@ -38,12 +42,14 @@ public sealed class PlanControllerTest
     public async Task Queries_should_forward_filters_and_simulation_without_commands()
     {
         var mediator = new Mock<IMediator>();
+        var versions = new ReadPlanVersionByFilterQuery();
+        mediator.Setup(item=>item.Send(It.Is<ReadPlanVersionByFilterMediatorQuery>(request=>request.Payload==versions),It.IsAny<CancellationToken>())).ReturnsAsync(new ReadPlanVersionByFilterResponse());
         var costs = new ReadCostReferenceByFilterQuery(); var studies = new ReadPlanStudyByFilterQuery(); var conditions = new ReadCustomerPlanByFilterQuery(); var estimate = new ReadPlanEstimateQuery();
         mediator.Setup(item => item.Send(It.Is<ReadCostReferenceByFilterMediatorQuery>(request => request.Payload == costs), It.IsAny<CancellationToken>())).ReturnsAsync(new ReadCostReferenceByFilterResponse());
         mediator.Setup(item => item.Send(It.Is<ReadPlanStudyByFilterMediatorQuery>(request => request.Payload == studies), It.IsAny<CancellationToken>())).ReturnsAsync(new ReadPlanStudyByFilterResponse());
         mediator.Setup(item => item.Send(It.Is<ReadCustomerPlanByFilterMediatorQuery>(request => request.Payload == conditions), It.IsAny<CancellationToken>())).ReturnsAsync(new ReadCustomerPlanByFilterResponse());
         mediator.Setup(item => item.Send(It.Is<ReadPlanEstimateMediatorQuery>(request => request.Payload == estimate), It.IsAny<CancellationToken>())).ReturnsAsync(new ReadPlanEstimateResponse());
         var controller = new PlanController(mediator.Object, new CurrentActor(new HttpContextAccessor()));
-        Assert.IsType<OkObjectResult>(await controller.ReadCosts(costs, CancellationToken.None)); Assert.IsType<OkObjectResult>(await controller.ReadStudies(studies, CancellationToken.None)); Assert.IsType<OkObjectResult>(await controller.ReadConditions(conditions, CancellationToken.None)); Assert.IsType<OkObjectResult>(await controller.ReadEstimate(estimate, CancellationToken.None)); mediator.VerifyAll();
+        Assert.IsType<OkObjectResult>(await controller.ReadVersions(versions,CancellationToken.None)); Assert.IsType<OkObjectResult>(await controller.ReadCosts(costs, CancellationToken.None)); Assert.IsType<OkObjectResult>(await controller.ReadStudies(studies, CancellationToken.None)); Assert.IsType<OkObjectResult>(await controller.ReadConditions(conditions, CancellationToken.None)); Assert.IsType<OkObjectResult>(await controller.ReadEstimate(estimate, CancellationToken.None)); mediator.VerifyAll();
     }
 }
