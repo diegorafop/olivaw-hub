@@ -12,6 +12,8 @@ Imagens com 1500 × 1002 pixels, proporcionais à recomendação de 250 × 167.
 
 Cada anúncio analisado recebe uma pasta pelo identificador. Objetivo: entender o problema, estimar investimento e preparar uma proposta de programação e uma abordagem para apresentar a Olivaw.
 
+- [794800 — Plataforma de cassino online](794800/README.md): deixada de lado pelo mantenedor; registro histórico preservado.
+- [795331 — Automação do ChatGPT e gestão central de tarefas](795331/README.md): discovery; viabilidade condicionada à prova, análise e estimativa interna.
 - [795293 — Comentários e reações](795293/README.md): discovery; estimativa preliminar e mensagem para revisão.
 - [Diretrizes para agentes](AGENTS.md).
 - [Padrão de histórias](../features/AGENTS.md).
