@@ -3,7 +3,7 @@
 <header>
   <p class="eyebrow">PASTA DO LEAD</p>
   <h2>{{ draft?.business || draft?.project?.title || 'Contato recebido' }}</h2>
-  <p>Recebido em {{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+  <p>Registrado em {{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
 </header>
 <app-lead-follow-up [lead]="data" (saved)="saved.emit()" (reload)="reload.emit()" />
 @if (data.contentUnavailable || !draft) {
@@ -15,6 +15,24 @@
         >Cadastrar como cliente ↗</a
       >
     </p>
+  }
+  <p>
+    <a [routerLink]="['/admin/leads', data.externalId, 'proposal']"
+      >Preparar / consultar orçamento ↗</a
+    >
+  </p>
+  @if (draft.acquisition; as acquisition) {
+    <section aria-label="Origem da oportunidade">
+      <h3>Origem da oportunidade</h3>
+      <p>
+        {{ acquisition.initiative === 'outbound' ? 'Prospecção ativa' : 'Contato recebido' }} ·
+        {{ acquisition.origin }}
+      </p>
+      <p>Referência: {{ acquisition.externalReference || 'Não informada' }}</p>
+      @if (acquisition.sourceUrl) {
+        <p>{{ acquisition.sourceUrl }}</p>
+      }
+    </section>
   }
   <section aria-label="Contato">
     <h3>Vamos conversar</h3>
@@ -65,7 +83,7 @@
   <section>
     <h3>Jornada registrada</h3>
     <p>
-      {{ draft.entry === 'studio' ? 'Estúdio de ideias' : 'Descoberta / contato' }} · Iniciada em
+      {{ entries[draft.entry] || draft.entry }} · Iniciada em
       {{ draft.startedAt | date: 'dd/MM/yyyy HH:mm' }}
     </p>
     @if (draft.events.length) {

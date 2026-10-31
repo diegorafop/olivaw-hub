@@ -37,3 +37,7 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 
 - [Catálogo de planos, composição de custos e versões mensais](done/planos-versoes-mensais-e-custeio.md) — desenvolvimento local validado; publicação pelo mantenedor pendente.
 - [Clientes na landing page — LTMJ e Cavalcante](done/clientes-da-landing-page.md) — validado localmente; publicação pendente.
+
+- [Prospecção ativa e orçamentos vinculados a Leads](done/leads-prospeccao-e-orcamentos.md) — cadastro manual, propostas detalhadas e HTML compartilhável; publicação e cadastro do caso 795293 pendentes.
+
+- [Planos públicos, oferta de criação e pontos de melhoria](done/planos-publicos-oferta-e-pontos-de-melhoria.md) — catálogo e condições comerciais; publicação pendente.

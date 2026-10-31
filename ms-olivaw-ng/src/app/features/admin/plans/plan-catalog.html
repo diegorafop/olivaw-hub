@@ -73,8 +73,10 @@
     <section class="surface">
       <h2>Preço com contexto</h2>
       <p>
-        A mensalidade mantém a operação. Criação do site, novas funcionalidades e manutenção
-        evolutiva precisam ter seu próprio orçamento.
+        A mensalidade mantém a operação. Criação e implantação têm escopo e esforço próprios; podem
+        ser incluídas na oferta Bronze/Prata para contratos com mais de 12 meses. Melhorias
+        compatíveis podem usar os pontos mensais; demandas fora da franquia ou do plano seguem
+        orçamento separado.
       </p>
       <a routerLink="/admin/plans/simulator">Abrir simulador de custos →</a>
     </section>
@@ -90,6 +92,9 @@
           <li>{{ plan.users }}</li>
           <li>{{ plan.improvements }}</li>
           <li>{{ plan.setup }}</li>
+          @if (publicOffer()?.creationOffer) {
+            <li>{{ creationOfferTerms }}</li>
+          }
         </ul>
         <p>
           Correções de defeitos do escopo entregue sem cobrança adicional. Domínio próprio,
@@ -129,6 +134,21 @@
           </div>
         </dl>
         <p>{{ plan.resources }}.</p>
+        @if (plan.id === 'prata') {
+          <p>
+            A nova oferta Prata tem 5 GB decimais, equivalentes a aproximadamente 4,657 GiB no campo
+            técnico. Versões existentes não são alteradas automaticamente. A cota inclui arquivos e
+            dados; duas contas administrativas não são contas root da Olivaw.
+          </p>
+        }
+        <p><a [routerLink]="['/planos', plan.id]">Ver apresentação pública e condições →</a></p>
+        @if (publicOffer()?.creationOffer) {
+          <p>
+            Criação incluída é uma isenção para o cliente; o trabalho continua tendo custo para a
+            Olivaw. Inclua a parcela mensal desse investimento nos custos do estudo e valide o
+            retorno ao longo do contrato antes de aprovar a oferta.
+          </p>
+        }
         <p>
           Limites propostos ainda não foram aplicados aos containers. Armazenamento considera
           arquivos e dados do cliente; não representa memória RAM.

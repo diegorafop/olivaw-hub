@@ -124,6 +124,14 @@ export class AdminLayout {
       if (reportId) items.push({ label: 'Relatório', url: this.currentUrl() });
       return items;
     }
+    if (section === 'leads' && detail) {
+      items.push({
+        label: detail === 'new' ? 'Novo lead' : 'Ficha do lead',
+        url: '/admin/leads/' + detail,
+      });
+      if (reportId === 'proposal') items.push({ label: 'Orçamento', url: this.currentUrl() });
+      return items;
+    }
     if (section === 'plans' && detail) {
       const names: Record<string, string> = {
         bronze: 'Bronze',

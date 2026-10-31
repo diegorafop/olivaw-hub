@@ -474,3 +474,9 @@ dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests -c Release -m:1 --no-restore
 `POST /plans/cost-sheets` salva oito bases BRL e o estudo atomicamente, com chave de reenvio e digest. `CostSheetData` preserva as entradas originais em JSON string, inclusive valores anuais e denominadores de rateio. Campos desconhecidos podem ser preservados em evoluções futuras sem reformatar estudos antigos. Custos normalizados, trabalho, reserva, margem e despesas comerciais compõem o preço sugerido. A soma de margem e despesas comerciais deve ser inferior a 100%. A publicação do plano continua explícita e não aplica quotas Docker.
 
 Validação local: 446 testes da API passaram, incluindo compatibilidade entre modelo e migration; nenhuma conexão a banco real ou `database update`. SQL Server não recebeu migration. Build do provedor sem avisos; ferramenta EF 10.0.12 avisa diferença para runtime 10.0.13, sem alteração de dependências. Após publicação pelo mantenedor, o startup aplicará a migration automaticamente; backup e revisão do pacote antecedem a publicação. Não executar `Down` em produção como atalho: estruturas novas podem conter dados.
+
+## Prospecção e propostas de Leads
+
+`POST /leads` cadastra oportunidades manuais com `leads.manage`, UUID fornecido para detectar repetição e contatos opcionais. Origem e iniciativa são preservadas no snapshot. `PUT /leads/{externalId}/proposal` salva o orçamento com revisão otimista; 409 exige recarregar. Envios anônimos não podem definir condições comerciais. Sem alteração de schema ou migration.
+
+Validação local: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` a partir da raiz. [Roteiro de cadastro](../docs/99freelas/795293/cadastro-apos-publicacao.md).

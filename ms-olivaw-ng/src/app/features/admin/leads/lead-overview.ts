@@ -11,13 +11,13 @@ import { LeadsApi, type LeadSummary } from './leads-api';
   template: ` <section aria-labelledby="lead-overview-title">
     <div>
       <p class="eyebrow">PRIMEIRAS CONVERSAS</p>
-      <h2 id="lead-overview-title">Ideias que chegaram à Olivaw.</h2>
+      <h2 id="lead-overview-title">Oportunidades para construir com a Olivaw.</h2>
       @let result = state();
       @if (result.loading) {
         <p role="status">Consultando leads…</p>
       } @else if (result.data; as data) {
         <p>
-          <strong>{{ data.total }}</strong> leads recebidos
+          <strong>{{ data.total }}</strong> leads registrados
           <span>· {{ data.recent }} nos últimos 7 dias</span>
         </p>
         <small>Consulta à API Olivaw · {{ data.asOf | date: 'dd/MM/yyyy HH:mm' }}</small>

@@ -1,0 +1,69 @@
+<main class="proposal-page">
+  <a routerLink="/admin/leads">← Leads</a>
+  <header>
+    <p class="eyebrow">OLIVAW / OPORTUNIDADES</p>
+    <h1>Cadastrar lead</h1>
+    <p>Registre contatos recebidos e oportunidades de prospecção.</p>
+  </header>
+  <label class="card"
+    >Carregar análise preparada (JSON)<input
+      type="file"
+      accept=".json,application/json"
+      (change)="importFile($event)"
+  /></label>
+  <form [formGroup]="form" (ngSubmit)="save()" class="card" aria-label="Cadastrar lead">
+    <div class="fields">
+      <label
+        >Iniciativa<select formControlName="initiative">
+          <option value="outbound">Prospecção ativa</option>
+          <option value="inbound">Contato recebido</option>
+        </select></label
+      >
+      <label
+        >Origem *<input
+          formControlName="origin"
+          maxlength="120"
+          placeholder="99Freelas, indicação…"
+          required
+      /></label>
+      <label>Referência externa<input formControlName="externalReference" maxlength="120" /></label>
+      <label
+        >Endereço do anúncio<input
+          formControlName="sourceUrl"
+          type="url"
+          maxlength="1000"
+          placeholder="https://"
+      /></label>
+      <label>Nome ou negócio<input formControlName="business" maxlength="120" /></label>
+      <label
+        >Título da oportunidade *<input formControlName="title" maxlength="160" required
+      /></label>
+      <label>E-mail<input formControlName="email" type="email" maxlength="254" /></label>
+      <label
+        >WhatsApp com DDD<input
+          formControlName="whatsapp"
+          inputmode="numeric"
+          maxlength="11"
+          placeholder="11987654321"
+      /></label>
+    </div>
+    <label
+      >Requisitos recebidos *<textarea
+        formControlName="requirements"
+        rows="10"
+        maxlength="10000"
+        required
+      ></textarea>
+    </label>
+    <p>
+      Nome e contatos podem ficar vazios enquanto o anúncio é qualificado. Não invente dados do
+      interessado.
+    </p>
+    @if (error()) {
+      <p role="alert" class="error">{{ error() }}</p>
+    }
+    <button class="primary" type="submit" [disabled]="busy()">
+      {{ busy() ? 'Salvando…' : 'Cadastrar e preparar orçamento' }}
+    </button>
+  </form>
+</main>

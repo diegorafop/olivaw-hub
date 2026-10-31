@@ -1,3 +1,5 @@
+import { planOfferings } from './features/public/plans/plan-offerings';
+import { leadProposalGuard } from './features/admin/leads/lead-proposal.guard';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { inventoryDraftGuard } from './features/admin/inventory/inventory-draft.guard';
@@ -100,6 +102,18 @@ export const routes: Routes = [
     title: 'Olivaw - Portal',
     loadComponent: () =>
       import('./features/portal/portal-page').then((module) => module.PortalPage),
+  },
+  {
+    path: 'planos',
+    title: 'Olivaw - Planos',
+    loadComponent: () => import('./features/public/plans/public-plans').then((m) => m.PublicPlans),
+  },
+  {
+    path: 'planos/:planId',
+    title: (route) =>
+      'Olivaw - ' +
+      (planOfferings.find((plan) => plan.id === route.paramMap.get('planId'))?.name || 'Planos'),
+    loadComponent: () => import('./features/public/plans/public-plans').then((m) => m.PublicPlans),
   },
   {
     path: 'projeto',
@@ -430,6 +444,19 @@ export const routes: Routes = [
         path: 'leads',
         title: 'Olivaw - Leads',
         loadComponent: () => import('./features/admin/leads/leads-page').then((m) => m.LeadsPage),
+      },
+      {
+        path: 'leads/new',
+        canMatch: [operationGuard],
+        loadComponent: () => import('./features/admin/leads/lead-create').then((m) => m.LeadCreate),
+      },
+      {
+        path: 'leads/:id/proposal',
+        title: 'Olivaw - Orçamento',
+        canDeactivate: [leadProposalGuard],
+        canMatch: [operationGuard],
+        loadComponent: () =>
+          import('./features/admin/leads/lead-proposal').then((m) => m.LeadProposalPage),
       },
       {
         path: 'leads/:id',

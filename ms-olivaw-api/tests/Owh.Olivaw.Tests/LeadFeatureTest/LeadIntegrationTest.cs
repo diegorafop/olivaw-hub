@@ -61,6 +61,10 @@ public class LeadIntegrationTest
         using var retry = await client.PutAsJsonAsync(url, request.Payload);
         Assert.Equal(HttpStatusCode.OK, retry.StatusCode);
         repository.Verify(item => item.AddAsync(It.IsAny<Lead>(), It.IsAny<CancellationToken>()), Times.Once);
+        request.Payload.Proposal = new() { Title = "Condições falsas" };
+        using var spoofed = await client.PutAsJsonAsync(url, request.Payload);
+        Assert.Equal(HttpStatusCode.BadRequest, spoofed.StatusCode);
+        request.Payload.Proposal = null;
         using var read = await client.GetAsync(url);
         Assert.NotEqual(HttpStatusCode.OK, read.StatusCode);
         client.DefaultRequestHeaders.Remove("X-Lead-Key");

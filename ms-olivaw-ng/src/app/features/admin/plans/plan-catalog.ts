@@ -1,3 +1,9 @@
+import {
+  planOfferings,
+  creationOfferTerms,
+  improvementPointRules,
+  improvementAllowanceLabel,
+} from '../../public/plans/plan-offerings';
 import { PlanCostSheet, type CostSheetResult } from './plan-cost-sheet';
 import { Component, computed, inject, signal, effect, untracked, viewChild } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -65,26 +71,28 @@ export class PlanCatalog {
       name: 'Bronze',
       tag: 'Seu site no ar',
       proposed: 49,
-      space: '2 GiB',
+      space: '2 GB',
       domain: 'Endereço Olivaw',
       app: 'Site estático, sem API ou banco do negócio',
       users: 'Conteúdo atualizado pela Olivaw sob orçamento',
-      improvements: 'Melhorias contratadas à parte',
+      improvements: improvementAllowanceLabel('bronze') + ' para ajustes simples de conteúdo',
       resources: 'Hipótese de teste: até 0,10 vCPU e 64 MiB para o servidor estático',
-      setup: 'Criação e implantação cobradas separadamente',
+      setup:
+        'Criação e implantação incluídas na oferta Bronze Essencial, com mais de 12 meses de assinatura',
     },
     {
       id: 'prata',
       name: 'Prata',
       tag: 'Conteúdo nas suas mãos',
       proposed: null,
-      space: '3 GiB',
+      space: '5 GB',
       domain: 'Domínio próprio permitido',
       app: 'Site com API e PostgreSQL para conteúdo',
-      users: 'Até 2 contas editoras, em estudo',
-      improvements: 'Franquia de melhorias a definir',
+      users: '2 contas administrativas para as funcionalidades contratadas',
+      improvements: improvementAllowanceLabel('prata'),
       resources: 'CPU e memória da API serão dimensionadas por medição; não há reserva aprovada',
-      setup: 'Implantação e escopo definidos em proposta',
+      setup:
+        'Criação e implantação incluídas na oferta Prata Essencial ou Intermediário, com mais de 12 meses de assinatura',
     },
     {
       id: 'ouro',
@@ -95,7 +103,7 @@ export class PlanCatalog {
       domain: 'Domínio próprio permitido',
       app: 'Sistema de gestão com API e PostgreSQL',
       users: 'Até 10 contas com perfis, em estudo',
-      improvements: 'Franquia de melhorias a definir',
+      improvements: improvementAllowanceLabel('ouro'),
       resources: 'Capacidade depende dos módulos, usuários e carga medida',
       setup: 'Desenvolvimento inicial contratado separadamente',
     },
@@ -108,11 +116,13 @@ export class PlanCatalog {
       domain: 'Domínio próprio permitido',
       app: 'Integrações, capacidade e operação personalizadas',
       users: 'Usuários e permissões sob contrato',
-      improvements: 'Entregas e atendimento negociados',
+      improvements: improvementAllowanceLabel('diamante'),
       resources: 'Infraestrutura compartilhada ou individual conforme contrato',
       setup: 'Implantação e mensalidade sob proposta',
     },
   ];
+  readonly creationOfferTerms = creationOfferTerms;
+  readonly publicOffer = computed(() => planOfferings.find((p) => p.id === this.selected()?.id));
   readonly selected = computed(() =>
     this.plans.find((plan) => plan.id === this.params()?.get('planId')),
   );
@@ -338,7 +348,20 @@ export class PlanCatalog {
       untracked(() => {
         this.costForm.reset({
           effectiveAt: new Date().toISOString().slice(0, 7),
-          conditions: plan ? [plan.app, plan.domain, plan.users, plan.improvements].join('\n') : '',
+          conditions: plan
+            ? [
+                plan.app,
+                plan.domain,
+                plan.users,
+                plan.improvements,
+                improvementPointRules,
+                plan.setup,
+                ...(plan.id === 'prata'
+                  ? ['Armazenamento total: 5 GB (5.000.000.000 bytes).']
+                  : []),
+                ...(['bronze', 'prata'].includes(plan.id) ? [creationOfferTerms] : []),
+              ].join('\n')
+            : '',
         });
         this.success.set('');
       });

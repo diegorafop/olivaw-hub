@@ -84,6 +84,28 @@ public class LeadReadIntegrationTest
             Assert.DoesNotContain("actorUserId", body);
             if (expected == 200) Assert.True(response.Headers.CacheControl?.NoStore);
         }
+        using var create = await client.PostAsJsonAsync("/leads", new
+        {
+            externalId = Guid.NewGuid(), initiative = "outbound", origin = "99Freelas",
+            title = "Comentários", requirements = "Integrar recursos", sourceUrl = "", externalReference = "795293"
+        });
+        Assert.Equal((HttpStatusCode)(expected == 200 ? 201 : expected), create.StatusCode);
+        using var proposal = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/proposal", new
+        {
+            revision = 1, proposal = new
+            {
+                title = "Comentários", rows = new[] { new { description = "Diagnóstico", role = "Analista", solution = "analysis", hours = 4, hourlyRate = 100 } }
+            }
+        });
+        Assert.Equal((HttpStatusCode)expected, proposal.StatusCode);
+        if (expected == 200)
+        {
+            using var proposalRetry = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/proposal", new
+            {
+                revision = 1, proposal = new { title = "Comentários", rows = new[] { new { description = "Diagnóstico", role = "Analista", solution = "analysis", hours = 4, hourlyRate = 100 } } }
+            });
+            Assert.Equal(HttpStatusCode.Conflict, proposalRetry.StatusCode);
+        }
         using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = 0, status = "analysis", note = "Nota" });
         Assert.Equal((HttpStatusCode)expected, update.StatusCode);
         if (expected != 200)

@@ -166,7 +166,7 @@ for (const mobile of [false, true]) {
     await page.setViewportSize({ width: mobile ? 390 : 1440, height: 1000 });
     const reads = await setup(page);
     await expect(
-      page.getByRole('heading', { name: 'Ideias que chegaram à Olivaw.' }),
+      page.getByRole('heading', { name: 'Oportunidades para construir com a Olivaw.' }),
     ).toBeVisible();
     await page.getByRole('link', { name: 'Ver leads' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Leads' })).toBeVisible();

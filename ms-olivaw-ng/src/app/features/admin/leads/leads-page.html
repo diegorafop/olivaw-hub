@@ -3,8 +3,9 @@
     <div>
       <p class="eyebrow">OLIVAW / PRIMEIRAS CONVERSAS</p>
       <h1>Leads</h1>
-      <p>Ideias de quem quer construir com a gente.</p>
+      <p>Contatos recebidos e oportunidades que encontramos para a Olivaw.</p>
     </div>
+    <a routerLink="/admin/leads/new" class="secondary">Cadastrar lead</a>
     <button type="button" class="secondary" (click)="reload()">Atualizar</button>
   </header>
   <form [formGroup]="form" (ngSubmit)="apply()" aria-label="Filtrar leads">
@@ -24,6 +25,8 @@
         <option value="">Todas</option>
         <option value="studio">Estúdio</option>
         <option value="discovery">Descoberta / contato</option>
+        <option value="prospecting">Prospecção ativa</option>
+        <option value="manual">Contato recebido / cadastro manual</option>
       </select>
     </div>
     <div>
@@ -69,7 +72,7 @@
   <div class="results-grid" [class.has-selection]="selected()">
     <section class="results" aria-labelledby="results-title" [attr.aria-busy]="list().loading">
       <div class="results-heading">
-        <h2 id="results-title">Contatos recebidos</h2>
+        <h2 id="results-title">Oportunidades</h2>
         @if (list().data; as data) {
           <span>{{ data.total }} {{ data.total === 1 ? 'lead' : 'leads' }}</span>
         }
@@ -100,7 +103,7 @@
                   </div>
                   <div class="lead-meta">
                     <span>{{ statuses[lead.followUpStatus] || 'Novo contato' }}</span>
-                    <span>{{ lead.entry === 'studio' ? 'Estúdio' : 'Descoberta / contato' }}</span
+                    <span>{{ entries[lead.entry] || lead.entry }}</span
                     ><time>{{ lead.createdAt | date: 'dd/MM/yyyy HH:mm' }}</time>
                   </div>
                   @if (!selected()) {

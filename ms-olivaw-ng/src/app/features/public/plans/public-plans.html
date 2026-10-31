@@ -1,0 +1,253 @@
+<div class="page">
+  <header class="top">
+    <a class="brand" routerLink="/"
+      ><img src="/assets/brand/olivaw-avatar-web-v4.png" alt="" width="40" height="40" />Olivaw</a
+    >
+    <nav aria-label="Navegação dos planos">
+      <a routerLink="/planos">Planos</a><a routerLink="/projeto">Conte sua ideia ↗</a>
+    </nav>
+  </header>
+  <main id="conteudo">
+    <app-breadcrumb [items]="breadcrumbs()" />
+    <section class="intro">
+      <p class="eyebrow">UMA PARCERIA PARA DURAR</p>
+      <h1>
+        {{
+          selected()
+            ? selected()!.name + ': espaço para o seu próximo passo.'
+            : isDetail()
+              ? 'Plano não encontrado'
+              : 'Comece com o que resolve hoje.'
+        }}
+      </h1>
+      <p>
+        Um plano mantém seu produto em operação. A criação tem escopo, esforço e etapas claros — e
+        pode estar incluída na nossa oferta de assinatura.
+      </p>
+    </section>
+    @if (!isDetail()) {
+      <section class="grid" aria-label="Planos da Olivaw">
+        @for (plan of plans; track plan.id) {
+          <article class="card">
+            <p class="eyebrow">{{ plan.note }}</p>
+            <h2>{{ plan.name }}</h2>
+            <p class="price">
+              {{
+                plan.monthlyPrice === null ? 'Sob proposta' : (plan.monthlyPrice | currency: 'BRL')
+              }}<small>{{ plan.monthlyPrice === null ? '' : '/mês' }}</small>
+            </p>
+            <p>{{ plan.text }}</p>
+            <p class="offer">{{ allowanceLabel(plan.id) }}</p>
+            <ul>
+              @for (feature of plan.features; track feature) {
+                <li>{{ feature }}</li>
+              }
+            </ul>
+            @if (plan.creationOffer) {
+              <p class="offer">{{ plan.creationOffer }}</p>
+            }
+            <a class="button" [routerLink]="['/planos', plan.id]">Conhecer {{ plan.name }} →</a>
+          </article>
+        }
+      </section>
+    } @else if (selected(); as plan) {
+      <section class="detail">
+        <article class="card">
+          <p class="eyebrow">{{ plan.note }}</p>
+          <h2>O que o {{ plan.name }} oferece</h2>
+          <p class="price">
+            {{
+              plan.monthlyPrice === null
+                ? 'Mensalidade sob proposta'
+                : (plan.monthlyPrice | currency: 'BRL')
+            }}<small>{{ plan.monthlyPrice === null ? '' : '/mês' }}</small>
+          </p>
+          <p>{{ plan.text }}</p>
+          <p class="offer">{{ allowanceLabel(plan.id) }}</p>
+          <ul>
+            @for (feature of plan.features; track feature) {
+              <li>{{ feature }}</li>
+            }
+          </ul>
+          @if (plan.creationOffer) {
+            <p class="offer">{{ plan.creationOffer }}</p>
+          } @else {
+            <p>Criação, implantação e evolução são definidas em proposta própria.</p>
+          }
+          <a class="button" routerLink="/projeto" [queryParams]="{ plano: plan.id }"
+            >Quero conversar sobre o {{ plan.name }} ↗</a
+          >
+        </article>
+        <article class="card">
+          <h2>Uma assinatura, um escopo compreensível.</h2>
+          <p>
+            A criação do produto é separada da mensalidade. Nos projetos elegíveis do Bronze e do
+            Prata, criação e implantação ficam incluídas na oferta de assinatura com mais de 12
+            meses, dentro do escopo aprovado.
+          </p>
+          <p>
+            Melhorias futuras passam por análise e podem usar os pontos mensais do plano quando
+            compatíveis. O que ultrapassar a franquia ou mudar o escopo recebe orçamento separado.
+            Correções de defeitos do escopo entregue não têm cobrança adicional.
+          </p>
+          @if (plan.id === 'prata') {
+            <p>
+              As duas contas administrativas permitem gerenciar conteúdos e funcionalidades
+              contratadas no seu site. Elas não concedem acesso à administração interna da Olivaw.
+            </p>
+            <p>
+              Os 5 GB são compartilhados pelos arquivos e dados do projeto, incluindo fotos e vídeos
+              armazenados. Compressão, hospedagem externa de vídeo e capacidade adicional são
+              avaliadas conforme o uso. O plano não inclui armazenamento ou streaming ilimitados.
+            </p>
+          }
+          <p>
+            Backups, atendimento, responsabilidades e limites técnicos ficam registrados na
+            proposta. Registro e renovação de domínio próprio e serviços externos são tratados
+            separadamente quando necessários.
+          </p>
+        </article>
+      </section>
+    } @else {
+      <p><a routerLink="/planos">Consultar os planos disponíveis →</a></p>
+    }
+    @if (!isDetail() || selected()) {
+      <section class="section">
+        <p class="eyebrow">ORÇAMENTO TRANSPARENTE</p>
+        <h2>Proporcional ao escopo e ao esforço.</h2>
+        <p>
+          Você conta quem usa o produto, o que essa pessoa precisa fazer e qual resultado espera. A
+          Olivaw transforma essa história em funcionalidades, avalia a complexidade e estima as
+          horas de cada etapa. Você entende o que está pagando antes de aprovar.
+        </p>
+        <div class="steps">
+          <article>
+            <span>01</span>
+            <h3>Entender e delimitar</h3>
+            <p>Histórias de usuário, prioridades, requisitos e critérios de aceite.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Planejar e construir</h3>
+            <p>Complexidade, horas estimadas e desenvolvimento de cada entrega.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Testar e aprovar</h3>
+            <p>Testes, sua validação e ajustes dentro do escopo e das rodadas combinadas.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Colocar em operação</h3>
+            <p>Implantação e conferência do que foi aprovado.</p>
+          </article>
+        </div>
+        <p>
+          As horas incluem análise, desenvolvimento, testes e implantação. Complexidade considera
+          regras, integrações, incertezas e riscos. Se o escopo mudar, apresentamos o impacto em
+          prazo e valor antes de seguir.
+        </p>
+      </section>
+      <section class="section">
+        <p class="eyebrow">TRÊS FAIXAS, SEM NOTAS CONFUSAS</p>
+        <h2>Entenda o tamanho da primeira entrega.</h2>
+        <div class="scopes">
+          @for (scope of scopes; track scope.name) {
+            <article class="card">
+              <h3>{{ scope.name }}</h3>
+              <p>{{ scope.description }}</p>
+              <p>{{ scope.example }}</p>
+              <p class="offer">
+                {{
+                  scope.bronze
+                    ? 'Elegível à oferta no Bronze e no Prata.'
+                    : scope.prata
+                      ? 'Elegível à oferta no Prata.'
+                      : 'Criação e implantação sob orçamento.'
+                }}
+              </p>
+            </article>
+          }
+        </div>
+        <p>
+          Os exemplos orientam a conversa. O enquadramento depende da análise conjunta de
+          complexidade e horas, não apenas do nome do site ou de uma pontuação automática.
+        </p>
+      </section>
+      <section class="section" aria-label="Pontos de melhoria">
+        <p class="eyebrow">SEU PRODUTO PODE EVOLUIR</p>
+        <h2>Pequenas melhorias, mês a mês.</h2>
+        <p>
+          Conte o que precisa melhorar. A equipe explica a estimativa em pontos e você aprova antes
+          de começarmos. Cada pedido considera complexidade, esforço, execução e testes.
+        </p>
+        <div class="scopes">
+          @for (offering of plans; track offering.id) {
+            <article class="card">
+              <h3>{{ offering.name }}</h3>
+              <p class="price">
+                {{
+                  offering.monthlyImprovementPoints === null
+                    ? 'Sob contrato'
+                    : offering.monthlyImprovementPoints +
+                      (offering.monthlyImprovementPoints === 1 ? ' ponto' : ' pontos')
+                }}<small>{{ offering.monthlyImprovementPoints === null ? '' : '/mês' }}</small>
+              </p>
+              <p>
+                {{
+                  offering.id === 'bronze'
+                    ? 'Para uma pequena atualização de conteúdo. Seções novas e novas funcionalidades recebem análise e orçamento próprios.'
+                    : offering.id === 'diamante'
+                      ? '36 pontos mensais na configuração base; condições específicas ficam no contrato personalizado.'
+                      : 'Para melhorias compatíveis com o escopo e com o saldo do ciclo.'
+                }}
+              </p>
+            </article>
+          }
+        </div>
+        <h3>Referências para entender a conversa</h3>
+        <div class="scopes">
+          @for (example of pointExamples; track example.task) {
+            <article class="card">
+              <p class="eyebrow">{{ example.points }}</p>
+              <h3>{{ example.task }}</h3>
+              <p>{{ example.detail }}</p>
+            </article>
+          }
+        </div>
+        <p>{{ pointRules }}</p>
+      </section>
+      <section class="section mvp">
+        <p class="eyebrow">MENOS ESCOPO, MAIS CLAREZA</p>
+        <h2>Uma primeira versão útil. Depois, o próximo passo.</h2>
+        <p>
+          Projetos maiores podem começar por um MVP: a menor versão que já resolve uma necessidade
+          real. Um escopo menor fica mais fácil de entender, orçar, testar e aprovar.
+        </p>
+        <p>
+          Com o produto em uso, você escolhe quais funcionalidades fazem sentido acrescentar. Cada
+          nova etapa recebe escopo e orçamento próprios. Assim, você contrata o que precisa agora e
+          evolui com a experiência do seu negócio.
+        </p>
+        <a class="button" routerLink="/projeto">Vamos entender sua primeira entrega ↗</a>
+      </section>
+      <section class="section terms" aria-label="Condições da oferta">
+        <h2>Criação e implantação incluídas: como funciona</h2>
+        <p>
+          <strong
+            >Bronze: projetos Essenciais. Prata: projetos Essenciais ou Intermediários. Prazo de
+            assinatura superior a 12 meses.</strong
+          >
+        </p>
+        <p>{{ terms }}</p>
+        <p>
+          Fora dessas condições, a criação e a implantação recebem orçamento separado. Conversar ou
+          demonstrar interesse não contrata um plano nem confirma a elegibilidade.
+        </p>
+      </section>
+    }
+    <footer>
+      <a routerLink="/">← Voltar à Olivaw</a><a routerLink="/portal/entrar">Já sou cliente</a>
+    </footer>
+  </main>
+</div>
