@@ -1,0 +1,350 @@
+<main class="proposal-page">
+  <a [routerLink]="['/admin/leads', id]">← Ficha do lead</a>
+  <header>
+    <p class="eyebrow">OLIVAW / PROPOSTAS</p>
+    <h1>Orçamento de desenvolvimento</h1>
+    <p>Escopo, esforço e condições comerciais em uma pasta.</p>
+  </header>
+  @if (loadError()) {
+    <p role="alert" class="error">{{ loadError() }}</p>
+    <button (click)="load()">Tentar novamente</button>
+  }
+  @if (ready()) {
+    <nav class="actions" aria-label="Ações da proposta">
+      <button type="button" (click)="preview.set(!preview())">
+        {{ preview() ? 'Editar orçamento' : 'Ver apresentação' }}
+      </button>
+      <button type="button" (click)="download()">Baixar proposta HTML</button>
+      <button type="button" (click)="reload()" [disabled]="busy()">Recarregar versão salva</button>
+    </nav>
+    <label class="card"
+      >Carregar orçamento preparado (JSON)<input
+        type="file"
+        accept=".json,application/json"
+        (change)="importFile($event)"
+    /></label>
+    @if (dirty()) {
+      <p role="status">
+        Alterações ainda não salvas. Recarregar descarta a edição; o HTML contém os valores
+        exibidos.
+      </p>
+    }
+    @if (preview()) {
+      @let p = proposal();
+      <article class="presentation">
+        <p class="eyebrow">OLIVAW · PROPOSTA SUJEITA A CONFIRMAÇÃO</p>
+        <h2>{{ p.title }}</h2>
+        <section class="card">
+          <h3>Plataforma e requisitos</h3>
+          <p>{{ p.platform || 'A confirmar' }}</p>
+          <p>{{ p.requirementsAnalysis }}</p>
+          <h3>Solução proposta</h3>
+          <p>{{ p.technicalApproach || 'A definir após diagnóstico.' }}</p>
+        </section>
+        <section class="card">
+          <h3>Entregas e esforço</h3>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Entrega</th>
+                  <th>Profissional</th>
+                  <th>Horas</th>
+                  <th>Investimento</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of p.rows; track $index) {
+                  <tr>
+                    <td>
+                      {{ row.description }}
+                      @if (row.optional) {
+                        <small>Opcional · fora do total</small>
+                      }
+                    </td>
+                    <td>{{ row.role }}</td>
+                    <td>{{ row.hours }}</td>
+                    <td>
+                      {{
+                        row.hours * row.hourlyRate | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+                      }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Premissas e exclusões</h3>
+          <p>{{ p.assumptions || 'A confirmar' }}</p>
+          <h3>Custos externos</h3>
+          <p>{{ p.externalCosts || 'A cotar' }}</p>
+          <h3>Prazo</h3>
+          <p>{{ p.deadline || 'A confirmar' }}</p>
+          <h3>Condições e validade</h3>
+          <p>{{ p.terms || 'A confirmar' }}</p>
+        </section>
+      </article>
+    } @else {
+      <form
+        #proposalForm="ngForm"
+        (ngSubmit)="proposalForm.valid && save()"
+        class="card"
+        aria-label="Editar orçamento"
+      >
+        <div class="fields">
+          <label
+            >Título *<input
+              name="title"
+              [(ngModel)]="proposal().title"
+              (ngModelChange)="changed()"
+              required
+              maxlength="160"
+          /></label>
+          <label
+            >Situação comercial<select
+              name="status"
+              [(ngModel)]="proposal().status"
+              (ngModelChange)="changed()"
+            >
+              @for (status of statuses; track status[0]) {
+                <option [value]="status[0]">{{ status[1] }}</option>
+              }
+            </select></label
+          >
+        </div>
+        <label
+          >Plataforma e versão<textarea
+            name="platform"
+            [(ngModel)]="proposal().platform"
+            (ngModelChange)="changed()"
+            maxlength="500"
+            rows="2"
+          ></textarea>
+        </label>
+        <label
+          >Análise dos requisitos<textarea
+            name="requirementsAnalysis"
+            [(ngModel)]="proposal().requirementsAnalysis"
+            (ngModelChange)="changed()"
+            maxlength="3000"
+            rows="5"
+          ></textarea>
+        </label>
+        <label
+          >Plugins, integração e lacunas para programação personalizada<textarea
+            name="technicalApproach"
+            [(ngModel)]="proposal().technicalApproach"
+            (ngModelChange)="changed()"
+            maxlength="3000"
+            rows="5"
+          ></textarea>
+        </label>
+        <h2>Horas e custos internos</h2>
+        <p>
+          Valores em reais. Complementos opcionais não entram no total. Taxas e margem precisam ser
+          consideradas no valor/hora.
+        </p>
+        @for (row of proposal().rows; track $index; let index = $index) {
+          <fieldset>
+            <legend>Etapa {{ index + 1 }}</legend>
+            <label
+              >Entrega *<input
+                [name]="'description' + index"
+                [(ngModel)]="row.description"
+                (ngModelChange)="changed()"
+                required
+                maxlength="500"
+            /></label>
+            <div class="fields">
+              <label
+                >Profissional *<input
+                  [name]="'role' + index"
+                  [(ngModel)]="row.role"
+                  (ngModelChange)="changed()"
+                  required
+                  maxlength="120"
+              /></label>
+              <label
+                >Tipo<select
+                  [name]="'solution' + index"
+                  [(ngModel)]="row.solution"
+                  (ngModelChange)="changed()"
+                >
+                  @for (option of solutions; track option[0]) {
+                    <option [value]="option[0]">{{ option[1] }}</option>
+                  }
+                </select></label
+              >
+              <label
+                >Horas *<input
+                  type="number"
+                  [name]="'hours' + index"
+                  [(ngModel)]="row.hours"
+                  (ngModelChange)="changed()"
+                  required
+                  min="0.25"
+                  max="10000"
+                  step="0.25"
+              /></label>
+              <label
+                >Valor/hora (R$) *<input
+                  type="number"
+                  [name]="'rate' + index"
+                  [(ngModel)]="row.hourlyRate"
+                  (ngModelChange)="changed()"
+                  required
+                  min="0.01"
+                  max="100000"
+                  step="0.01"
+              /></label>
+            </div>
+            <label class="check"
+              ><input
+                type="checkbox"
+                [name]="'optional' + index"
+                [(ngModel)]="row.optional"
+                (ngModelChange)="changed()"
+              />Complemento opcional, sujeito a avaliação</label
+            >
+            <button
+              type="button"
+              (click)="removeRow(index)"
+              [disabled]="proposal().rows.length === 1"
+            >
+              Remover etapa {{ index + 1 }}
+            </button>
+          </fieldset>
+        }
+        <button type="button" (click)="addRow()" [disabled]="proposal().rows.length >= 40">
+          Adicionar etapa
+        </button>
+        <div class="fields conditions">
+          <label
+            >Reserva de incerteza (%)<input
+              type="number"
+              name="reserve"
+              [(ngModel)]="proposal().reservePercent"
+              (ngModelChange)="changed()"
+              required
+              min="0"
+              max="100"
+              step="0.01"
+          /></label>
+          <label
+            >Desconto com continuidade (%)<input
+              type="number"
+              name="discount"
+              [(ngModel)]="proposal().discountPercent"
+              (ngModelChange)="changed()"
+              required
+              min="0"
+              max="100"
+              step="0.01"
+          /></label>
+          <label
+            >Parcelas da implementação<input
+              type="number"
+              name="installments"
+              [(ngModel)]="proposal().installments"
+              (ngModelChange)="changed()"
+              required
+              min="1"
+              max="36"
+              step="1"
+          /></label>
+        </div>
+        <label
+          >Premissas, exclusões e dependências<textarea
+            name="assumptions"
+            [(ngModel)]="proposal().assumptions"
+            (ngModelChange)="changed()"
+            maxlength="3000"
+            rows="4"
+          ></textarea>
+        </label>
+        <label
+          >Licenças, serviços e custos externos<textarea
+            name="externalCosts"
+            [(ngModel)]="proposal().externalCosts"
+            (ngModelChange)="changed()"
+            maxlength="2000"
+            rows="3"
+          ></textarea>
+        </label>
+        <label
+          >Prazo e início da contagem<textarea
+            name="deadline"
+            [(ngModel)]="proposal().deadline"
+            (ngModelChange)="changed()"
+            maxlength="500"
+            rows="2"
+          ></textarea>
+        </label>
+        <label
+          >Pagamento, validade, aceite e cancelamento<textarea
+            name="terms"
+            [(ngModel)]="proposal().terms"
+            (ngModelChange)="changed()"
+            maxlength="2000"
+            rows="4"
+          ></textarea>
+        </label>
+        <label
+          >Continuidade Olivaw: serviços, limites, plano e condições do desconto<textarea
+            name="continuity"
+            [(ngModel)]="proposal().continuity"
+            (ngModelChange)="changed()"
+            maxlength="3000"
+            rows="5"
+          ></textarea>
+        </label>
+        <button class="primary" type="submit" [disabled]="busy() || proposalForm.invalid">
+          {{ busy() ? 'Salvando…' : 'Salvar orçamento' }}
+        </button>
+      </form>
+    }
+    @let t = totals();
+    <section class="totals" aria-label="Comparação comercial">
+      <div class="card">
+        <p class="eyebrow">IMPLEMENTAÇÃO AVULSA</p>
+        <strong>{{ t.total | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+        <p>
+          {{ t.hours | number: '1.0-2' : 'pt-BR' }} horas base · Reserva
+          {{ proposal().reservePercent }}%:
+          {{ t.reserve | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+        </p>
+        <small
+          >Opcionais: {{ t.optional | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}, sem reserva
+          e fora do total.</small
+        >
+      </div>
+      <div class="card continuity">
+        <p class="eyebrow">COM CONTINUIDADE OLIVAW</p>
+        <strong>{{ t.negotiated | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+        <p>
+          Desconto proposto: {{ proposal().discountPercent }}%. Implementação em
+          {{ proposal().installments }} parcela(s).
+        </p>
+        @if (proposal().installments > 1) {
+          <p>
+            {{ proposal().installments - 1 }} parcela(s) de
+            {{ t.installment | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} e última de
+            {{ t.finalInstallment | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}.
+          </p>
+        } @else {
+          <p>Implementação em pagamento único, conforme as condições acordadas.</p>
+        }
+        <p>{{ proposal().continuity || 'Plano e condições a negociar.' }}</p>
+        <small
+          >Mensalidade do plano e custos externos separados. Desconto, permanência e cancelamento
+          sujeitos a aprovação.</small
+        >
+      </div>
+    </section>
+    @if (message()) {
+      <p role="status">{{ message() }}</p>
+    }
+  }
+</main>

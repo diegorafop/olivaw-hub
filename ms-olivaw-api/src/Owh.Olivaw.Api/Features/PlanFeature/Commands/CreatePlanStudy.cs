@@ -25,7 +25,7 @@ public sealed class CreatePlanStudyHandler(IRepository<PlanStudy> repository, IR
         if (references.Count != ids.Length) throw new ValidationException("Confira as origens de custo selecionadas.");
         var selected = p.Lines.Select(line => (Cost: references[line.CostReferenceExternalId], Allocation: line.AllocationPercent)).ToList();
         if (selected.Select(item => item.Cost.Name.ToLowerInvariant()).Distinct().Count() != selected.Count) return new() { Conflict = "Selecione uma versão por origem de custo." };
-        var study = PlanStudy.Create(p.Name, p.IncludedFeatures, p.StorageLimitGB, p.MemoryLimitMiB, selected, p.SupportHours, p.HourlyCost, p.ReservePercent, p.MarginPercent, request.ActorUserId, request.ActorName, DateTime.UtcNow);
+        var study = PlanStudy.Create(p.Name, p.IncludedFeatures, p.StorageLimitGB, p.MemoryLimitMiB, selected, p.SupportHours, p.HourlyCost, p.ReservePercent, p.MarginPercent, request.ActorUserId, request.ActorName, DateTime.UtcNow, p.CommercialPercent);
         await repository.AddAsync(study, token); await repository.SaveChangesAsync(token);
         return new() { Response = new() { ExternalId = study.ExternalId } };
     }
@@ -38,7 +38,7 @@ public sealed class CreatePlanStudyValidator : AbstractValidator<CreatePlanStudy
         RuleFor(item => item.IncludedFeatures).NotEmpty().MaximumLength(3000);
         RuleFor(item => item.StorageLimitGB).InclusiveBetween(0, 1000000000).PrecisionScale(18, 3, true);
         RuleFor(item => item.MemoryLimitMiB).InclusiveBetween(0, 1000000000).PrecisionScale(18, 3, true);
-        RuleFor(item => new ReadPlanEstimateQuery { Lines = item.Lines, SupportHours = item.SupportHours, HourlyCost = item.HourlyCost, ReservePercent = item.ReservePercent, MarginPercent = item.MarginPercent }).SetValidator(new ReadPlanEstimateValidator()).OverridePropertyName(string.Empty);
+        RuleFor(item => new ReadPlanEstimateQuery { Lines = item.Lines, SupportHours = item.SupportHours, HourlyCost = item.HourlyCost, ReservePercent = item.ReservePercent, MarginPercent = item.MarginPercent, CommercialPercent=item.CommercialPercent }).SetValidator(new ReadPlanEstimateValidator()).OverridePropertyName(string.Empty);
     }
 }
 public sealed class CreatePlanStudyMediatorValidator : AbstractValidator<CreatePlanStudyMediatorCommand>

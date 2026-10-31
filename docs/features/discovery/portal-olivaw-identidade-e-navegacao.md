@@ -19,6 +19,9 @@ para diferenciar a operação interna, o portal do cliente e as áreas de gestã
 
 ### Estado
 
+Atualização de implementação local em 30/10/2026: `/portal` e `/portal/entrar` passam a ser os endereços reais do cliente, usando a autoridade PortalIdentity existente. `/meu-negocio` e `/meu-negocio/entrar` redirecionam preservando query strings e convites. Links emitidos pela administração usam o endereço novo. A demonstração estática fica em `/admin/portal-home-preview`, com guard administrativo root e sem gravação real. Não alterar `/admin` ou DNS. Sem commit, push ou deploy. O estudo original abaixo é histórico.
+
+
 Discovery. Em 25/10/2026, o mantenedor aprovou `/portal` para o cliente e autorizou uma prévia visual da Home com dados ilustrativos. A prévia está temporariamente protegida por acesso administrativo root e não migra o portal real. As atividades e features serão definidas depois da revisão da UI. Sem issue própria; não associar esta evolução à issue025 do Baley. As opções abaixo preservam o estudo inicial, não decisões sobre a operação interna.
 
 A separação obrigatória de roles, audiences e autorização entre Portal e DevOps está registrada em [Segurança JWT](seguranca-jwt-portal-e-devops.md); ainda não implementada por este estudo.

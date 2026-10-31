@@ -1,0 +1,73 @@
+{
+  "title": "Implementação de comentários e reações em plataforma web",
+  "status": "draft",
+  "platform": "Ainda não apresentada. CMS, framework e versões a confirmar.",
+  "requirementsAnalysis": "Comentários por conteúdo, votos positivos e negativos, contagem separada, reações Gostei/Não gostei/Triste/Bravo, moderação e interface responsiva. Confirmar login, volume, troca/remoção de votos, histórico e política de moderação.",
+  "technicalApproach": "Primeiro avaliar recursos nativos e plugins mantidos. Se WordPress for confirmado, avaliar wpDiscuz para comentários e votos; componente de reações depende de prova de compatibilidade. WP Reactions Lite está encerrado e não será utilizado. Identificar lacunas antes de estimar programação personalizada no sistema existente. Não há plugin aprovado ou plataforma inspecionada.",
+  "assumptions": "Um site, um idioma, um modelo de página, administração e identidade existentes. Sem migração, anexos, notificações, novo login ou redesign. Moderação humana pelo cliente. Visitantes anônimos não permitem garantir unicidade por pessoa. Complementos personalizados dependem do diagnóstico; horas opcionais são apenas cenário ilustrativo, fora do total.",
+  "externalCosts": "Licenças, antispam e serviços externos a cotar. Nenhum serviço pago incluído. Capacidade da hospedagem ainda não medida.",
+  "deadline": "Cenário compatível com plugins: 5–8 dias úteis após aprovação do escopo e liberação dos acessos. Esperas por homologação podem ampliar o calendário.",
+  "terms": "Estimativa interna em BRL, taxa hipotética de R$ 100/h, ainda sem aprovação comercial. Preço fechado e validade serão definidos após diagnóstico. Pagamento sugerido 50% no início e 50% após homologação, sujeito às regras do 99Freelas. Publicação com janela e reversão acordadas.",
+  "continuity": "Manutenção, gerenciamento dos recursos e banco de dados, backups e atualizações de pacotes podem ser contratados conforme limites do plano Olivaw. Desconto de implementação e distribuição em entregas mensais são negociáveis; plano, mensalidade, escopo mensal, permanência e cancelamento ainda não definidos. Nenhum desconto ou parcelamento aprovado neste rascunho.",
+  "reservePercent": 20,
+  "discountPercent": 0,
+  "installments": 1,
+  "rows": [
+    {
+      "description": "Análise dos requisitos e compatibilidade",
+      "role": "Analista",
+      "solution": "analysis",
+      "hours": 4,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Comentários, votos e administração",
+      "role": "Programador",
+      "solution": "plugin",
+      "hours": 5,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Reações e contagem por conteúdo",
+      "role": "Programador",
+      "solution": "integration",
+      "hours": 4,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Filtros e proteção contra abuso",
+      "role": "Programador",
+      "solution": "integration",
+      "hours": 4,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Responsividade e acessibilidade",
+      "role": "Programador",
+      "solution": "integration",
+      "hours": 3,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Testes, homologação, documentação e orientação",
+      "role": "Programador / QA",
+      "solution": "validation",
+      "hours": 7,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Cenário de complemento personalizado se plugins não atenderem (reestimar após diagnóstico)",
+      "role": "Programador",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": true
+    }
+  ]
+}

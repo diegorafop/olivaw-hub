@@ -17,7 +17,7 @@ public sealed class PlanEstimate
     public decimal? SuggestedMonthlyPrice { get; private set; }
     public decimal UnallocatedMonthlyCost { get; private set; }
     public int MissingCosts { get; private set; }
-    public static PlanEstimate Calculate(IReadOnlyCollection<PlanCostLine> lines, decimal supportHours, decimal hourlyCost, decimal reservePercent, decimal marginPercent)
+    public static PlanEstimate Calculate(IReadOnlyCollection<PlanCostLine> lines, decimal supportHours, decimal hourlyCost, decimal reservePercent, decimal marginPercent, decimal commercialPercent = 0)
     {
         if (lines == null) throw new ArgumentNullException(nameof(lines));
         if (lines.Count > 100) throw new ArgumentException("Limite de 100 itens.");
@@ -25,7 +25,8 @@ public sealed class PlanEstimate
         if (hourlyCost < 0 || hourlyCost > 1000000) throw new ArgumentException("Custo por hora inválido.");
         if (reservePercent < 0 || reservePercent > 100) throw new ArgumentException("Reserva inválida.");
         if (marginPercent < 0 || marginPercent >= 100) throw new ArgumentException("Margem deve ser menor que 100%.");
-        foreach (var number in new[] { supportHours, hourlyCost, reservePercent, marginPercent })
+        if (commercialPercent < 0 || marginPercent + commercialPercent >= 100) throw new ArgumentException("Margem e despesas comerciais precisam somar menos que 100%.");
+        foreach (var number in new[] { supportHours, hourlyCost, reservePercent, marginPercent, commercialPercent })
             if (decimal.Round(number, 2) != number) throw new ArgumentException("Use no máximo duas casas decimais.");
         foreach (var line in lines)
         {
@@ -37,10 +38,10 @@ public sealed class PlanEstimate
         }
         var known = lines.Where(item => item.MonthlyCost.HasValue).Sum(item => item.MonthlyCost!.Value * item.AllocationPercent / 100);
         var unallocated = lines.Where(item => item.MonthlyCost.HasValue).Sum(item => item.MonthlyCost!.Value * (100 - item.AllocationPercent) / 100);
-        var result = new PlanEstimate { KnownMonthlyCost = decimal.Round(known, 2), UnallocatedMonthlyCost = decimal.Round(unallocated, 2), MissingCosts = lines.Count(item => !item.MonthlyCost.HasValue) };
+        var result = new PlanEstimate { KnownMonthlyCost = decimal.Round(known, 2, MidpointRounding.AwayFromZero), UnallocatedMonthlyCost = decimal.Round(unallocated, 2, MidpointRounding.AwayFromZero), MissingCosts = lines.Count(item => !item.MonthlyCost.HasValue) };
         if (result.MissingCosts > 0 || lines.Count == 0) return result;
-        var costWithReserve = (known + supportHours * hourlyCost) * (1 + reservePercent / 100);
-        result.SuggestedMonthlyPrice = decimal.Round(costWithReserve / (1 - marginPercent / 100), 2, MidpointRounding.AwayFromZero);
+        var costWithReserve = decimal.Round((result.KnownMonthlyCost + supportHours * hourlyCost) * (1 + reservePercent / 100), 2, MidpointRounding.AwayFromZero);
+        result.SuggestedMonthlyPrice = decimal.Round(costWithReserve / (1 - (marginPercent + commercialPercent) / 100), 2, MidpointRounding.AwayFromZero);
         return result;
     }
 }

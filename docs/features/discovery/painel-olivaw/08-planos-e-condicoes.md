@@ -15,6 +15,9 @@ para registrar o que foi combinado com cada cliente, mantendo mensalidade e capa
 
 ## ai-prompt
 
+O [catálogo, composição de custos e versões mensais](../../done/planos-versoes-mensais-e-custeio.md) foi concluído localmente em 30/10/2026, preservando o estudo anterior e condições legadas. O mantenedor focou esta entrega para iniciar aquisição de clientes. A visão ampla abaixo permanece como referência; aprovação comercial, quotas reais, franquias automatizadas e recomendações de upgrade não devem ser apresentadas como publicadas.
+
+
 Primeiro recorte implementado: [08a — Base de custos e estudo dos planos](../../done/08a-estudos-de-planos.md). O restante desta visão permanece no planejamento, conforme as exclusões e pendências do recorte concluído.
 
 

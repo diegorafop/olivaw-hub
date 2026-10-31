@@ -15,6 +15,9 @@ para entregar uma primeira verificação confiável de um sistema, com origem e 
 
 ## ai-prompt
 
+Incremento local em 30/10/2026: `ScheduledHealthCollector`, desabilitado por padrão, reutiliza a allowlist HTTPS e o bloqueio de endereços privados do PublicHealthProbe. Ciclo sem sobreposição, até 32 recursos explícitos, intervalo 5–60 minutos, timeout de cinco segundos por destino, chave determinística por janela e retenção 7–90 dias (somente amostras automáticas). GET `/health-readings/collector`, root, distingue desabilitado/sem execução de falhas de fonte. Sem destino autorizado não há coleta nem estado saudável inventado. Fonte HTTP não comprova fluxo completo, não abre incidentes nem promete disponibilidade. Falta a política externa de contingência e validação de fonte real; nenhuma coleta ativada em produção.
+
+
 Primeiro recorte implementado: [05a — Verificações pontuais de saúde](../../done/05a-verificacoes-pontuais-de-saude.md). O restante desta visão permanece no planejamento, conforme as exclusões e pendências do recorte concluído.
 
 

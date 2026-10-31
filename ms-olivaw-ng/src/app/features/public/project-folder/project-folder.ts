@@ -9,7 +9,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { planOfferings } from '../plans/plan-offerings';
 import { ContactFields } from '../contact-fields';
 import { ContactWelcome } from '../contact-welcome';
 import { ProjectPlans } from './project-plans';
@@ -33,6 +34,10 @@ export class ProjectFolder {
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('journeyContent');
   private readonly injector = inject(Injector);
   constructor() {
+    const offered = planOfferings.find(
+      (plan) => plan.id === inject(ActivatedRoute).snapshot.queryParamMap.get('plano'),
+    );
+    if (offered) this.draft.plan.set(offered.name);
     this.draft.enter(this.draft.seed()?.source ?? 'discovery');
     if (!this.ready()) this.step.set(0);
   }

@@ -24,7 +24,7 @@ public sealed class Expense : Entity
         if (string.IsNullOrWhiteSpace(description) || description.Length > 160 || string.IsNullOrWhiteSpace(source) || source.Length > 300) throw new ArgumentException("Descrição e origem são obrigatórias.");
         if (!IsCategory(category) || kind is not ("cost" or "credit") || currency is not ("BRL" or "USD")) throw new ArgumentException("Classificação inválida.");
         if (amount <= 0 || amount > 100000000 || decimal.Round(amount, 2) != amount || exchangeRate <= 0 || exchangeRate > 1000 || decimal.Round(exchangeRate, 6) != exchangeRate || (currency == "BRL" && exchangeRate != 1)) throw new ArgumentException("Valor ou conversão inválidos.");
-        if (occurredAt.Kind != DateTimeKind.Utc || occurredAt.TimeOfDay != TimeSpan.Zero || occurredAt > now) throw new ArgumentException("Data deve ser um dia UTC já iniciado.");
+        if (occurredAt.Kind != DateTimeKind.Utc || occurredAt.TimeOfDay != TimeSpan.Zero || occurredAt > now.Date.AddYears(1)) throw new ArgumentException("Data deve ser um dia UTC até doze meses à frente.");
         return new() { ExternalId = Guid.NewGuid(), EntryKey = entryKey, Digest = digest, Description = description, Category = category, Kind = kind, Currency = currency, Amount = amount, ExchangeRateToBrl = exchangeRate, AmountBrl = decimal.Round(amount * exchangeRate, 2, MidpointRounding.AwayFromZero), OccurredAt = occurredAt, Source = source, Customer = customer, CustomerId = customer?.Id, ActorUserId = actor, CreatedAt = now };
     }
 }

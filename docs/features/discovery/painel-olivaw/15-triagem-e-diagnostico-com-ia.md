@@ -15,6 +15,9 @@ para reduzir trabalho de reunir contexto e preparar respostas, mantendo a equipe
 
 ## ai-prompt
 
+Em 30/10/2026 o mantenedor pediu explicitamente não implementar pendências de IA e deixá-las para análise posterior. Nenhum executor novo ficou no repositório e nenhuma chamada de IA foi executada. Não retomar esta feature como consequência do fechamento de Planos.
+
+
 Em descoberta; decisões e dependências ainda precisam ser resolvidas antes de mover para ready.
 
 Trabalhe somente no recorte autorizado desta feature. Confira os AGENTS.md aplicáveis, a implementação atual e o registro completo em `user-feedback`. Preserve os limites e as evidências históricas; registre testes e pendências. Migrations, finish, push e publicação dependem de autorização explícita.
@@ -93,3 +96,8 @@ Reduzir trabalho de reunir contexto e preparar respostas, mantendo a equipe resp
 - Localização do executor, fornecedores/modelos, dados permitidos, retenção, ferramentas, orçamento e revisão.
 - Casos de avaliação e critérios mínimos de qualidade antes de usar resultados na operação.
 ```
+
+
+segura ai, n faz nada de pendencia de IA
+
+deixa para analisae

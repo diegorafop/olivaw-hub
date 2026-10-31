@@ -39,7 +39,8 @@ export class FinanceApi {
       .set('from', from)
       .set('to', to)
       .set('groupBy', groupBy)
-      .set('pageSize', 6);
+      .set('pageSize', 6)
+      .set('includeCredits', false);
     if (customer === 'shared') params = params.set('unallocatedOnly', true);
     else if (customer) params = params.set('customerExternalId', customer);
     return this.http

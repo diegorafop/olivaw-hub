@@ -7,6 +7,7 @@ public sealed class ReadPlanEstimateQuery
     public decimal SupportHours { get; set; }
     public decimal HourlyCost { get; set; }
     public decimal ReservePercent { get; set; }
+    public decimal CommercialPercent { get; set; }
     public decimal MarginPercent { get; set; }
 }
 public sealed class PlanEstimateLine

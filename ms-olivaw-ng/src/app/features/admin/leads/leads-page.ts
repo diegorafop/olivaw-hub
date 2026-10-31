@@ -1,3 +1,4 @@
+import { LEAD_ENTRIES } from './lead-proposal-model';
 import { LEAD_STATUSES } from './lead-status';
 import { formatWhatsapp } from '../../public/contact-details';
 import { Component, computed, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
@@ -15,6 +16,7 @@ import { LeadDetail } from './lead-detail';
   styleUrl: './leads-page.scss',
 })
 export class LeadsPage {
+  readonly entries = LEAD_ENTRIES;
   readonly statuses = LEAD_STATUSES;
   readonly statusOptions = Object.entries(LEAD_STATUSES);
   readonly formatPhone = formatWhatsapp;

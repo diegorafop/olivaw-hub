@@ -35,10 +35,10 @@ async function setup(page: Page, root = true, fail = false) {
       return route.fulfill({
         json: {
           grossBrl: hasData ? 24.7 : 0,
-          creditsBrl: hasData ? 24.7 : 0,
-          netBrl: 0,
+          creditsBrl: 0,
+          netBrl: hasData ? 24.7 : 0,
           unallocatedBrl: month ? 0 : 0,
-          total: hasData ? 4 : 0,
+          total: hasData ? 2 : 0,
           items: hasData
             ? [
                 {
@@ -56,7 +56,7 @@ async function setup(page: Page, root = true, fail = false) {
             date: `2026-09-${String(i + 1).padStart(2, '0')}T00:00:00Z`,
             costBrl: hasData && i === 29 ? 24.7 : 0,
             creditsBrl: hasData && i === 29 ? 24.7 : 0,
-            netBrl: 0,
+            netBrl: hasData ? 24.7 : 0,
           })),
           byCategory: hasData
             ? [
@@ -65,8 +65,8 @@ async function setup(page: Page, root = true, fail = false) {
                   label: 'infrastructure',
                   grossBrl: 24.7,
                   creditsBrl: 24.7,
-                  netBrl: 0,
-                  entries: 4,
+                  netBrl: hasData ? 24.7 : 0,
+                  entries: 2,
                 },
               ]
             : [],
@@ -77,8 +77,8 @@ async function setup(page: Page, root = true, fail = false) {
                   label: 'Compartilhada / sem rateio',
                   grossBrl: 24.7,
                   creditsBrl: 24.7,
-                  netBrl: 0,
-                  entries: 4,
+                  netBrl: hasData ? 24.7 : 0,
+                  entries: 2,
                 },
               ]
             : [],
@@ -108,8 +108,8 @@ for (const width of [1440, 390])
     );
     await expect(page.getByRole('heading', { name: 'Clareza sobre cada gasto.' })).toBeVisible();
     await expect(page.locator('.metric').nth(0)).toContainText('24,70');
-    await expect(page.locator('.metric').nth(1)).toContainText('24,70');
-    await expect(page.locator('.metric.net')).toContainText('0,00');
+    await expect(page.locator('.metric').nth(1)).toContainText('2');
+    await expect(page.locator('.metric.net')).toContainText('24,70');
     await page.screenshot({ path: `test-results/finance-${width}.png`, fullPage: true });
     await page.getByRole('link', { name: 'Semana', exact: true }).click();
     await expect

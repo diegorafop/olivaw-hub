@@ -35,7 +35,16 @@ public sealed class UpdateLeadHandler(IRepository<Lead> repository) : IRequestHa
         ValidationHelper.ThrowIfNull(request);
         var lead = await _repository.GetFirstOrDefaultAsync(item => item.ExternalId == request.ExternalId && item.DeletedAt == null, cancellationToken);
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(request.WriteKey));
+        if (lead != null)
+        {
+            var previous = JsonSerializer.Deserialize<UpdateLeadCommand>(lead.Snapshot, JsonOptions);
+            request.Payload.Acquisition = previous?.Acquisition;
+            request.Payload.Proposal = previous?.Proposal;
+        }
         var snapshot = JsonSerializer.Serialize(request.Payload, JsonOptions);
+        var snapshotValidator = new InlineValidator<string>();
+        snapshotValidator.RuleFor(item => item).MaximumLength(32000).OverridePropertyName("Snapshot");
+        await snapshotValidator.ValidateAndThrowAsync(snapshot, cancellationToken);
         if (lead != null)
         {
             if (!CryptographicOperations.FixedTimeEquals(hash, Convert.FromHexString(lead.WriteKeyHash)))
@@ -91,6 +100,8 @@ public sealed class UpdateLeadValidator : AbstractValidator<UpdateLeadCommand>
 
     public UpdateLeadValidator()
     {
+        RuleFor(item => item.Acquisition).Null();
+        RuleFor(item => item.Proposal).Null();
         RuleFor(item => item.SchemaVersion).Equal(1);
         RuleFor(item => item.Revision).InclusiveBetween(1, 1_000_000);
         RuleFor(item => item.StartedAt).NotEmpty();

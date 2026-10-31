@@ -1,0 +1,150 @@
+<section class="surface">
+  <h2>Composição do custo mensal</h2>
+  <p>
+    Inclua tudo o que mantém o plano funcionando, sempre em reais. Cada linha é a base de custo
+    compartilhada dividida pelos clientes que a utilizam. Use clientes pagantes reais ou identifique
+    a projeção na fonte.
+  </p>
+  <p>
+    Custos anuais são convertidos para média mensal. Domínio: R$40 anuais informados por você.
+    Valores desconhecidos ficam vazios; use zero somente se o custo realmente não existir.
+  </p>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="cost-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Componente</th>
+            <th>Valor da base (R$)</th>
+            <th>Período</th>
+            <th>Clientes que dividem</th>
+            <th>Parcela mensal do plano</th>
+          </tr>
+        </thead>
+        <tbody formArrayName="lines">
+          @for (row of definitions; track row.key; let i = $index) {
+            <tr [formGroupName]="i">
+              <th scope="row">{{ row.label }}</th>
+              <td>
+                <input
+                  type="number"
+                  min="0"
+                  max="100000000"
+                  step="0.01"
+                  formControlName="amount"
+                  [attr.aria-label]="row.label + ' — valor da base'"
+                />
+              </td>
+              <td>
+                <select formControlName="period" [attr.aria-label]="row.label + ' — período'">
+                  <option value="monthly">Mensal</option>
+                  <option value="annual">Anual</option>
+                </select>
+              </td>
+              <td>
+                <input
+                  type="number"
+                  min="1"
+                  max="1000"
+                  step="1"
+                  formControlName="sharedClients"
+                  [attr.aria-label]="row.label + ' — clientes que dividem'"
+                />
+              </td>
+              <td>
+                {{ lineMonthly(i) === null ? 'A apurar' : (lineMonthly(i) | currency: 'BRL') }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Não repetir o armazenamento dentro da VM e em uma linha separada se a mesma fatura já o
+      incluir. Rateio igual entre os clientes informados é uma hipótese de estudo, não medição de
+      CPU ou RAM. Perfis estático e API podem ter bases e grupos distintos. Mais clientes só reduzem
+      o custo de forma viável se houver capacidade para atendê-los; este estudo não comprova que a
+      VM comporte a quantidade informada.
+    </p>
+    <div class="fields">
+      <label
+        >Operação e suporte (horas/mês) *<input
+          type="number"
+          min="0"
+          step="0.01"
+          formControlName="supportHours" /></label
+      ><label
+        >Custo da hora de trabalho (R$) *<input
+          type="number"
+          min="0"
+          step="0.01"
+          formControlName="hourlyCost" /></label
+      ><label
+        >Reserva operacional (%) *<input
+          type="number"
+          min="0"
+          max="100"
+          step="0.01"
+          formControlName="reservePercent" /></label
+      ><label
+        >Margem desejada (%) *<input
+          type="number"
+          min="0"
+          max="99.99"
+          step="0.01"
+          formControlName="marginPercent" /></label
+      ><label
+        >Despesas comerciais (%) *<input
+          type="number"
+          min="0"
+          max="99.99"
+          step="0.01"
+          formControlName="commercialPercent"
+      /></label>
+    </div>
+    <p>
+      15% de reserva, 20% de margem e 6% de despesas comerciais são hipóteses editáveis. Não
+      representam uma alíquota fiscal confirmada. Mesmo um site estático precisa prever algum
+      atendimento e operação; criação inicial e melhorias são orçadas separadamente.
+    </p>
+    <label
+      >Fonte e hipóteses do estudo *<textarea
+        formControlName="source"
+        rows="3"
+        maxlength="300"
+        placeholder="Ex.: orçamento mensal da VM; 20 clientes projetados no grupo estático; ferramenta compartilhada entre produtos."
+      ></textarea>
+    </label>
+    @if (preview(); as value) {
+      <dl aria-label="Prévia local da conta">
+        <div>
+          <dt>Custo mensal com operação e reserva</dt>
+          <dd>{{ value.monthly | currency: 'BRL' }}</dd>
+        </div>
+        <div>
+          <dt>Mensalidade sugerida</dt>
+          <dd>{{ value.suggested | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+      <p>
+        Prévia local aproximada. Ao salvar, a API confirma os valores e arredondamentos. Mensalidade
+        = custo com reserva ÷ (1 − margem − despesas comerciais).
+      </p>
+    } @else {
+      <p>Complete os valores para calcular; custos ausentes não serão considerados zero.</p>
+    }
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    <button type="submit" [disabled]="pending()">
+      {{ pending() ? 'Salvando estudo…' : 'Salvar estudo e vincular à próxima versão' }}
+    </button>
+    @if (result(); as value) {
+      <p role="status">
+        Estudo salvo. Custo mensal: {{ value.monthlyCostWithReserve | currency: 'BRL' }} ·
+        Mensalidade sugerida: {{ value.suggestedMonthlyPrice | currency: 'BRL' }}. O plano ainda
+        precisa ser publicado com aprovação.
+      </p>
+    }
+  </form>
+</section>

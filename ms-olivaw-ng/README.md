@@ -190,3 +190,29 @@ A API precisa da ampliação aditiva de `GET /expenses` para os grupos e o filtr
 npm run test -- --include=src/app/features/admin/finance/finance-period.spec.ts
 npm run e2e -- e2e/admin-finance.spec.ts e2e/admin-expenses.spec.ts e2e/admin-configuration.spec.ts
 ```
+
+O Financeiro abre no mês atual; lançamentos de setembro/2026 são consultados com `/admin/finance?period=month&date=2026-09-30`. O estado vazio oferece navegação para o período anterior. Por decisão do mantenedor, benefícios Free Tier não entram como despesas nem abatem gastos: os clientes de consulta enviam `includeCredits=false`; a API precisa da correção correspondente. Créditos já existentes ficam preservados para auditoria da fatura, fora da listagem padrão.
+
+### Catálogo e portal (incrementos locais)
+
+`/admin/plans` tem quatro cards fixos; detalhes em `/admin/plans/bronze`, `/prata`, `/ouro` e `/diamante`. Preço vigente vem da API; proposta de Bronze R$49 não vira contrato por abrir a página. Custo estimado depende de estudo completo. `/admin/plans/simulator` mantém os cenários anteriores; `/admin/plans/catalog` redireciona para o catálogo. Publicar versão e atribuir condição mensal são ações explícitas root, com aprovação e histórico preservado.
+
+Faturas AWS ficam em `/admin/invoices`, acessíveis pelo Financeiro, com criação e detalhes navegáveis. Campos desconhecidos do JSON são preservados. Cadastro documental não cria despesas.
+
+Portal real: `/portal`, login `/portal/entrar`. Os endereços `/meu-negocio` continuam como atalhos, preservando parâmetros e convites. Prévia estática interna: `/admin/portal-home-preview`, root. Autoridades administrativas e de clientes permanecem independentes; a mudança de endereço não concede acesso.
+
+O detalhe do plano agora inclui a composição simplificada completa de custos. Bases anuais são mensalizadas; fontes e denominadores ficam preservados no estudo. Custos desconhecidos não viram zero. Salvar estudo preenche o vínculo da próxima versão, sem aprovar preço nem alterar contrato. O estudo vigente pode ser usado como base de outro cenário. Margem e despesas comerciais entram no denominador do preço sugerido; operação e reserva entram no custo. O simulador anterior preserva a mesma regra e o campo de despesas comerciais.
+
+Validação local do fechamento: build, lint e 22 testes E2E de planos e fluxos alterados passaram. Os avisos SCSS restantes são anteriores a esta entrega. Não há commit, push ou deploy; preços do catálogo só existem após aprovação e publicação explícitas pela operação.
+
+## Prospecção e orçamento de Leads
+
+Em Leads, **Cadastrar lead** aceita prospecção ativa ou contato recebido, com importação JSON para revisão antes de salvar. A ficha abre `/admin/leads/:id/proposal`, com horas por profissional, opcionais, reserva, comparação avulso/continuidade e apresentação HTML autônoma. O download não publica a proposta. Importar um JSON não persiste nem envia nada automaticamente.
+
+[Roteiro de cadastro preparado](../docs/99freelas/795293/cadastro-apos-publicacao.md). Verificações: `npm run build`, `npm run lint`, `npm test` e `npm run e2e -- e2e/admin-lead-proposal.spec.ts e2e/admin-leads.spec.ts`.
+
+### Planos públicos e pontos de melhoria
+
+`/planos` e `/planos/bronze|prata|ouro|diamante` são públicos e pré-renderizados, com breadcrumb e metadados próprios. O interesse segue para `/projeto?plano=<id>`. Conteúdo compartilhado em `plan-offerings.ts`: franquias 1/4/12/36 sem acúmulo; Prata 5 GB e duas contas administrativas do site. As condições sugeridas para novas versões não modificam contratos existentes. Saldo automático e compra de pacotes são evolução futura.
+
+Validação: `npm run build`, `npm run lint` e `npm run e2e -- e2e/public-plans.spec.ts e2e/project-folder.spec.ts e2e/admin-expenses.spec.ts`. Ver [feature](../docs/features/done/planos-publicos-oferta-e-pontos-de-melhoria.md).

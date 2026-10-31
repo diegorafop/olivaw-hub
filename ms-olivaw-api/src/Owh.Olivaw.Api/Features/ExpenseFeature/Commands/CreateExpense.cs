@@ -40,7 +40,7 @@ public sealed class CreateExpenseValidator : AbstractValidator<CreateExpenseComm
         RuleFor(x => x.Amount).GreaterThan(0).LessThanOrEqualTo(100000000).PrecisionScale(18, 2, true);
         RuleFor(x => x.ExchangeRateToBrl).GreaterThan(0).LessThanOrEqualTo(1000).PrecisionScale(18, 6, true);
         RuleFor(x => x.ExchangeRateToBrl).Equal(1).When(x => x.Currency == "BRL");
-        RuleFor(x => x.OccurredAt).Must(v => v.Kind == DateTimeKind.Utc && v.TimeOfDay == TimeSpan.Zero && v <= DateTime.UtcNow);
+        RuleFor(x => x.OccurredAt).Must(v => v.Kind == DateTimeKind.Utc && v.TimeOfDay == TimeSpan.Zero && v <= DateTime.UtcNow.Date.AddYears(1));
         RuleFor(x => x.CustomerExternalId).NotEqual(Guid.Empty);
     }
 }

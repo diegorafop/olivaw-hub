@@ -18,7 +18,7 @@ public sealed class ExpenseTest
         var customer=ManagedServiceFakerBuilder.Customer();var other=ManagedServiceFakerBuilder.Customer(2);
         var repository=InventoryFakerBuilder.Repository(Entry(10,"cost"),Entry(2,"cost",customer),Entry(1,"credit",customer),Entry(3,"cost",other));
         var handler=new ReadExpenseByFilterHandler(repository.Object);
-        var request=new ReadExpenseByFilterMediatorQuery{Payload=new(){From=Day,To=Day.AddDays(2),GroupBy="day"}};
+        var request=new ReadExpenseByFilterMediatorQuery{Payload=new(){From=Day,To=Day.AddDays(2),GroupBy="day",IncludeCredits=true}};
         var total=await handler.Handle(request,CancellationToken.None);
         Assert.Equal(82.5m,total.GrossBrl);Assert.Equal(5.5m,total.CreditsBrl);Assert.Equal(77m,total.NetBrl);Assert.Equal(55m,total.UnallocatedBrl);
         Assert.Single(total.ByCategory); Assert.Equal(total.GrossBrl, total.ByCategory.Single().GrossBrl);
@@ -29,6 +29,11 @@ public sealed class ExpenseTest
         Assert.Single(paged.Items); Assert.Equal(total.GrossBrl,paged.GrossBrl); Assert.Equal(3,paged.ByCustomer.Count);
         request.Payload.PageSize = 20;
         Assert.Equal(2,total.Series.Count);Assert.Equal(0,total.Series[1].NetBrl);
+        request.Payload.IncludeCredits = false;
+        var expensesOnly = await handler.Handle(request,CancellationToken.None);
+        Assert.Equal(3, expensesOnly.Total); Assert.Equal(0m,expensesOnly.CreditsBrl); Assert.Equal(82.5m,expensesOnly.NetBrl);
+        Assert.All(expensesOnly.Items,x=>Assert.Equal("cost",x.Kind));
+        request.Payload.IncludeCredits = true;
         request.Payload.CustomerExternalId=customer.ExternalId;
         var own=await handler.Handle(request,CancellationToken.None);
         Assert.Equal(5.5m,own.NetBrl);Assert.Equal(55m,own.UnallocatedBrl);Assert.Equal(2,own.Items.Count);Assert.All(own.Items,x=>Assert.Equal(customer.Business,x.CustomerName));
@@ -58,5 +63,18 @@ public sealed class ExpenseTest
         Assert.Equal(saved.ExternalId,(await handler.Handle(command,CancellationToken.None)).Response.ExternalId);
         p.Amount=101;Assert.NotNull((await handler.Handle(command,CancellationToken.None)).Conflict);
         Assert.True(new CreateExpenseMediatorValidator().Validate(command).IsValid);
+    }
+    [Fact]
+    public void Known_future_expenses_allow_one_year_but_reject_further_dates_and_non_utc_days()
+    {
+        var now = DateTime.UtcNow;
+        var p = new CreateExpenseCommand { EntryKey = Guid.NewGuid(), Description = "Domínio anual — parcela", Amount = 3.33m, Currency = "BRL", ExchangeRateToBrl = 1, Source = "Apropriação mensal de custo anual", OccurredAt = now.Date.AddMonths(11) };
+        Assert.True(new CreateExpenseValidator().Validate(p).IsValid);
+        Assert.Equal(p.OccurredAt, Expense.Create(p.EntryKey, new string('A',64), p.Description, p.Category, p.Kind, p.Currency, p.Amount, 1, p.OccurredAt, p.Source, null, InventoryFakerBuilder.Actor, now).OccurredAt);
+        p.OccurredAt = now.Date.AddYears(1).AddDays(1);
+        Assert.False(new CreateExpenseValidator().Validate(p).IsValid);
+        Assert.Throws<ArgumentException>(() => Expense.Create(p.EntryKey, new string('A',64), p.Description, p.Category, p.Kind, p.Currency, p.Amount, 1, p.OccurredAt, p.Source, null, InventoryFakerBuilder.Actor, now));
+        p.OccurredAt = DateTime.SpecifyKind(now.Date, DateTimeKind.Local);
+        Assert.False(new CreateExpenseValidator().Validate(p).IsValid);
     }
 }

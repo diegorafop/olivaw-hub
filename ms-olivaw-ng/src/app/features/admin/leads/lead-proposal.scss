@@ -1,0 +1,158 @@
+@use '../../../../theme/brand' as brand;
+:host {
+  display: block;
+  color: brand.$ink;
+}
+* {
+  box-sizing: border-box;
+}
+.proposal-page {
+  max-width: 1160px;
+  margin: auto;
+  padding: 32px;
+}
+header {
+  margin: 28px 0;
+}
+h1 {
+  font-size: clamp(26px, 4vw, 36px);
+  letter-spacing: -0.04em;
+  font-weight: 500;
+}
+h2 {
+  font-size: 24px;
+}
+h3 {
+  font-size: 18px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #536a5b;
+}
+a {
+  color: #193e34;
+}
+p {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.card {
+  background: #fff;
+  border: 1px solid #dce6e0;
+  border-radius: 14px;
+  padding: 24px;
+  margin: 20px 0;
+}
+.actions,
+.fields,
+.totals {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.fields > label {
+  flex: 1 1 210px;
+}
+.totals > .card {
+  flex: 1 1 300px;
+}
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+input,
+select,
+textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #cedbce;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fafcf9;
+  color: brand.$ink;
+  font: inherit;
+}
+textarea {
+  resize: vertical;
+}
+input[type='checkbox'] {
+  width: auto;
+  margin: 0;
+}
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+button {
+  font: inherit;
+  padding: 12px 16px;
+  border: 1px solid #cedbce;
+  border-radius: 8px;
+  background: #fff;
+  color: #193e34;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.primary {
+  background: #193e34;
+  color: #fff;
+}
+fieldset {
+  border: 1px solid #dce6e0;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 18px;
+  min-width: 0;
+}
+.conditions {
+  margin-top: 24px;
+}
+.continuity {
+  border-top: 4px solid brand.$accent;
+  background: brand.$mist;
+}
+.totals strong {
+  font-size: 30px;
+  font-weight: 500;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #dce6e0;
+}
+th {
+  background: brand.$mist;
+}
+td small {
+  display: block;
+}
+small {
+  line-height: 1.6;
+  color: #536a5b;
+}
+.error {
+  color: #a02121;
+}
+@media (max-width: 600px) {
+  .proposal-page {
+    padding: 20px 14px;
+  }
+  .card {
+    padding: 18px;
+  }
+}

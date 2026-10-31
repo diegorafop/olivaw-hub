@@ -14,14 +14,14 @@ public sealed class ReadCustomerPlanByFilterHandler(IRepository<CustomerPlan> re
     {
         ValidationHelper.ThrowIfNull(request);
         var p = request.Payload;
-        var rows = (await repository.TakeOrderedAsync(item => item.DeletedAt == null && (p.BeforeId == 0 || item.Id < p.BeforeId) && item.Customer.ExternalId == p.CustomerExternalId, 21, item => item.Id, token, item => item.Customer)).ToList();
+        var rows = (await repository.TakeOrderedAsync(item => item.DeletedAt == null && (p.BeforeId == 0 || item.Id < p.BeforeId) && item.Customer.ExternalId == p.CustomerExternalId, 21, item => item.Id, token, item => item.Customer, item => item.PlanVersion!)).ToList();
         var response = new ReadCustomerPlanByFilterResponse { Items = rows.Take(20).Select(Map).ToList() };
         if (rows.Count > 20) response.NextBeforeId = rows[19].Id;
-        var current = await repository.TakeOrderedAsync(item => item.DeletedAt == null && item.Customer.ExternalId == p.CustomerExternalId && item.StartsAt <= p.At, 1, item => item.StartsAt, token, item => item.Customer);
+        var current = await repository.TakeOrderedAsync(item => item.DeletedAt == null && item.Customer.ExternalId == p.CustomerExternalId && item.StartsAt <= p.At, 1, item => item.StartsAt, token, item => item.Customer, item => item.PlanVersion!);
         response.Current = current.Select(Map).FirstOrDefault();
         return response;
     }
-    private static CustomerPlanItem Map(CustomerPlan item) => new() { ExternalId = item.ExternalId, Name = item.Name, MonthlyPrice = item.MonthlyPrice, MemoryLimitGiB = item.MemoryLimitGiB, StorageLimitGiB = item.StorageLimitGiB, Conditions = item.Conditions, ApprovalReference = item.ApprovalReference, ActorName = item.ActorName, StartsAt = item.StartsAt };
+    private static CustomerPlanItem Map(CustomerPlan item) => new() { ExternalId = item.ExternalId, PlanVersionExternalId=item.PlanVersion?.ExternalId, Version=item.PlanVersion?.Version, Name = item.Name, MonthlyPrice = item.MonthlyPrice, MemoryLimitGiB = item.MemoryLimitGiB, StorageLimitGiB = item.StorageLimitGiB, Conditions = item.Conditions, ApprovalReference = item.ApprovalReference, ActorName = item.ActorName, StartsAt = item.StartsAt };
 }
 public sealed class ReadCustomerPlanByFilterValidator : AbstractValidator<ReadCustomerPlanByFilterQuery>
 {

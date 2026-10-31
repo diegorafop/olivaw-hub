@@ -18,6 +18,9 @@ para conhecer quanto custa manter a Olivaw, quanto cada cliente contribui para a
 
 ## ai-prompt
 
+Incremento local iniciado antes do foco ser restringido a Planos em 30/10/2026: controle gerencial manual com contas e saldo inicial explícito, obrigações a pagar/receber, baixas parciais, estornos, cancelamento com motivo, transferências internas e consulta diária. Endpoints root `/finance/*` e telas `/admin/finance/control`, `/accounts`, `/entries` e detalhes. Valores BRL, idempotência e revisão concorrente; nenhuma movimentação bancária, cobrança externa ou cálculo tributário automático. Despesas, obrigação e baixa são conceitos distintos e não se somam em duplicidade. Modelo incluído na migration complementar da issue026; não publicado. A visão contábil ampla e as integrações abaixo continuam em discovery. A execução atual prioriza fechar Planos, sem acrescentar novos escopos financeiros.
+
+
 Em descoberta; sem implementação neste pacote. Planejamento a pedido do mantenedor. Decisões em aberto serão apresentadas como sugestões, sem dados de produção inventados. Responsável: Codex desta sessão, execução sequencial no worktree atual, sem integração ou publicação.
 
 Trabalhe somente no recorte autorizado desta feature. Confira os AGENTS.md aplicáveis, a implementação atual e o registro completo em `user-feedback`. Preserve os limites e as evidências históricas; registre testes e pendências. Migrations, finish, push e publicação dependem de autorização explícita.

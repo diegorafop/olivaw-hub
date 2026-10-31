@@ -8,6 +8,7 @@ public sealed class ReadExpenseByFilterQuery
     public string GroupBy { get; set; } = "day";
     public Guid? CustomerExternalId { get; set; }
     public bool UnallocatedOnly { get; set; }
+    public bool IncludeCredits { get; set; }
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
 }

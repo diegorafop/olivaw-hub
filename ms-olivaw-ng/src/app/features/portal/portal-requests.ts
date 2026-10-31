@@ -257,7 +257,7 @@ export class PortalRequests {
     this.error.set(inventoryError(error));
     if (!this.preview() && (error as { status?: number }).status === 401) {
       this.api.session.set(null);
-      void this.router.navigate(['/meu-negocio/entrar']);
+      void this.router.navigate(['/portal/entrar']);
     }
   }
 }

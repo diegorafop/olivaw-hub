@@ -179,7 +179,8 @@ export class ExpensesPage {
       .set('from', f.from + 'T00:00:00Z')
       .set('to', end.toISOString())
       .set('groupBy', f.groupBy)
-      .set('page', this.page());
+      .set('page', this.page())
+      .set('includeCredits', false);
     if (f.customer === 'shared') params = params.set('unallocatedOnly', true);
     else if (f.customer) params = params.set('customerExternalId', f.customer);
     this.currentQuery?.unsubscribe();

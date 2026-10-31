@@ -78,11 +78,6 @@ export class FinanceDashboard {
       creditY: 174 - (p.creditsBrl / this.chartMax()) * 150,
     })),
   );
-  readonly creditPercent = computed(() =>
-    this.data()?.grossBrl
-      ? Math.round((this.data()!.creditsBrl / this.data()!.grossBrl) * 100)
-      : null,
-  );
   readonly categoryMax = computed(() =>
     Math.max(1, ...(this.data()?.byCategory ?? []).map((x) => x.grossBrl)),
   );

@@ -17,6 +17,22 @@ namespace Owh.Olivaw.Api.Features.LeadFeature;
 [HttpLogging(HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath | HttpLoggingFields.ResponseStatusCode)]
 public sealed class LeadReadController(IMediator mediator) : ControllerBase
 {
+    [HttpPost]
+    [RequestSizeLimit(65536)]
+    public async Task<IActionResult> Create([FromBody] CreateLeadCommand request, [FromServices] CurrentActor actor, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new CreateLeadMediatorCommand { Payload = request, ActorUserId = actor.Id }, cancellationToken);
+        if (result.Conflict) return Conflict(new { detail = "Este identificador já está cadastrado. Confira a lista antes de repetir." });
+        return Created($"/leads/{result.ExternalId}", result);
+    }
+    [HttpPut("{externalId:guid}/proposal")]
+    [RequestSizeLimit(65536)]
+    public async Task<IActionResult> UpdateProposal(Guid externalId, [FromBody] UpdateLeadProposalCommand request, [FromServices] CurrentActor actor, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new UpdateLeadProposalMediatorCommand { ExternalId = externalId, Payload = request, ActorUserId = actor.Id }, cancellationToken);
+        if (result.Conflict) return Conflict(new { detail = "A pasta mudou. Recarregue e confira a proposta antes de salvar." });
+        return Ok(result);
+    }
     [HttpGet]
     public async Task<IActionResult> ReadByFilter([FromQuery] ReadLeadByFilterQuery request, CancellationToken cancellationToken)
     {

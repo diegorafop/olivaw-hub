@@ -50,12 +50,15 @@ export class PortalHomePreview {
   readonly request = computed(() => this.requests().find((item) => item.id === this.detailId));
   readonly improvement = initialImprovements.find((item) => item.id === this.detailId);
   readonly breadcrumbs = [
-    { label: 'Início', url: '/portal' },
+    { label: 'Início', url: '/admin/portal-home-preview' },
     ...(['request', 'improvement', 'new'].includes(this.section)
       ? [
           {
             label: this.section === 'improvement' ? 'Melhorias' : 'Chamados',
-            url: this.section === 'improvement' ? '/portal/melhorias' : '/portal/chamados',
+            url:
+              this.section === 'improvement'
+                ? '/admin/portal-home-preview/melhorias'
+                : '/admin/portal-home-preview/chamados',
           },
         ]
       : []),
@@ -100,7 +103,7 @@ export class PortalHomePreview {
       },
       ...items,
     ]);
-    void this.router.navigate(['/portal/chamados', this.requests()[0].id], {
+    void this.router.navigate(['/admin/portal-home-preview/chamados', this.requests()[0].id], {
       queryParams: { simulado: 'true' },
     });
   }

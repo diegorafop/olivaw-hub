@@ -352,6 +352,205 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.ToTable("userprofileaccessprofile", (string)null);
                 });
 
+            modelBuilder.Entity("Owh.Olivaw.Domain.AwsInvoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountReference")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("accountreference");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<int>("BillingMonth")
+                        .HasColumnType("integer")
+                        .HasColumnName("billingmonth");
+
+                    b.Property<int>("BillingYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("billingyear");
+
+                    b.Property<string>("Completeness")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("completeness");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<decimal?>("CreditAmount")
+                        .HasPrecision(24, 10)
+                        .HasColumnType("numeric(24,10)")
+                        .HasColumnName("creditamount");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<string>("Digest")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("digest");
+
+                    b.Property<string>("DocumentStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("documentstatus");
+
+                    b.Property<string>("ExchangeRateNature")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("exchangeratenature");
+
+                    b.Property<decimal?>("ExchangeRateToBrl")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)")
+                        .HasColumnName("exchangeratetobrl");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<decimal?>("GrossAmount")
+                        .HasPrecision(24, 10)
+                        .HasColumnType("numeric(24,10)")
+                        .HasColumnName("grossamount");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("invoicenumber");
+
+                    b.Property<string>("Issuer")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("issuer");
+
+                    b.Property<decimal?>("NetAmount")
+                        .HasPrecision(24, 10)
+                        .HasColumnType("numeric(24,10)")
+                        .HasColumnName("netamount");
+
+                    b.Property<string>("RawData")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("rawdata");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("source");
+
+                    b.Property<Guid>("SubmissionKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("submissionkey");
+
+                    b.Property<decimal?>("TaxAmount")
+                        .HasPrecision(24, 10)
+                        .HasColumnType("numeric(24,10)")
+                        .HasColumnName("taxamount");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("awsinvoice_pk");
+
+                    b.HasIndex("Digest")
+                        .IsUnique()
+                        .HasDatabaseName("awsinvoice_digest_ix");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("awsinvoice_externalid_ix");
+
+                    b.HasIndex("SubmissionKey")
+                        .IsUnique()
+                        .HasDatabaseName("awsinvoice_submissionkey_ix");
+
+                    b.HasIndex("BillingYear", "BillingMonth")
+                        .HasDatabaseName("awsinvoice_billingyear_ix");
+
+                    b.ToTable("awsinvoice", (string)null);
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.AwsInvoiceExpense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<int>("AwsInvoiceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("awsinvoiceid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<int>("ExpenseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("expenseid");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("awsinvoiceexpense_pk");
+
+                    b.HasIndex("AwsInvoiceId")
+                        .HasDatabaseName("awsinvoiceexpense_awsinvoiceid_ix");
+
+                    b.HasIndex("ExpenseId")
+                        .IsUnique()
+                        .HasDatabaseName("awsinvoiceexpense_expenseid_ix");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("awsinvoiceexpense_externalid_ix");
+
+                    b.ToTable("awsinvoiceexpense", (string)null);
+                });
+
             modelBuilder.Entity("Owh.Olivaw.Domain.CareEvidence", b =>
                 {
                     b.Property<int>("Id")
@@ -814,6 +1013,10 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasColumnType("character varying(120)")
                         .HasColumnName("name");
 
+                    b.Property<int?>("PlanVersionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("planversionid");
+
                     b.Property<DateTime>("StartsAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("startsat");
@@ -833,6 +1036,9 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.HasIndex("ExternalId")
                         .IsUnique()
                         .HasDatabaseName("customerplan_externalid_ix");
+
+                    b.HasIndex("PlanVersionId")
+                        .HasDatabaseName("customerplan_planversionid_ix");
 
                     b.HasIndex("CustomerId", "StartsAt")
                         .IsUnique()
@@ -1291,6 +1497,344 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.ToTable("expense", (string)null);
                 });
 
+            modelBuilder.Entity("Owh.Olivaw.Domain.FinancialAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accountkey");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime>("OpenedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("openedat");
+
+                    b.Property<decimal>("OpeningBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("openingbalance");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("financialaccount_pk");
+
+                    b.HasIndex("AccountKey")
+                        .IsUnique()
+                        .HasDatabaseName("financialaccount_accountkey_ix");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("financialaccount_externalid_ix");
+
+                    b.ToTable("financialaccount", (string)null);
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.FinancialEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("CancellationReason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cancellationreason");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customerid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("direction");
+
+                    b.Property<DateTime>("DueAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dueat");
+
+                    b.Property<Guid>("EntryKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entrykey");
+
+                    b.Property<int?>("ExpenseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("expenseid");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("revision");
+
+                    b.Property<decimal>("SettledAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("settledamount");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("financialentry_pk");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("financialentry_customerid_ix");
+
+                    b.HasIndex("EntryKey")
+                        .IsUnique()
+                        .HasDatabaseName("financialentry_entrykey_ix");
+
+                    b.HasIndex("ExpenseId")
+                        .IsUnique()
+                        .HasDatabaseName("financialentry_expenseid_ix");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("financialentry_externalid_ix");
+
+                    b.HasIndex("DueAt", "CustomerId")
+                        .HasDatabaseName("financialentry_dueat_ix");
+
+                    b.ToTable("financialentry", (string)null);
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.FinancialSettlement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<int>("FinancialAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("financialaccountid");
+
+                    b.Property<int>("FinancialEntryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("financialentryid");
+
+                    b.Property<bool>("IsRefund")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isrefund");
+
+                    b.Property<DateTime>("PaidAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("paidat");
+
+                    b.Property<Guid>("SettlementKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("settlementkey");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("source");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("financialsettlement_pk");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("financialsettlement_externalid_ix");
+
+                    b.HasIndex("FinancialAccountId")
+                        .HasDatabaseName("financialsettlement_financialaccountid_ix");
+
+                    b.HasIndex("FinancialEntryId")
+                        .HasDatabaseName("financialsettlement_financialentryid_ix");
+
+                    b.HasIndex("SettlementKey")
+                        .IsUnique()
+                        .HasDatabaseName("financialsettlement_settlementkey_ix");
+
+                    b.ToTable("financialsettlement", (string)null);
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.FinancialTransfer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<int>("FromAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("fromaccountid");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("source");
+
+                    b.Property<int>("ToAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("toaccountid");
+
+                    b.Property<Guid>("TransferKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("transferkey");
+
+                    b.Property<DateTime>("TransferredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("transferredat");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.HasKey("Id")
+                        .HasName("financialtransfer_pk");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("financialtransfer_externalid_ix");
+
+                    b.HasIndex("FromAccountId")
+                        .HasDatabaseName("financialtransfer_fromaccountid_ix");
+
+                    b.HasIndex("ToAccountId")
+                        .HasDatabaseName("financialtransfer_toaccountid_ix");
+
+                    b.HasIndex("TransferKey")
+                        .IsUnique()
+                        .HasDatabaseName("financialtransfer_transferkey_ix");
+
+                    b.ToTable("financialtransfer", (string)null);
+                });
+
             modelBuilder.Entity("Owh.Olivaw.Domain.HealthReading", b =>
                 {
                     b.Property<int>("Id")
@@ -1325,6 +1869,10 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.Property<int>("InventoryResourceId")
                         .HasColumnType("integer")
                         .HasColumnName("inventoryresourceid");
+
+                    b.Property<bool>("IsScheduled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isscheduled");
 
                     b.Property<int>("MaxAgeMinutes")
                         .HasColumnType("integer")
@@ -2473,6 +3021,15 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("actoruserid");
 
+                    b.Property<decimal>("CommercialPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("commercialpercent");
+
+                    b.Property<string>("CostSheetData")
+                        .HasColumnType("text")
+                        .HasColumnName("costsheetdata");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdat");
@@ -2526,6 +3083,15 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasColumnType("numeric(5,2)")
                         .HasColumnName("reservepercent");
 
+                    b.Property<string>("ScenarioDigest")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("scenariodigest");
+
+                    b.Property<Guid?>("ScenarioKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scenariokey");
+
                     b.Property<decimal?>("StorageLimitGB")
                         .HasPrecision(18, 3)
                         .HasColumnType("numeric(18,3)")
@@ -2556,6 +3122,10 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.HasIndex("ExternalId")
                         .IsUnique()
                         .HasDatabaseName("planstudy_externalid_ix");
+
+                    b.HasIndex("ScenarioKey")
+                        .IsUnique()
+                        .HasDatabaseName("planstudy_scenariokey_ix");
 
                     b.ToTable("planstudy", (string)null);
                 });
@@ -2613,6 +3183,120 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasDatabaseName("planstudycost_planstudyid_ix");
 
                     b.ToTable("planstudycost", (string)null);
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.PlanVersion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actoruserid");
+
+                    b.Property<string>("ApprovalReference")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("approvalreference");
+
+                    b.Property<string>("Conditions")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)")
+                        .HasColumnName("conditions");
+
+                    b.Property<decimal?>("CpuLimit")
+                        .HasPrecision(7, 3)
+                        .HasColumnType("numeric(7,3)")
+                        .HasColumnName("cpulimit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdat");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletedat");
+
+                    b.Property<string>("Digest")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("digest");
+
+                    b.Property<DateTime>("EffectiveAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("effectiveat");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("externalid");
+
+                    b.Property<decimal?>("MemoryLimitMiB")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)")
+                        .HasColumnName("memorylimitmib");
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("monthlyprice");
+
+                    b.Property<string>("PlanKey")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("plankey");
+
+                    b.Property<int?>("PlanStudyId")
+                        .HasColumnType("integer")
+                        .HasColumnName("planstudyid");
+
+                    b.Property<Guid>("PublicationKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("publicationkey");
+
+                    b.Property<decimal?>("StorageLimitGiB")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)")
+                        .HasColumnName("storagelimitgib");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedat");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("planversion_pk");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("planversion_externalid_ix");
+
+                    b.HasIndex("PlanStudyId")
+                        .HasDatabaseName("planversion_planstudyid_ix");
+
+                    b.HasIndex("PublicationKey")
+                        .IsUnique()
+                        .HasDatabaseName("planversion_publicationkey_ix");
+
+                    b.HasIndex("PlanKey", "EffectiveAt")
+                        .IsUnique()
+                        .HasDatabaseName("planversion_effective_ix");
+
+                    b.HasIndex("PlanKey", "Version")
+                        .IsUnique()
+                        .HasDatabaseName("planversion_version_ix");
+
+                    b.ToTable("planversion", (string)null);
                 });
 
             modelBuilder.Entity("Owh.Olivaw.Domain.PortalAccessAudit", b =>
@@ -4049,6 +4733,27 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                     b.Navigation("UserProfile");
                 });
 
+            modelBuilder.Entity("Owh.Olivaw.Domain.AwsInvoiceExpense", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.AwsInvoice", "AwsInvoice")
+                        .WithMany("Expenses")
+                        .HasForeignKey("AwsInvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("awsinvoice_awsinvoiceexpense_awsinvoiceid_fk");
+
+                    b.HasOne("Owh.Olivaw.Domain.Expense", "Expense")
+                        .WithMany()
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("expense_awsinvoiceexpense_expenseid_fk");
+
+                    b.Navigation("AwsInvoice");
+
+                    b.Navigation("Expense");
+                });
+
             modelBuilder.Entity("Owh.Olivaw.Domain.CareEvidence", b =>
                 {
                     b.HasOne("Owh.Olivaw.Domain.InventoryResource", "InventoryResource")
@@ -4105,7 +4810,15 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .IsRequired()
                         .HasConstraintName("customer_customerplan_customerid_fk");
 
+                    b.HasOne("Owh.Olivaw.Domain.PlanVersion", "PlanVersion")
+                        .WithMany()
+                        .HasForeignKey("PlanVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("planversion_customerplan_planversionid_fk");
+
                     b.Navigation("Customer");
+
+                    b.Navigation("PlanVersion");
                 });
 
             modelBuilder.Entity("Owh.Olivaw.Domain.DeliveryNote", b =>
@@ -4178,6 +4891,67 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasConstraintName("customer_expense_customerid_fk");
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.FinancialEntry", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("customer_financialentry_customerid_fk");
+
+                    b.HasOne("Owh.Olivaw.Domain.Expense", "Expense")
+                        .WithMany()
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("expense_financialentry_expenseid_fk");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Expense");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.FinancialSettlement", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.FinancialAccount", "FinancialAccount")
+                        .WithMany()
+                        .HasForeignKey("FinancialAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("financialaccount_financialsettlement_financialaccountid_fk");
+
+                    b.HasOne("Owh.Olivaw.Domain.FinancialEntry", "FinancialEntry")
+                        .WithMany()
+                        .HasForeignKey("FinancialEntryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("financialentry_financialsettlement_financialentryid_fk");
+
+                    b.Navigation("FinancialAccount");
+
+                    b.Navigation("FinancialEntry");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.FinancialTransfer", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.FinancialAccount", "FromAccount")
+                        .WithMany()
+                        .HasForeignKey("FromAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("financialaccount_financialtransfer_fromaccountid_fk");
+
+                    b.HasOne("Owh.Olivaw.Domain.FinancialAccount", "ToAccount")
+                        .WithMany()
+                        .HasForeignKey("ToAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("financialaccount_financialtransfer_toaccountid_fk");
+
+                    b.Navigation("FromAccount");
+
+                    b.Navigation("ToAccount");
                 });
 
             modelBuilder.Entity("Owh.Olivaw.Domain.HealthReading", b =>
@@ -4290,6 +5064,17 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasConstraintName("planstudy_planstudycost_planstudyid_fk");
 
                     b.Navigation("CostReference");
+
+                    b.Navigation("PlanStudy");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.PlanVersion", b =>
+                {
+                    b.HasOne("Owh.Olivaw.Domain.PlanStudy", "PlanStudy")
+                        .WithMany()
+                        .HasForeignKey("PlanStudyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("planstudy_planversion_planstudyid_fk");
 
                     b.Navigation("PlanStudy");
                 });
@@ -4502,6 +5287,11 @@ namespace Owh.Olivaw.Dados.PostgreSql.Migrations
                         .HasConstraintName("inventoryresource_usagereading_inventoryresourceid_fk");
 
                     b.Navigation("InventoryResource");
+                });
+
+            modelBuilder.Entity("Owh.Olivaw.Domain.AwsInvoice", b =>
+                {
+                    b.Navigation("Expenses");
                 });
 
             modelBuilder.Entity("Owh.Olivaw.Domain.Customer", b =>

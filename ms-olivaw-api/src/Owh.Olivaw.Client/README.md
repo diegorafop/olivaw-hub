@@ -21,3 +21,12 @@ Projeto base para contratos públicos e cliente REST do microservice. Adicione a
 ## Correções de segurança
 
 `Features/SecurityRemediationFeature` contém contratos planos de aprovação individual/em lote, consulta por relatório e fila técnica, e atualização de execução. A aprovação é root; execução depende de permissão própria, autor do relatório, reserva, estado e saúde. Não há comandos livres nos payloads. Consulte o [contrato da API](../../README.md#correções-aprovadas-do-baley).
+
+
+## Contratos de Planos da issue026
+
+Payloads em `Features/PlanFeature`: `CreatePlanVersionCommand`, `CreatePlanAssignmentCommand`, `CreatePlanCostSheetCommand` e `ReadPlanVersionByFilterQuery`, com responses próprias. Endpoints root: POST/GET `/plans/versions`, POST `/plans/assignments` e POST `/plans/cost-sheets`. Não incluem obtenção de JWT nem publicam catálogo automaticamente. `ReadPlanStudyByFilterQuery.ExternalId` permite recuperar um estudo pelo ID público.
+
+`CommercialPercent` é opcional por compatibilidade (padrão zero) nos estudos/estimativas antigos. `CostSheetData` é JSON string opcional na consulta de estudos novos, preservando entradas originais sem alterar estudos legados. Capacidades de versão são GiB para armazenamento, MiB para memória e vCPU para CPU; estudos antigos mantêm StorageLimitGB decimal, sem reinterpretar a unidade.
+
+Contratos de faturas ficam em `AwsInvoiceFeature`, controle gerencial em `FinancialFeature` e estado da coleta em `HealthReadingFeature`. São contratos planos independentes de domínio e MediatR; o projeto não implementa um SDK HTTP para estas rotas.

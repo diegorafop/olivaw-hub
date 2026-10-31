@@ -47,6 +47,7 @@ export class AdminLayout {
     plans: 'Planos',
     expenses: 'Despesas',
     finance: 'Financeiro',
+    invoices: 'Faturas AWS',
     care: 'Cuidados',
     support: 'Atendimento',
   };
@@ -68,7 +69,9 @@ export class AdminLayout {
       'support',
     ].includes(this.pathParts()[1]),
   );
-  readonly isFinance = computed(() => ['finance', 'expenses'].includes(this.pathParts()[1]));
+  readonly isFinance = computed(() =>
+    ['finance', 'expenses', 'invoices'].includes(this.pathParts()[1]),
+  );
   readonly section = computed(() => this.sectionTitles[this.pathParts()[1]] ?? 'Visão geral');
   readonly breadcrumbs = computed(() => {
     const [, section, detail, reportId] = this.pathParts();
@@ -77,7 +80,31 @@ export class AdminLayout {
     if (this.isConfiguration()) items.push({ label: 'Configuração', url: '/admin/configuration' });
     if (this.isFinance()) {
       items.push({ label: 'Financeiro', url: '/admin/finance' });
+      if (section === 'finance' && detail) {
+        const labels: Record<string, string> = {
+          control: 'Controle financeiro',
+          accounts: 'Contas financeiras',
+          entries: 'A pagar e receber',
+        };
+        items.push({
+          label: labels[detail] || 'Controle financeiro',
+          url: '/admin/finance/' + detail,
+        });
+        if (reportId)
+          items.push({
+            label: reportId === 'new' ? 'Nova obrigação' : 'Detalhes da obrigação',
+            url: this.currentUrl(),
+          });
+      }
       if (section === 'expenses') items.push({ label: 'Despesas', url: '/admin/expenses' });
+      if (section === 'invoices') {
+        items.push({ label: 'Faturas AWS', url: '/admin/invoices' });
+        if (detail)
+          items.push({
+            label: detail === 'new' ? 'Registrar fatura' : 'Detalhes da fatura',
+            url: this.currentUrl(),
+          });
+      }
       return items;
     }
     if (!section || section === 'configuration') return items;
@@ -97,8 +124,23 @@ export class AdminLayout {
       if (reportId) items.push({ label: 'Relatório', url: this.currentUrl() });
       return items;
     }
-    if (section === 'plans' && detail === 'catalog') {
-      items.push({ label: 'Proposta comercial', url: '/admin/plans/catalog' });
+    if (section === 'leads' && detail) {
+      items.push({
+        label: detail === 'new' ? 'Novo lead' : 'Ficha do lead',
+        url: '/admin/leads/' + detail,
+      });
+      if (reportId === 'proposal') items.push({ label: 'Orçamento', url: this.currentUrl() });
+      return items;
+    }
+    if (section === 'plans' && detail) {
+      const names: Record<string, string> = {
+        bronze: 'Bronze',
+        prata: 'Prata',
+        ouro: 'Ouro',
+        diamante: 'Diamante',
+        simulator: 'Simulador de custos',
+      };
+      items.push({ label: names[detail] || 'Plano', url: this.currentUrl() });
       return items;
     }
     if (detail) {

@@ -152,7 +152,7 @@ export class PortalLogin {
         next: () => {
           this.api.pendingInvitation.set('');
           this.form.reset();
-          void this.router.navigate(['/meu-negocio']);
+          void this.router.navigate(['/portal']);
         },
         error: (e) => this.error.set(inventoryError(e)),
       });

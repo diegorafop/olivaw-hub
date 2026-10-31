@@ -25,7 +25,7 @@ async function login(page: Page, root = true) {
   await page.getByLabel('Senha', { exact: true }).fill('test-password');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page).toHaveURL(/admin/);
-  await page.goto('/portal');
+  await page.goto('/admin/portal-home-preview');
 }
 test('prévia permite explorar períodos, limites, ausência de dados e solicitação local', async ({
   page,
@@ -45,7 +45,10 @@ test('prévia permite explorar períodos, limites, ausência de dados e solicita
   await expect(visits).not.toHaveText(monthly);
   await page.getByRole('button', { name: 'Mês', exact: true }).click();
   await expect(visits).toHaveText(monthly);
-  await page.screenshot({ path: 'test-results/portal-home-desktop.png', fullPage: true });
+  await page.screenshot({
+    path: 'test-results/portal-home-preview-home-desktop.png',
+    fullPage: true,
+  });
   await page.getByLabel('Cenário').selectOption('attention');
   await expect(page.locator('.utilization-details')).toContainText('92%');
   await page.getByLabel('Cenário').selectOption('missing');
@@ -54,7 +57,7 @@ test('prévia permite explorar períodos, limites, ausência de dados e solicita
   await page.getByRole('link', { name: 'Nova solicitação', exact: true }).click();
   await page.getByLabel('Como podemos ajudar?').fill('Atualizar horário');
   await page.getByRole('button', { name: 'Simular solicitação' }).click();
-  await expect(page).toHaveURL(/portal\/chamados\/1043/);
+  await expect(page).toHaveURL(/admin\/portal-home-preview\/chamados\/1043/);
   await expect(page.getByRole('heading', { name: '#1043 · Atualizar horário' })).toBeVisible();
   await expect(page.locator('dialog')).toHaveCount(0);
   await page.getByRole('link', { name: 'Voltar aos chamados' }).click();
@@ -69,10 +72,13 @@ test('prévia permite explorar períodos, limites, ausência de dados e solicita
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
-  await page.screenshot({ path: 'test-results/portal-home-mobile.png', fullPage: true });
+  await page.screenshot({
+    path: 'test-results/portal-home-preview-home-mobile.png',
+    fullPage: true,
+  });
 });
 test('prévia interna exige autenticação e root', async ({ page }) => {
-  await page.goto('/portal');
+  await page.goto('/admin/portal-home-preview');
   await expect(page).toHaveURL(/login/);
   await login(page, false);
   await expect(page).toHaveURL(/acesso-negado/);

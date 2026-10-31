@@ -16,6 +16,8 @@ internal static class TableExtensionsFacade
         modelBuilder.SetupInventory();
         modelBuilder.SetupPlans();
         modelBuilder.SetupExpenses();
+        modelBuilder.SetupFinancial();
+        modelBuilder.SetupAwsInvoices();
         modelBuilder.SetupPortal();
         modelBuilder.SetupPortalUsage();
         modelBuilder.SetupDeliveryNotes();

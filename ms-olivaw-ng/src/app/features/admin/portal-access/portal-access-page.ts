@@ -249,7 +249,7 @@ export class PortalAccessPage {
       )
       .subscribe({
         next: (data) => {
-          const url = new URL('/meu-negocio/entrar', window.location.origin);
+          const url = new URL('/portal/entrar', window.location.origin);
           url.hash = data.token;
           this.invitation.set({ url: url.toString(), expiresAt: data.expiresAt });
           this.recoveryMember.set(null);
@@ -344,7 +344,7 @@ export class PortalAccessPage {
       )
       .subscribe({
         next: (data) => {
-          const url = new URL('/meu-negocio/entrar', window.location.origin);
+          const url = new URL('/portal/entrar', window.location.origin);
           url.hash = data.token;
           this.invitation.set({ url: url.toString(), expiresAt: data.expiresAt });
           this.invitationForm.markAsPristine();

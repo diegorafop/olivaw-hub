@@ -18,6 +18,25 @@ namespace Owh.Olivaw.Tests.LeadFeatureTest.Commands;
 public class UpdateLeadTest
 {
     [Fact]
+    public async Task Handle_should_preserve_internal_proposal_on_public_resubmission()
+    {
+        var request = LeadFeatureFakerBuilder.Create();
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.WriteKey)));
+        var previous = System.Text.Json.JsonSerializer.Serialize(request.Payload, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(previous)!;
+        node["proposal"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadProposal { Title = "Proposta interna" }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        var lead = Lead.Create(request.ExternalId, hash, 1, node.ToJsonString(), DateTime.UtcNow);
+        var repository = new Mock<IRepository<Lead>>();
+        repository.Setup(item => item.GetFirstOrDefaultAsync(It.IsAny<Expression<Func<Lead, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<Lead, object>>[]>())).ReturnsAsync(lead);
+        request.Payload.Revision = 2; request.Payload.Requirements = "Novo pedido público";
+        var result = await new UpdateLeadHandler(repository.Object).Handle(request, CancellationToken.None);
+        Assert.Equal(LeadWriteOutcome.Saved, result.Outcome);
+        using var saved = System.Text.Json.JsonDocument.Parse(lead.Snapshot);
+        Assert.Equal("Proposta interna", saved.RootElement.GetProperty("proposal").GetProperty("title").GetString());
+        Assert.Equal("Novo pedido público", saved.RootElement.GetProperty("requirements").GetString());
+    }
+
+    [Fact]
     public async Task Handle_should_create_snapshot_and_propagate_cancellation()
     {
         var request = LeadFeatureFakerBuilder.Create();
