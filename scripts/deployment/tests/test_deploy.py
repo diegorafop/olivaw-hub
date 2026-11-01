@@ -234,12 +234,13 @@ class DeploymentTests(unittest.TestCase):
         self.assertIn('docker/docker-compose.ssh.yml', command)
         self.assertNotIn('docker/docker-compose.ssh.yml', deploy.commands('develop', 'dev')[3][1])
 
+    @patch.object(deploy, 'read_git_error', side_effect=subprocess.TimeoutExpired('git', 1))
     @patch.object(deploy.os, 'killpg')
     @patch.object(deploy.subprocess, 'Popen')
-    def test_timeout_kills_process_group_and_reaps_child(self, popen, killpg):
+    def test_timeout_kills_process_group_and_reaps_child(self, popen, killpg, read_error):
         process = popen.return_value.__enter__.return_value
         process.pid = 42
-        process.wait.side_effect = [subprocess.TimeoutExpired('git', 1), 0]
+        process.wait.return_value = 0
         with self.assertRaises(subprocess.TimeoutExpired):
             deploy.run_step(['/usr/bin/git', 'pull'], self.root, 1)
         killpg.assert_called_once_with(42, deploy.signal.SIGKILL)
@@ -288,3 +289,21 @@ class DeploymentTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class DiagnosticTests(unittest.TestCase):
+    def test_diagnostic_never_exposes_raw_credentials_or_paths(self):
+        for text in [b"fatal: Authentication failed https://user:SECRET@github.test", b"error: Untracked working tree file SECRET would be overwritten by merge", b"error: unable to unlink SECRET: Permission denied"]:
+            result = deploy.git_diagnostic(text)
+            self.assertNotIn('SECRET', result)
+            self.assertNotIn('github.test', result)
+        self.assertIn('permissions', deploy.git_diagnostic(b'Permission denied'))
+        self.assertIn('Untracked', deploy.git_diagnostic(b'Untracked working tree'))
+
+    def test_error_reader_drains_large_output_without_deadlock_and_returns_safe_reason(self):
+        import sys
+        with subprocess.Popen([sys.executable, '-c', "import sys;sys.stderr.write('Permission denied SECRET\\n'+'x'*200000);sys.exit(1)"], stderr=subprocess.PIPE) as process:
+            result = deploy.read_git_error(process, 5)
+        self.assertEqual(1, result)
+        self.assertIn('permissions', result.diagnostic)
+        self.assertNotIn('SECRET', result.diagnostic)

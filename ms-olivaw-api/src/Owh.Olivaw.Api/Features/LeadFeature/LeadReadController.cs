@@ -33,6 +33,20 @@ public sealed class LeadReadController(IMediator mediator) : ControllerBase
         if (result.Conflict) return Conflict(new { detail = "A pasta mudou. Recarregue e confira a proposta antes de salvar." });
         return Ok(result);
     }
+    [HttpPut("{externalId:guid}/qualification")]
+    [RequestSizeLimit(65536)]
+    public async Task<IActionResult> UpdateQualification(Guid externalId, [FromBody] UpdateLeadQualificationCommand request,
+        [FromServices] CurrentActor actor, CancellationToken cancellationToken)
+    {
+        var name = User.FindFirst("name")?.Value ?? "Operação Olivaw";
+        if (name.Length > 120) name = name[..120];
+        var result = await mediator.Send(new UpdateLeadQualificationMediatorCommand
+        {
+            ExternalId = externalId, Payload = request, ActorUserId = actor.Id, ActorName = name
+        }, cancellationToken);
+        if (result.Conflict) return Conflict(new { detail = "Este lead mudou. Recarregue e confira a qualificação antes de salvar." });
+        return Ok(result);
+    }
     [HttpGet]
     public async Task<IActionResult> ReadByFilter([FromQuery] ReadLeadByFilterQuery request, CancellationToken cancellationToken)
     {

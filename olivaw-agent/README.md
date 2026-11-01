@@ -103,3 +103,9 @@ python3 -m unittest discover -s olivaw-agent/tests -v
 ```
 
 As verificações de processos usam projetos/estados temporários e encerram os workers de teste. Fontes de vulnerabilidade são simuladas nos testes, sem produção ou chamadas pagas. A [feature principal](../docs/features/done/agentes-python-baley-e-relatorios.md) mantém pendências de coleta, modelo, API, RawData e migrations.
+
+## Trevize e início manual
+
+O projeto [ms-trevize-py](ms-trevize-py/README.md), gerado pelo scaffold, coleta até 20 candidatos de eventos por ciclo para Curitiba e prepara fichas e abordagens por API. O primeiro ciclo começa no start; próximos aguardam 24h após o término, sem sobreposição. Conferir publicação da API de qualificação antes de iniciar.
+
+`olivaw-agent start` inicia Baley e Trevize. `olivaw-agent start --agent trevize` limita a operação a ele. Nenhum agente inicia no boot ou por consultar status; não instalar cron, serviços ou chamada de start em arquivos do shell. Após desligar o PC, os agentes precisam de novo start manual. Supervisor ativo aguardando timer não equivale a auditoria/coleta contínua. `lifecycle.autoStart=false` é declarado e validado no Baley e Trevize.

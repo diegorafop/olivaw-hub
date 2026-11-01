@@ -480,3 +480,13 @@ Validação local: 446 testes da API passaram, incluindo compatibilidade entre m
 `POST /leads` cadastra oportunidades manuais com `leads.manage`, UUID fornecido para detectar repetição e contatos opcionais. Origem e iniciativa são preservadas no snapshot. `PUT /leads/{externalId}/proposal` salva o orçamento com revisão otimista; 409 exige recarregar. Envios anônimos não podem definir condições comerciais. Sem alteração de schema ou migration.
 
 Validação local: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` a partir da raiz. [Roteiro de cadastro](../docs/99freelas/795293/cadastro-apos-publicacao.md).
+
+### Qualificação e abordagem de Leads
+
+`PUT /leads/{externalId}/qualification` exige a política `leads.manage` (root ou permissão administrativa) e recebe `{ "revision": 1, "qualification": { "schemaVersion": 1, "segment": "Eventos", "region": "Curitiba", "approachStatus": "draft" } }`. Demais campos opcionais possuem defaults vazios. Guarda perfil, fontes, presença digital, telefone/WhatsApp confirmado, tags, fatos, positivos, observações, perguntas e abordagem. Estados do texto: `draft` ou `reviewed`; não representa envio.
+
+Atualiza somente o bloco interno do snapshot, preservando jornada, proposta e campos desconhecidos na raiz. Autor/data são obtidos do contexto autenticado; revisão desatualizada ou concorrência gera 409. Snapshot completo mantém teto de 32.000 caracteres. URLs aceitam apenas HTTP(S) sem credenciais; a API não navega nos links recebidos. O endpoint público rejeita qualificação e autoria na entrada e preserva os dados internos ao reenvio legítimo da jornada.
+
+Sem mudança de schema ou migration. Contratos no projeto cliente em `Features/LeadFeature/Commands/UpdateLeadQualification.cs`. Validar por `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` e `dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client/Owh.Olivaw.Client.csproj -c Release -m:1 --no-restore`. Backend precisa ser publicado antes de iniciar o Trevize; não foi feito deploy nesta entrega.
+
+A lista administrativa projeta `phone`, `websiteUrl` e `segment` do bloco de qualificação; a busca inclui esses campos. WhatsApp original tem precedência, com fallback para o número confirmado da qualificação. As projeções existentes de PostgreSQL/SQL Server foram mantidas, sem adicionar colunas persistidas.

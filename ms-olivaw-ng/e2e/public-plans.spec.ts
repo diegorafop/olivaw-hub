@@ -15,6 +15,11 @@ for (const width of [1440, 390]) {
     await expect(
       page.getByRole('region', { name: 'Planos da Olivaw' }).getByRole('article'),
     ).toHaveCount(4);
+    const cards = page.getByRole('region', { name: 'Planos da Olivaw' }).getByRole('article');
+    for (const [index, price] of ['49,00', '199,00', '599,00', '1.799,00'].entries()) {
+      await expect(cards.nth(index)).toContainText('A partir de');
+      await expect(cards.nth(index)).toContainText(price);
+    }
     await page.getByRole('link', { name: 'Conhecer Prata' }).click();
     await expect(page).toHaveURL(/\/planos\/prata$/);
     await expect(page).toHaveTitle('Olivaw - Prata');

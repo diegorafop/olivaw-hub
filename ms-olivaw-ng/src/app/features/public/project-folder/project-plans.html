@@ -32,7 +32,7 @@
           {{
             plan.monthlyPrice === null
               ? 'Mensalidade sob proposta'
-              : (plan.monthlyPrice | currency: 'BRL') + '/mês'
+              : 'A partir de ' + (plan.monthlyPrice | currency: 'BRL') + '/mês'
           }}
         </p>
         <p class="small">{{ allowanceLabel(plan.id) }}</p>

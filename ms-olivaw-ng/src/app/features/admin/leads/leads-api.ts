@@ -4,6 +4,7 @@ import { timeout } from 'rxjs';
 import { RuntimeConfig } from '../../../core/config/runtime-config';
 import { LOCAL_ERROR, SKIP_LOADING } from '../../../core/http/http-context';
 import type { LeadSnapshot } from '../../public/project-folder/project-draft';
+import type { LeadQualification } from './lead-qualification-model';
 import type { LeadCreateData, LeadProposal } from './lead-proposal-model';
 export interface LeadItem {
   externalId: string;
@@ -14,6 +15,9 @@ export interface LeadItem {
   entry: string;
   email: string;
   whatsapp: string;
+  phone?: string;
+  websiteUrl?: string;
+  segment?: string;
   followUpStatus: string;
 }
 export interface LeadPage {
@@ -80,6 +84,15 @@ export class LeadsApi {
       .put<{ revision: number }>(
         this.config.endpoint(`leads/${encodeURIComponent(id)}/proposal`),
         { revision, proposal },
+        { context: this.context() },
+      )
+      .pipe(timeout(15000));
+  }
+  updateQualification(id: string, revision: number, qualification: LeadQualification) {
+    return this.http
+      .put<{ revision: number; updatedAt: string }>(
+        this.config.endpoint(`leads/${encodeURIComponent(id)}/qualification`),
+        { revision, qualification },
         { context: this.context() },
       )
       .pipe(timeout(15000));

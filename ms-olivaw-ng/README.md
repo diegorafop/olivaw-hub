@@ -216,3 +216,11 @@ Em Leads, **Cadastrar lead** aceita prospecção ativa ou contato recebido, com 
 `/planos` e `/planos/bronze|prata|ouro|diamante` são públicos e pré-renderizados, com breadcrumb e metadados próprios. O interesse segue para `/projeto?plano=<id>`. Conteúdo compartilhado em `plan-offerings.ts`: franquias 1/4/12/36 sem acúmulo; Prata 5 GB e duas contas administrativas do site. As condições sugeridas para novas versões não modificam contratos existentes. Saldo automático e compra de pacotes são evolução futura.
 
 Validação: `npm run build`, `npm run lint` e `npm run e2e -- e2e/public-plans.spec.ts e2e/project-folder.spec.ts e2e/admin-expenses.spec.ts`. Ver [feature](../docs/features/done/planos-publicos-oferta-e-pontos-de-melhoria.md).
+
+### Ficha e qualificação de Leads
+
+`/admin/leads/:id` mantém a lista e resumo lateral somente leitura; **Abrir ficha completa** navega para `/admin/leads/:id/details`, preservando filtros. Na ficha ficam qualificação, fontes, contatos, fatos, positivos, oportunidades, perguntas, rascunho de abordagem, nota/etapa e histórico. A proposta continua em `/admin/leads/:id/proposal`. Breadcrumb de proposta retorna à ficha completa.
+
+A sugestão local usa os campos preenchidos; o Trevize pode fornecer outra sugestão pela API. Preparar, copiar, revisar ou salvar não envia contato nem muda etapa automaticamente. Escritas usam revisão otimista; conflitos mantêm campos e exigem conferência. Rascunhos de qualificação e nota interna não se apagam ao salvar um ao outro.
+
+Validação: `npm run build`, `npm run lint`, `npm test` e `npm run e2e -- e2e/lead-record.spec.ts e2e/admin-leads.spec.ts e2e/admin-lead-proposal.spec.ts`.

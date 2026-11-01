@@ -40,6 +40,9 @@ public sealed class UpdateLeadHandler(IRepository<Lead> repository) : IRequestHa
             var previous = JsonSerializer.Deserialize<UpdateLeadCommand>(lead.Snapshot, JsonOptions);
             request.Payload.Acquisition = previous?.Acquisition;
             request.Payload.Proposal = previous?.Proposal;
+            request.Payload.Qualification = previous?.Qualification;
+            request.Payload.QualificationUpdatedAt = previous?.QualificationUpdatedAt;
+            request.Payload.QualificationUpdatedBy = previous?.QualificationUpdatedBy;
         }
         var snapshot = JsonSerializer.Serialize(request.Payload, JsonOptions);
         var snapshotValidator = new InlineValidator<string>();
@@ -102,6 +105,9 @@ public sealed class UpdateLeadValidator : AbstractValidator<UpdateLeadCommand>
     {
         RuleFor(item => item.Acquisition).Null();
         RuleFor(item => item.Proposal).Null();
+        RuleFor(item => item.Qualification).Null();
+        RuleFor(item => item.QualificationUpdatedAt).Null();
+        RuleFor(item => item.QualificationUpdatedBy).Null();
         RuleFor(item => item.SchemaVersion).Equal(1);
         RuleFor(item => item.Revision).InclusiveBetween(1, 1_000_000);
         RuleFor(item => item.StartedAt).NotEmpty();

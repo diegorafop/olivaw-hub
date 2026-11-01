@@ -20,8 +20,8 @@
   }
   @if (!isDetail()) {
     <p class="surface">
-      Catálogo em definição. Preços atuais ainda não cadastrados; propostas abaixo não alteram
-      contratos de clientes.
+      Valores de entrada da apresentação comercial. Versões aprovadas e contratos de clientes são
+      gerenciados separadamente e não mudam ao atualizar esta tabela.
     </p>
     <section class="catalog" aria-label="Planos disponíveis">
       @for (plan of plans; track plan.id) {
@@ -29,8 +29,11 @@
           <p class="eyebrow">{{ plan.tag }}</p>
           <h2>{{ plan.name }}</h2>
           <p class="price">
-            {{ plan.proposed === null ? 'A definir' : (plan.proposed | currency: 'BRL')
-            }}<small>{{ plan.proposed === null ? '' : '/mês · proposta' }}</small>
+            {{
+              plan.proposed === null
+                ? 'Sob proposta'
+                : 'A partir de ' + (plan.proposed | currency: 'BRL')
+            }}<small>{{ plan.proposed === null ? '' : '/mês' }}</small>
           </p>
           <dl>
             <div>
@@ -119,8 +122,14 @@
             </dd>
           </div>
           <div>
-            <dt>Mensalidade proposta</dt>
-            <dd>{{ plan.proposed === null ? 'Sob estudo' : (plan.proposed | currency: 'BRL') }}</dd>
+            <dt>Mensalidade de entrada</dt>
+            <dd>
+              {{
+                plan.proposed === null
+                  ? 'Sob proposta'
+                  : 'A partir de ' + (plan.proposed | currency: 'BRL')
+              }}
+            </dd>
           </div>
           <div>
             <dt>Custo estimado</dt>

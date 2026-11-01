@@ -17,6 +17,9 @@ export interface JourneyEvent {
   at: string;
 }
 export interface LeadSnapshot {
+  qualification?: import('../../admin/leads/lead-qualification-model').LeadQualification;
+  qualificationUpdatedAt?: string;
+  qualificationUpdatedBy?: string;
   acquisition?: import('../../admin/leads/lead-proposal-model').LeadAcquisition;
   proposal?: import('../../admin/leads/lead-proposal-model').LeadProposal;
   schemaVersion: 1;

@@ -6,6 +6,12 @@ public sealed class UpdateLeadCommand
     public LeadAcquisition? Acquisition { get; set; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public LeadProposal? Proposal { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LeadQualification? Qualification { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? QualificationUpdatedAt { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? QualificationUpdatedBy { get; set; }
     public int SchemaVersion { get; set; }
     public long Revision { get; set; }
     public DateTimeOffset StartedAt { get; set; }

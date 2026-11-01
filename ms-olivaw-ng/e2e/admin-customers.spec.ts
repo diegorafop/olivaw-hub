@@ -229,6 +229,7 @@ test('clientes prepara conversão de lead sem salvar automaticamente', async ({ 
   const writes = await setup(page);
   await page.getByRole('link', { name: 'Ver leads' }).click();
   await page.getByRole('link', { name: /Pastelaria Aurora/ }).click();
+  await page.getByRole('link', { name: 'Abrir ficha completa' }).click();
   await page.getByRole('link', { name: 'Cadastrar como cliente' }).click();
   await expect(page.getByLabel('Nome comercial')).toHaveValue('Pastelaria Aurora');
   await expect(page.getByLabel('Observações internas')).toHaveValue('Organizar pedidos');

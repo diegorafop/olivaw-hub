@@ -110,3 +110,17 @@ li span {
   outline: 2px solid #256347;
   outline-offset: 4px;
 }
+
+.open-record {
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #193e34;
+  color: #fff;
+}
+.summary-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}

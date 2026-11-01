@@ -27,7 +27,7 @@ public sealed class ReadLeadByFilterHandler(IRepositoryLead repository) : IReque
             Items = result.Items.Select(item => new LeadListItem
             {
                 ExternalId = item.ExternalId, CreatedAt = item.CreatedAt, UpdatedAt = item.UpdatedAt,
-                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus
+                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Phone = item.Phone, WebsiteUrl = item.WebsiteUrl, Segment = item.Segment, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus
             }).ToList()
         };
     }

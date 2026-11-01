@@ -30,3 +30,5 @@ Payloads em `Features/PlanFeature`: `CreatePlanVersionCommand`, `CreatePlanAssig
 `CommercialPercent` é opcional por compatibilidade (padrão zero) nos estudos/estimativas antigos. `CostSheetData` é JSON string opcional na consulta de estudos novos, preservando entradas originais sem alterar estudos legados. Capacidades de versão são GiB para armazenamento, MiB para memória e vCPU para CPU; estudos antigos mantêm StorageLimitGB decimal, sem reinterpretar a unidade.
 
 Contratos de faturas ficam em `AwsInvoiceFeature`, controle gerencial em `FinancialFeature` e estado da coleta em `HealthReadingFeature`. São contratos planos independentes de domínio e MediatR; o projeto não implementa um SDK HTTP para estas rotas.
+
+`UpdateLeadQualificationCommand` atualiza a qualificação interna com revisão esperada e `LeadQualification`. `UpdateLeadCommand` inclui o bloco e sua última autoria/data nas leituras administrativas; o envio público exige esses campos nulos. O handler preserva o que já estava registrado no reenvio público. Não há alteração de schema nem migration.

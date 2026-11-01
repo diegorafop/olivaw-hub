@@ -108,7 +108,7 @@ for (const mobile of [false, true]) {
     await expect(page.getByLabel('Título *', { exact: true })).toHaveValue(lead.title);
     expect(writes).toHaveLength(1);
     await page.getByRole('button', { name: 'Salvar orçamento', exact: true }).click();
-    await expect(page.getByRole('status')).toHaveText('Orçamento salvo.');
+    await expect(page.getByText('Orçamento salvo.', { exact: true })).toBeVisible();
     expect(writes[1]).toMatchObject({
       revision: 1,
       proposal: { rows: prepared.rows, discountPercent: 0 },
@@ -152,13 +152,11 @@ test('HTML importado é apresentado como texto e não executa scripts', async ({
   await setup(page);
   await page.goto(`/admin/leads/${lead.externalId}/proposal`);
   const proposal = emptyProposal('<script>window.hacked=true</script>');
-  await page
-    .getByLabel('Carregar orçamento preparado (JSON)')
-    .setInputFiles({
-      name: 'proposal.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(JSON.stringify(proposal)),
-    });
+  await page.getByLabel('Carregar orçamento preparado (JSON)').setInputFiles({
+    name: 'proposal.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(proposal)),
+  });
   await page.getByRole('button', { name: 'Ver apresentação' }).click();
   await expect(page.getByRole('heading', { name: proposal.title, exact: true })).toBeVisible();
   expect(await page.evaluate(() => 'hacked' in window)).toBe(false);

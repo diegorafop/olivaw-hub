@@ -5,109 +5,141 @@
   <h2>{{ draft?.business || draft?.project?.title || 'Contato recebido' }}</h2>
   <p>Registrado em {{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
 </header>
-<app-lead-follow-up [lead]="data" (saved)="saved.emit()" (reload)="reload.emit()" />
-@if (data.contentUnavailable || !draft) {
-  <p role="status">O conteúdo deste registro não pôde ser lido.</p>
-} @else {
-  @if (auth.usuario()?.isRoot) {
-    <p>
-      <a routerLink="/admin/customers/new" [queryParams]="{ lead: data.externalId }"
-        >Cadastrar como cliente ↗</a
-      >
-    </p>
-  }
+@if (preview()) {
   <p>
-    <a [routerLink]="['/admin/leads', data.externalId, 'proposal']"
-      >Preparar / consultar orçamento ↗</a
+    <a
+      class="open-record"
+      [routerLink]="['/admin/leads', data.externalId, 'details']"
+      queryParamsHandling="preserve"
+      >Abrir ficha completa ↗</a
     >
   </p>
-  @if (draft.acquisition; as acquisition) {
-    <section aria-label="Origem da oportunidade">
-      <h3>Origem da oportunidade</h3>
+  @if (draft?.acquisition; as acquisition) {
+    <p>
+      {{ acquisition.origin }} ·
+      {{ acquisition.initiative === 'outbound' ? 'Prospecção ativa' : 'Contato recebido' }}
+    </p>
+  }
+  @if (draft?.qualification; as qualification) {
+    <p>
+      {{ qualification.segment || 'Segmento a verificar' }} ·
+      {{ qualification.region || 'Região a verificar' }}
+    </p>
+    <div class="choices">
+      @for (tag of qualification.tags; track $index) {
+        <span>{{ tag }}</span>
+      }
+    </div>
+  }
+  @if (draft?.qualification?.phone; as phone) {
+    <p>Telefone · {{ phone }}</p>
+  }
+  <p class="summary-text">{{ draft?.requirements || 'Sem informações adicionais.' }}</p>
+  <app-lead-follow-up [lead]="data" [readOnly]="true" />
+} @else {
+  @if (data.contentUnavailable || !draft) {
+    <p role="status">O conteúdo deste registro não pôde ser lido.</p>
+  } @else {
+    @if (auth.usuario()?.isRoot) {
       <p>
-        {{ acquisition.initiative === 'outbound' ? 'Prospecção ativa' : 'Contato recebido' }} ·
-        {{ acquisition.origin }}
+        <a routerLink="/admin/customers/new" [queryParams]="{ lead: data.externalId }"
+          >Cadastrar como cliente ↗</a
+        >
       </p>
-      <p>Referência: {{ acquisition.externalReference || 'Não informada' }}</p>
-      @if (acquisition.sourceUrl) {
-        <p>{{ acquisition.sourceUrl }}</p>
+    }
+    <p>
+      <a [routerLink]="['/admin/leads', data.externalId, 'proposal']"
+        >Preparar / consultar orçamento ↗</a
+      >
+    </p>
+    @if (draft.acquisition; as acquisition) {
+      <section aria-label="Origem da oportunidade">
+        <h3>Origem da oportunidade</h3>
+        <p>
+          {{ acquisition.initiative === 'outbound' ? 'Prospecção ativa' : 'Contato recebido' }} ·
+          {{ acquisition.origin }}
+        </p>
+        <p>Referência: {{ acquisition.externalReference || 'Não informada' }}</p>
+        @if (acquisition.sourceUrl) {
+          <p>{{ acquisition.sourceUrl }}</p>
+        }
+      </section>
+    }
+    <section aria-label="Contato">
+      <h3>Vamos conversar</h3>
+      <div class="contacts">
+        @if (draft.email) {
+          <a [href]="emailUrl()">{{ draft.email }} <span aria-hidden="true">↗</span></a>
+        }
+        @if (whatsappUrl(); as url) {
+          <a [href]="url" target="_blank" rel="noopener"
+            >WhatsApp · {{ formatPhone(draft.whatsapp || '') }} <span aria-hidden="true">↗</span
+            ><span class="sr-only"> (nova aba)</span></a
+          >
+        }
+        @if (!draft.email && !draft.whatsapp) {
+          <p>Contato não informado.</p>
+        }
+      </div>
+    </section>
+    <section>
+      <h3>O que gostaria de fazer</h3>
+      <p class="idea">{{ draft.requirements || 'Nenhum texto adicional informado.' }}</p>
+    </section>
+    <section>
+      <h3>Ponto de partida</h3>
+      <p>{{ draft.project?.title || 'Não informado' }}</p>
+      @if (draft.project?.context) {
+        <p>{{ draft.project.context }}</p>
+      }
+      <div class="choices">
+        @for (choice of included(); track choice) {
+          <span>{{ choice }}</span>
+        }
+      </div>
+      @if (draft.excluded.length) {
+        <details>
+          <summary>Opções retiradas da ideia</summary>
+          @for (choice of draft.excluded; track choice) {
+            <p>{{ choice }}</p>
+          }
+        </details>
       }
     </section>
-  }
-  <section aria-label="Contato">
-    <h3>Vamos conversar</h3>
-    <div class="contacts">
-      @if (draft.email) {
-        <a [href]="emailUrl()">{{ draft.email }} <span aria-hidden="true">↗</span></a>
+    <section>
+      <h3>Interesse em plano</h3>
+      <p>{{ draft.plan || 'A avaliar com a equipe' }}</p>
+      <small>Interesse informado na jornada. Não representa contratação.</small>
+    </section>
+    <section>
+      <h3>Jornada registrada</h3>
+      <p>
+        {{ entries[draft.entry] || draft.entry }} · Iniciada em
+        {{ draft.startedAt | date: 'dd/MM/yyyy HH:mm' }}
+      </p>
+      @if (draft.events.length) {
+        <details>
+          <summary>Ver {{ draft.events.length }} eventos</summary>
+          <ol>
+            @for (event of draft.events; track $index) {
+              <li>
+                <time>{{ event.at | date: 'dd/MM HH:mm' }}</time
+                ><span
+                  >{{ eventNames[event.name] || event.name }}
+                  @if (event.value) {
+                    · {{ event.value }}
+                  }
+                </span>
+              </li>
+            }
+          </ol>
+        </details>
+      } @else {
+        <small>Nenhum evento adicional informado.</small>
       }
-      @if (whatsappUrl(); as url) {
-        <a [href]="url" target="_blank" rel="noopener"
-          >WhatsApp · {{ formatPhone(draft.whatsapp || '') }} <span aria-hidden="true">↗</span
-          ><span class="sr-only"> (nova aba)</span></a
-        >
-      }
-      @if (!draft.email && !draft.whatsapp) {
-        <p>Contato não informado.</p>
-      }
-    </div>
-  </section>
-  <section>
-    <h3>O que gostaria de fazer</h3>
-    <p class="idea">{{ draft.requirements || 'Nenhum texto adicional informado.' }}</p>
-  </section>
-  <section>
-    <h3>Ponto de partida</h3>
-    <p>{{ draft.project?.title || 'Não informado' }}</p>
-    @if (draft.project?.context) {
-      <p>{{ draft.project.context }}</p>
+    </section>
+    @if (data.updatedAt) {
+      <p class="update">Último envio: {{ data.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
     }
-    <div class="choices">
-      @for (choice of included(); track choice) {
-        <span>{{ choice }}</span>
-      }
-    </div>
-    @if (draft.excluded.length) {
-      <details>
-        <summary>Opções retiradas da ideia</summary>
-        @for (choice of draft.excluded; track choice) {
-          <p>{{ choice }}</p>
-        }
-      </details>
-    }
-  </section>
-  <section>
-    <h3>Interesse em plano</h3>
-    <p>{{ draft.plan || 'A avaliar com a equipe' }}</p>
-    <small>Interesse informado na jornada. Não representa contratação.</small>
-  </section>
-  <section>
-    <h3>Jornada registrada</h3>
-    <p>
-      {{ entries[draft.entry] || draft.entry }} · Iniciada em
-      {{ draft.startedAt | date: 'dd/MM/yyyy HH:mm' }}
-    </p>
-    @if (draft.events.length) {
-      <details>
-        <summary>Ver {{ draft.events.length }} eventos</summary>
-        <ol>
-          @for (event of draft.events; track $index) {
-            <li>
-              <time>{{ event.at | date: 'dd/MM HH:mm' }}</time
-              ><span
-                >{{ eventNames[event.name] || event.name }}
-                @if (event.value) {
-                  · {{ event.value }}
-                }
-              </span>
-            </li>
-          }
-        </ol>
-      </details>
-    } @else {
-      <small>Nenhum evento adicional informado.</small>
-    }
-  </section>
-  @if (data.updatedAt) {
-    <p class="update">Último envio: {{ data.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
   }
 }

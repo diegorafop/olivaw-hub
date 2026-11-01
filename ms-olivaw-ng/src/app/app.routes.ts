@@ -1,4 +1,5 @@
 import { planOfferings } from './features/public/plans/plan-offerings';
+import { leadRecordGuard } from './features/admin/leads/lead-record.guard';
 import { leadProposalGuard } from './features/admin/leads/lead-proposal.guard';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -449,6 +450,13 @@ export const routes: Routes = [
         path: 'leads/new',
         canMatch: [operationGuard],
         loadComponent: () => import('./features/admin/leads/lead-create').then((m) => m.LeadCreate),
+      },
+      {
+        path: 'leads/:id/details',
+        title: 'Olivaw - Ficha do lead',
+        canMatch: [operationGuard],
+        canDeactivate: [leadRecordGuard],
+        loadComponent: () => import('./features/admin/leads/lead-record').then((m) => m.LeadRecord),
       },
       {
         path: 'leads/:id/proposal',

@@ -27,12 +27,15 @@ public class ReadLeadByFilterTest
         var payload = new ReadLeadByFilterQuery { Page = 2, PageSize = 10, Search = "Pastelaria", Entry = "studio", FollowUpStatus = "analysis", From = from };
         var id = Guid.NewGuid();
         reader.Setup(item => item.ReadAsync(It.Is<LeadReadFilter>(filter => filter.Page == 2 && filter.PageSize == 10 && filter.Search == "Pastelaria" && filter.Entry == "studio" && filter.FollowUpStatus == "analysis" && filter.From == from.UtcDateTime), cancellation.Token))
-            .ReturnsAsync(new LeadReadPage { Total = 11, Items = new List<LeadReadItem> { new() { ExternalId = id, Business = "Pastelaria", Whatsapp = "11987654321", FollowUpStatus = "analysis" } } });
+            .ReturnsAsync(new LeadReadPage { Total = 11, Items = new List<LeadReadItem> { new() { ExternalId = id, Business = "Pastelaria", Phone = "(41) 99897-0017", Segment = "Eventos", WebsiteUrl = "https://example.test", Whatsapp = "11987654321", FollowUpStatus = "analysis" } } });
         var response = await new ReadLeadByFilterHandler(reader.Object).Handle(new ReadLeadByFilterMediatorQuery { Payload = payload }, cancellation.Token);
         Assert.Equal(11, response.Total);
         Assert.Equal(2, response.Page);
         Assert.Equal(id, Assert.Single(response.Items).ExternalId);
         Assert.Equal("11987654321", response.Items[0].Whatsapp);
+        Assert.Equal("(41) 99897-0017", response.Items[0].Phone);
+        Assert.Equal("Eventos", response.Items[0].Segment);
+        Assert.Equal("https://example.test", response.Items[0].WebsiteUrl);
         Assert.Equal("analysis", response.Items[0].FollowUpStatus);
         reader.VerifyAll();
     }

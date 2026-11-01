@@ -127,7 +127,7 @@ export class AdminLayout {
     if (section === 'leads' && detail) {
       items.push({
         label: detail === 'new' ? 'Novo lead' : 'Ficha do lead',
-        url: '/admin/leads/' + detail,
+        url: detail === 'new' ? '/admin/leads/new' : '/admin/leads/' + detail + '/details',
       });
       if (reportId === 'proposal') items.push({ label: 'Orçamento', url: this.currentUrl() });
       return items;

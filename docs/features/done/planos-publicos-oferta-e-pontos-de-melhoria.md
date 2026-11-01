@@ -7,7 +7,7 @@ Como cliente potencial, quero entender os planos e as condições de evolução,
 ## acceptance-criteria
 
 - Catálogo público em `/planos`, com detalhes navegáveis por plano, breadcrumb e interesse preservado em `/projeto?plano=bronze`.
-- Bronze por R$ 49 mensais; demais valores sob proposta. Prata com 5 GB totais e duas contas administrativas do site do cliente.
+- Mensalidades a partir de: Bronze R$ 49, Prata R$ 199, Ouro R$ 599 e Diamante R$ 1.799. Valores finais conforme escopo e capacidade na proposta. Prata com 5 GB totais e duas contas administrativas do site do cliente.
 - Franquias mensais: Bronze 1, Prata 4, Ouro 12 e Diamante 36 pontos, sem acumulação.
 - Estimativa informada e aprovada antes de executar; consumo confirmado após entrega e aceite. Defeitos do escopo entregue não consomem pontos.
 - Bronze atende melhorias simples. Exemplos não são preços universais: uma foto pronta em bloco existente pode custar 1 ponto; uma seção reaproveitada de evento pode custar 3, após análise.
@@ -60,4 +60,8 @@ plano ouro, 10gb de armazenamento com até 10 contas de usuarios para gestao do 
 
 ```text
 deixar claro que o objetivo da olivaw é adminstrar a infraestrutura, backup dos dados, controle de nuvem, economia de recursos ao maximo, voce tem a ideia , implementar e colocar para rodar é problema nosso.
+```
+
+```text
+nós ja tinhamos falado sobre os planos e valores lembra? porque ainda n ta atualizado no site ficou como 'a definir' para prata, ouro e diamente
 ```

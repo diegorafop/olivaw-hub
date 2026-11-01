@@ -1,0 +1,61 @@
+{
+  "settingsVersion": 1,
+  "agent": {
+    "id": "trevize",
+    "module": "ms_trevize"
+  },
+  "lifecycle": {
+    "autoStart": false
+  },
+  "schedule": {
+    "enabled": true,
+    "intervalHours": 24
+  },
+  "execution": {
+    "enabled": true,
+    "timeoutSeconds": 1800
+  },
+  "search": {
+    "provider": "google-maps-browser",
+    "region": "Curitiba e região metropolitana, PR",
+    "queryLocation": "Curitiba, PR",
+    "segment": "empresas de eventos",
+    "limit": 20,
+    "maxScrolls": 60,
+    "maxCandidates": 180,
+    "waitMilliseconds": 1800,
+    "headless": true,
+    "excludeTerms": [
+      "agência de viagens",
+      "contabilidade",
+      "serviço de impressão",
+      "serviço de distribuição"
+    ]
+  },
+  "website": {
+    "enabled": true,
+    "timeoutSeconds": 10,
+    "maxBytes": 262144
+  },
+  "ai": {
+    "enabled": true,
+    "provider": "codex-cli",
+    "model": null,
+    "timeoutSeconds": 120,
+    "maxCallsPerCycle": 20
+  },
+  "skill": {
+    "path": "../skills/trevize-prospect/SKILL.md"
+  },
+  "localState": {
+    "directory": ".state",
+    "retentionDays": 7,
+    "maxBytes": 20971520
+  },
+  "leadApi": {
+    "enabled": true,
+    "baseUrl": "https://api.olivaw.com.br",
+    "credentialsPath": "../../_secrets/admin.json",
+    "credentialsSection": "trevize"
+  }
+}

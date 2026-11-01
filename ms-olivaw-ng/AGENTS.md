@@ -24,7 +24,7 @@ Não publique imagens, implante, faça finish ou push como efeito da validação
 
 Preserve compatibilidade entre Angular, CLI, Material/CDK, TypeScript e Node. Angular 22.2 requer TypeScript 6.0.x; não instalar TypeScript 7 apenas por ser a versão latest. Os tipos do Node acompanham o runtime 24 usado pelo projeto. Atualize também o lockfile e valide build, lint, testes unitários e E2E.
 
-O `overrides.vite` fixa o patch 8.3.5 para corrigir avisos da versão 8.3.2 exigida pelo Angular Build 22.2.3. Reavalie o override em futuras atualizações e remova quando a cadeia oficial incorporar uma versão corrigida equivalente; não mantenha um pin antigo sem consultar auditoria e compatibilidade.
+Angular Build 22.2.5 já depende de Vite 8.3.5, que incorpora as correções anteriormente aplicadas pelo override. Não manter override redundante; reavaliar a cadeia e a auditoria ao atualizar o build.
 
 ## Navegação da operação
 
@@ -33,3 +33,5 @@ O `overrides.vite` fixa o patch 8.3.5 para corrigir avisos da versão 8.3.2 exig
 - O breadcrumb acompanha os níveis de cada rota e mantém os ancestrais clicáveis: Visão geral, Configuração, cadastro e ficha/criação. O item atual usa `aria-current="page"`; query strings não alteram a hierarquia. Implantações retornam a Serviços, sem criar um link para uma lista de ambientes inexistente.
 - Preserve navegação por teclado, cards responsivos e acesso de volta à Configuração. Operadores sem root não veem nem acessam os módulos restritos.
 - Estudos de planos são cenários internos, com limites e funcionalidades em elaboração; não os apresente como ofertas aprovadas nem altere contratos ao salvar cenários.
+
+- O override `minimatch@^10.2.0` para `11.0.1` corrige GHSA-g3hv-75wg-m249 na cadeia de lint. Node 24 é compatível; validar lint/build/testes e remover o override quando os consumidores incorporarem a correção. Não aplicar downgrade automático sugerido pelo audit.

@@ -21,6 +21,8 @@ def load_settings(path):
                         parse_constant=lambda value: (_ for _ in ()).throw(ValueError("Número JSON inválido.")))
   if not isinstance(settings, dict) or type(settings.get("settingsVersion")) is not int or settings["settingsVersion"] != 1:
     raise ValueError("Versão de configuração não suportada.")
+  if settings.get("lifecycle", {"autoStart": False}).get("autoStart") is not False:
+    raise ValueError("Baley só permite início manual.")
   for section in ("agent", "schedule", "execution", "ai", "skill", "localState"):
     if not isinstance(settings.get(section), dict):
       raise ValueError("Seção obrigatória: " + section)
