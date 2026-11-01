@@ -13,6 +13,7 @@ import type { LeadDetailData } from './leads-api';
   styleUrl: './lead-detail.scss',
 })
 export class LeadDetail {
+  readonly preview = input(true);
   readonly entries = LEAD_ENTRIES;
   readonly auth = inject(AutenticacaoStore);
   readonly saved = output<void>();

@@ -94,7 +94,7 @@ class LocalRuntime:
       finally:
         os.close(descriptor)
     state = read_state(self.state / "status.json")
-    state.update(agentId="baley", running=running)
+    state.update(agentId="baley", running=running, autoStart=False, launchMode="manual")
     if not running:
       state["state"] = "stopped"
     elif "state" not in state:

@@ -106,6 +106,16 @@ public class LeadReadIntegrationTest
             });
             Assert.Equal(HttpStatusCode.Conflict, proposalRetry.StatusCode);
         }
+        using var qualification = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/qualification", new
+        {
+            revision = 2, qualification = new { segment = "Eventos", approach = "Olá, gostaríamos de conversar.", approachStatus = "draft" }
+        });
+        Assert.Equal((HttpStatusCode)expected, qualification.StatusCode);
+        if (expected == 200)
+        {
+            using var staleQualification = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/qualification", new { revision = 2, qualification = new { segment = "Desatualizado" } });
+            Assert.Equal(HttpStatusCode.Conflict, staleQualification.StatusCode);
+        }
         using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = 0, status = "analysis", note = "Nota" });
         Assert.Equal((HttpStatusCode)expected, update.StatusCode);
         if (expected != 200)

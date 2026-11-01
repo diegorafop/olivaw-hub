@@ -1,0 +1,236 @@
+<main class="record">
+  <header class="heading">
+    <div>
+      <p class="eyebrow">RELACIONAMENTO / FICHA DO LEAD</p>
+      <h1>
+        {{ lead()?.snapshot?.business || lead()?.snapshot?.project?.title || 'Ficha do lead' }}
+      </h1>
+      <p>Entender o negócio, encontrar oportunidades e construir uma parceria.</p>
+    </div>
+    <div class="actions">
+      <a class="secondary" [routerLink]="['/admin/leads', id]" [queryParams]="queryParams"
+        >Voltar ao resumo</a
+      ><button type="button" class="secondary" (click)="reload()">Atualizar ficha</button>
+    </div>
+  </header>
+  @if (loading()) {
+    <p role="status">Carregando ficha…</p>
+  } @else if (loadError()) {
+    <p role="alert">{{ loadError() }}</p>
+    <button type="button" (click)="load()">Tentar novamente</button>
+  } @else if (lead(); as data) {
+    <div class="record-meta">
+      <span>{{ statuses[data.followUpStatus] || 'Novo contato' }}</span
+      ><span>{{ data.snapshot?.acquisition?.origin || 'Jornada Olivaw' }}</span
+      ><span>Desde {{ data.createdAt | date: 'dd/MM/yyyy' }}</span
+      ><a [routerLink]="['/admin/leads', id, 'proposal']">Orçamento e proposta ↗</a>
+    </div>
+    <nav class="section-links" aria-label="Seções da ficha">
+      <a href="#qualification">Qualificação</a><a href="#approach">Abordagem</a
+      ><a href="#follow-up">Acompanhamento</a><a href="#original">Informações originais</a>
+    </nav>
+    @if (data.snapshot && !data.contentUnavailable) {
+      <div class="columns">
+        <form [formGroup]="form" (ngSubmit)="save()" aria-label="Qualificação do lead">
+          <section class="card" id="qualification">
+            <p class="eyebrow">01 / CONHECER A EMPRESA</p>
+            <h2>Perfil e presença digital</h2>
+            <p class="muted">
+              Registre o que foi encontrado e sua fonte. Um telefone não confirma WhatsApp; site não
+              localizado não significa que ele não exista.
+            </p>
+            <div class="fields">
+              <label
+                >Segmento<input
+                  formControlName="segment"
+                  maxlength="100"
+                  placeholder="Ex.: montagem de feiras"
+              /></label>
+              <label
+                >Região<input
+                  formControlName="region"
+                  maxlength="120"
+                  placeholder="Cidade e região atendida"
+              /></label>
+              <label
+                >Presença digital<select formControlName="presence">
+                  @for (option of presenceOptions; track option[0]) {
+                    <option [value]="option[0]">{{ option[1] }}</option>
+                  }
+                </select></label
+              >
+              <label
+                >Website<input
+                  formControlName="websiteUrl"
+                  maxlength="2048"
+                  type="url"
+                  placeholder="https://"
+              /></label>
+              <label
+                >Telefone comercial<input formControlName="phone" maxlength="40" type="tel"
+              /></label>
+              <label
+                >WhatsApp confirmado<input
+                  formControlName="whatsapp"
+                  maxlength="11"
+                  inputmode="numeric"
+                  placeholder="DDD e número, somente dígitos"
+              /></label>
+              <label
+                >Formulário de contato (URL)<input
+                  formControlName="contactFormUrl"
+                  maxlength="2048"
+                  type="url"
+                  placeholder="https://"
+              /></label>
+              <label
+                >Fonte dos dados e contatos (URL)<input
+                  formControlName="sourceUrl"
+                  maxlength="2048"
+                  type="url"
+                  placeholder="Página onde confirmou as informações"
+              /></label>
+              <label
+                >Prioridade de revisão<select formControlName="priority">
+                  @for (option of priorityOptions; track option[0]) {
+                    <option [value]="option[0]">{{ option[1] }}</option>
+                  }
+                </select></label
+              >
+              <label
+                >Verificação<select formControlName="confidence">
+                  @for (option of confidenceOptions; track option[0]) {
+                    <option [value]="option[0]">{{ option[1] }}</option>
+                  }
+                </select></label
+              >
+              <label
+                >Tags, separadas por vírgula<input
+                  formControlName="tags"
+                  maxlength="730"
+                  placeholder="eventos, presença digital, contato"
+              /></label>
+              <label
+                >Referência de portfólio<input
+                  formControlName="portfolioReference"
+                  maxlength="120"
+                  placeholder="Ex.: LTMJ — somente se pertinente"
+              /></label>
+            </div>
+            <div class="fields observations">
+              <label
+                >Fatos confirmados<textarea
+                  formControlName="facts"
+                  maxlength="1500"
+                  rows="4"
+                  placeholder="O que sabemos, com fonte e data da verificação."
+                ></textarea>
+              </label>
+              <label
+                >Pontos positivos<textarea
+                  formControlName="positives"
+                  maxlength="1500"
+                  rows="4"
+                  placeholder="O que funciona bem ou merece ser reconhecido."
+                ></textarea>
+              </label>
+              <label
+                >Observações e oportunidades<textarea
+                  formControlName="observations"
+                  maxlength="1500"
+                  rows="4"
+                  placeholder="Evidência, possível impacto e melhoria sugerida. Diferencie hipótese de problema confirmado."
+                ></textarea>
+              </label>
+              <label
+                >Perguntas para a conversa<textarea
+                  formControlName="questions"
+                  maxlength="1500"
+                  rows="4"
+                  placeholder="O que ainda precisamos entender? Não presuma falta de backup ou controle do domínio."
+                ></textarea>
+              </label>
+            </div>
+          </section>
+          <section class="card" id="approach">
+            <p class="eyebrow">02 / CONSTRUIR UMA PARCERIA</p>
+            <h2>Abordagem inicial</h2>
+            <p class="muted">
+              Uma apresentação transparente, algo pertinente ao negócio e uma pergunta simples.
+              Revise os fatos antes de usar o texto.
+            </p>
+            <div class="actions">
+              <button type="button" class="secondary" (click)="suggest()" [disabled]="busy()">
+                Preparar sugestão</button
+              ><button
+                type="button"
+                class="secondary"
+                (click)="copy()"
+                [disabled]="!form.controls.approach.value"
+              >
+                Copiar texto
+              </button>
+            </div>
+            <label
+              >Rascunho de abordagem<textarea
+                formControlName="approach"
+                maxlength="3000"
+                rows="10"
+                (input)="form.controls.approachStatus.setValue('draft')"
+                placeholder="Preencha o perfil e os pontos positivos para preparar uma sugestão. Você também pode escrever livremente."
+              ></textarea>
+            </label>
+            <label class="review"
+              >Revisão do texto<select formControlName="approachStatus">
+                <option value="draft">Rascunho</option>
+                <option value="reviewed">Revisado pelo operador</option>
+              </select></label
+            >
+            <p class="muted">
+              Preparar, copiar ou revisar não envia mensagens e não registra contato realizado. O
+              Trevize ainda não está conectado à geração desta ficha.
+            </p>
+            @if (safeUrl(form.controls.websiteUrl.value); as url) {
+              <a [href]="url" target="_blank" rel="noopener noreferrer">Consultar website ↗</a>
+            }
+          </section>
+          <div class="save-bar">
+            <button type="submit" class="primary" [disabled]="busy() || conflict() || !form.dirty">
+              {{ busy() ? 'Salvando…' : 'Salvar qualificação e abordagem' }}</button
+            ><small>
+              @if (form.dirty) {
+                Alterações ainda não salvas
+              } @else if (data.snapshot.qualificationUpdatedAt) {
+                Salvo em {{ data.snapshot.qualificationUpdatedAt | date: 'dd/MM/yyyy HH:mm' }}
+                @if (data.snapshot.qualificationUpdatedBy) {
+                  · {{ data.snapshot.qualificationUpdatedBy }}
+                }
+              }
+            </small>
+          </div>
+          @if (message()) {
+            <p role="status" class="notice">{{ message() }}</p>
+          }
+          @if (error()) {
+            <p role="alert" class="notice error">{{ error() }}</p>
+          }
+        </form>
+        <aside>
+          <section class="card" id="follow-up">
+            <p class="eyebrow">03 / RELACIONAMENTO</p>
+            <app-lead-follow-up [lead]="data" (saved)="followUpSaved()" (reload)="reload()" />
+          </section>
+          <section class="card" id="original">
+            <p class="eyebrow">04 / REGISTRO ORIGINAL</p>
+            <app-lead-detail [lead]="data" [preview]="false" />
+          </section>
+        </aside>
+      </div>
+    } @else {
+      <p role="status">
+        O conteúdo deste lead não pôde ser lido. A qualificação está indisponível para evitar perda
+        de informações.
+      </p>
+    }
+  }
+</main>

@@ -24,6 +24,8 @@ public class UpdateLeadTest
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.WriteKey)));
         var previous = System.Text.Json.JsonSerializer.Serialize(request.Payload, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         var node = System.Text.Json.Nodes.JsonNode.Parse(previous)!;
+        node["qualification"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadQualification { Facts = "Fato interno" });
+        node["qualificationUpdatedBy"] = "Operador";
         node["proposal"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadProposal { Title = "Proposta interna" }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         var lead = Lead.Create(request.ExternalId, hash, 1, node.ToJsonString(), DateTime.UtcNow);
         var repository = new Mock<IRepository<Lead>>();
@@ -162,6 +164,19 @@ public class UpdateLeadTest
         request.Payload.Whatsapp = whatsapp;
         Assert.Equal(expected, new UpdateLeadMediatorValidator().Validate(request).IsValid);
     }
+    [Fact]
+    public void Validator_should_reject_public_qualification_or_forged_audit_fields()
+    {
+        var request = LeadFeatureFakerBuilder.Create();
+        request.Payload.Qualification = new() { Approach = "Texto interno" };
+        request.Payload.QualificationUpdatedAt = DateTime.UtcNow;
+        request.Payload.QualificationUpdatedBy = "Autor forjado";
+        var result = new UpdateLeadValidator().TestValidate(request.Payload);
+        result.ShouldHaveValidationErrorFor(item => item.Qualification);
+        result.ShouldHaveValidationErrorFor(item => item.QualificationUpdatedAt);
+        result.ShouldHaveValidationErrorFor(item => item.QualificationUpdatedBy);
+    }
+
     [Fact]
     public void Snapshot_should_preserve_legacy_serialization_when_whatsapp_is_absent()
     {

@@ -1,35 +1,37 @@
 <section aria-labelledby="follow-up-title">
   <h3 id="follow-up-title">Acompanhamento</h3>
   <p class="current-status">{{ statuses[lead().followUpStatus] || 'Novo contato' }}</p>
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <label for="follow-up-status">Etapa</label>
-    <select id="follow-up-status" formControlName="status">
-      @for (option of options; track option[0]) {
-        <option [value]="option[0]">{{ option[1] }}</option>
+  @if (!readOnly()) {
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label for="follow-up-status">Etapa</label>
+      <select id="follow-up-status" formControlName="status">
+        @for (option of options; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select>
+      <label for="follow-up-note">Nota interna</label>
+      <textarea
+        id="follow-up-note"
+        formControlName="note"
+        maxlength="3000"
+        rows="4"
+        placeholder="O que foi conversado? Qual é o próximo passo?"
+        aria-describedby="follow-up-help"
+      ></textarea>
+      <small id="follow-up-help"
+        >Visível somente à equipe. A nota fica no histórico com autor e data.</small
+      >
+      <button type="submit" [disabled]="!canSave()">
+        {{ pending() ? 'Salvando…' : 'Salvar acompanhamento' }}
+      </button>
+      @if (error()) {
+        <p role="alert">{{ error() }}</p>
       }
-    </select>
-    <label for="follow-up-note">Nota interna</label>
-    <textarea
-      id="follow-up-note"
-      formControlName="note"
-      maxlength="3000"
-      rows="4"
-      placeholder="O que foi conversado? Qual é o próximo passo?"
-      aria-describedby="follow-up-help"
-    ></textarea>
-    <small id="follow-up-help"
-      >Visível somente à equipe. A nota fica no histórico com autor e data.</small
-    >
-    <button type="submit" [disabled]="!canSave()">
-      {{ pending() ? 'Salvando…' : 'Salvar acompanhamento' }}
-    </button>
-    @if (error()) {
-      <p role="alert">{{ error() }}</p>
-    }
-    @if (conflict()) {
-      <button type="button" (click)="reload.emit()">Recarregar ficha e descartar rascunho</button>
-    }
-  </form>
+      @if (conflict()) {
+        <button type="button" (click)="reload.emit()">Recarregar ficha e descartar rascunho</button>
+      }
+    </form>
+  }
   <h4>Histórico da equipe</h4>
   @if (history().loading) {
     <p role="status">Carregando histórico…</p>

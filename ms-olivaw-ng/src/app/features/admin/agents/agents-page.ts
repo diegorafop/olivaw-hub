@@ -18,6 +18,14 @@ import { RouterLink } from '@angular/router';
         <h2>Baley <span aria-hidden="true">↗</span></h2>
         <p>Auditorias do servidor Docker, acessos e recomendações para a operação.</p>
       </a>
+      <a class="resource-card" routerLink="/admin/leads" [queryParams]="{ entry: 'prospecting' }">
+        <span class="badge">PROSPECÇÃO</span>
+        <h2>Trevize <span aria-hidden="true">↗</span></h2>
+        <p>
+          Pesquisa de empresas e qualificação de oportunidades. Revise as fichas e abordagens em
+          Leads.
+        </p>
+      </a>
     </nav>
   </main>`,
 })
