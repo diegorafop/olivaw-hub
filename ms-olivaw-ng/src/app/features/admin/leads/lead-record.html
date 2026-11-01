@@ -26,8 +26,30 @@
       ><a [routerLink]="['/admin/leads', id, 'proposal']">Orçamento e proposta ↗</a>
     </div>
     <nav class="section-links" aria-label="Seções da ficha">
-      <a href="#qualification">Qualificação</a><a href="#approach">Abordagem</a
-      ><a href="#follow-up">Acompanhamento</a><a href="#original">Informações originais</a>
+      <a
+        [routerLink]="['/admin/leads', id, 'details']"
+        [queryParams]="queryParams"
+        fragment="qualification"
+        >Qualificação</a
+      >
+      <a
+        [routerLink]="['/admin/leads', id, 'details']"
+        [queryParams]="queryParams"
+        fragment="approach"
+        >Abordagem</a
+      >
+      <a
+        [routerLink]="['/admin/leads', id, 'details']"
+        [queryParams]="queryParams"
+        fragment="follow-up"
+        >Acompanhamento</a
+      >
+      <a
+        [routerLink]="['/admin/leads', id, 'details']"
+        [queryParams]="queryParams"
+        fragment="original"
+        >Informações originais</a
+      >
     </nav>
     @if (data.snapshot && !data.contentUnavailable) {
       <div class="columns">
@@ -187,8 +209,8 @@
               </select></label
             >
             <p class="muted">
-              Preparar, copiar ou revisar não envia mensagens e não registra contato realizado. O
-              Trevize ainda não está conectado à geração desta ficha.
+              Preparar, copiar ou revisar não envia mensagens e não registra contato realizado. A
+              sugestão usa os campos preenchidos nesta ficha e precisa de revisão humana.
             </p>
             @if (safeUrl(form.controls.websiteUrl.value); as url) {
               <a [href]="url" target="_blank" rel="noopener noreferrer">Consultar website ↗</a>
@@ -216,6 +238,44 @@
           }
         </form>
         <aside>
+          @if (data.snapshot.qualification; as qualification) {
+            <section class="card" aria-label="Canais da oportunidade">
+              <p class="eyebrow">CANAIS REGISTRADOS</p>
+              <h2>Contato e referências</h2>
+              @if (qualification.phone) {
+                <p>Telefone · {{ qualification.phone }}</p>
+              }
+              @if (whatsappLink(qualification.whatsapp); as url) {
+                <p>
+                  <a [href]="url" target="_blank" rel="noopener noreferrer"
+                    >WhatsApp confirmado ↗</a
+                  >
+                </p>
+              }
+              @if (safeUrl(qualification.websiteUrl); as url) {
+                <p>
+                  <a [href]="url" target="_blank" rel="noopener noreferrer">Website registrado ↗</a>
+                </p>
+              }
+              @if (safeUrl(qualification.contactFormUrl); as url) {
+                <p>
+                  <a [href]="url" target="_blank" rel="noopener noreferrer"
+                    >Página com formulário ↗</a
+                  >
+                </p>
+              }
+              @if (safeUrl(qualification.sourceUrl); as url) {
+                <p>
+                  <a [href]="url" target="_blank" rel="noopener noreferrer"
+                    >Fonte da informação ↗</a
+                  >
+                </p>
+              }
+              <p class="muted">
+                Canais salvos na ficha. Consultar um link não altera o acompanhamento.
+              </p>
+            </section>
+          }
           <section class="card" id="follow-up">
             <p class="eyebrow">03 / RELACIONAMENTO</p>
             <app-lead-follow-up [lead]="data" (saved)="followUpSaved()" (reload)="reload()" />

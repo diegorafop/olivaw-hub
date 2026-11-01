@@ -33,10 +33,15 @@
             <h2>{{ plan.name }}</h2>
             <p class="price">
               {{
-                plan.monthlyPrice === null ? 'Sob proposta' : (plan.monthlyPrice | currency: 'BRL')
+                plan.monthlyPrice === null
+                  ? 'Sob proposta'
+                  : 'A partir de ' + (plan.monthlyPrice | currency: 'BRL')
               }}<small>{{ plan.monthlyPrice === null ? '' : '/mês' }}</small>
             </p>
             <p>{{ plan.text }}</p>
+            <p class="offer">
+              Valor final conforme funcionalidades, capacidade e condições da proposta.
+            </p>
             <p class="offer">{{ allowanceLabel(plan.id) }}</p>
             <ul>
               @for (feature of plan.features; track feature) {
@@ -59,7 +64,7 @@
             {{
               plan.monthlyPrice === null
                 ? 'Mensalidade sob proposta'
-                : (plan.monthlyPrice | currency: 'BRL')
+                : 'A partir de ' + (plan.monthlyPrice | currency: 'BRL')
             }}<small>{{ plan.monthlyPrice === null ? '' : '/mês' }}</small>
           </p>
           <p>{{ plan.text }}</p>

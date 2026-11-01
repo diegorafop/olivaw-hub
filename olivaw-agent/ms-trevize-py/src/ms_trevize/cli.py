@@ -18,14 +18,22 @@ def main(argv=None):
     runtime=LocalRuntime(args.settings)
     if args.operation in ("start","stop","status"):
       result={"start":StartAgentHandler,"stop":StopAgentHandler,"status":ReadStatusHandler}[args.operation](runtime).handle()
-    elif args.operation=="update":
-      result={"agentId":"trevize","status":"not-applicable","message":"Revisão da skill é manual; nada foi alterado."}
+    elif args.operation in ("update", "audit"):
+      result={"agentId":"trevize","status":"not-applicable","message":"Operação não se aplica ao Trevize; nada foi alterado."}
     else:
       from ms_trevize.bootstrap import compose
       runtime.prepare()
       from ms_trevize.data.local_runtime import exclusive_lock
       with exclusive_lock(runtime.state/"worker.lock"):
-        result=compose(args.settings).handle()
+        from uuid import uuid4
+        from ms_trevize.data.local_runtime import atomic_json, now
+        state={"agentId":"trevize","instanceId":uuid4().hex,"state":"collecting","autoStart":False,"startedAt":now()}
+        atomic_json(runtime.state/"status.json",state)
+        try:
+          result=compose(args.settings).handle()
+        finally:
+          state.update(state="stopped",stoppedAt=now())
+          atomic_json(runtime.state/"status.json",state)
     print(json.dumps(result,ensure_ascii=False,indent=2))
     return 1 if result.get("status") in ("failed","partial") else 0
   except (OSError,ValueError,KeyError,TypeError,ImportError):

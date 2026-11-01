@@ -27,9 +27,13 @@ Como operador da Olivaw, quero encontrar empresas por segmento e região e revis
 
 ### Estado e rastreabilidade
 
-Discovery registrada em 01/11/2026. Responsável pela documentação: Codex. Branch observada: `feature/issue027-agent-prospector`; issue 027 inferida do branch, sem criação ou fechamento remoto. Worktree: raiz do monorepo. Esta entrega é documental: o agente persistente, endpoints adicionais e UI ainda não foram implementados. Não gerar migrations, publicar, commitar ou enviar mensagens como consequência desta especificação.
+Discovery registrada em 01/11/2026. Responsável pela documentação: Codex. Branch observada: `feature/issue027-agent-prospector`; issue 027 inferida do branch, sem criação ou fechamento remoto. Worktree: raiz do monorepo. O recorte inicial do agente, agendamento e integração por API foi implementado em [coleta agendada](../done/trevize-coleta-agendada-de-leads.md); a [ficha de Leads](../done/leads-ficha-qualificacao-e-abordagem.md) também está implementada. Esta discovery mantém as ideias mais amplas e decisões de evolução, sem afirmar que todos os critérios abaixo já estão prontos. Não gerar migrations, publicar, commitar ou enviar mensagens como consequência desta especificação.
 
 Ler as instruções locais de `olivaw-agent`, Baley, frontend e API antes da implementação. Usar o scaffold Python existente e conferir o contrato real de `setting.json`, sem copiar permissões de remediação ou credenciais do Baley. Não presumir que sua operação update é necessária: definir comandos adicionais conforme o escopo.
+
+### Recorte autorizado posteriormente
+
+O mantenedor autorizou o agente com coleta/cadastro ao start manual, intervalo de 24h, até 20 candidatos de eventos de Curitiba. Essa instrução substitui a sugestão inicial de cadastro automático desabilitado para o recorte implementado; não autoriza contato, envio ou autostart no PC. Filtros avançados e demais fontes continuam em estudo.
 
 ### POC realizada
 
@@ -120,4 +124,15 @@ pesquisei por empresa de eventos curitiba e dei enter. apareceu milhaers de iten
 achei uma ideia boa, o que mais voce sugere e quais mais coisas conseguiriamos fazer ?
 
 anota tudo isso coom uma nova feature em discovery, ja vamos trabalhar nela.
+```
+
+```text
+após terminar isso, ja pode criar noss agent de IA que vai coletar os leads no maps. regiao curitiba e, 20 unidades coletadas a cada 24 horas. empresas de eventos.
+
+detalhe o robo precisa rodar somente quando faço 'start' neles, confere isso tbm parece que o baley ficou rodando diretaooo.
+n tem que ser 'auto start' qdo ligo o PC blz?
+
+somente quanto faço start, se desligar o PC ele 'morre'
+
+ms-trevize-py
 ```

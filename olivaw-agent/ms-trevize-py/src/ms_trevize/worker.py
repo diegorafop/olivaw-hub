@@ -31,6 +31,7 @@ def main(argv=None):
       "autoStart":False,"intervalHours":runtime.settings["schedule"]["intervalHours"],"lastCollection":None}
     schedule=Schedule(runtime.settings["schedule"]["intervalHours"], time.monotonic(), runtime.settings["schedule"]["enabled"])
     heartbeat=0;future=None
+    atomic_json(runtime.state/"status.json",state)
     executor=ThreadPoolExecutor(max_workers=1)
     try:
       while not stopping:

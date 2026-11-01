@@ -15,6 +15,9 @@ export interface LeadItem {
   entry: string;
   email: string;
   whatsapp: string;
+  phone?: string;
+  websiteUrl?: string;
+  segment?: string;
   followUpStatus: string;
 }
 export interface LeadPage {

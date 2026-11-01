@@ -31,6 +31,9 @@
       }
     </div>
   }
+  @if (draft?.qualification?.phone; as phone) {
+    <p>Telefone · {{ phone }}</p>
+  }
   <p class="summary-text">{{ draft?.requirements || 'Sem informações adicionais.' }}</p>
   <app-lead-follow-up [lead]="data" [readOnly]="true" />
 } @else {

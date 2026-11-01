@@ -15,11 +15,19 @@ Como operador, quero consultar um resumo na lista e trabalhar na ficha completa 
 
 ## ai-prompt
 
-Em implementação pelo Codex na branch `feature/issue027-agent-prospector`, worktree `/home/makina/projects/olivaw`, issue 027 inferida do branch. Escopo: frontend Leads, contrato/handler e endpoint administrativo de qualificação no snapshot existente, testes e documentação. Não gerar migrations: não há mudança de schema prevista. Sem commit, push ou deploy.
+Desenvolvimento concluído e validado pelo Codex na branch `feature/issue027-agent-prospector`, worktree `/home/makina/projects/olivaw`, issue 027 inferida do branch. Escopo: frontend Leads, contrato/handler e endpoint administrativo de qualificação no snapshot existente, testes e documentação. Não gerar migrations: não há mudança de schema prevista. Sem commit, push ou deploy.
 
-A geração por IA e coleta do Trevize permanecem na [discovery do agente](../discovery/trevize-prospeccao-e-qualificacao-de-leads.md). Nesta entrega haverá preparo e edição de rascunhos com base nos fatos registrados, sem inferir que conteúdo foi gerado pelo Trevize. Integração futura usa API autenticada; não criar conta ou chamar modelo pago.
+A ficha permite preparo local e edição de rascunhos baseados nos campos registrados. A coleta e qualificação por IA são um recorte separado em [Trevize](trevize-coleta-agendada-de-leads.md); não houve chamada paga nem lote real nesta validação. A [discovery do agente](../discovery/trevize-prospeccao-e-qualificacao-de-leads.md) mantém as evoluções futuras.
 
 Posicionamento: parceria, nova empresa de sistemas, atenção à necessidade real, apresentação positiva, pergunta simples. Infraestrutura, backups, domínio e gestão entram conforme o interesse, sem sobrecarregar a primeira mensagem. Não assumir infraestrutura deficiente, falta de backup ou ausência de site sem confirmação.
+
+### Implementação e evidências
+
+Painel lateral usa acompanhamento somente leitura. A ficha em `/admin/leads/:id/details` concentra perfil, fontes, contatos, prioridades, perguntas, rascunho e acompanhamento. A proposta e breadcrumb apontam para essa ficha. Tags e presença digital são independentes do status comercial. Lista projeta telefone, segmento e website do JSON no banco, sem carregar o snapshot completo; busca inclui esses campos. WhatsApp confirmado da qualificação complementa o contato original, sem transformar telefone em WhatsApp. Contatos não são enviados automaticamente.
+
+`PUT /leads/{id}/qualification` exige `leads.manage`; snapshot preserva proposta e jornada, com revisão otimista e última autoria/data pelo servidor. O endpoint público rejeita e preserva os campos internos. Notas e qualificação têm revisões independentes; salvar uma não apaga o rascunho da outra. Limite de 32.000 caracteres no snapshot completo. Sem alteração de schema e sem migrations necessárias.
+
+Validações: suíte API com 467 testes; frontend com 46 testes unitários, build e lint; 16 E2E de ficha, lista e orçamento em desktop/mobile, autorização, persistência e conflito. Revisão visual com dados simulados. Publicação pelo mantenedor pendente; não foram atualizados Leads reais nesta entrega.
 
 ## user-feedback
 

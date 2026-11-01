@@ -41,6 +41,13 @@ class MapsCollector:
     self.settings, self.timeout = settings, timeout
 
   def collect(self, known):
+    from playwright.sync_api import Error as BrowserError
+    try:
+      return self._collect(known)
+    except BrowserError:
+      raise ValueError("Navegação indisponível; confira fonte, navegador e limites.") from None
+
+  def _collect(self, known):
     from playwright.sync_api import sync_playwright
     deadline = time.monotonic() + self.timeout
     with sync_playwright() as playwright:

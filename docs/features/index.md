@@ -41,3 +41,6 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 - [Prospecção ativa e orçamentos vinculados a Leads](done/leads-prospeccao-e-orcamentos.md) — cadastro manual, propostas detalhadas e HTML compartilhável; publicação e cadastro do caso 795293 pendentes.
 
 - [Planos públicos, oferta de criação e pontos de melhoria](done/planos-publicos-oferta-e-pontos-de-melhoria.md) — catálogo e condições comerciais; publicação pendente.
+
+- [Leads — Ficha completa, qualificação e abordagem de parceria](done/leads-ficha-qualificacao-e-abordagem.md) — painel de consulta, ficha e API protegida; publicação pendente.
+- [Trevize — Coleta agendada e qualificação de Leads](done/trevize-coleta-agendada-de-leads.md) — início manual, até 20 candidatos de eventos em Curitiba por ciclo de 24h; publicar API antes de iniciar.

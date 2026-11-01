@@ -29,7 +29,7 @@ export const planOfferings: readonly PlanOffering[] = [
     id: 'prata',
     name: 'Prata',
     note: 'Seu site com área administrativa',
-    monthlyPrice: null,
+    monthlyPrice: 199,
     monthlyImprovementPoints: 4,
     text: 'Site com área administrativa para cadastrar despesas, receitas, conteúdos e organizar rotinas de operação de complexidade simples a média, conforme o escopo contratado.',
     features: [
@@ -46,7 +46,7 @@ export const planOfferings: readonly PlanOffering[] = [
     id: 'ouro',
     name: 'Ouro',
     note: 'Gestão para o seu negócio',
-    monthlyPrice: null,
+    monthlyPrice: 599,
     monthlyImprovementPoints: 12,
     text: 'Para negócios cuja operação depende de um sistema: CRM ou ERP de complexidade média, com controle de estoque, gestão de produtos e dashboards, conforme o escopo contratado.',
     features: [
@@ -62,7 +62,7 @@ export const planOfferings: readonly PlanOffering[] = [
     id: 'diamante',
     name: 'Diamante',
     note: 'Uma parceria sob medida',
-    monthlyPrice: null,
+    monthlyPrice: 1799,
     monthlyImprovementPoints: 36,
     text: 'Para necessidades específicas de integração, capacidade e acompanhamento.',
     features: [

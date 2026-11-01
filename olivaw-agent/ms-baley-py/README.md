@@ -78,3 +78,7 @@ Após a alteração, exige duas amostras saudáveis, mesmo inventário e sem rei
 A credencial Baley continua em `_secrets/admin.json`, seção `baley`. O provisionador revisado concede somente `security.reports.write` e `security.remediations.execute`, sem root; aprovações continuam exclusivas do root. A tabela depende de nova migration e publicação pelo mantenedor; consultar a [feature concluída localmente](../../docs/features/done/baley-correcao-aprovada-e-saude.md).
 
 A [skill de limpeza](../skills/safety-docker/references/cleanup.md) preserva containers, volumes, redes e recuperação. `docker system prune` não atende ao escopo e não é executado pelo Baley. Enquanto não houver um procedimento catalogado de cache, a skill apenas prepara investigação e plano manual para o operador.
+
+### Início manual e timer
+
+`lifecycle.autoStart=false` é obrigatório. `start` mantém o supervisor local aberto e agenda auditorias; isso não instala inicialização automática no boot. `status` não inicia auditoria. Ao desligar o PC, o processo termina e só volta após novo start. O timer de seis horas vale para auditorias; a consulta de correções aprovadas tem intervalo próprio (`remediation.pollSeconds`), sem repetir auditoria por causa dessa consulta.

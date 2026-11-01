@@ -41,6 +41,9 @@ export class LeadRecord {
   readonly priorityOptions = Object.entries(PRIORITY_LABELS);
   readonly confidenceOptions = Object.entries(CONFIDENCE_LABELS);
   readonly safeUrl = webUrl;
+  whatsappLink(value: string) {
+    return /^[1-9][0-9]9[0-9]{8}$/.test(value) ? `https://wa.me/55${value}` : null;
+  }
   private readonly text = (max: number) =>
     new FormControl('', { nonNullable: true, validators: [Validators.maxLength(max)] });
   readonly form = new FormGroup({

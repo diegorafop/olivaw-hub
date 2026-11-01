@@ -31,3 +31,11 @@ class ApiTests(unittest.TestCase):
     api.request=Mock(side_effect=[ApiError(404),{'items':[{'business':'Empresa'}]}])
     self.assertEqual('possible-duplicate-review',api.publish(Candidate('a','Empresa','Eventos','','','',''),{}))
     self.assertEqual(2,api.request.call_count)
+
+  def test_missing_qualification_route_blocks_before_collection_or_create(self):
+    api=LeadApi({},Path('.'));api.login=Mock()
+    api.request=Mock(side_effect=ApiError(404))
+    with self.assertRaises(ValueError):api.preflight()
+    api.request.assert_called_once_with('/leads/00000000-0000-0000-0000-000000000000/qualification',method='OPTIONS')
+    api.request.side_effect=ApiError(405,'PUT')
+    api.preflight()

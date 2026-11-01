@@ -108,3 +108,13 @@ class ProspectingTests(unittest.TestCase):
     self.assertNotIn('password',runner.call_args.kwargs['input'])
     runner.return_value=subprocess.CompletedProcess([],0,json.dumps({"type":"item.completed","item":{"type":"command_execution"}}))
     with self.assertRaises(ValueError):review.analyze(parse_card(card(),[]),{},'Curitiba')
+
+  def test_preflight_failure_does_not_collect_or_call_ai(self):
+    collector=Mock();ai=Mock();api=Mock();api.preflight.side_effect=ValueError('API indisponível')
+    with self.assertRaises(ValueError):CreateProspectBatchHandler(BatchState(self.runtime),collector,Mock(),ai,api).handle()
+    collector.collect.assert_not_called();ai.analyze.assert_not_called();api.publish.assert_not_called()
+
+  def test_credentials_cannot_be_redirected_to_another_api_host(self):
+    settings=json.loads(self.path.read_text());settings['leadApi']['baseUrl']='https://other.test'
+    self.path.write_text(json.dumps(settings))
+    with self.assertRaises(ValueError):load_settings(self.path)

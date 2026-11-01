@@ -1,77 +1,55 @@
-# ms-trevize-py
+# Trevize — Prospecção de empresas
 
-Esqueleto gerado do ms-limpo-py: template mínimo para agentes Python locais em Linux e Windows, com Command–Query Separation (CQS), composição explícita e dependências pequenas. Python 3.10 ou superior.
+Agente local gerado pelo scaffold `ms-limpo-py`, com CQS e persistência somente pela API Olivaw. Busca empresas de eventos de Curitiba, rola o painel público do Maps e reúne até 20 candidatos novos por ciclo. Faz leitura passiva de sites e prepara qualificação e abordagem em rascunho para revisão humana. Não envia mensagens, ligações ou formulários.
 
-## Desenvolvimento
+## Executar
 
-Cada projeto deve ter sua própria `.venv`. No Ubuntu, se `python3 -m venv` falhar por ausência de `ensurepip`, instale o suporte a ambientes virtuais:
-
-```bash
-sudo apt update
-sudo apt install python3-venv
-```
-
-O ambiente virtual inclui seu próprio `pip`; não use `sudo pip install`. Não é necessário instalar PostgreSQL local para desenvolver agentes que acessarão o servidor remoto. O exemplo e os testes usam somente biblioteca padrão; a dependência PostgreSQL é opcional e deve ser instalada quando necessária com `python -m pip install -e '.[postgres]'` usando o Python da `.venv`.
-
-Linux:
+Na raiz do monorepo:
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -e .
-.venv/bin/python -m ms_trevize example --name exemplo
-.venv/bin/python -m unittest discover -s tests -v
+python3 -m venv olivaw-agent/ms-trevize-py/.venv
+olivaw-agent/ms-trevize-py/.venv/bin/python -m pip install -e ./olivaw-agent/ms-trevize-py
+olivaw-agent/ms-trevize-py/.venv/bin/python -m playwright install chromium
+olivaw-agent/olivaw-agent status --agent trevize
+olivaw-agent/olivaw-agent start --agent trevize
+olivaw-agent/olivaw-agent stop --agent trevize
 ```
 
-Windows PowerShell:
+O ambiente local foi preparado. Se o Python não incluir `ensurepip`, preparar o suporte a venv/pip da distribuição ou usar o pip oficial apenas no ambiente virtual; não instalar pacotes no Python global.
 
-```powershell
-py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e .
-.\.venv\Scripts\python.exe -m ms_trevize example --name exemplo
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-```
+`olivaw-agent start` inicia todos os agentes descobertos. Também é possível executar `.venv/bin/trevize start` dentro desta pasta. Importar o pacote, instalar, consultar status ou abrir o frontend não inicia o worker.
 
-O exemplo cria e consulta uma execução em memória no mesmo processo. Não representa persistência de produção. Após instalação, `trevize example` também está disponível no ambiente virtual.
+**Sem autostart:** somente `start` inicia. Primeiro ciclo imediato; próximo ciclo 24 horas após terminar o anterior, sem sobreposição. O supervisor fica aberto enquanto espera. `stop` solicita parada cooperativa; uma leitura/IA em andamento pode precisar terminar dentro do timeout. Desligar o PC encerra os processos; não há retomada, serviço systemd, cron ou inicialização com o shell. Após ligar o PC, executar start novamente.
 
-## Organização e dependências
+## Configuração
 
-```text
-src/ms_trevize/
-  domain/       Entidades e invariantes; somente biblioteca padrão
-  core/         Contratos necessários aos casos de uso; depende de domain
-  features/     Casos de uso agrupados por feature, com commands e queries
-  data/         Adaptadores de persistência e migrações SQL
-  bootstrap.py  Composição dos adaptadores e handlers por construtor
-  cli.py        Entrada e apresentação dos resultados
-```
+O arquivo real é `setting.json`, com paths relativos a esta pasta:
 
-Features dependem de core/domain. Data implementa os contratos de core; domínio não importa infraestrutura. Commands alteram estado; queries apenas consultam. Sem mediator, service locator, ORM obrigatório ou servidor HTTP. Integrações futuras ficam em adaptadores próprios, adicionados quando necessários.
+- `search`: região, localização da busca, segmento, limite, exclusões, candidatos e rolagens máximos. Região é recorte de busca, não comprovação de endereço de cada empresa.
+- `schedule.intervalHours`: 24. `schedule.enabled=false` permite um ciclo por start. `execution.enabled=false` deixa o supervisor aguardando configuração, sem rede/IA.
+- `execution.timeoutSeconds`: orçamento por lote; leituras e IA também têm limites próprios. Pode produzir lote parcial se a fonte, tempo ou entrega impedir completar 20.
+- `ai`: Codex CLI autenticado localmente, modelo configurável (null usa padrão do CLI), até 20 chamadas por ciclo. Nenhuma chamada paga foi usada na validação. IA roda em modo read-only, sem ferramentas, com JSON Schema e skill fornecida no prompt.
+- `skill.path`: fonte versionada `../skills/trevize-prospect/SKILL.md`. Não há update autônomo da skill.
+- `leadApi`: conta técnica em `../../_secrets/admin.json`, seção `trevize`, arquivo 0600. JWT somente em memória. Exige `leads.manage` e rejeita root. A conta técnica foi criada em 01/11/2026 com essa permissão; não dar acesso a deploy, banco ou outros módulos.
+- `lifecycle.autoStart`: false obrigatório. `localState`: diretório privado e limites. Apenas último resumo é mantido (limpo após retenção na próxima preparação); índice de deduplicação contém até 5.000 hashes e datas, limitado em bytes. Sem HTML, contatos, tokens ou inventário bruto persistidos localmente.
 
-## Configuração e migrações
+Antes de coletar, autentica e confere disponibilidade de `PUT /leads/{id}/qualification`. Se o backend ainda não tiver essa operação publicada, interrompe antes de Maps e IA. Em 01/11/2026, essa publicação estava pendente. Preparar o agente não autoriza deploy.
 
-O exemplo não requer configuração. O arquivo real `setting.json` acompanha o scaffold, com agendamento/execução desabilitados, identidade ajustada ao agente e modelo/skill ainda não selecionados. `configuration.load_settings(path)` valida o JSON sem abrir rede; comandos que usarem configuração devem receber caminho explícito e resolver caminhos relativos ao arquivo. O JSON não contém senhas. Agentes derivados devem receber segredos externamente, sem gravá-los no repositório, argumentos ou logs. Não há carregamento automático de `.env`.
+## Persistência e revisão
 
-Para habilitar o comando PostgreSQL:
+Usa `POST /leads`, `GET /leads/{id}` e `PUT /leads/{id}/qualification`, com UUID determinístico por identidade do resultado, revisão atual e releitura para confirmação. Repetições não criam outro UUID. Se já há qualificação, não sobrescreve trabalho humano. Nome idêntico em outro Lead gera indicação de possível duplicidade, sem fusão automática; isso pode deixar homônimos aguardando revisão.
 
-```bash
-python -m pip install -e '.[postgres]'
-python -m ms_trevize.data.apply_migrations --schema agent_trevize
-```
+A ficha em `/admin/leads/<id>/details` separa fatos, positivos, observações, perguntas e rascunho. Confiança permanece pendente e abordagem em draft, independentemente da análise automática. Telefone do Maps fica como telefone; WhatsApp exige link encontrado no site. Falha de leitura é inconclusiva. Não mede desempenho ou qualidade visual nem efetua auditoria de segurança. Links de contato não são enviados.
 
-A esteira deve fornecer `AGENT_MIGRATION_DSN` por seu mecanismo de segredos. `trevize-migrate --schema agent_trevize` é a entrada equivalente. Use identidade de migração própria; a credencial de execução do agente não precisa alterar estruturas.
-
-O provisionamento de banco/schema/usuários pertence à futura rota do `ms-devops-api`, acionada pelo `ms-holos-ng` para o ambiente selecionado. O executor exige schema existente e aplica arquivos de `data/migrations/` em ordem, com checksum, lock e transação por arquivo. Há timeout de espera de 30 segundos e de instrução de 5 minutos. Não há rollback automático de versões já aplicadas: correções são novas migrações. Migrações não rodam ao iniciar ou executar o agente.
-
-O template não contém tabelas de negócio nem implementação de provisionamento. `AGENT_MIGRATION_DSN` não deve ser repassado ao subprocesso de análise de IA.
+A POC validou pesquisa e rolagem com 20 candidatos; o coletor desta versão foi testado com fixtures locais, sem nova extração remota, sem IA paga e sem cadastro de lote real. Interface do Maps pode mudar ou exigir intervenção; não contornar CAPTCHA, consentimento ou bloqueios. Permissões de uso e armazenamento da fonte precisam ser consideradas para operação recorrente: [políticas](https://developers.google.com/maps/documentation/places/web-service/policies) e [termos](https://cloud.google.com/maps-platform/terms). Acesso técnico não equivale a licença irrestrita.
 
 ## Validação
 
-Na implementação inicial, em Linux/Python 3.14, passaram 13 testes no template (incluindo seis do scaffold) e sete no Giskard gerado. O teste de independência remove a cópia temporária do template antes de executar o projeto gerado. Foram verificados geração, nomes inválidos, proteção de destinos existentes, rejeição de links e exclusão de arquivos fora da lista permitida.
-
 ```bash
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+PYTHONPATH=olivaw-agent/ms-trevize-py/src python3 -m unittest discover -s olivaw-agent/ms-trevize-py/tests -v
+python3 -m unittest discover -s olivaw-agent/tests -v
 ```
 
-A instalação e os comandos de console não foram validados nessa execução inicial, pois o Python disponível não tinha `pip`/`ensurepip`. Nenhum serviço real foi acessado. A instalação do suporte a `.venv` é descrita acima; isso não indica que os pacotes já foram instalados nesta máquina.
+Testes sem API, banco, Maps ou IA reais: configurações, rolagem/deduplicação, fontes, URLs privadas, leitura passiva, saída IA, revisão da API e lifecycle em diretório temporário. Linux/POSIX; Windows não implementado.
 
-Testes usam `unittest`, isolados de serviços externos. A suíte cobre o exemplo CQS e a integridade do histórico de migrações. Integração PostgreSQL (permissões, lock, transações e retomada) precisa ser validada com banco descartável antes de usar a esteira. Windows precisa de validação própria; não foi executado neste ambiente Linux.
+Referências: [ficha de Leads](../../docs/features/done/leads-ficha-qualificacao-e-abordagem.md), [discovery](../../docs/features/discovery/trevize-prospeccao-e-qualificacao-de-leads.md), [Codex não interativo](https://developers.openai.com/codex/noninteractive), [Playwright Python](https://playwright.dev/python/docs/library).

@@ -36,6 +36,8 @@ public class UpdateLeadTest
         using var saved = System.Text.Json.JsonDocument.Parse(lead.Snapshot);
         Assert.Equal("Proposta interna", saved.RootElement.GetProperty("proposal").GetProperty("title").GetString());
         Assert.Equal("Novo pedido público", saved.RootElement.GetProperty("requirements").GetString());
+        Assert.Equal("Fato interno", saved.RootElement.GetProperty("qualification").GetProperty("facts").GetString());
+        Assert.Equal("Operador", saved.RootElement.GetProperty("qualificationUpdatedBy").GetString());
     }
 
     [Fact]

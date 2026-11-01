@@ -54,3 +54,9 @@ class LifecycleTests(unittest.TestCase):
     with self.assertRaises(ValueError):
       LocalRuntime(self.path).start()
     self.assertFalse(self.runtime.state.exists())
+
+  def test_configuration_rejects_auto_start(self):
+    settings=json.loads(self.path.read_text());settings['lifecycle']={'autoStart':True}
+    self.path.write_text(json.dumps(settings))
+    with self.assertRaises(ValueError):LocalRuntime(self.path)
+    self.assertFalse(self.runtime.state.exists())

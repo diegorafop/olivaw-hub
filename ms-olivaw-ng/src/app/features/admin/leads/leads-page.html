@@ -98,7 +98,17 @@
                 >
                   <div>
                     <strong>{{ lead.business || lead.title || 'Contato recebido' }}</strong>
-                    <p>{{ lead.email || formatPhone(lead.whatsapp) || 'Contato não informado' }}</p>
+                    @if (lead.segment) {
+                      <small>{{ lead.segment }}</small>
+                    }
+                    <p>
+                      {{
+                        lead.email ||
+                          formatPhone(lead.whatsapp) ||
+                          lead.phone ||
+                          'Contato não informado'
+                      }}
+                    </p>
                     @if (lead.business && lead.title) {
                       <small>{{ lead.title }}</small>
                     }

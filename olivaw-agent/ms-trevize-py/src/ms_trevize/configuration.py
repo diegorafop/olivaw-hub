@@ -20,7 +20,7 @@ def load_settings(path):
     raise ValueError("Configuração excede limite.")
   data = json.loads(path.read_text(), object_pairs_hook=unique_keys,
                     parse_constant=lambda _: (_ for _ in ()).throw(ValueError("Número inválido.")))
-  if data.get("settingsVersion") != 1 or data.get("agent") != {"id": "trevize", "module": "ms_trevize"}:
+  if type(data.get("settingsVersion")) is not int or data.get("settingsVersion") != 1 or data.get("agent") != {"id": "trevize", "module": "ms_trevize"}:
     raise ValueError("Identidade ou versão inválida.")
   if data.get("lifecycle", {}).get("autoStart") is not False:
     raise ValueError("Trevize só permite início manual.")
@@ -40,6 +40,8 @@ def load_settings(path):
     if section != "schedule" and type(value) is not int:
       raise ValueError("Limite inteiro obrigatório.")
   search = data["search"]
+  if search["maxCandidates"] < search["limit"]:
+    raise ValueError("Máximo de candidatos deve comportar o lote solicitado.")
   for key in ("region", "queryLocation", "segment"):
     if not isinstance(search.get(key), str) or not 1 <= len(search[key]) <= 120:
       raise ValueError("Busca incompleta.")
@@ -55,6 +57,6 @@ def load_settings(path):
     if not isinstance(data.get(section, {}).get(key), str) or not data[section][key]:
       raise ValueError("Caminho ou seção obrigatório.")
   url = urlsplit(data["leadApi"].get("baseUrl", ""))
-  if url.scheme != "https" or not url.hostname or url.username or url.password or url.query or url.fragment:
+  if url.scheme != "https" or url.hostname != "api.olivaw.com.br" or url.port not in (None, 443) or url.path not in ("", "/") or url.username or url.password or url.query or url.fragment:
     raise ValueError("API deve usar HTTPS sem credenciais na URL.")
   return data

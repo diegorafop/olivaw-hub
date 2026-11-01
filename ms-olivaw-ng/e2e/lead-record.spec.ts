@@ -82,6 +82,8 @@ async function setup(page: Page, conflict = false, forbidden = false) {
               followUpStatus: 'new',
               email: '',
               whatsapp: '',
+              phone: '(41) 99897-0017',
+              segment: 'Eventos',
             },
           ],
         },
@@ -112,6 +114,13 @@ for (const width of [1440, 390]) {
     await page.getByLabel('Região', { exact: true }).fill('Curitiba');
     await page.getByLabel('Presença digital').selectOption('website');
     await page.getByLabel('Pontos positivos').fill('Apresentação clara dos serviços.');
+    await page.getByLabel('Telefone comercial').fill('(41) 99897-0017');
+    await page
+      .getByRole('navigation', { name: 'Seções da ficha' })
+      .getByRole('link', { name: 'Abordagem', exact: true })
+      .click();
+    await expect(page).toHaveURL(/details\?search=eventos#approach$/);
+    await expect(page.getByLabel('Segmento', { exact: true })).toHaveValue('eventos');
     await page.getByRole('button', { name: 'Preparar sugestão' }).click();
     const approach = page.getByLabel('Rascunho de abordagem');
     await expect(approach).toHaveValue(/pessoal da Eventos Aurora/);
@@ -130,6 +139,9 @@ for (const width of [1440, 390]) {
     await page.reload();
     await expect(page.getByLabel('Segmento', { exact: true })).toHaveValue('eventos');
     await expect(approach).toHaveValue(/construir parcerias/);
+    const channels = page.getByRole('region', { name: 'Canais da oportunidade' });
+    await expect(channels).toContainText('(41) 99897-0017');
+    await expect(channels.getByRole('link', { name: /WhatsApp/ })).toHaveCount(0);
     expect(writes).toHaveLength(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       width,
