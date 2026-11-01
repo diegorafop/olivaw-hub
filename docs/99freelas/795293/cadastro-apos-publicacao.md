@@ -29,3 +29,7 @@ O UUID estável evita duplicação em reenvios deste arquivo (resposta 409). Nã
 Usar somente autenticação já estabelecida; não registrar tokens nos arquivos. Cadastro e envio ocorrerão depois que o mantenedor confirmar a publicação. Para este caso, não há necessidade de migration nem conexão direta ao banco.
 
 [Apresentação HTML já gerada](proposta.html) para revisão do rascunho antes do cadastro. Gere novamente na aplicação se alterar as condições.
+
+## Cadastro realizado em 31/10/2026
+
+Por autorização do mantenedor, lead e proposta cadastrados via API publicada. UUID `67ffbaec-579c-47db-b42b-5d1816bb3d89`; criação HTTP 201, proposta HTTP 200 e releitura confirmada na revisão 2, status `draft`. Nenhum envio, aceite ou contratação registrado. Consulta: `/admin/leads/67ffbaec-579c-47db-b42b-5d1816bb3d89/proposal`.

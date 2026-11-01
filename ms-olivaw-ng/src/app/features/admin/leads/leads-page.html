@@ -5,8 +5,10 @@
       <h1>Leads</h1>
       <p>Contatos recebidos e oportunidades que encontramos para a Olivaw.</p>
     </div>
-    <a routerLink="/admin/leads/new" class="secondary">Cadastrar lead</a>
-    <button type="button" class="secondary" (click)="reload()">Atualizar</button>
+    <div class="heading-actions">
+      <a routerLink="/admin/leads/new" class="primary">Cadastrar lead</a>
+      <button type="button" class="secondary" (click)="reload()">Atualizar</button>
+    </div>
   </header>
   <form [formGroup]="form" (ngSubmit)="apply()" aria-label="Filtrar leads">
     <div class="search-field">

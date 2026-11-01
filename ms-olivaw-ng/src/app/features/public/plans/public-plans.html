@@ -21,8 +21,8 @@
         }}
       </h1>
       <p>
-        Um plano mantém seu produto em operação. A criação tem escopo, esforço e etapas claros — e
-        pode estar incluída na nossa oferta de assinatura.
+        Você traz a ideia. A Olivaw cuida de implementar, colocar para rodar e administrar a
+        infraestrutura, a nuvem e os backups dos dados, buscando usar os recursos com eficiência.
       </p>
     </section>
     @if (!isDetail()) {
@@ -92,13 +92,27 @@
           </p>
           @if (plan.id === 'prata') {
             <p>
-              As duas contas administrativas permitem gerenciar conteúdos e funcionalidades
-              contratadas no seu site. Elas não concedem acesso à administração interna da Olivaw.
+              A área administrativa pode incluir despesas, receitas, cadastros e rotinas de operação
+              simples a médias. As funcionalidades e os limites são definidos na proposta, após
+              análise de complexidade e esforço. Você conta com duas contas administrativas do seu
+              site; elas não concedem acesso à administração interna da Olivaw.
             </p>
             <p>
               Os 5 GB são compartilhados pelos arquivos e dados do projeto, incluindo fotos e vídeos
               armazenados. Compressão, hospedagem externa de vídeo e capacidade adicional são
               avaliadas conforme o uso. O plano não inclui armazenamento ou streaming ilimitados.
+            </p>
+          }
+          @if (plan.id === 'ouro') {
+            <p>
+              Para operações que dependem de um CRM ou ERP de complexidade média. O projeto pode
+              incluir controle de estoque, gestão de produtos e dashboards do negócio, conforme os
+              módulos e critérios de aceite definidos na proposta.
+            </p>
+            <p>
+              São 10 GB de armazenamento total para arquivos e dados do projeto e até 10 contas de
+              usuários para gestão do aplicativo. Os perfis e permissões são definidos conforme a
+              operação; essas contas não dão acesso à administração interna da Olivaw.
             </p>
           }
           <p>
@@ -112,6 +126,42 @@
       <p><a routerLink="/planos">Consultar os planos disponíveis →</a></p>
     }
     @if (!isDetail() || selected()) {
+      <section class="section" aria-label="Operação com a Olivaw">
+        <p class="eyebrow">DA IDEIA À OPERAÇÃO</p>
+        <h2>Você cuida do negócio. A gente cuida da tecnologia.</h2>
+        <p>
+          Entender sua ideia, implementar e colocar o produto em funcionamento é com a Olivaw.
+          Depois da entrega, seguimos responsáveis pela operação técnica contratada, para você se
+          concentrar no seu negócio.
+        </p>
+        <div class="scopes">
+          <article class="card">
+            <h3>Infraestrutura e nuvem</h3>
+            <p>
+              Administramos a hospedagem, as configurações e os recursos que mantêm seu produto em
+              operação.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Backup dos dados</h3>
+            <p>
+              Cuidamos das cópias de segurança e do processo de recuperação, com frequência,
+              retenção e prazos definidos na proposta.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Recursos bem aproveitados</h3>
+            <p>
+              Buscamos evitar desperdícios e dimensionar a nuvem conforme o uso, equilibrando custo,
+              desempenho e segurança.
+            </p>
+          </article>
+        </div>
+        <p>
+          O escopo da criação e as condições da operação ficam claros na proposta: serviços
+          incluídos, limites, backups, atendimento e eventuais custos externos.
+        </p>
+      </section>
       <section class="section">
         <p class="eyebrow">ORÇAMENTO TRANSPARENTE</p>
         <h2>Proporcional ao escopo e ao esforço.</h2>

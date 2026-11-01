@@ -9,3 +9,7 @@ Arquivos preparados localmente, sem cadastro remoto ou envio. A proposta JSON/HT
 5. Registrar separadamente eventual envio, negociação ou aprovação; preparar esses arquivos não indica nenhuma dessas ações.
 
 Contrato consultado: `LeadCreateData` e `LeadProposal` em `ms-olivaw-ng/src/app/features/admin/leads/lead-proposal-model.ts`. Não há autorização para publicar, importar ou enviar nesta tarefa.
+
+## Cadastro realizado em 31/10/2026
+
+Por autorização do mantenedor, lead e proposta cadastrados via API publicada. UUID `4970e265-b451-5b48-84a7-27d772ed8819`; criação HTTP 201, proposta HTTP 200 e releitura confirmada na revisão 2, status `draft`. Nenhum envio, aceite ou contratação registrado. Os valores preservam o cenário inicial; a alternativa com agentes Python continua sujeita a reestimativa. Consulta: `/admin/leads/4970e265-b451-5b48-84a7-27d772ed8819/proposal`.

@@ -28,14 +28,15 @@ export const planOfferings: readonly PlanOffering[] = [
   {
     id: 'prata',
     name: 'Prata',
-    note: 'Seu conteúdo, nas suas mãos',
+    note: 'Seu site com área administrativa',
     monthlyPrice: null,
     monthlyImprovementPoints: 4,
-    text: 'Publique conteúdos e use as funcionalidades administrativas combinadas para o seu site.',
+    text: 'Site com área administrativa para cadastrar despesas, receitas, conteúdos e organizar rotinas de operação de complexidade simples a média, conforme o escopo contratado.',
     features: [
       '5 GB de armazenamento total',
       '2 contas administrativas do seu site',
       'Domínio próprio permitido',
+      'Cadastros e rotinas simples a médias, definidos na proposta',
       'API e PostgreSQL para as funcionalidades contratadas',
     ],
     creationOffer:
@@ -47,11 +48,12 @@ export const planOfferings: readonly PlanOffering[] = [
     note: 'Gestão para o seu negócio',
     monthlyPrice: null,
     monthlyImprovementPoints: 12,
-    text: 'Um sistema de gestão com processos, usuários e permissões definidos para a sua operação.',
+    text: 'Para negócios cuja operação depende de um sistema: CRM ou ERP de complexidade média, com controle de estoque, gestão de produtos e dashboards, conforme o escopo contratado.',
     features: [
-      'Funcionalidades de gestão personalizadas',
-      'Múltiplos usuários e perfis conforme proposta',
-      'Capacidade dimensionada para o projeto',
+      '10 GB de armazenamento total',
+      'Até 10 contas de usuários para gestão do aplicativo',
+      'CRM ou ERP de complexidade média, conforme proposta',
+      'Estoque, produtos e dashboards conforme os módulos contratados',
       'Criação e evolução com escopo aprovado',
     ],
     creationOffer: null,
@@ -83,7 +85,8 @@ export const projectScopes = [
   {
     name: 'Intermediário',
     description: 'Conteúdo gerenciável e rotinas administrativas que pedem mais análise e testes.',
-    example: 'Exemplo: catálogo com fotos, cadastro de conteúdo e duas contas administrativas.',
+    example:
+      'Exemplo: despesas e receitas, catálogo com fotos ou cadastros e rotinas operacionais simples a médias, com duas contas administrativas.',
     bronze: false,
     prata: true,
   },
