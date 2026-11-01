@@ -33,7 +33,7 @@ O arquivo real é `setting.json`, com paths relativos a esta pasta:
 - `leadApi`: conta técnica em `../../_secrets/admin.json`, seção `trevize`, arquivo 0600. JWT somente em memória. Exige `leads.manage` e rejeita root. A conta técnica foi criada em 01/11/2026 com essa permissão; não dar acesso a deploy, banco ou outros módulos.
 - `lifecycle.autoStart`: false obrigatório. `localState`: diretório privado e limites. Apenas último resumo é mantido (limpo após retenção na próxima preparação); índice de deduplicação contém até 5.000 hashes e datas, limitado em bytes. Sem HTML, contatos, tokens ou inventário bruto persistidos localmente.
 
-Antes de coletar, autentica e confere disponibilidade de `PUT /leads/{id}/qualification`. Se o backend ainda não tiver essa operação publicada, interrompe antes de Maps e IA. Em 01/11/2026, essa publicação estava pendente. Preparar o agente não autoriza deploy.
+Antes de coletar, autentica e confere disponibilidade de `PUT /leads/{id}/qualification`. Se o backend ainda não tiver essa operação publicada, interrompe antes de Maps e IA. Em 01/11/2026, a disponibilidade dessa operação foi confirmada após a publicação. Preparar o agente não autoriza deploy.
 
 ## Persistência e revisão
 
@@ -53,3 +53,9 @@ python3 -m unittest discover -s olivaw-agent/tests -v
 Testes sem API, banco, Maps ou IA reais: configurações, rolagem/deduplicação, fontes, URLs privadas, leitura passiva, saída IA, revisão da API e lifecycle em diretório temporário. Linux/POSIX; Windows não implementado.
 
 Referências: [ficha de Leads](../../docs/features/done/leads-ficha-qualificacao-e-abordagem.md), [discovery](../../docs/features/discovery/trevize-prospeccao-e-qualificacao-de-leads.md), [Codex não interativo](https://developers.openai.com/codex/noninteractive), [Playwright Python](https://playwright.dev/python/docs/library).
+
+## Diagnóstico de execução
+
+O status informa `lastCollection.phase` quando a autenticação/verificação da API (`api-preflight`) ou a leitura do Maps (`maps-collection`) falha. Outras falhas usam `batch-processing`. Mensagens brutas de dependências não são gravadas, pois podem conter credenciais ou dados de contatos. O intervalo continua contado após o término do ciclo, inclusive se falhar; não há repetição automática imediata.
+
+Em 01/11/2026, a tentativa anterior tinha apenas erro genérico e sua causa não pôde ser recuperada. A composição local, autenticação do Codex, verificação da API e uma amostra de leitura do Maps funcionaram no diagnóstico. Isso não valida ainda um ciclo completo com IA e entrega de Leads. Nenhum lote ou chamada de IA foi executado nesse diagnóstico; os agentes não foram reiniciados. Os 19 testes Python passaram.

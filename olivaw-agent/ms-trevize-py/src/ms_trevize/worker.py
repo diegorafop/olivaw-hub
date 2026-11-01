@@ -6,6 +6,7 @@ import os
 import signal
 import time
 from ms_trevize.bootstrap import compose
+from ms_trevize.features.prospecting.commands.create_prospect_batch import CollectionFailure
 from ms_trevize.domain.schedule import Schedule
 from ms_trevize.data.local_runtime import LocalRuntime, atomic_json, exclusive_lock, now, read_state
 
@@ -38,7 +39,10 @@ def main(argv=None):
         if read_state(runtime.state/"stop.json").get("instanceId")==args.token:break
         if future is not None and future.done():
           try:state["lastCollection"]=future.result()
-          except Exception:state["lastCollection"]={"status":"failed","error":"collection-failed-check-configuration"}
+          except CollectionFailure as error:
+            state["lastCollection"]={"status":"failed","error":"collection-failed","phase":error.phase}
+          except Exception:
+            state["lastCollection"]={"status":"failed","error":"collection-failed-check-configuration","phase":"batch-processing"}
           future=None
           hours=runtime.settings["schedule"]["intervalHours"]
           schedule.finish(time.monotonic())

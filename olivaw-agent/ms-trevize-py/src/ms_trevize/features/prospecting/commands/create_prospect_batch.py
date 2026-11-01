@@ -36,6 +36,13 @@ def qualification_for(candidate, evidence, settings, ai):
     "questions":questions[:1500],"approach":approach[:3000],"approachStatus":"draft"}
 
 
+class CollectionFailure(RuntimeError):
+  """Código e etapa seguros; nunca serializar a mensagem da dependência."""
+  def __init__(self, phase):
+    super().__init__("collection-failed")
+    self.phase = phase
+
+
 class CreateProspectBatchHandler:
   def __init__(self, runtime: BatchState, collector: Collector, website, ai, api: LeadStore):
     self.runtime, self.collector, self.website, self.ai, self.api = runtime, collector, website, ai, api
@@ -49,8 +56,14 @@ class CreateProspectBatchHandler:
               "target":settings["search"]["limit"],"collected":0,"delivered":0,"duplicates":0,"failed":0,"aiCompleted":0,"aiFailed":0,"items":[]}
     if not settings["execution"]["enabled"]: return {**report,"status":"disabled"}
     if settings["leadApi"]["enabled"]:
-      self.api.preflight()
-    candidates = self.collector.collect(set(seen))
+      try:
+        self.api.preflight()
+      except Exception as error:
+        raise CollectionFailure("api-preflight") from error
+    try:
+      candidates = self.collector.collect(set(seen))
+    except Exception as error:
+      raise CollectionFailure("maps-collection") from error
     report["collected"] = len(candidates)
     calls = 0
     for candidate in candidates:

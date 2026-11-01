@@ -11,7 +11,7 @@ from ms_trevize.data.website_review import WebsiteReview, public_get
 from ms_trevize.data.ai_qualification import AIQualification
 from ms_trevize.data.maps_collector import collect_panel
 from ms_trevize.domain.candidate import parse_card
-from ms_trevize.features.prospecting.commands.create_prospect_batch import CreateProspectBatchHandler
+from ms_trevize.features.prospecting.commands.create_prospect_batch import CollectionFailure, CreateProspectBatchHandler
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -111,10 +111,22 @@ class ProspectingTests(unittest.TestCase):
 
   def test_preflight_failure_does_not_collect_or_call_ai(self):
     collector=Mock();ai=Mock();api=Mock();api.preflight.side_effect=ValueError('API indisponível')
-    with self.assertRaises(ValueError):CreateProspectBatchHandler(BatchState(self.runtime),collector,Mock(),ai,api).handle()
+    with self.assertRaises(CollectionFailure) as failure:
+      CreateProspectBatchHandler(BatchState(self.runtime),collector,Mock(),ai,api).handle()
+    self.assertEqual('api-preflight',failure.exception.phase)
+    self.assertNotIn('API indisponível',str(failure.exception))
     collector.collect.assert_not_called();ai.analyze.assert_not_called();api.publish.assert_not_called()
 
   def test_credentials_cannot_be_redirected_to_another_api_host(self):
     settings=json.loads(self.path.read_text());settings['leadApi']['baseUrl']='https://other.test'
     self.path.write_text(json.dumps(settings))
     with self.assertRaises(ValueError):load_settings(self.path)
+
+  def test_maps_failure_reports_safe_phase_without_contacts_or_inference(self):
+    collector=Mock();collector.collect.side_effect=RuntimeError('SECRET browser URL')
+    ai=Mock();api=Mock()
+    with self.assertRaises(CollectionFailure) as failure:
+      CreateProspectBatchHandler(BatchState(self.runtime),collector,Mock(),ai,api).handle()
+    self.assertEqual('maps-collection',failure.exception.phase)
+    self.assertNotIn('SECRET',str(failure.exception))
+    ai.analyze.assert_not_called();api.publish.assert_not_called()
