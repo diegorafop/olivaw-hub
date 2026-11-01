@@ -1,0 +1,156 @@
+name: ms-infrastructure-app
+
+x-logging: &bounded-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "3"
+
+services:
+  ms-postgres-db:
+    image: postgres:17
+    container_name: ms-postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Configure POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?Configure POSTGRES_DB}
+    networks: [postgres-net]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    logging: *bounded-logging
+
+  ms-rabbit-mq:
+    image: rabbitmq:3-management
+    container_name: ms-rabbit-mq
+    # Preservar identidade do nó: hostname diferente pode abrir outro diretório Mnesia.
+    hostname: ${RABBITMQ_HOSTNAME:?Configure RABBITMQ_HOSTNAME atual}
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?Configure RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?Configure RABBITMQ_DEFAULT_PASS}
+    networks: [rabbit-net]
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - rabbitmq-logs:/var/log/rabbitmq
+    logging: *bounded-logging
+
+  ms-traefik-pr:
+    image: traefik:v3.0
+    container_name: ms-traefik-pr
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - type: bind
+        source: ${TRAEFIK_ACME_FILE:-./state/acme.json}
+        target: /acme.json
+        bind:
+          create_host_path: false
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.endpoint=tcp://ms-docker-socket-proxy:2375"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL:?Configure ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
+      - "--accesslog=true"
+      - "--accesslog.format=json"
+      - "--accesslog.fields.defaultmode=drop"
+      - "--accesslog.fields.names.StartUTC=keep"
+      - "--accesslog.fields.names.ClientHost=keep"
+      - "--accesslog.fields.names.RequestHost=keep"
+      - "--accesslog.fields.names.RequestMethod=keep"
+      - "--accesslog.fields.names.RequestPath=keep"
+      - "--accesslog.fields.names.DownstreamStatus=keep"
+      - "--accesslog.fields.names.RouterName=keep"
+      - "--accesslog.fields.names.ServiceName=keep"
+      - "--accesslog.fields.names.Duration=keep"
+      - "--accesslog.fields.headers.defaultmode=drop"
+      - "--accesslog.fields.headers.names.User-Agent=keep"
+    networks: [traefik-net, docker-discovery-net]
+    depends_on:
+      - ms-docker-socket-proxy
+    logging: *bounded-logging
+
+  ms-docker-socket-proxy:
+    image: haproxy:3.2.25-alpine
+    container_name: ms-docker-socket-proxy
+    restart: unless-stopped
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 64m
+    cpus: 0.10
+    pids_limit: 32
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./socket-proxy.cfg
+        target: /usr/local/etc/haproxy/haproxy.cfg
+        read_only: true
+        bind:
+          create_host_path: false
+    networks: [docker-discovery-net]
+    logging: *bounded-logging
+
+  ms-redis-db:
+    profiles: [redis]
+    image: redis:7.4-alpine
+    container_name: ms-redis-db
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        test -n "$$REDIS_PASSWORD" || { echo 'Configure REDIS_PASSWORD' >&2; exit 1; }
+        exec /usr/local/bin/docker-entrypoint.sh redis-server --appendonly yes --maxmemory 64mb --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
+    mem_limit: 128m
+    networks: [redis-net]
+    volumes:
+      - redis-data:/data
+    logging: *bounded-logging
+
+networks:
+  docker-discovery-net:
+    internal: true
+  postgres-net:
+    external: true
+    name: postgres-net
+  rabbit-net:
+    external: true
+    name: rabbit-net
+  traefik-net:
+    external: true
+    name: traefik-net
+  redis-net:
+    external: true
+    name: redis-net
+
+volumes:
+  postgres-data:
+    external: true
+    name: ${POSTGRES_VOLUME:?Configure POSTGRES_VOLUME}
+  rabbitmq-data:
+    external: true
+    name: ${RABBITMQ_DATA_VOLUME:?Configure RABBITMQ_DATA_VOLUME}
+  rabbitmq-logs:
+    external: true
+    name: ${RABBITMQ_LOG_VOLUME:?Configure RABBITMQ_LOG_VOLUME}
+  redis-data:
+    external: true
+    name: ${REDIS_VOLUME:-ms-infrastructure-app_redis-data}

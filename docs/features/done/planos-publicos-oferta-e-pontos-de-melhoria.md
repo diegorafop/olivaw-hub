@@ -15,13 +15,19 @@ Como cliente potencial, quero entender os planos e as condições de evolução,
 - Explicar orçamento proporcional ao escopo e esforço, etapas, testes, aprovação e entrega por MVP.
 - Não consultar APIs administrativas na página pública nem divulgar composição interna de custos.
 
+- Prata apresenta site com área administrativa para despesas, receitas, conteúdos, cadastros e rotinas operacionais de complexidade simples a média, conforme escopo analisado e aprovado. Exemplos não significam módulos universais prontos ou ilimitados.
+
+- Ouro com 10 GB totais e até 10 contas de gestão do aplicativo, voltado a CRM/ERP de complexidade média. Estoque, produtos e dashboards são exemplos de módulos a delimitar na proposta; preservados os 12 pontos mensais.
+
+- Posicionamento público: cliente traz a ideia; Olivaw implementa e administra infraestrutura, nuvem, backups e uso eficiente de recursos. Frequência, retenção e recuperação dos backups, atendimento e custos externos são definidos na proposta, sem prometer economia ou disponibilidade absolutas.
+
 ## ai-prompt
 
 Implementação local concluída na issue 026, branch `feature/issue026-admin-client`, pelo Codex, no worktree principal. Publicação, commit e push ficam com o mantenedor.
 
 Os conteúdos comerciais compartilhados ficam em `ms-olivaw-ng/src/app/features/public/plans/plan-offerings.ts`. São usados no catálogo público, na jornada de projeto e nas condições sugeridas de novas versões administrativas. Versões publicadas e contratos existentes não são alterados automaticamente. Não há mudança de modelo nem migration nesta entrega.
 
-5 GB representam 5.000.000.000 bytes, aproximadamente 4,657 GiB no dimensionamento técnico. As duas contas pertencem à administração do site contratado, sem conceder acesso ao administrativo Olivaw. Vídeos não significam streaming ou tráfego ilimitados.
+10 GB representam 10.000.000.000 bytes (aproximadamente 9,313 GiB). 5 GB representam 5.000.000.000 bytes, aproximadamente 4,657 GiB no dimensionamento técnico. As duas contas pertencem à administração do site contratado, sem conceder acesso ao administrativo Olivaw. Vídeos não significam streaming ou tráfego ilimitados.
 
 Pontos são créditos comerciais de melhoria, não uma medição formal de pontos de função. A franquia considera o ciclo mensal e não acumula. Criação inicial incluída na oferta não consome pontos; trabalho fora do escopo ou acima da franquia depende de orçamento e aprovação. Diamante tem 36 pontos na configuração base, com condições específicas no contrato personalizado.
 
@@ -42,4 +48,16 @@ claro nesse começo n vamos ganhar dinheiro de verdade com o bronze apenas expan
 
 isso, pontos n acumulam o prato talvez uns 4 pontos só.
 no ouro uns 12 ta otimo, no diamante 36
+```
+
+```text
+no plano prata, poderiamos citar que está incluido um site com area administrativa, clientes que precisam cadastrar suas despesas,receitas ou funcionalidades de cadastros e operação com nivel simples a médio de complexidade e tals.
+```
+
+```text
+plano ouro, 10gb de armazenamento com até 10 contas de usuarios para gestao do app, pretendemos atender clientes com um CRM/erp nivel medio, operações que dependem de sistema como por exemplo controle de estoque, gestao de produtos, dashboards de gestao do negocio.
+```
+
+```text
+deixar claro que o objetivo da olivaw é adminstrar a infraestrutura, backup dos dados, controle de nuvem, economia de recursos ao maximo, voce tem a ideia , implementar e colocar para rodar é problema nosso.
 ```

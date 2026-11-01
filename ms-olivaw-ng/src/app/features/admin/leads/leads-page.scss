@@ -371,3 +371,20 @@ h2 {
     padding: 13px 14px;
   }
 }
+
+.heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.heading-actions > :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  min-width: 132px;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: none;
+}
