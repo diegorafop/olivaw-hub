@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import re
 import signal
+import selectors
+import time
 import subprocess
 import sys
 import tempfile
@@ -230,6 +232,9 @@ class Executor:
                     job['log'] += f'\n{label}: exit code {result}.'
                     self.save(job)
                     if result != 0:
+                        diagnostic = getattr(result, 'diagnostic', '')
+                        if diagnostic:
+                            job['log'] += '\n' + label + ': ' + diagnostic
                         raise RuntimeError('step_failed')
                 job['status'] = 'succeeded'
             except (ValueError, OSError, RuntimeError, subprocess.SubprocessError):
@@ -294,10 +299,67 @@ def commands(branch, environment, include_ssh=False, project_name=None):
     ]
 
 
+class StepResult(int):
+    def __new__(cls, code, diagnostic=''):
+        result = super().__new__(cls, code)
+        result.diagnostic = diagnostic
+        return result
+
+
+def git_diagnostic(output):
+    # Somente mensagens fixas: URLs, tokens e nomes vindos do Git nunca são publicados.
+    text = output.decode('utf-8', errors='replace').lower()
+    for patterns, message in (
+        (('permission denied', 'unable to unlink', 'unable to create file'),
+         'Filesystem permissions prevent updating the checkout; inspect directory ownership.'),
+        (('untracked working tree', 'untracked files would be overwritten'),
+         'Untracked files block the branch change; preserve and review them before retrying.'),
+        (('local changes', 'would be overwritten by checkout', 'would be overwritten by merge'),
+         'Local changes block the update; preserve and review them before retrying.'),
+        (('authentication failed', 'invalid username', 'could not read username'),
+         'Git remote authentication failed; check executor credentials.'),
+        (('could not resolve host', 'unable to access', 'connection timed out'),
+         'Git remote could not be reached; check network and remote configuration.'),
+        (('not possible to fast-forward', 'divergent branches'),
+         'Local and remote histories diverged; manual review is required.'),
+        (('did not match any file', 'invalid reference', 'not a valid object'),
+         'Requested branch was not found in the checkout after fetch.'),
+        (('no space left',), 'Disk space is insufficient for the Git operation.'),
+        (('index.lock',), 'Git index is locked; check active operations before removing locks.'),
+    ):
+        if any(pattern in text for pattern in patterns):
+            return message
+    return 'Git operation failed; inspect the repository as the executor user.'
+
+
+def read_git_error(process, timeout):
+    deadline = time.monotonic() + timeout
+    output = bytearray()
+    with selectors.DefaultSelector() as selector:
+        os.set_blocking(process.stderr.fileno(), False)
+        selector.register(process.stderr, selectors.EVENT_READ)
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(process.args, timeout)
+            for key, _ in selector.select(min(remaining, 0.2)):
+                chunk = os.read(key.fd, 8192)
+                if not chunk:
+                    selector.unregister(process.stderr)
+                elif len(output) < 32768:
+                    output.extend(chunk[:32768 - len(output)])
+    code = process.wait(timeout=max(0.01, deadline - time.monotonic()))
+    return StepResult(code, git_diagnostic(output) if code else '')
+
+
 def run_step(arguments, directory, timeout):
+    capture_git = Path(arguments[0]).name == 'git'
     with subprocess.Popen(arguments, cwd=directory, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL, env=systemd_environment(), start_new_session=True) as process:
+                          stderr=subprocess.PIPE if capture_git else subprocess.DEVNULL,
+                          env=systemd_environment(), start_new_session=True) as process:
         try:
+            if capture_git:
+                return read_git_error(process, timeout)
             return process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             try:

@@ -44,3 +44,5 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 
 - [Leads — Ficha completa, qualificação e abordagem de parceria](done/leads-ficha-qualificacao-e-abordagem.md) — painel de consulta, ficha e API protegida; publicação pendente.
 - [Trevize — Coleta agendada e qualificação de Leads](done/trevize-coleta-agendada-de-leads.md) — início manual, até 20 candidatos de eventos em Curitiba por ciclo de 24h; publicar API antes de iniciar.
+
+- [Manutenção de pacotes e diagnóstico de falhas de deploy](done/manutencao-pacotes-e-diagnostico-deploy.md) — dependências compatíveis atualizadas, licenciamento preservado e checkout da VM liberado; publicação dos fontes/executor pendente.
