@@ -32,7 +32,7 @@ public sealed class RepositoryManagedService(WriteDbContext context) : Repositor
             .Select(item => new ManagedServiceReadItem
             {
                 ExternalId = item.ExternalId, TechnicalId = item.TechnicalId, Name = item.Name, Type = item.Type,
-                Status = item.Status, Scope = item.Scope,
+                Status = item.Status, Scope = item.Scope, CreatedAt = item.CreatedAt,
                 CustomerCount = item.Customers.Count(link => link.EndedAt == null && link.DeletedAt == null && link.Customer.DeletedAt == null)
             }).ToListAsync(cancellationToken);
         return new() { Total = total, Items = rows };

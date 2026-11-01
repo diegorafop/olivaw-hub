@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 namespace Owh.Olivaw.Client.Features.PlanFeature.Queries;
-public sealed class ReadPlanStudyByFilterQuery { public int BeforeId { get; set; } }
+public sealed class ReadPlanStudyByFilterQuery { public Guid? ExternalId { get; set; } public int BeforeId { get; set; } }
 public sealed class ReadPlanStudyByFilterResponse { public List<PlanStudyItem> Items { get; set; } = new(); public int? NextBeforeId { get; set; } }
 public sealed class PlanStudyItem
 {
+    public string? CostSheetData { get; set; }
     public Guid ExternalId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string IncludedFeatures { get; set; } = string.Empty;
     public decimal? StorageLimitGB { get; set; }
     public decimal? MemoryLimitMiB { get; set; }
+    public decimal CommercialPercent { get; set; }
     public decimal SupportHours { get; set; }
     public decimal HourlyCost { get; set; }
     public decimal ReservePercent { get; set; }

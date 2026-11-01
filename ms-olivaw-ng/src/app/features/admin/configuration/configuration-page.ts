@@ -18,17 +18,28 @@ export const configurationCards = [
     title: 'Recursos',
     description: 'Infraestrutura, dependências, ambientes e reservas.',
   },
-  { path: 'health', title: 'Saúde', description: 'Verificações pontuais, fontes e atualização.' },
   {
+    enabled: false,
+    path: 'health',
+    title: 'Saúde',
+    description: 'Verificações pontuais, fontes e atualização.',
+  },
+  {
+    enabled: false,
     path: 'incidents',
     title: 'Incidentes',
     description: 'Impacto, responsáveis e acompanhamento da recuperação.',
   },
-  { path: 'usage', title: 'Consumo', description: 'Registros de uso e qualidade da informação.' },
+  {
+    enabled: false,
+    path: 'usage',
+    title: 'Consumo',
+    description: 'Registros de uso e qualidade da informação.',
+  },
   {
     path: 'plans',
     title: 'Planos',
-    description: 'Base de custos e estudos de limites e funcionalidades.',
+    description: 'Bronze, Prata, Ouro e Diamante: condições, recursos e custos.',
   },
   {
     path: 'care',
@@ -65,5 +76,5 @@ export const configurationCards = [
   styleUrl: '../inventory/inventory.scss',
 })
 export class ConfigurationPage {
-  readonly cards = configurationCards;
+  readonly cards = configurationCards.filter((card) => card.enabled !== false);
 }

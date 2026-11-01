@@ -27,6 +27,7 @@ interface Study extends Estimate {
   hourlyCost: number;
   reservePercent: number;
   marginPercent: number;
+  commercialPercent?: number;
   externalId: string;
   name: string;
   includedFeatures: string;
@@ -104,6 +105,10 @@ export class PlansPage {
     reservePercent: new FormControl(0, {
       nonNullable: true,
       validators: [Validators.min(0), Validators.max(100)],
+    }),
+    commercialPercent: new FormControl(0, {
+      nonNullable: true,
+      validators: [Validators.min(0), Validators.max(99.99)],
     }),
     marginPercent: new FormControl(0, {
       nonNullable: true,
@@ -193,6 +198,7 @@ export class PlansPage {
       hourlyCost: study.hourlyCost,
       reservePercent: study.reservePercent,
       marginPercent: study.marginPercent,
+      commercialPercent: study.commercialPercent ?? 0,
     });
     this.selected.set(
       Object.fromEntries(

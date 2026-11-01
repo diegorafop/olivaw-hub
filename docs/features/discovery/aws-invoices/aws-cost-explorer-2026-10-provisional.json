@@ -1,0 +1,48 @@
+{
+  "period": "2026-10",
+  "status": "provisional-month-to-date",
+  "receivedAt": "2026-10-27",
+  "exchangeRateToBrl": "5.50",
+  "exchangeRateNote": "Estimativa gerencial; não corresponde a pagamento ou câmbio da fatura.",
+  "totalUsd": "11.8825983981",
+  "servicesUsd": {
+    "EC2-Instances": "6.6321117824",
+    "VPC": "3.2002",
+    "EC2-Other": "2.0502566157",
+    "S3": "0.000025",
+    "Secrets Manager": "0.000005",
+    "Glue": "0",
+    "Key Management Service": "0",
+    "SNS": "0",
+    "SQS": "0",
+    "Tax": "0"
+  },
+  "notes": [
+    "Acumulado informado pelo operador, não previsão nem fatura fechada.",
+    "Valores arredondados a centavos para o contrato de despesas; S3 e Secrets Manager abaixo de um centavo preservados somente nesta evidência.",
+    "Compartilhado, sem rateio por cliente. Não lançar novamente o total nem a previsão de USD 13. Atualizações futuras precisam reconciliar estes registros."
+  ],
+  "entries": [
+    {
+      "externalId": "e474942d-9d07-4ba7-adbd-caa46b049148",
+      "service": "EC2-Instances",
+      "amountUsd": "6.63",
+      "amountBrl": 36.47,
+      "status": "already-existed"
+    },
+    {
+      "externalId": "3604a374-500b-4f7e-b4ae-3b70b1d33265",
+      "service": "VPC",
+      "amountUsd": "3.20",
+      "amountBrl": 17.6,
+      "status": "already-existed"
+    },
+    {
+      "externalId": "3ffb91a6-0347-4629-b9cc-39c71fd20416",
+      "service": "EC2-Other",
+      "amountUsd": "2.05",
+      "amountBrl": 11.28,
+      "status": "already-existed"
+    }
+  ]
+}

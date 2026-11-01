@@ -1,0 +1,359 @@
+<div class="portal-shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/admin/portal-home-preview"
+      >olivaw<span>PORTAL DO CLIENTE</span></a
+    >
+    <div class="company">
+      <span class="avatar">A</span>
+      <div><strong>Empresa Aurora</strong><small>Seu espaço na Olivaw</small></div>
+    </div>
+    <nav aria-label="Portal do cliente">
+      <a
+        routerLink="/admin/portal-home-preview"
+        [class.active]="section === 'home'"
+        [attr.aria-current]="section === 'home' ? 'page' : null"
+        ><app-portal-icon name="home" />Início</a
+      >
+      <a routerLink="/admin/portal-home-preview/chamados" routerLinkActive="active">
+        <app-portal-icon name="message" />Chamados <b>{{ opened() }}</b>
+      </a>
+      <a routerLink="/admin/portal-home-preview/melhorias" routerLinkActive="active"
+        ><app-portal-icon name="spark" />Melhorias</a
+      >
+      <a routerLink="/admin/portal-home-preview/plano" routerLinkActive="active"
+        ><app-portal-icon name="plan" />Meu plano</a
+      >
+      <a routerLink="/admin/portal-home-preview/tecnico" routerLinkActive="active">
+        <app-portal-icon name="code" />Área técnica <small>Em estudo</small>
+      </a>
+    </nav>
+    <div class="sidebar-help">
+      <app-portal-icon name="message" /><strong>Estamos por perto.</strong>
+      <p>Conte com a gente para cuidar do seu site.</p>
+      <a routerLink="/admin/portal-home-preview/chamados/novo">Falar com a Olivaw <span>↗</span></a>
+    </div>
+    <small class="signature">Tecnologia com cuidado.</small>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <span>Seu negócio <span class="muted">/</span> <strong>Visão geral</strong></span
+      ><span class="account"
+        ><span class="online"></span> Empresa Aurora <span class="avatar small">A</span></span
+      >
+    </header>
+    <main>
+      <div class="preview-bar">
+        <span><i></i> Prévia do portal · dados ilustrativos</span
+        ><label
+          >Cenário
+          <select [value]="scenario()" (change)="scenario.set($any($event.target).value)">
+            <option value="normal">Uso normal</option>
+            <option value="attention">Próximo do limite</option>
+            <option value="missing">Sem leituras</option>
+          </select></label
+        ><a routerLink="/admin">Voltar à operação ↗</a>
+      </div>
+      <app-breadcrumb [items]="breadcrumbs" />
+      @if (section === 'home') {
+        <section class="welcome">
+          <div>
+            <div class="eyebrow">SEU NEGÓCIO, ACOMPANHADO DE PERTO</div>
+            <h1>Bom ver você por aqui.</h1>
+            <p>Um olhar simples sobre seu site, seu plano e o que estamos fazendo juntos.</p>
+          </div>
+          <a class="primary" routerLink="/admin/portal-home-preview/chamados/novo">
+            <app-portal-icon name="message" /> Nova solicitação
+          </a>
+        </section>
+        <section class="summary-grid" aria-label="Resumo atual do plano">
+          <article class="card plan-card">
+            <div class="card-top">
+              <span class="eyebrow">SEU PLANO</span><span class="badge">Bronze</span>
+            </div>
+            <h2>Espaço para crescer.</h2>
+            <p>1 site · 2 GB de armazenamento</p>
+            <a
+              class="text-button"
+              routerLink="/admin/portal-home-preview/plano"
+              routerLinkActive="active"
+            >
+              Conhecer meu plano <span>↗</span>
+            </a>
+            <div class="plan-art" aria-hidden="true">✳</div>
+          </article>
+          <article class="card utilization-card">
+            <div
+              class="utilization-ring"
+              [style.--usage]="missing() ? 0 : planPercent()"
+              [class.no-data]="missing()"
+            >
+              <span>{{ missing() ? '—' : planPercent() + '%' }}<small>do plano em uso</small></span>
+            </div>
+            <div class="utilization-copy">
+              <span class="eyebrow">SEU PLANO, NUM OLHAR</span>
+              <h2>
+                {{
+                  missing()
+                    ? 'Aguardando suas primeiras leituras.'
+                    : 'Espaço e evolução, lado a lado.'
+                }}
+              </h2>
+              <p>Uma visão dos limites que você pode acompanhar.</p>
+              <div class="utilization-details">
+                <span
+                  >Armazenamento
+                  <strong>{{ missing() ? '—' : storagePercent() + '%' }}</strong></span
+                ><span>Melhorias deste mês <strong>1 de 2</strong></span>
+              </div>
+              <a class="text-button" routerLink="/admin/portal-home-preview/indicador">
+                Como calculamos esse indicador ↗
+              </a>
+            </div>
+          </article>
+        </section>
+        <section class="section-heading">
+          <div>
+            <h2>Seu site ao longo do tempo</h2>
+            <p>{{ caption() }} · exemplo ilustrativo</p>
+          </div>
+          <div class="periods" role="group" aria-label="Período dos gráficos">
+            @for (item of periods; track item.id) {
+              <button
+                [class.selected]="period() === item.id"
+                [attr.aria-pressed]="period() === item.id"
+                (click)="period.set(item.id)"
+              >
+                {{ item.label }}
+              </button>
+            }
+          </div>
+        </section>
+        <section class="chart-grid">
+          <article class="card chart-card">
+            <div class="card-top">
+              <div>
+                <h3>Espaço ocupado</h3>
+                <p>Arquivos, imagens e banco de dados</p>
+              </div>
+              <app-portal-icon name="disk" />
+            </div>
+            <div class="chart-metric">{{ missing() ? '—' : used() }} <small>MB agora</small></div>
+            <app-portal-line-chart
+              [points]="storage()"
+              kind="storage"
+              [limit]="2000"
+              [empty]="missing()"
+            />
+          </article>
+          <article class="card chart-card">
+            <div class="card-top">
+              <div>
+                <h3>Acessos ao site</h3>
+                <p>Visualizações de páginas no período</p>
+              </div>
+              <app-portal-icon name="activity" />
+            </div>
+            <div class="chart-metric">
+              {{ missing() ? '—' : total() }} <small>visualizações</small>
+            </div>
+            <app-portal-line-chart [points]="accesses()" kind="accesses" [empty]="missing()" />
+          </article>
+        </section>
+        <section class="activity-grid">
+          <article class="card">
+            <div class="card-top">
+              <div class="title-icon">
+                <app-portal-icon name="message" />
+                <h3>Seus chamados</h3>
+              </div>
+              <a
+                class="text-button"
+                routerLink="/admin/portal-home-preview/chamados"
+                routerLinkActive="active"
+                >Ver todos ↗</a
+              >
+            </div>
+            <div class="counters">
+              <div>
+                <strong>{{ opened() }}</strong
+                ><span>em aberto</span>
+              </div>
+              <div><strong class="amber">1</strong><span>aguarda você</span></div>
+              <div><strong>8</strong><span>atendidos</span></div>
+            </div>
+            <p class="small-note">“Aguarda você” faz parte dos chamados em aberto.</p>
+            @for (item of requests().slice(0, 2); track item.id) {
+              <a class="list-row" [routerLink]="['/admin/portal-home-preview/chamados', item.id]">
+                <span
+                  ><small>#{{ item.id }}</small
+                  ><strong>{{ item.title }}</strong></span
+                ><span class="tag" [class.amber-tag]="item.status === 'waiting'">{{
+                  labels[item.status]
+                }}</span>
+              </a>
+            }
+          </article>
+          <article class="card">
+            <div class="card-top">
+              <div class="title-icon">
+                <app-portal-icon name="spark" />
+                <h3>Suas melhorias</h3>
+              </div>
+              <a
+                class="text-button"
+                routerLink="/admin/portal-home-preview/melhorias"
+                routerLinkActive="active"
+                >Ver todas ↗</a
+              >
+            </div>
+            <div class="counters">
+              <div><strong>1</strong><span>em andamento</span></div>
+              <div><strong>2</strong><span>em espera</span></div>
+              <div><strong>4</strong><span>entregues</span></div>
+            </div>
+            <p class="small-note">Evoluções do site acompanhadas com você.</p>
+            @for (item of improvements.slice(0, 2); track item.id) {
+              <a class="list-row" [routerLink]="['/admin/portal-home-preview/melhorias', item.id]">
+                <span
+                  ><small>Melhoria #{{ item.id }}</small
+                  ><strong>{{ item.title }}</strong></span
+                ><span class="tag">{{ labels[item.status] }}</span>
+              </a>
+            }
+          </article>
+        </section>
+      } @else {
+        <section class="card detail-page">
+          <div class="eyebrow">PORTAL DO CLIENTE · PRÉVIA</div>
+          <h1>{{ title }}</h1>
+          <p class="demo-note">
+            Dados ilustrativos. Nenhuma informação é enviada ou salva no servidor.
+          </p>
+          @switch (section) {
+            @case ('requests') {
+              <a class="primary" routerLink="/admin/portal-home-preview/chamados/novo"
+                >Nova solicitação</a
+              >
+              @for (item of requests(); track item.id) {
+                <a class="list-row" [routerLink]="['/admin/portal-home-preview/chamados', item.id]"
+                  ><span
+                    ><small>#{{ item.id }} · {{ item.date }}</small
+                    ><strong>{{ item.title }}</strong></span
+                  ><span class="tag">{{ labels[item.status] }} →</span></a
+                >
+              }
+            }
+            @case ('improvements') {
+              @for (item of improvements; track item.id) {
+                <a class="list-row" [routerLink]="['/admin/portal-home-preview/melhorias', item.id]"
+                  ><strong>{{ item.title }}</strong
+                  ><span class="tag">{{ labels[item.status] }} →</span></a
+                >
+              }
+            }
+            @case ('request') {
+              @if (request(); as item) {
+                <h2>#{{ item.id }} · {{ item.title }}</h2>
+                <span class="tag">{{ labels[item.status] }}</span>
+                <p>
+                  Acompanhamento demonstrativo da solicitação. Na versão real, esta página reúne
+                  conversa, situação e histórico autorizado da empresa.
+                </p>
+                <p>
+                  Pedidos simulados existem somente nesta sessão; ao recarregar, as amostras
+                  iniciais são restauradas.
+                </p>
+              } @else {
+                <p>Chamado não encontrado nesta prévia.</p>
+              }
+              <a routerLink="/admin/portal-home-preview/chamados" routerLinkActive="active"
+                >Voltar aos chamados</a
+              >
+            }
+            @case ('improvement') {
+              @if (improvement; as item) {
+                <h2>{{ item.title }}</h2>
+                <span class="tag">{{ labels[item.status] }}</span>
+                <p>
+                  Detalhamento ilustrativo. Estimativa e aprovação de escopo serão combinadas antes
+                  da execução.
+                </p>
+              } @else {
+                <p>Melhoria não encontrada.</p>
+              }
+              <a routerLink="/admin/portal-home-preview/melhorias" routerLinkActive="active"
+                >Voltar às melhorias</a
+              >
+            }
+            @case ('plan') {
+              <h2>Bronze · Presença</h2>
+              <p>
+                Site estático em endereço da Olivaw, como empresa.olivaw.com.br, e 2 GB de arquivos
+                neste exemplo. Sem API ou banco dedicado ao site.
+              </p>
+              <p>
+                Duas pequenas melhorias por mês, até 30 minutos cada. Correções do escopo entregue
+                não consomem a franquia.
+              </p>
+              <p>
+                A partir do Prata/Silver, domínio próprio e conteúdo gerenciável podem ser
+                contratados. Registro e renovação do domínio têm custo separado.
+              </p>
+              <p>
+                Limites e valores continuam em estudo; esta prévia não modifica contratos
+                existentes.
+              </p>
+              <a routerLink="/admin/portal-home-preview/indicador">Entender o indicador de uso →</a>
+            }
+            @case ('indicator') {
+              <h2>Um resumo das franquias, sem esconder os detalhes.</h2>
+              <p>
+                Na prévia: média simples entre {{ storagePercent() }}% de espaço e 50% de melhorias
+                usadas no mês (1 de 2), resultando em {{ planPercent() }}%.
+              </p>
+              <p>
+                Não é desempenho, disponibilidade ou capacidade técnica. Os limites individuais
+                permanecem visíveis, pois uma média pode esconder um recurso próximo do limite. Sem
+                leituras, o indicador fica indisponível.
+              </p>
+              <p>
+                Na versão real, somente limites contratados e medidos participam. Se apenas espaço
+                estiver disponível, o indicador é identificado como armazenamento.
+              </p>
+            }
+            @case ('technical') {
+              <h2>Mais detalhes, quando você precisar.</h2>
+              <p>
+                Área futura para equipes de TI: informações dos serviços do cliente, histórico de
+                disponibilidade e consumo identificado por empresa. Nunca o consumo total da VM
+                apresentado como se fosse de um cliente.
+              </p>
+            }
+            @case ('new') {
+              <form (submit)="submit($event)">
+                <label
+                  >Como podemos ajudar?<input
+                    name="title"
+                    required
+                    maxlength="120"
+                    placeholder="Ex.: atualizar o horário de atendimento" /></label
+                ><label
+                  >Conte um pouco mais<textarea
+                    name="description"
+                    rows="5"
+                    placeholder="Formulário demonstrativo; nenhum chamado real será aberto."
+                  ></textarea></label
+                ><button class="primary" type="submit">Simular solicitação</button>
+              </form>
+            }
+          }
+        </section>
+      }
+      <footer>
+        Olivaw <span>·</span> Clareza para acompanhar. Cuidado para evoluir.<small
+          >Valores e limites demonstrativos, sem vínculo com um plano contratado.</small
+        >
+      </footer>
+    </main>
+  </div>
+</div>

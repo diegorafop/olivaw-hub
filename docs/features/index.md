@@ -28,3 +28,16 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 - [Baley — Auditoria do host e filtros de segurança](done/baley-host-e-filtros-de-seguranca.md): regras de host, tags e contagens por gravidade, filtros e detalhes expansíveis; revisão visual aguardando publicação do mantenedor.
 
 - [Baley — Correções aprovadas e saúde da infraestrutura](done/baley-correcao-aprovada-e-saude.md): aprovações individuais/em lote, catálogo limitado de correções, gates de saúde, recuperação e migration PostgreSQL; publicação pelo mantenedor pendente.
+
+- [Home do Portal, chamados e despesas internas](done/portal-home-chamados-despesas.md): navegação por links, indicadores, despesas e migration PostgreSQL Issue026; publicação pelo mantenedor.
+
+- [Financeiro — dashboard e navegação de despesas](done/dashboard-financeiro.md): indicadores, categorias, clientes e filtros temporais; publicação pendente.
+
+- [Despesas sem abatimento de benefícios Free Tier](done/despesas-sem-abatimento-free-tier.md): custos por padrão e preservação da auditoria; publicação da correção pendente.
+
+- [Catálogo de planos, composição de custos e versões mensais](done/planos-versoes-mensais-e-custeio.md) — desenvolvimento local validado; publicação pelo mantenedor pendente.
+- [Clientes na landing page — LTMJ e Cavalcante](done/clientes-da-landing-page.md) — validado localmente; publicação pendente.
+
+- [Prospecção ativa e orçamentos vinculados a Leads](done/leads-prospeccao-e-orcamentos.md) — cadastro manual, propostas detalhadas e HTML compartilhável; publicação e cadastro do caso 795293 pendentes.
+
+- [Planos públicos, oferta de criação e pontos de melhoria](done/planos-publicos-oferta-e-pontos-de-melhoria.md) — catálogo e condições comerciais; publicação pendente.

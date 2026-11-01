@@ -1,3 +1,4 @@
+import { PortalHome } from './portal-home';
 import { PortalDeliveries } from './portal-deliveries';
 import { PortalRequests } from './portal-requests';
 import { Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
@@ -14,6 +15,7 @@ import { inventoryError } from '../admin/inventory/inventory-api';
 @Component({
   selector: 'app-portal-page',
   imports: [
+    PortalHome,
     PortalDeliveries,
     PortalRequests,
     ReactiveFormsModule,
@@ -41,10 +43,16 @@ export class PortalPage {
   readonly data = signal<PortalDashboard | null>(null);
   readonly loading = signal(false);
   readonly error = signal('');
-  readonly tab = signal('overview');
+  readonly tab = signal(this.route.snapshot.queryParamMap.get('section') ?? 'overview');
   constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroy)).subscribe((params) => {
+      const section = params.get('section') ?? 'overview';
+      this.tab.set(
+        ['overview', 'requests', 'plan', 'deliveries'].includes(section) ? section : 'overview',
+      );
+    });
     if (!this.preview && !this.api.token()) {
-      void this.router.navigate(['/meu-negocio/entrar']);
+      void this.router.navigate(['/portal/entrar']);
       return;
     }
     this.loadCompanies();
@@ -139,13 +147,17 @@ export class PortalPage {
     const status = (error as { status?: number }).status;
     if (!this.preview && status === 401) {
       this.api.session.set(null);
-      void this.router.navigate(['/meu-negocio/entrar']);
+      void this.router.navigate(['/portal/entrar']);
     }
   }
   setTab(value: string) {
     if (value === this.tab()) return;
     if (this.requestsView() && !this.requestsView()!.canLeave()) return;
-    this.tab.set(value);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { section: value, request: null, customer: this.customer.value || null },
+      queryParamsHandling: 'merge',
+    });
   }
   readonly requestsView = viewChild(PortalRequests);
   canLeave() {
@@ -159,7 +171,7 @@ export class PortalPage {
         takeUntilDestroyed(this.destroy),
         finalize(() => {
           this.api.session.set(null);
-          void this.router.navigate(['/meu-negocio/entrar']);
+          void this.router.navigate(['/portal/entrar']);
         }),
       )
       .subscribe({ error: () => undefined });

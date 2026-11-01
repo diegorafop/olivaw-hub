@@ -25,6 +25,7 @@ export interface ServiceItem {
   status: string;
   scope: string;
   customerCount: number;
+  createdAt?: string;
 }
 export interface ServiceInput {
   name: string;

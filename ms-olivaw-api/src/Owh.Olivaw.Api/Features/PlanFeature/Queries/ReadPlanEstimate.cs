@@ -19,7 +19,7 @@ public sealed class ReadPlanEstimateHandler(IRepository<CostReference> costs) : 
         var lines = request.Payload.Lines.Select(line => new PlanCostLine { Name = selected[line.CostReferenceExternalId].Name, MonthlyCost = selected[line.CostReferenceExternalId].MonthlyCost, AllocationPercent = line.AllocationPercent }).ToList();
         if (lines.Select(item => item.Name.ToLowerInvariant()).Distinct().Count() != lines.Count) throw new ValidationException("Selecione uma versão por origem de custo.");
         var p = request.Payload;
-        var result = PlanEstimate.Calculate(lines, p.SupportHours, p.HourlyCost, p.ReservePercent, p.MarginPercent);
+        var result = PlanEstimate.Calculate(lines, p.SupportHours, p.HourlyCost, p.ReservePercent, p.MarginPercent, p.CommercialPercent);
         return new() { KnownMonthlyCost = result.KnownMonthlyCost, UnallocatedMonthlyCost = result.UnallocatedMonthlyCost, SuggestedMonthlyPrice = result.SuggestedMonthlyPrice, MissingCosts = result.MissingCosts };
     }
 }
@@ -41,6 +41,8 @@ public sealed class ReadPlanEstimateValidator : AbstractValidator<ReadPlanEstima
         RuleFor(item => item.HourlyCost).InclusiveBetween(0, 1000000);
         RuleFor(item => item.ReservePercent).InclusiveBetween(0, 100);
         RuleFor(item => item.MarginPercent).GreaterThanOrEqualTo(0).LessThan(100);
+        RuleFor(item => item.CommercialPercent).InclusiveBetween(0,99.99m).PrecisionScale(5,2,true);
+        RuleFor(item => item.CommercialPercent).Must((p,value)=>value+p.MarginPercent<100);
     }
 }
 public sealed class ReadPlanEstimateMediatorValidator : AbstractValidator<ReadPlanEstimateMediatorQuery>

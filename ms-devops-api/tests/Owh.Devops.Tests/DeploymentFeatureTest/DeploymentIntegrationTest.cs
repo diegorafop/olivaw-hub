@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq.Expressions;
@@ -38,6 +38,7 @@ public class DeploymentIntegrationTest
     [InlineData("environment", 400)] [InlineData("success", 202)] [InlineData("failed_job", 202)]
     [InlineData("anonymous", 401)] [InlineData("forbidden", 403)]
     [InlineData("wrong_scope", 403)] [InlineData("client_token", 401)]
+    [InlineData("portal_token", 401)] [InlineData("wrong_audience", 401)] [InlineData("expired", 401)]
     public async Task Post_should_return_standard_response_and_enforce_permission(string scenario, int expectedStatus)
     {
         const string key = "test-only-deployment-signing-key-at-least-32-bytes";
@@ -83,9 +84,9 @@ public class DeploymentIntegrationTest
         {
             var claims = new List<Claim> { new("sub", user.ExternalId.ToString()), new("stamp", user.SecurityStamp.ToString()) };
             foreach (var permission in permissions) claims.Add(new Claim("permission", permission));
-            var jwt = new JwtSecurityToken(scenario == "client_token" ? "ltmj-tests" : "deployment-tests", "deployment-tests",
+            var jwt = new JwtSecurityToken(scenario == "client_token" ? "ltmj-tests" : scenario == "portal_token" ? "portal-tests" : "deployment-tests", scenario == "wrong_audience" ? "portal-tests" : "deployment-tests",
                 claims,
-                expires: DateTime.UtcNow.AddMinutes(5), signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256));
+                expires: DateTime.UtcNow.AddMinutes(scenario == "expired" ? -10 : 5), signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", new JwtSecurityTokenHandler().WriteToken(jwt));
         }
         var folder = "repo"; var branchName = "develop"; var environmentName = "dev";

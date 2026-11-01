@@ -1,0 +1,81 @@
+{
+  "title": "Cenário inicial central/MCP — referência histórica; agentes Python a reestimar",
+  "status": "draft",
+  "platform": "ChatGPT existente; plano, workspace e ferramentas ainda não demonstrados.",
+  "requirementsAnalysis": "Registro após aprovação, atualização com histórico, panorama por projeto e prioridades diárias. Não inclui leitura universal de chats antigos ou escrita direta em outro chat.",
+  "technicalApproach": "Atualização: avaliar agentes Python locais integrados ao Codex, com adaptadores de sistemas e middleware central. Definir descoberta e MVP de um fluxo, validando também uso dentro dos projetos atuais. As linhas e valores deste arquivo preservam apenas o cenário inicial central/MCP, não um orçamento da nova arquitetura. Ver analise.md e estimativa.md.",
+  "assumptions": "Um operador, uma conta Google, uma agenda, até sete áreas e quatro comandos. Projetos e instruções preservados. Novas demandas do contexto disponível. Sem migração integral de chats, novo chat web, painel administrativo completo, notificações, escrita no calendário, aplicativo mobile ou SLA 24x7. Central externa depende de aceite. Prova ainda não executada.",
+  "externalCosts": "Assinatura ChatGPT elegível, hospedagem, banco, backups, domínio e licenças de terceiros separados, a cotar. API OpenAI apenas se houver processamento adicional; depende de modelo, volume e tokens, sem valor fixo prometido. O conector pode usar as ferramentas do próprio ChatGPT sem inferência API adicional.",
+  "deadline": "Prazo do MVP com agentes Python a definir após inventário dos sistemas e recorte do piloto. O calendário anterior não deve ser aplicado automaticamente.",
+  "terms": "REFERÊNCIA HISTÓRICA, NÃO OFERTA DA NOVA ARQUITETURA. Os valores de 74 h / R$ 8.880 e prova de R$ 960 pertencem ao cenário inicial. Agentes Python, instalação e integrações desconhecidas exigem reestimativa. Nenhum valor ou prazo comercial aprovado.",
+  "continuity": "Implementação avulsa com documentação e entrega técnica. Continuidade Olivaw opcional para manutenção e operação, com limites de recursos, banco, backups, atualizações e horas acordados. Mensalidade, SLA, permanência e cancelamento ainda não definidos. Sem desconto ou financiamento de implementação aprovado.",
+  "reservePercent": 20,
+  "discountPercent": 0,
+  "installments": 1,
+  "rows": [
+    {
+      "description": "Diagnóstico e prova em dois projetos",
+      "role": "Arquiteto / analista",
+      "solution": "analysis",
+      "hours": 8,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Central de tarefas, histórico e controle de concorrência",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Ferramentas MCP e configuração nos projetos piloto",
+      "role": "Programador de integrações",
+      "solution": "integration",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Aprovação e prevenção de duplicidades",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 6,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Consulta a uma agenda Google",
+      "role": "Programador de integrações",
+      "solution": "integration",
+      "hours": 8,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Testes e homologação dos quatro comandos",
+      "role": "QA / programador",
+      "solution": "validation",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Documentação e orientação",
+      "role": "Analista",
+      "solution": "validation",
+      "hours": 6,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Configuração de ambiente, backup e entrega",
+      "role": "DevOps",
+      "solution": "integration",
+      "hours": 6,
+      "hourlyRate": 100,
+      "optional": false
+    }
+  ]
+}

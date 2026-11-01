@@ -25,6 +25,8 @@ public class WriteDbContext
         modelBuilder.AddOlivawIdentity();
         modelBuilder.SetupTables();
         modelBuilder.SetupConstraints();
+        modelBuilder.Entity<Owh.Olivaw.Domain.PlanVersion>().HasIndex(x=>new{x.PlanKey,x.Version}).HasDatabaseName("planversion_version_ix");
+        modelBuilder.Entity<Owh.Olivaw.Domain.PlanVersion>().HasIndex(x=>new{x.PlanKey,x.EffectiveAt}).HasDatabaseName("planversion_effective_ix");
         modelBuilder.Entity<Owh.Olivaw.Domain.HealthReading>().HasIndex(item => new { item.InventoryResourceId, item.ObservedAt, item.Id }).HasDatabaseName("healthreading_latest_ix");
         modelBuilder.Entity<Owh.Olivaw.Domain.SupportRequest>().HasIndex(item => new { item.CustomerId, item.PortalSubmissionKey }).HasDatabaseName("supportrequest_submission_ix");
     }

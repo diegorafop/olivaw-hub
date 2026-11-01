@@ -40,7 +40,7 @@ public sealed class ReadLeadByFilterValidator : AbstractValidator<ReadLeadByFilt
         RuleFor(item => item.PageSize).InclusiveBetween(1, 100);
         RuleFor(item => item.FollowUpStatus).Must(value => string.IsNullOrEmpty(value) || Owh.Olivaw.Domain.Lead.IsFollowUpStatus(value));
         RuleFor(item => item.Search).MaximumLength(100);
-        RuleFor(item => item.Entry).Must(value => value is null or "" or "studio" or "discovery");
+        RuleFor(item => item.Entry).Must(value => value is null or "" or "studio" or "discovery" or "prospecting" or "manual");
         RuleFor(item => item.Until).GreaterThan(item => item.From)
             .When(item => item.From.HasValue && item.Until.HasValue);
     }

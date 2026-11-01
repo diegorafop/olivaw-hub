@@ -1,0 +1,73 @@
+.detail-page {
+  margin-top: 28px;
+  max-width: 980px;
+  min-height: 400px;
+}
+.detail-page h2 {
+  font-size: 21px;
+  line-height: 1.5;
+  margin-top: 28px;
+}
+.detail-page p {
+  font-size: 13px;
+  line-height: 1.9;
+  max-width: 720px;
+}
+.demo-note {
+  font-size: 11px !important;
+  color: #819486;
+  border-bottom: 1px solid #e4ebe0;
+  padding-bottom: 20px;
+}
+.detail-page form {
+  max-width: 700px;
+}
+.detail-page label {
+  display: block;
+  font-size: 12px;
+  margin: 24px 0;
+}
+.detail-page input,
+.detail-page textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #dce5d9;
+  border-radius: 7px;
+  margin-top: 9px;
+  font: inherit;
+}
+.detail-page .list-row {
+  padding: 22px 0;
+}
+.detail-page .list-row strong {
+  font-size: 13px;
+}
+.detail-page .list-row small {
+  font-size: 10px;
+}
+.detail-page .tag {
+  font-size: 11px;
+}
+.sidebar a.primary {
+  color: #fff;
+}
+.list-row {
+  text-decoration: none;
+}
+a.primary,
+a.text-button {
+  cursor: pointer;
+}
+.sidebar-help a {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  padding-top: 10px;
+}
+
+app-breadcrumb {
+  display: block;
+  margin-bottom: 24px;
+}

@@ -109,13 +109,15 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await setup(page);
     const nav = page.getByRole('navigation', { name: 'Navegação da operação' });
-    await expect(nav.getByRole('link')).toHaveCount(3);
+    await expect(nav.getByRole('link')).toHaveCount(5);
     await nav.getByRole('link', { name: 'Configuração', exact: true }).click();
     const cards = page.getByRole('navigation', { name: 'Cadastros e ferramentas' });
-    await expect(cards.getByRole('link')).toHaveCount(11);
+    await expect(cards.getByRole('link')).toHaveCount(8);
+    for (const name of ['Saúde', 'Incidentes', 'Consumo'])
+      await expect(cards.getByRole('link', { name, exact: true })).toHaveCount(0);
     await cards.getByRole('link', { name: 'Planos', exact: true }).click();
     await expect(
-      page.getByRole('heading', { name: 'Estudo dos planos', exact: true }),
+      page.getByRole('heading', { name: 'Um plano para cada momento', exact: true }),
     ).toBeVisible();
     await expect(nav.getByRole('link', { name: 'Configuração', exact: true })).toHaveAttribute(
       'aria-current',
@@ -137,7 +139,7 @@ test('estudo preserva funcionalidades e 2 GB como hipótese, sem alterar contrat
   page,
 }) => {
   const { writes } = await setup(page);
-  await page.goto('/admin/plans');
+  await page.goto('/admin/plans/simulator');
   await page.getByLabel('Nome da origem').fill('VM de teste');
   await page.getByLabel('Custo mensal (R$)').fill('100');
   await page.getByLabel('Fonte / referência da versão').fill('Valor fictício para teste');
@@ -190,7 +192,7 @@ test('incidente exige confirmação e preserva edição quando há conflito', as
   await expect(page.getByLabel('Nota interna / justificativa')).toHaveValue('Texto preservado');
   await page.getByLabel('Estado', { exact: false }).selectOption('observation');
   await page.getByRole('button', { name: 'Salvar registro', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Registro salvo');
+  await expect(page.getByRole('status').filter({ hasText: 'Registro salvo' })).toBeVisible();
 });
 test('configuração permanece protegida para operador sem root', async ({ page }) => {
   await setup(page, false);

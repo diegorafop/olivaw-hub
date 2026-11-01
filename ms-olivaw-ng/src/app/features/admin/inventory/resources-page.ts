@@ -7,6 +7,7 @@ import { CustomersApi } from '../customers/customers-api';
 import {
   InventoryApi,
   resourceTypes,
+  resourceCreationTypes,
   resourceStatuses,
   environments,
   inventoryError,
@@ -28,7 +29,7 @@ export class ResourcesPage {
   readonly refresh = signal(0);
   readonly types = resourceTypes;
   readonly statuses = resourceStatuses;
-  readonly typeOptions = Object.entries(resourceTypes);
+  readonly typeOptions = Object.entries(resourceCreationTypes);
   readonly statusOptions = Object.entries(resourceStatuses);
   readonly environmentOptions = Object.entries(environments);
   readonly linkCustomer = this.route.snapshot.queryParamMap.get('linkCustomer');

@@ -17,6 +17,9 @@ para reduzir o impacto de um comprometimento do proxy preservando os sites e o d
 
 ## ai-prompt
 
+Atualização local em 30/10/2026: Compose opcional `ms-infrastructure-app/docker-compose.socket-proxy.yml` e `socket-proxy.cfg` preparados com HAProxy 3.2.25, rede interna exclusiva sem portas publicadas, GET limitado a versão, ping, lista/inspect de containers e eventos; HEAD somente ping. Chamadas derivadas do código do provider Traefik v3.0.0. Traefik sem montagem do socket; deploy mantém canal independente. Limites 64 MiB, 0,10 vCPU, 32 processos/conexões, filesystem somente leitura, sem capabilities, logs limitados. Volumes, redes externas, RabbitMQ e ACME preservados. O socket continua acessível ao processo do proxy e inspect revela metadados: risco residual documentado. Ainda falta teste de runtime isolado, memória e disponibilidade/digest da imagem; não marcar como pronto para produção. O Compose padrão permanece preservado. Nenhum container reiniciado e nenhum deploy executado.
+
+
 Proposta em discovery, sem autorização de alteração do servidor nesta entrega. O alerta Baley de acesso de `/ms-traefik-pr` ao socket decorre do provider Docker do Traefik, responsável pela descoberta dos sites. Não é somente o executor de deploy. A montagem do socket `:ro` não transforma a API do daemon em somente leitura.
 
 A [documentação oficial Traefik v3.0](https://doc.traefik.io/traefik/v3.0/providers/docker/#docker-api-access) recomenda autorização/filtragem e rede privada. Conferir versão efetiva e selecionar implementação mantida, com imagem estável fixada. Não escolher nem atualizar imagem automaticamente só por existir no feed do Baley.

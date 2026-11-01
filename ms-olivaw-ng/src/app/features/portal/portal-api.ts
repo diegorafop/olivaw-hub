@@ -35,6 +35,24 @@ export interface PortalDashboard {
   currentPlan: PortalPlan | null;
   nextBeforeId: number | null;
 }
+export interface PortalHomeSummary {
+  openRequests: number;
+  waitingRequests: number;
+  completedRequests: number;
+  workingImprovements: number;
+  queuedImprovements: number;
+  completedImprovements: number;
+  storageUsedMiB: number | null;
+  storageLimitMiB: number | null;
+  storagePercent: number | null;
+  observedAt: string | null;
+  from: string;
+  to: string;
+  observedDays: number;
+  expectedDays: number;
+  pageViews: number | null;
+  series: { date: string; storageUsedMiB: number | null; pageViews: number | null }[];
+}
 export interface PortalRequest {
   externalId: string;
   protocol: string;
@@ -138,13 +156,30 @@ export class PortalApi {
       )
       .pipe(timeout(15000));
   }
-  requests(customerExternalId: string, preview: boolean, beforeId = 0) {
+  home(customerExternalId: string, preview: boolean, period: string) {
+    return this.http
+      .get<PortalHomeSummary>(
+        this.runtime.endpoint(preview ? 'portal-preview/home' : 'portal/home'),
+        this.options(
+          preview,
+          new HttpParams().set('customerExternalId', customerExternalId).set('period', period),
+        ),
+      )
+      .pipe(timeout(15000));
+  }
+  requests(customerExternalId: string, preview: boolean, beforeId = 0, requestExternalId = '') {
     return this.http
       .get<{ items: PortalRequest[]; nextBeforeId: number | null }>(
         this.runtime.endpoint(preview ? 'portal-preview/requests' : 'portal/requests'),
         this.options(
           preview,
-          new HttpParams().set('customerExternalId', customerExternalId).set('beforeId', beforeId),
+          requestExternalId
+            ? new HttpParams()
+                .set('customerExternalId', customerExternalId)
+                .set('requestExternalId', requestExternalId)
+            : new HttpParams()
+                .set('customerExternalId', customerExternalId)
+                .set('beforeId', beforeId),
         ),
       )
       .pipe(timeout(15000));

@@ -41,6 +41,12 @@ public static class WebApplicationBuilderFacadeExtensions
         });
         builder.Services.AddHttpClient<Owh.Olivaw.Api.Services.PublicHealthProbe>(client => client.Timeout = TimeSpan.FromSeconds(5))
             .ConfigurePrimaryHttpMessageHandler(Owh.Olivaw.Api.Services.PublicHealthProbe.CreateHandler);
+        var scheduled=builder.Configuration.GetSection("Monitoring:Schedule").Get<Owh.Olivaw.Api.Services.ScheduledHealthOptions>() ?? new();
+        scheduled.Validate();
+        builder.Services.AddSingleton(scheduled);
+        builder.Services.AddSingleton<Owh.Olivaw.Api.Services.HealthCollectionStatus>();
+        builder.Services.AddScoped<Owh.Olivaw.Api.Services.ScheduledHealthCycle>();
+        builder.Services.AddHostedService<Owh.Olivaw.Api.Services.ScheduledHealthCollector>();
         builder.Services.AddCorsDefaultPolicyCore();
         builder.AddControllerCore();
         builder.AddSwagger();

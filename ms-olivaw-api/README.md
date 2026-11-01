@@ -191,6 +191,8 @@ Validação: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.
 
 ## Serviços e vínculos com clientes
 
+A listagem `GET /services` também retorna `createdAt` por serviço, para mostrar a data de cadastro nos cards administrativos. Esse campo não representa a data de implantação e utiliza a auditoria existente, sem migration adicional.
+
 Base 04a implementada na issue 018, ainda sem migration nem publicação. Cadastro manual de aplicações lógicas, distinto de recursos e de provisionamento. Root interno pode executar:
 
 - `POST /services`: payload com `technicalId`, `name`, `type`, `description`, `owner`, `scope`, `status` e `customerExternalIds` (até 100 GUIDs públicos). Retorna HTTP 201 com `externalId` e `revision`.
@@ -393,3 +395,88 @@ dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.O
 ```
 
 O startup aplicará a nova tabela durante o deploy; não foi executado database update ou redeploy nesta entrega. O modelo do PortalIdentity foi conferido sem alterações pendentes. Somente PostgreSQL contemplado.
+
+### Escopo dos servidores no inventário
+
+Novos recursos usam `shared` (Compartilhado, padrão) ou `individual` (Individual), sem exigir vínculo a cliente. Os códigos anteriores `platform` e `customer` continuam aceitos para preservar cadastros; não são convertidos automaticamente, pois não indicam compartilhamento. A UI oferece apenas Servidor (`compute`) para novos cadastros; tipos anteriores continuam legíveis e editáveis. Provedor identifica o fornecedor (ex.: AWS); `providerResourceId` identifica a instância no fornecedor (ex.: ID EC2). Nenhuma migration é necessária para esses valores.
+
+## Home do Portal e despesas internas — issue026
+
+Implementação local validada, sem publicação. A migration PostgreSQL `20261026102348_Issue026` foi gerada mediante autorização e revisada: cria somente `expense` e `portalusagesample`, sete índices e duas FKs RESTRICT para clientes. Não altera objetos existentes. Será aplicada automaticamente no startup após publicação pelo mantenedor. Nenhum `database update` foi executado. SQL Server e outros provedores não receberam migrations.
+
+| Operação | Autorização | Finalidade |
+| --- | --- | --- |
+| `GET /expenses` | `olivaw.root` | Custos, créditos, total líquido e histórico em BRL |
+| `POST /expenses` | `olivaw.root` | Lançamento idempotente por `entryKey` |
+| `POST /portal-usage-samples` | `olivaw.root` | Amostra diária consolidada e explicitamente atribuída a um cliente |
+| `GET /portal/home` | `portal.member` + vínculo à empresa | Resumo e histórico do próprio cliente |
+| `GET /portal-preview/home` | `olivaw.root` | Consulta interna sem impersonação do cliente |
+| `GET /portal/requests?customerExternalId=…&requestExternalId=…` | `portal.member` + vínculo | Detalhe de solicitação por link, inclusive fora da primeira página |
+
+Despesas: `from` inclusivo e `to` exclusivo em dias UTC, intervalo máximo 366 dias, `groupBy=day|month|year`, `customerExternalId` opcional, `page/pageSize` para os lançamentos. As séries e totais usam todo o período, não apenas a página. A consulta recusa mais de 5.000 lançamentos em vez de exibir total parcial. Valores USD exigem `exchangeRateToBrl` informado; BRL exige taxa 1. Taxa e valor convertido ficam registrados no lançamento. Crédito tem valor positivo e `kind=credit`; o líquido pode ser negativo. Despesas compartilhadas sem cliente aparecem em `unallocatedBrl`, separadas dos totais individuais. Não há importação AWS, câmbio automático ou rateio presumido. Este primeiro recorte oferece criação e consulta; correção/estorno de lançamentos é uma evolução própria, sem exclusão física de histórico.
+
+Home: `period=day|week|month|year` corresponde ao último dia UTC encerrado, últimos 7/30 dias ou último ano, sempre com pontos diários. Uma amostra por cliente/dia, com `sampleKey` único, `storageUsedMiB`, `pageViews` e fonte obrigatória. Ausência é `null`; zero é uma leitura válida. Armazenamento usa MiB/GiB, sem confundir com MB/GB decimais. Visualizações são contagens diárias consolidadas, não pessoas únicas, requisições brutas ou valores acumulados repetidos. Nenhum coletor automático foi implementado nesta etapa; até haver ingestão, a Home exibe ausência de leituras. Uma amostra da VM compartilhada não pode alimentar o consumo de um cliente.
+
+Totais de chamados distinguem problemas/dúvidas de melhorias e respeitam estados terminais existentes. O detalhe mantém a condição de empresa na consulta. Abertura, idempotência, conversa, histórico e transições continuam nos endpoints existentes de Portal/Atendimento. O corpo das mensagens preserva o texto fornecido. Custos internos e fontes das amostras não são expostos no DTO da Home.
+
+Comandos de validação, a partir da raiz:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Api/Owh.Olivaw.Api.csproj -m:1 --no-restore
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-build --no-restore
+```
+
+Comandos reproduzíveis da Issue026 (já gerada; não repetir `add`):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+dotnet ef migrations add Issue026 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+# Recompilar o provedor após gerar os arquivos, antes de revisar o SQL.
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+dotnet ef migrations script Issue025Remediation Issue026 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue026.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+Validações locais: 416 testes da API, build do provedor/API, revisão do SQL e compatibilidade de modelo PostgreSQL. Não houve conexão a bancos reais durante a geração ou validação.
+
+### Dashboard Financeiro — agregados de despesas
+
+`GET /expenses` também retorna `byCategory` e `byCustomer`, calculados com todos os registros do recorte antes da paginação de `items`. Cada grupo informa custo bruto, créditos, líquido e quantidade. Custos compartilhados têm chave `shared`; `unallocatedOnly=true` filtra somente esses lançamentos e não pode ser combinado com `customerExternalId`. `unallocatedBrl` continua informando o líquido compartilhado de todo o período, separadamente do total individual.
+
+A ampliação é aditiva e não altera o modelo persistido: nenhuma migration nova é necessária. A autorização permanece `olivaw.root`. Não é cálculo de receita, lucro, saldo bancário ou pagamento confirmado. A série temporal segue a data gerencial registrada no lançamento; não distribui automaticamente uma fatura mensal por dias de consumo.
+
+### Gastos sem abatimento dos créditos Free Tier
+
+Por decisão do mantenedor, `GET /expenses` retorna **somente custos por padrão**, antes de totais, série, agregados e paginação. Os créditos históricos não são apagados: a consulta administrativa explícita `includeCredits=true` recupera a composição completa para auditoria. Não tratar o líquido da fatura após benefícios como custo da infraestrutura. Essa alteração de consulta não exige migration.
+
+### Incrementos locais da issue026 (ainda não publicados)
+
+- `GET/POST /aws-invoices` e `GET /aws-invoices/{id}`: root, metadados estáveis e `RawData` string JSON extensível; custos não são duplicados pelo cadastro documental. Vínculos com despesas existentes pertencem à mesma competência.
+- `GET/POST /plans/versions`: quatro chaves de catálogo, versões imutáveis, valores em BRL e estudo de custos opcional. `POST /plans/assignments` vincula cliente/versão a partir de uma competência, com aprovação e mensalidade negociada opcional; condições antigas permanecem intactas. Nenhum deploy, quota Docker ou reajuste automático.
+- Despesas conhecidas podem ter competência até doze meses à frente; apropriação de domínio anual não representa doze pagamentos. O filtro de despesas considera custos por padrão; créditos permanecem em evidências.
+- Coleta periódica opcional: `Monitoring:Schedule:Enabled=false` por padrão, `IntervalMinutes=15`, `RetentionDays=30`, `ActorUserId` obrigatório ao habilitar e `ResourceExternalIds` explícitos (até 32). URLs precisam coincidir com `Monitoring:AllowedUrls`; HTTPS público, sem redirects, timeout limitado. `GET /health-readings/collector` é root e mostra a execução desde o startup; reinício não inventa um histórico. Retenção remove no máximo 500 amostras antigas por ciclo, somente da fonte automática configurada. Falha de fonte não é ambiente seguro e coleta não abre incidente automaticamente.
+
+As novas entidades estão na migration PostgreSQL complementar descrita abaixo, preservando a `Issue026` já publicada. O startup aplica migrations pendentes; não houve atualização de banco nesta execução. SQL Server não recebe migration.
+
+### Fechamento local de Planos — Issue026PlansAndFinance
+
+Migration PostgreSQL complementar: `20261030222928_Issue026PlansAndFinance`. A `Issue026` anterior permanece intacta. Cria sete tabelas de catálogo/faturas/controle financeiro e seis colunas aditivas em estudos, condições e leituras de saúde. Mantém dados existentes, FKs RESTRICT e índices únicos. Upgrade sem remoção de tabelas ou colunas. Schema da autoridade PortalIdentity permanece separado e sem mudanças.
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+# Já gerada: não repetir add.
+dotnet ef migrations add Issue026PlansAndFinance --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue026 Issue026PlansAndFinance --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue026-plans-finance.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests -c Release -m:1 --no-restore
+```
+
+`POST /plans/cost-sheets` salva oito bases BRL e o estudo atomicamente, com chave de reenvio e digest. `CostSheetData` preserva as entradas originais em JSON string, inclusive valores anuais e denominadores de rateio. Campos desconhecidos podem ser preservados em evoluções futuras sem reformatar estudos antigos. Custos normalizados, trabalho, reserva, margem e despesas comerciais compõem o preço sugerido. A soma de margem e despesas comerciais deve ser inferior a 100%. A publicação do plano continua explícita e não aplica quotas Docker.
+
+Validação local: 446 testes da API passaram, incluindo compatibilidade entre modelo e migration; nenhuma conexão a banco real ou `database update`. SQL Server não recebeu migration. Build do provedor sem avisos; ferramenta EF 10.0.12 avisa diferença para runtime 10.0.13, sem alteração de dependências. Após publicação pelo mantenedor, o startup aplicará a migration automaticamente; backup e revisão do pacote antecedem a publicação. Não executar `Down` em produção como atalho: estruturas novas podem conter dados.
+
+## Prospecção e propostas de Leads
+
+`POST /leads` cadastra oportunidades manuais com `leads.manage`, UUID fornecido para detectar repetição e contatos opcionais. Origem e iniciativa são preservadas no snapshot. `PUT /leads/{externalId}/proposal` salva o orçamento com revisão otimista; 409 exige recarregar. Envios anônimos não podem definir condições comerciais. Sem alteração de schema ou migration.
+
+Validação local: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` a partir da raiz. [Roteiro de cadastro](../docs/99freelas/795293/cadastro-apos-publicacao.md).

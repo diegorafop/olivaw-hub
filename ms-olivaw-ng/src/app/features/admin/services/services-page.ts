@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -6,9 +7,9 @@ import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { ServicesApi, serviceStatuses, serviceTypes, type ServicePage } from './services-api';
 @Component({
   selector: 'app-services-page',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, DatePipe],
   templateUrl: './services-page.html',
-  styleUrl: './services.scss',
+  styleUrls: ['./services.scss', './service-cards.scss'],
 })
 export class ServicesPage {
   private readonly api = inject(ServicesApi);
