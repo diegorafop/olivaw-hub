@@ -1,13 +1,15 @@
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { Component, inject, signal, DestroyRef, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AgentsApi, reportContent, type SecurityReport } from './agents-api';
+import { AgentChart } from './agent-chart';
+import { dailySeries, securityMetrics, withinPeriod } from './agent-metrics';
 import { findingCounts, riskTag } from './report-severity';
 @Component({
   selector: 'app-baley-reports',
-  imports: [RouterLink, DatePipe],
-  styleUrls: ['./agents.scss', './report-tags.scss'],
+  imports: [RouterLink, DatePipe, AgentChart],
+  styleUrls: ['./agents.scss', './report-tags.scss', './agent-dashboard.scss'],
   template: `<main id="operation-content" tabindex="-1">
     <header>
       <div>
@@ -29,8 +31,52 @@ import { findingCounts, riskTag } from './report-severity';
         <p>Os resultados aparecem aqui após a confirmação de recebimento pela API.</p>
       </section>
     }
+    <div class="dashboard-toolbar">
+      <label for="security-period">Período da auditoria</label>
+      <select id="security-period" [value]="days()" (change)="days.set(+$any($event.target).value)">
+        <option value="7">Últimos 7 dias</option>
+        <option value="30">Últimos 30 dias</option>
+        <option value="90">Últimos 90 dias</option>
+      </select>
+    </div>
+    <p class="muted">
+      {{ reports().length }} relatórios carregados; {{ visible().length }} no período. Carregue os
+      anteriores para ampliar a análise. A API registra resultados, não o estado do processo local.
+    </p>
+    <section class="metrics" aria-label="Resumo de segurança">
+      <article class="metric">
+        <span>Auditorias recebidas</span><strong>{{ visible().length }}</strong
+        ><small>Resultados no período carregado</small>
+      </article>
+      <article class="metric">
+        <span>Com risco elevado</span><strong>{{ metrics().elevated }}</strong
+        ><small>Auditorias com achados altos ou críticos</small>
+      </article>
+      <article class="metric">
+        <span>Coletas incompletas</span><strong>{{ metrics().incomplete }}</strong
+        ><small>Parciais, falhas ou conteúdo indisponível</small>
+      </article>
+      <article class="metric">
+        <span>Servidores avaliados</span><strong>{{ metrics().hosts }}</strong
+        ><small>Hosts distintos neste recorte</small>
+      </article>
+    </section>
+    <div class="charts">
+      <app-agent-chart
+        title="Ritmo de auditoria"
+        caption="Relatórios recebidos por data de conclusão."
+        [points]="series()"
+        [timeline]="true"
+      />
+      <app-agent-chart
+        title="Distribuição dos achados"
+        caption="Ocorrências nas auditorias; um mesmo problema pode reaparecer em vários relatórios."
+        [points]="metrics().severity"
+      />
+    </div>
+    <h2 class="list-title">Auditorias e evidências</h2>
     <div class="report-grid" aria-label="Relatórios do Baley">
-      @for (report of reports(); track report.externalId) {
+      @for (report of visible(); track report.externalId) {
         <a class="report-card" [routerLink]="['/admin/agents/baley', report.externalId]">
           <span [class]="'tag ' + risk(report).tone" [attr.title]="risk(report).label"
             ><span class="dot" aria-hidden="true"></span>{{ risk(report).tag }}</span
@@ -67,6 +113,17 @@ export class BaleyReports {
   private readonly api = inject(AgentsApi);
   private readonly destroy = inject(DestroyRef);
   readonly reports = signal<SecurityReport[]>([]);
+  readonly days = signal(30);
+  readonly visible = computed(() =>
+    this.reports().filter((report) => withinPeriod(report.completedAt, this.days())),
+  );
+  readonly metrics = computed(() => securityMetrics(this.visible()));
+  readonly series = computed(() =>
+    dailySeries(
+      this.visible().map((report) => report.completedAt),
+      this.days(),
+    ),
+  );
   readonly nextBeforeId = signal<number | null>(null);
   readonly loading = signal(false);
   readonly error = signal(false);

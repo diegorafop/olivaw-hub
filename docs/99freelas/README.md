@@ -13,6 +13,9 @@ Imagens com 1500 × 1002 pixels, proporcionais à recomendação de 250 × 167.
 Cada anúncio analisado recebe uma pasta pelo identificador. Objetivo: entender o problema, estimar investimento e preparar uma proposta de programação e uma abordagem para apresentar a Olivaw.
 
 - [794800 — Plataforma de cassino online](794800/README.md): deixada de lado pelo mantenedor; registro histórico preservado.
+- [Monitoramento industrial IoT — sem ID](sem-id-monitoramento-industrial-iot/README.md): discovery local; pergunta preparada, cadastro de Lead expressamente adiado.
+- [795669 — Club do Real](795669/README.md): discovery; PDF lido, alternativas MVP/completa e cadastro interno autorizado.
+- [795444 — Gestão de projetos e produção com IA](795444/README.md): discovery; diagnóstico contratável separadamente e evolução por etapas.
 - [795341 — Agendamento para clínica de estética](795341/README.md): discovery; ASP.NET Core/Angular, catálogo administrativo e infraestrutura AWS mensal.
 - [795331 — Automação do ChatGPT e gestão central de tarefas](795331/README.md): discovery; viabilidade condicionada à prova, análise e estimativa interna.
 - [795293 — Comentários e reações](795293/README.md): discovery; estimativa preliminar e mensagem para revisão.

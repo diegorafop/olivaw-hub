@@ -119,8 +119,11 @@ export class AdminLayout {
     const label = this.sectionTitles[section];
     if (!label) return items;
     items.push({ label, url: '/admin/' + section });
-    if (section === 'agents' && detail === 'baley') {
-      items.push({ label: 'Baley', url: '/admin/agents/baley' });
+    if (section === 'agents' && ['baley', 'trevize'].includes(detail)) {
+      items.push({
+        label: detail === 'baley' ? 'Baley' : 'Trevize',
+        url: '/admin/agents/' + detail,
+      });
       if (reportId) items.push({ label: 'Relatório', url: this.currentUrl() });
       return items;
     }

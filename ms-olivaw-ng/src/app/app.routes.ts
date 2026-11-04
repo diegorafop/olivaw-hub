@@ -153,6 +153,13 @@ export const routes: Routes = [
           import('./features/admin/agents/agents-page').then((m) => m.AgentsPage),
       },
       {
+        path: 'agents/trevize',
+        canMatch: [rootGuard],
+        title: 'Olivaw - Trevize',
+        loadComponent: () =>
+          import('./features/admin/agents/trevize-dashboard').then((m) => m.TrevizeDashboard),
+      },
+      {
         path: 'agents/baley',
         canMatch: [rootGuard],
         title: 'Olivaw - Baley',

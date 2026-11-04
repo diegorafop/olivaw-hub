@@ -217,3 +217,59 @@ test('autorização individual exige confirmação do procedimento', async ({ pa
   await page.getByRole('button', { name: 'Confirmar autorização', exact: true }).click();
   await expect(page.getByText('Autorizado', { exact: true })).toBeVisible();
 });
+
+test('Trevize abre dashboard própria com gráficos e links para as oportunidades', async ({
+  page,
+}) => {
+  await setup(page);
+  await page.route('https://api.olivaw.com.br/leads?**', (route) =>
+    route.fulfill({
+      json: {
+        page: 1,
+        pageSize: 20,
+        total: 1,
+        asOf: new Date().toISOString(),
+        items: [
+          {
+            externalId: reportId,
+            createdAt: new Date().toISOString(),
+            updatedAt: null,
+            business: 'Eventos Aurora',
+            title: 'Presença digital',
+            entry: 'prospecting',
+            email: '',
+            whatsapp: '',
+            followUpStatus: 'conversation',
+          },
+        ],
+      },
+    }),
+  );
+  await page.goto('/admin/agents');
+  await page.getByRole('link', { name: /PROSPECÇÃO Trevize/ }).click();
+  await expect(page).toHaveURL(/admin\/agents\/trevize$/);
+  await expect(page.getByRole('heading', { name: 'Ritmo de captação' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Destino das oportunidades' })).toBeVisible();
+  await expect(page.getByText('Com avanço comercial', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Eventos Aurora/ })).toHaveAttribute(
+    'href',
+    `/admin/leads/${reportId}/details`,
+  );
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Caminho de navegação' })
+      .getByRole('link', { name: 'Agents', exact: true }),
+  ).toBeVisible();
+  await page.getByLabel('Período de entrada').selectOption('7');
+  await expect(page.getByRole('link', { name: /Eventos Aurora/ })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+});
+
+test('Trevize mantém dashboard restrita a root', async ({ page }) => {
+  await setup(page, false);
+  await page.goto('/admin/agents/trevize');
+  await expect(page).toHaveURL(/acesso-negado/);
+});

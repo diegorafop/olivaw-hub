@@ -1,5 +1,6 @@
 # Documentação do Olivaw
 
+- [Trevize — Gmail API e conversa inicial](features/discovery/trevize-enriquecimento-email-e-abordagem-gmail.md): enriquecimento, leitura e resposta por Gmail API escolhida; validação prevista para 04/11/2026, sem implementação ou envio.
 - [Segurança JWT — Portal e DevOps](features/discovery/seguranca-jwt-portal-e-devops.md): isolamento de roles, audiences e autorização cruzada; requisito em discovery, ainda não implementado.
 - [Estudo dos painéis Olivaw](features/discovery/portal-olivaw-identidade-e-navegacao.md): público, nome, endereços e distinção entre operação interna e portal do cliente; sem alteração de código.
 

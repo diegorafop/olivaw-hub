@@ -1,0 +1,161 @@
+{
+  "status": "draft",
+  "platform": "ASP.NET Core + Angular e PostgreSQL sobre padrões Olivaw. Stack alternativa às preferências React/Next/Node/Supabase do briefing, sujeita à aprovação. Código, repositório e contas de infraestrutura do contratante.",
+  "technicalApproach": "Aplicação independente, identidade e banco próprios, painel administrativo para conteúdo e usuários. Cálculos determinísticos com fórmulas validadas pelo cliente; detector por regras e dados declarados, sem IA ou integração bancária presumidas. Kiwify por webhooks validados, processamento idempotente e reconciliação de acesso. Entregas por marcos testados; repositório e infraestrutura nas contas do cliente desde o início.",
+  "assumptions": "Um produto, idioma pt-BR e moeda BRL; dados financeiros informados manualmente. Fórmulas, textos, 30 oportunidades, tarefas do desafio e identidade visual fornecidos/aprovados pelo cliente. Sem Open Finance, extratos bancários, app nativo, consultoria financeira individual, vídeos, comunidade, afiliados próprios ou IA. Um modelo comercial inicial na Kiwify; ativação de planos/assinaturas futuros é evolução. Gestão de ferramentas significa parâmetros e conteúdo acordados, não criar fórmulas/código arbitrários pelo painel.",
+  "externalCosts": "Custos recorrentes pagos em contas do contratante. Envelope interno de planejamento AWS: R$ 200–600/mês para piloto pequeno, não cotação, sujeito a arquitetura, região, usuários, tráfego, disponibilidade e armazenamento. Administração Olivaw opcional: hipótese de 2 h/mês a R$ 100/h = R$ 200/mês, sem plantão; total indicativo R$ 400–800/mês se contratada, a revisar. Domínio, e-mail transacional, taxas Kiwify e outros serviços separados, a cotar. Nenhum Free Tier ou consumo ilimitado garantido.",
+  "terms": "Estimativa interna em BRL, R$ 100/h e reserva de 20%, ainda sem aprovação comercial. A: 160 h, R$ 19.200. B completa: 300 h, R$ 36.000, já incluindo A; evolução A→B: 140 h, R$ 16.800. Nunca somar A com B. Pagamentos por etapas vinculados à aprovação, com critérios, vencimentos e validade a acordar. Garantia proposta de 90 dias após entrega final para correção de erros de desenvolvimento no escopo aprovado, sem mensalidade obrigatória; mudanças e falhas de terceiros tratadas separadamente.",
+  "continuity": "Avulso: entrega operacional nas contas do contratante com código, instruções e garantia de 90 dias para defeitos acordados. Continuidade Olivaw opcional para administração AWS, banco, backups e atualizações com limites definidos, mantendo propriedade e acesso do cliente. Mensalidade e hipótese de horas precisam de dimensionamento; suporte evolutivo, SLA, permanência e cancelamento a negociar. Sem desconto ou financiamento automático e sem dependência obrigatória de hospedagem Olivaw.",
+  "reservePercent": 20,
+  "discountPercent": 0,
+  "installments": 1,
+  "title": "Club do Real — Proposta B: plataforma completa (inclui MVP)",
+  "requirementsAnalysis": "Todos os módulos do PDF: cinco calculadoras, detector ampliado, guia, catálogo de 30 oportunidades, desafios gerenciáveis, metas/evolução, administração e indicadores, além do acesso Kiwify.",
+  "deadline": "120–140 dias corridos, já incluindo MVP; evolução após A: 55–65 dias, conforme aceites e regras fechadas. Capacidade 22–27 h/semana.",
+  "rows": [
+    {
+      "description": "A1. Levantamento, fórmulas e recorte do MVP",
+      "role": "Analista / arquiteto",
+      "solution": "analysis",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A2. UX e interface Angular responsiva",
+      "role": "Designer / frontend",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A3. Identidade, recuperação de acesso e perfis",
+      "role": "Programador backend",
+      "solution": "integration",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A4. Renda, despesas, diagnóstico e histórico básico",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 24,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A5. Calculadora de economia mensal/anual",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A6. Detector inicial por regras e comparação com economia declarada",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A7. Guia editável e administração básica",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A8. Desafio inicial de 30 dias e progresso",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A9. Kiwify: compra, revogação e acesso de um produto",
+      "role": "Programador de integrações",
+      "solution": "integration",
+      "hours": 20,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "A10. Testes, AWS inicial, documentação e orientação",
+      "role": "QA / DevOps",
+      "solution": "validation",
+      "hours": 20,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B1. Quatro calculadoras adicionais",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 24,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B2. Detector ampliado e cenários de economia",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B3. Catálogo editável de 30 oportunidades de renda",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B4. Metas e painel de evolução completo",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B5. Administração ampliada de desafios, usuários e conteúdos",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 20,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B6. Indicadores de utilização da plataforma",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B7. Regressão, segurança, desempenho e homologação completa",
+      "role": "QA / programador",
+      "solution": "validation",
+      "hours": 24,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "B8. Entrega técnica, documentação e operação independente",
+      "role": "DevOps / analista",
+      "solution": "validation",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    }
+  ]
+}
