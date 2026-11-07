@@ -61,7 +61,7 @@ class GmailStore:
       if config_path.exists() and private_json(config_path)["sender"] != sender:
         raise ValueError("Outra conta já configurada; use outro diretório privado de piloto.")
       atomic_json(self.root / "client.json", {"installed": installed})
-      atomic_json(config_path, {"version":1,"sender":sender,"testRecipients":recipients,"dailyLimit":5})
+      atomic_json(config_path, {"version":1,"sender":sender,"testRecipients":recipients,"dailyLimit":5,"sendingEnabled":False})
     return self.status()
 
   def config(self):
@@ -71,6 +71,7 @@ class GmailStore:
       raise ValueError("Configuração do piloto Gmail inválida.")
     for item in config["testRecipients"]:
       address(item)
+    if type(config.get("sendingEnabled", False)) is not bool: raise ValueError("Chave de envio inválida.")
     return config
 
   def status(self):
@@ -79,6 +80,7 @@ class GmailStore:
     config = self.config()
     return {"status":"configured","configured":True,"authorized":(self.root / "token.json").is_file(),
       "sender":config["sender"],"testRecipients":config["testRecipients"],"dailyLimit":5,"autoSend":False,
+      "sendingEnabled":config.get("sendingEnabled",False),
       "message":"Token presente não comprova autorização válida; use profile para verificar."}
 
   def intent_path(self, identity):
@@ -90,7 +92,30 @@ class GmailStore:
     return private_json(self.intent_path(identity))
 
   def save(self, intent):
+    if len(json.dumps(intent).encode()) > 131072:
+      raise ValueError("Intenção excede o limite do estado privado.")
     atomic_json(self.intent_path(intent["id"]), intent)
+
+  def approve(self, lead_id, recipient):
+    from uuid import UUID
+    lead_id, recipient = str(UUID(lead_id)), address(recipient)
+    with self.lock():
+      path = self.root / "approvals.json"
+      approvals = private_json(path) if path.exists() else {}
+      if any(identity != lead_id and email == recipient for identity,email in approvals.items()):
+        raise ValueError("Destinatário já aprovado para outro lead; revisar duplicidade.")
+      if lead_id not in approvals and len(approvals) >= 5:
+        raise ValueError("Piloto comercial limitado a cinco leads aprovados.")
+      if lead_id in approvals and approvals[lead_id] != recipient:
+        raise ValueError("Lead já aprovado para outro destinatário; revisar manualmente.")
+      approvals[lead_id] = recipient
+      atomic_json(path, approvals)
+
+  def allowed(self, recipient, lead_id=None):
+    config = self.config()
+    if recipient in config["testRecipients"]: return True
+    path = self.root / "approvals.json"
+    return bool(lead_id and path.exists() and private_json(path).get(lead_id) == recipient)
 
   def intents(self):
     files = sorted(self.root.glob("[0-9a-f]" * 64 + ".json"))

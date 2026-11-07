@@ -14,7 +14,11 @@ def main(argv=None):
   if arguments and arguments[0] == "gmail":
     from ms_trevize.features.gmail.cli import main as gmail_main
     return gmail_main(arguments[1:])
-  parser=argparse.ArgumentParser(description="Trevize — prospecção e qualificação de Leads")
+  if arguments and arguments[0] == "leads":
+    from ms_trevize.features.leads.cli import main as leads_main
+    return leads_main(arguments[1:])
+  parser=argparse.ArgumentParser(description="Trevize — prospecção e qualificação de Leads",
+    epilog="Integrações manuais: trevize gmail --help e trevize leads --help.")
   parser.add_argument("operation",choices=("start","stop","status","collect","audit","update"))
   parser.add_argument("--settings",type=Path,default=Path(__file__).resolve().parents[2]/"setting.json")
   args=parser.parse_args(argv)

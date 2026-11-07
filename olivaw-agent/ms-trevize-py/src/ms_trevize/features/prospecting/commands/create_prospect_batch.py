@@ -70,6 +70,7 @@ class CreateProspectBatchHandler:
       raise CollectionFailure("maps-collection") from error
     report["collected"] = len(candidates)
     calls = 0
+    previews = []
     for candidate in candidates:
       if time.monotonic() >= deadline - 100: break
       if runtime.stopping(): break
@@ -84,6 +85,10 @@ class CreateProspectBatchHandler:
           report["aiFailed"] += 1
           result = {"status":"failed"}
       qualification = qualification_for(candidate,evidence,settings,result)
+      if not settings["leadApi"]["enabled"]:
+        previews.append({"externalId":candidate.external_id,"business":candidate.name,
+          "website":candidate.website,"contacts":{key:qualification.get(key) for key in
+          ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus","contactCheckedAt")}})
       outcome = "preview"
       if settings["leadApi"]["enabled"]:
         try:
@@ -101,4 +106,5 @@ class CreateProspectBatchHandler:
     report["contactPerformed"]=False
     # Só metadados e IDs locais; a ficha detalhada fica na API.
     runtime.save(report)
+    if previews: report = {**report,"previewEvidence":previews}
     return report

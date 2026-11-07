@@ -117,6 +117,32 @@ class ProspectingTests(unittest.TestCase):
     self.assertNotIn('API indisponível',str(failure.exception))
     collector.collect.assert_not_called();ai.analyze.assert_not_called();api.publish.assert_not_called()
 
+  def test_preview_returns_contacts_without_crm_ai_or_raw_contacts_in_state(self):
+    self.runtime.settings['leadApi']['enabled'] = False
+    self.runtime.settings['ai']['enabled'] = False
+    candidate = parse_card(card(), [])
+    collector = Mock(); collector.collect.return_value = [candidate]
+    site = Mock(); site.analyze.return_value = {'status':'checked','publicEmails':[
+      {'email':'contact@example.test','sourceUrl':'https://example.test'}]}
+    api, ai = Mock(), Mock()
+    report = CreateProspectBatchHandler(BatchState(self.runtime),collector,site,ai,api).handle()
+    self.assertEqual('contact@example.test',report['previewEvidence'][0]['contacts']['publicEmails'][0]['email'])
+    api.preflight.assert_not_called(); api.publish.assert_not_called(); ai.analyze.assert_not_called()
+    self.assertNotIn('contact@example.test',(self.runtime.state/'last-cycle.json').read_text())
+    self.assertFalse((self.runtime.state/'seen.json').exists())
+
+  def test_preview_composition_never_rewrites_settings_or_enables_api_ai(self):
+    from ms_trevize.bootstrap import compose
+    original = self.path.read_text()
+    skill = Path(self.temp.name)/'skill.md'; skill.write_text('Somente revisão.')
+    self.runtime.settings['skill']['path'] = str(skill)
+    with patch('ms_trevize.bootstrap.LocalRuntime', return_value=self.runtime):
+      handler = compose(self.path, preview_limit=3)
+    self.assertFalse(handler.runtime.settings['leadApi']['enabled'])
+    self.assertFalse(handler.runtime.settings['ai']['enabled'])
+    self.assertEqual(3, handler.runtime.settings['search']['limit'])
+    self.assertEqual(original,self.path.read_text())
+
   def test_credentials_cannot_be_redirected_to_another_api_host(self):
     settings=json.loads(self.path.read_text());settings['leadApi']['baseUrl']='https://other.test'
     self.path.write_text(json.dumps(settings))

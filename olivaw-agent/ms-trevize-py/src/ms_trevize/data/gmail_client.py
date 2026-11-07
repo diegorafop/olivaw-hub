@@ -54,13 +54,15 @@ def authorize(store):
 
 
 class GoogleGmail:
-  def __init__(self, service):
+  def __init__(self, service, writes_enabled=False):
     self.users = service.users()
+    self.writes_enabled = writes_enabled
 
   @classmethod
   def connect(cls, store):
     from googleapiclient.discovery import build
-    return cls(build("gmail", "v1", credentials=credentials_for(store), cache_discovery=False))
+    return cls(build("gmail", "v1", credentials=credentials_for(store), cache_discovery=False),
+      writes_enabled=store.config().get("sendingEnabled",False))
 
   def execute(self, request, write=False):
     try:
@@ -82,6 +84,7 @@ class GoogleGmail:
     return self.execute(self.users.threads().get(userId="me", id=identifier(identity), format="full"))
 
   def send(self, payload):
+    if not self.writes_enabled: raise GmailError("Transporte de envio desabilitado.")
     return self.execute(self.users.messages().send(userId="me", body=payload), write=True)
 
   def find_sent(self, mime_id):

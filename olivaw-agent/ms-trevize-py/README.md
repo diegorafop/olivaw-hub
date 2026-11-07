@@ -23,6 +23,8 @@ O ambiente local foi preparado. Se o Python não incluir `ensurepip`, preparar o
 
 ## Configuração
 
+Para validar uma coleta pequena, enriquecer leads existentes, configurar OAuth e executar o piloto comercial com aprovação individual, consulte o [roteiro Gmail e CRM](GMAIL.md). Comandos `leads` e `gmail` são manuais e independentes do worker: preparar não envia; enviar exige confirmação separada. O worker continua sem contato comercial.
+
 O arquivo real é `setting.json`, com paths relativos a esta pasta:
 
 - `search`: região, localização da busca, segmento, limite, exclusões, candidatos e rolagens máximos. Região é recorte de busca, não comprovação de endereço de cada empresa.

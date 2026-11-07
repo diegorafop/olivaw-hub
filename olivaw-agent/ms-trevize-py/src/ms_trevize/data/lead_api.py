@@ -77,7 +77,7 @@ class LeadApi:
         "externalReference":candidate.key,"sourceUrl":candidate.source,"business":candidate.name,
         "title":("Presença digital — "+candidate.name)[:160],
         "requirements":"Candidato para revisão de presença digital. Atividade exibida: "+candidate.category+". Nenhum contato realizado.",
-        "email":next((item["email"] for item in qualification.get("publicEmails",[])),""),"whatsapp":""}
+        "email":qualification["publicEmails"][0]["email"] if len(qualification.get("publicEmails",[])) == 1 else "","whatsapp":""}
       try:self.request("/leads",payload)
       except ApiError as create_error:
         if create_error.status!=409:raise
@@ -93,4 +93,12 @@ class LeadApi:
     for field in ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus"):
       if field in qualification and saved.get(field) != qualification[field]:
         raise ValueError("Dados de contato não confirmados; verificar versão da API antes de repetir.")
+    if qualification.get("contactCheckedAt"):
+      snapshot = verified["snapshot"]
+      self.request("/leads/"+identity+"/contact-discovery",{
+        "revision":snapshot["revision"],"followUpRevision":verified.get("followUpRevision",0),
+        "researchCompleted":qualification.get("contactFormStatus") in ("found","not-detected"),
+        "contacts":{key:qualification[key] for key in ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus","contactCheckedAt")}}, "PUT")
+      if not self.request("/leads/"+identity).get("snapshot",{}).get("contactDiscovery"):
+        raise ValueError("Conclusão da pesquisa não confirmada.")
     return "delivered"

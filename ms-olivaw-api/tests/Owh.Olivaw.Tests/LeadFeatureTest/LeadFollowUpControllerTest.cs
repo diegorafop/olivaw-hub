@@ -97,6 +97,25 @@ public class LeadFollowUpControllerTest
         mediator.VerifyAll();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UpdateCommunication_should_forward_actor_token_and_translate_conflict(bool conflict)
+    {
+        using var cancellation = new CancellationTokenSource();
+        var actorId = Guid.NewGuid(); var id = Guid.NewGuid();
+        var context = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", actorId.ToString()), new Claim("name", "Operador")], "test")) };
+        var actor = new CurrentActor(new HttpContextAccessor { HttpContext = context });
+        var payload = new Client.Features.LeadFeature.Commands.UpdateLeadCommunicationCommand { Revision = 4 };
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(item => item.Send(It.Is<UpdateLeadCommunicationMediatorCommand>(request => request.ExternalId == id && request.Payload == payload && request.ActorUserId == actorId && request.ActorName == "Operador"), cancellation.Token))
+            .ReturnsAsync(new Client.Features.LeadFeature.Commands.UpdateLeadCommunicationResponse { Revision = 5, Conflict = conflict });
+        var controller = new LeadReadController(mediator.Object) { ControllerContext = new ControllerContext { HttpContext = context } };
+        var result = await controller.UpdateCommunication(id, payload, actor, cancellation.Token);
+        if (conflict) Assert.IsType<ConflictObjectResult>(result);
+        else Assert.Equal(5, Assert.IsType<Client.Features.LeadFeature.Commands.UpdateLeadCommunicationResponse>(Assert.IsType<OkObjectResult>(result).Value).Revision);
+        mediator.VerifyAll();
+    }
     [Fact]
     public async Task ReadHistory_should_forward_id_cursor_and_token()
     {

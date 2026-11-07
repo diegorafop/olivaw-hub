@@ -57,6 +57,10 @@ class GmailTests(unittest.TestCase):
       "auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token"}}))
     self.store = GmailStore(self.root/"gmail")
     self.store.configure("olivaw@example.test",["contact@example.test"],client)
+    # Somente o transporte FakeGmail dos testes pode enviar nesta fixture.
+    from ms_trevize.data.local_runtime import atomic_json
+    config = self.store.config(); config['sendingEnabled'] = True
+    atomic_json(self.store.root/'config.json', config)
     self.api = FakeGmail(); self.pilot = GmailPilot(self.store,self.api)
 
   def prepare(self, key="first", **options):
@@ -216,7 +220,7 @@ class GmailTests(unittest.TestCase):
   def test_google_adapter_does_not_retry_writes_or_expose_secrets(self):
     service=Mock();request=service.users.return_value.messages.return_value.send.return_value
     request.execute.side_effect=RuntimeError("PRIVATE token")
-    with self.assertRaises(GmailError) as error:GoogleGmail(service).send({"raw":"test"})
+    with self.assertRaises(GmailError) as error:GoogleGmail(service, writes_enabled=True).send({"raw":"test"})
     self.assertNotIn("PRIVATE",str(error.exception))
     request.execute.assert_called_once_with(num_retries=0)
 

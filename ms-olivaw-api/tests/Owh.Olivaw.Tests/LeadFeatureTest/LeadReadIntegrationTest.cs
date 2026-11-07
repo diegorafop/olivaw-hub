@@ -116,6 +116,10 @@ public class LeadReadIntegrationTest
             using var staleQualification = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/qualification", new { revision = 2, qualification = new { segment = "Desatualizado" } });
             Assert.Equal(HttpStatusCode.Conflict, staleQualification.StatusCode);
         }
+        using var communication = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/communications", new { revision = 3, followUpRevision = 0, @event = new { kind = "invalid" } });
+        var communicationExpected = expected;
+        if (expected == 200) communicationExpected = 400;
+        Assert.Equal((HttpStatusCode)communicationExpected, communication.StatusCode);
         using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = 0, status = "analysis", note = "Nota" });
         Assert.Equal((HttpStatusCode)expected, update.StatusCode);
         if (expected != 200)

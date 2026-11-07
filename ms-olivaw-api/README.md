@@ -481,6 +481,16 @@ Validação local: 446 testes da API passaram, incluindo compatibilidade entre m
 
 Validação local: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` a partir da raiz. [Roteiro de cadastro](../docs/99freelas/795293/cadastro-apos-publicacao.md).
 
+### Comunicação Gmail do Trevize
+
+`PUT /leads/{externalId}/communications` exige `leads.manage` e recebe `UpdateLeadCommunicationCommand`: `revision`, `followUpRevision` e `event`. O evento contém chave idempotente, intenção, hash do conteúdo aprovado, e-mail, assunto, trecho do corpo e IDs Gmail/thread. Tipos: `prepared`, `sending`, `sent`, `received`, `review-required` e `human-takeover`. IDs e textos têm limites no validator.
+
+O handler registra metadados em `snapshot.communications` e uma nota em `LeadChange`, com a mesma unidade de persistência. Eventos repetidos idênticos retornam `repeated=true`, mesmo com revisão antiga, sem criar outra nota. Repetir uma chave com outro conteúdo é inválido. Conflitos de revisão ou concorrência retornam 409. Um evento `sending` repetido nunca autoriza outro envio. Preparação inicial duplicada ou envio sem preparação anterior são bloqueados. Reservas exigem lead outbound em Novo contato/Em conversa, destinatário conhecido e ausência de bloqueio/assunção humana.
+
+Somente `sent`/`received` avançam Novo contato para Em conversa. Não regride outras etapas. Corpo limitado a trecho de 1.500 caracteres no histórico, sem anexos; metadados limitados a 40 eventos e ao snapshot total de 32 KB. A leitura administrativa inclui `communications`; a escrita pública exige esse campo nulo e preserva o valor já existente.
+
+Sem migration ou deploy nesta entrega. Contratos no cliente, com testes de autorização, controller, handler, idempotência, concorrência e preservação na jornada pública. O backend não acessa o Gmail: o agente faz transporte oficial e verifica as confirmações. Consulte o [roteiro de teste e OAuth](../olivaw-agent/ms-trevize-py/GMAIL.md) e a [feature](../docs/features/in-progress/trevize-gmail-acompanhamento.md).
+
 ### Qualificação e abordagem de Leads
 
 O contrato de qualificação também recebe `publicEmails` (até cinco pares `email`/`sourceUrl`), `contactPageUrl`, `contactFormUrl`, `contactFormStatus` (`not-checked`, `found`, `not-detected` ou `inconclusive`) e `contactCheckedAt` (data UTC da leitura). São evidências públicas no snapshot JSON existente, sem migration. O status `found` exige URL de formulário e toda verificação realizada exige data. Endereços e fontes são validados; a edição da ficha preserva os campos. Publicar este contrato antes de atualizar o coletor. A coleta não envia mensagens nem formulários. Ver [descoberta de contatos](../docs/features/in-progress/trevize-descoberta-contatos.md).
