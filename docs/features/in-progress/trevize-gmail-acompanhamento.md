@@ -34,3 +34,7 @@ Implementados campanhas locais aprovadas, agenda de consulta independente da col
 O painel Trevize combina indicadores de captação e de comunicação persistida, com limites de amostra explícitos. Estados de worker/falhas locais permanecem no status local e não são apresentados como disponibilidade remota. Esta ampliação exige alterações coordenadas em agente, API e interface; o tamanho é justificado pelo fluxo transacional de preparação, cancelamento, supressão e apresentação, validado em conjunto.
 
 Envio bloqueado no setting e no transporte Gmail. Nenhuma campanha real foi criada, ativada ou enviada. Sem OAuth real, IA paga, deploy, banco remoto ou migrations. O mantenedor realizará push e publicação após o Git Flow local.
+
+## Validação integrada da finalização local
+
+82 testes Python, 497 testes .NET, 14 testes unitários dos dashboards e 15 E2E de Agents/fichas passaram. O build Angular passou com os avisos de orçamento de CSS já existentes. A integração conserva os gráficos, filtros, paginação e documentos da issue030 e acrescenta os indicadores de comunicação da issue031. Sem envio real, ativação de campanha, push, deploy ou migrations.

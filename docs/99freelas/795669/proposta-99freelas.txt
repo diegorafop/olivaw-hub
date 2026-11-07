@@ -1,0 +1,21 @@
+Olá! Sou engenheiro e arquiteto de software, com 17 anos de experiência em sistemas, ERPs, workflows e liderança técnica, e represento a Olivaw. Li o PDF do Club do Real e preparei duas possibilidades.
+
+Propomos ASP.NET Core, Angular e PostgreSQL, utilizando padrões da Olivaw para acelerar a base e manter uma aplicação independente. Essa stack é uma alternativa às tecnologias citadas no briefing, sujeita ao seu aceite.
+
+Proposta A — MVP comercializável: estimativa de R$ 19.200 e 65 a 80 dias corridos.
+Inclui cadastro/login/recuperação de senha, diagnóstico com renda e despesas, histórico e painel básico, calculadora de economia mensal/anual, detector inicial por regras, Guia editável, um desafio de 30 dias com progresso, administração básica e integração Kiwify para venda de um produto e controle de acesso.
+
+Proposta B — Plataforma completa: estimativa de R$ 36.000 e 120 a 140 dias corridos, já incluindo o MVP.
+Acrescenta as outras quatro calculadoras do PDF, detector ampliado, catálogo editável de 30 oportunidades de renda, metas e painel de evolução completo, administração ampliada de desafios e indicadores de utilização. Se começar pelo MVP, o complemento estimado é R$ 16.800, sem cobrar novamente a primeira versão.
+
+As entregas serão divididas em: regras e telas; base e diagnóstico; ferramentas e conteúdos; Kiwify; testes, homologação e entrega. O orçamento detalhado discrimina as funcionalidades, com pagamentos vinculados à aprovação de cada etapa.
+
+O painel permitirá gerenciar usuários, conteúdos, oportunidades e desafios conforme a opção contratada. Fórmulas e conteúdos financeiros precisam ser fornecidos ou aprovados por você. O detector usará dados informados pelos usuários; integração bancária e IA não estão presumidas no escopo.
+
+A integração contemplará confirmação de compra e regras de bloqueio/ajuste de acesso por eventos Kiwify, com prevenção de processamento duplicado.
+
+O código-fonte, repositório, domínio, infraestrutura e banco ficarão sob seu controle, com documentação, instruções de administração e identificação das dependências e licenças. Prevemos garantia de 90 dias após a entrega final para erros de desenvolvimento do escopo aprovado, conforme contrato.
+
+Hospedagem e serviços serão pagos nas suas contas. A administração da AWS pela Olivaw é opcional, por mensalidade separada. Custos recorrentes serão dimensionados antes da contratação.
+
+Podemos apresentar os projetos Olivaw Hub, LTMJ e Cavalcante e conversar pelo 99Freelas para ajustar o MVP, esclarecer dúvidas e confirmar regras, orçamento e cronograma.

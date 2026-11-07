@@ -28,6 +28,10 @@ test('painel Trevize mostra métricas do CRM sem iniciar comunicação', async (
           counts: { collected: 40, enriched: 12, noEmail: 8, pending: 2, sent: 0, suppressed: 1 },
         },
       });
+    if (path === '/leads')
+      return route.fulfill({
+        json: { items: [], total: 0, page: 1, pageSize: 20, asOf: new Date().toISOString() },
+      });
     return route.fulfill({ json: {} });
   });
   await page.goto('/login');
