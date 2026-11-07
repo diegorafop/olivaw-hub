@@ -20,6 +20,12 @@ def load_settings(path):
     raise ValueError("Configuração excede limite.")
   data = json.loads(path.read_text(), object_pairs_hook=unique_keys,
                     parse_constant=lambda _: (_ for _ in ()).throw(ValueError("Número inválido.")))
+  outreach = data.setdefault("outreach", {"enabled":False,"sendingEnabled":False,"pollSeconds":120,
+    "maxTurns":2,"windowHours":72,"maxPerCycle":3,"aiEnabled":False})
+  for key in ("enabled","sendingEnabled","aiEnabled"):
+    if type(outreach.get(key)) is not bool: raise ValueError("Habilitação de atendimento inválida.")
+  for key, low, high in (("pollSeconds",30,3600),("maxTurns",1,3),("windowHours",1,168),("maxPerCycle",1,5)):
+    if type(outreach.get(key)) is not int or not low <= outreach[key] <= high: raise ValueError("Limite de atendimento inválido.")
   if type(data.get("settingsVersion")) is not int or data.get("settingsVersion") != 1 or data.get("agent") != {"id": "trevize", "module": "ms_trevize"}:
     raise ValueError("Identidade ou versão inválida.")
   if data.get("lifecycle", {}).get("autoStart") is not False:

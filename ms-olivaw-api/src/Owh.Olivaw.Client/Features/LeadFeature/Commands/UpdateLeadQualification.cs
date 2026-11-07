@@ -13,6 +13,10 @@ public sealed class LeadQualification
     public string WebsiteUrl { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Whatsapp { get; set; } = string.Empty;
+    public LeadPublicEmail[] PublicEmails { get; set; } = [];
+    public string ContactPageUrl { get; set; } = string.Empty;
+    public string ContactFormStatus { get; set; } = "not-checked";
+    public DateTimeOffset? ContactCheckedAt { get; set; }
     public string ContactFormUrl { get; set; } = string.Empty;
     public string SourceUrl { get; set; } = string.Empty;
     public string Presence { get; set; } = "unknown";
@@ -26,6 +30,11 @@ public sealed class LeadQualification
     public string Questions { get; set; } = string.Empty;
     public string Approach { get; set; } = string.Empty;
     public string ApproachStatus { get; set; } = "draft";
+}
+public sealed class LeadPublicEmail
+{
+    public string Email { get; set; } = string.Empty;
+    public string SourceUrl { get; set; } = string.Empty;
 }
 public sealed class UpdateLeadQualificationResponse
 {

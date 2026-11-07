@@ -38,6 +38,8 @@ public sealed class UpdateLeadHandler(IRepository<Lead> repository) : IRequestHa
         if (lead != null)
         {
             var previous = JsonSerializer.Deserialize<UpdateLeadCommand>(lead.Snapshot, JsonOptions);
+            request.Payload.ContactDiscovery = previous?.ContactDiscovery;
+            request.Payload.Communications = previous?.Communications;
             request.Payload.Acquisition = previous?.Acquisition;
             request.Payload.Proposal = previous?.Proposal;
             request.Payload.Qualification = previous?.Qualification;
@@ -103,6 +105,8 @@ public sealed class UpdateLeadValidator : AbstractValidator<UpdateLeadCommand>
 
     public UpdateLeadValidator()
     {
+        RuleFor(item => item.ContactDiscovery).Null();
+        RuleFor(item => item.Communications).Null();
         RuleFor(item => item.Acquisition).Null();
         RuleFor(item => item.Proposal).Null();
         RuleFor(item => item.Qualification).Null();

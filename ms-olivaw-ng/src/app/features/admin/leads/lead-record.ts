@@ -106,6 +106,7 @@ export class LeadRecord {
   private qualification() {
     const value = this.form.getRawValue();
     return {
+      ...this.lead()?.snapshot?.qualification,
       ...value,
       schemaVersion: 1,
       tags: value.tags

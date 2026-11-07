@@ -26,6 +26,7 @@ public class UpdateLeadTest
         var node = System.Text.Json.Nodes.JsonNode.Parse(previous)!;
         node["qualification"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadQualification { Facts = "Fato interno" });
         node["qualificationUpdatedBy"] = "Operador";
+        node["communications"] = System.Text.Json.Nodes.JsonNode.Parse("[{\"eventId\":\"preservado\"}]");
         node["proposal"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadProposal { Title = "Proposta interna" }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         var lead = Lead.Create(request.ExternalId, hash, 1, node.ToJsonString(), DateTime.UtcNow);
         var repository = new Mock<IRepository<Lead>>();
@@ -38,6 +39,7 @@ public class UpdateLeadTest
         Assert.Equal("Novo pedido público", saved.RootElement.GetProperty("requirements").GetString());
         Assert.Equal("Fato interno", saved.RootElement.GetProperty("qualification").GetProperty("facts").GetString());
         Assert.Equal("Operador", saved.RootElement.GetProperty("qualificationUpdatedBy").GetString());
+        Assert.Equal("preservado", saved.RootElement.GetProperty("communications")[0].GetProperty("eventId").GetString());
     }
 
     [Fact]
@@ -173,10 +175,12 @@ public class UpdateLeadTest
         request.Payload.Qualification = new() { Approach = "Texto interno" };
         request.Payload.QualificationUpdatedAt = DateTime.UtcNow;
         request.Payload.QualificationUpdatedBy = "Autor forjado";
+        request.Payload.Communications = System.Text.Json.JsonSerializer.SerializeToElement(new[] { new { kind = "sent" } });
         var result = new UpdateLeadValidator().TestValidate(request.Payload);
         result.ShouldHaveValidationErrorFor(item => item.Qualification);
         result.ShouldHaveValidationErrorFor(item => item.QualificationUpdatedAt);
         result.ShouldHaveValidationErrorFor(item => item.QualificationUpdatedBy);
+        result.ShouldHaveValidationErrorFor(item => item.Communications);
     }
 
     [Fact]

@@ -9,6 +9,9 @@ description = "Trevize: prospecção local e qualificação de Leads por API"
 requires-python = ">=3.10"
 dependencies = ["playwright==1.64.1"]
 
+[project.optional-dependencies]
+gmail = ["google-auth-oauthlib==1.5.0", "google-api-python-client==2.201.0"]
+
 [project.scripts]
 trevize = "ms_trevize.cli:main"
 

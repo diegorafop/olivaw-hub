@@ -481,7 +481,25 @@ Validação local: 446 testes da API passaram, incluindo compatibilidade entre m
 
 Validação local: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` a partir da raiz. [Roteiro de cadastro](../docs/99freelas/795293/cadastro-apos-publicacao.md).
 
+### Comunicação Gmail do Trevize
+
+`PUT /leads/{externalId}/communications` exige `leads.manage` e recebe `UpdateLeadCommunicationCommand`: `revision`, `followUpRevision` e `event`. O evento contém chave idempotente, intenção, hash do conteúdo aprovado, e-mail, assunto, trecho do corpo e IDs Gmail/thread. Tipos: `prepared`, `sending`, `sent`, `received`, `review-required` e `human-takeover`. IDs e textos têm limites no validator.
+
+O handler registra metadados em `snapshot.communications` e uma nota em `LeadChange`, com a mesma unidade de persistência. Eventos repetidos idênticos retornam `repeated=true`, mesmo com revisão antiga, sem criar outra nota. Repetir uma chave com outro conteúdo é inválido. Conflitos de revisão ou concorrência retornam 409. Um evento `sending` repetido nunca autoriza outro envio. Preparação inicial duplicada ou envio sem preparação anterior são bloqueados. Reservas exigem lead outbound em Novo contato/Em conversa, destinatário conhecido e ausência de bloqueio/assunção humana.
+
+Somente `sent`/`received` avançam Novo contato para Em conversa. Não regride outras etapas. Corpo limitado a trecho de 1.500 caracteres no histórico, sem anexos; metadados limitados a 40 eventos e ao snapshot total de 32 KB. A leitura administrativa inclui `communications`; a escrita pública exige esse campo nulo e preserva o valor já existente.
+
+Sem migration ou deploy nesta entrega. Contratos no cliente, com testes de autorização, controller, handler, idempotência, concorrência e preservação na jornada pública. O backend não acessa o Gmail: o agente faz transporte oficial e verifica as confirmações. Consulte o [roteiro de teste e OAuth](../olivaw-agent/ms-trevize-py/GMAIL.md) e a [feature](../docs/features/in-progress/trevize-gmail-acompanhamento.md).
+
 ### Qualificação e abordagem de Leads
+
+O contrato de qualificação também recebe `publicEmails` (até cinco pares `email`/`sourceUrl`), `contactPageUrl`, `contactFormUrl`, `contactFormStatus` (`not-checked`, `found`, `not-detected` ou `inconclusive`) e `contactCheckedAt` (data UTC da leitura). São evidências públicas no snapshot JSON existente, sem migration. O status `found` exige URL de formulário e toda verificação realizada exige data. Endereços e fontes são validados; a edição da ficha preserva os campos. Publicar este contrato antes de atualizar o coletor. A coleta não envia mensagens nem formulários. Ver [descoberta de contatos](../docs/features/in-progress/trevize-descoberta-contatos.md).
+
+Validação local desta ampliação:
+
+```bash
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore --filter FullyQualifiedName~UpdateLeadQualificationTest
+```
 
 `PUT /leads/{externalId}/qualification` exige a política `leads.manage` (root ou permissão administrativa) e recebe `{ "revision": 1, "qualification": { "schemaVersion": 1, "segment": "Eventos", "region": "Curitiba", "approachStatus": "draft" } }`. Demais campos opcionais possuem defaults vazios. Guarda perfil, fontes, presença digital, telefone/WhatsApp confirmado, tags, fatos, positivos, observações, perguntas e abordagem. Estados do texto: `draft` ou `reviewed`; não representa envio.
 
@@ -490,3 +508,11 @@ Atualiza somente o bloco interno do snapshot, preservando jornada, proposta e ca
 Sem mudança de schema ou migration. Contratos no projeto cliente em `Features/LeadFeature/Commands/UpdateLeadQualification.cs`. Validar por `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` e `dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client/Owh.Olivaw.Client.csproj -c Release -m:1 --no-restore`. Backend precisa ser publicado antes de iniciar o Trevize; não foi feito deploy nesta entrega.
 
 A lista administrativa projeta `phone`, `websiteUrl` e `segment` do bloco de qualificação; a busca inclui esses campos. WhatsApp original tem precedência, com fallback para o número confirmado da qualificação. As projeções existentes de PostgreSQL/SQL Server foram mantidas, sem adicionar colunas persistidas.
+
+### Descoberta de contatos e ciclo de atendimento — issue031
+
+`PUT /leads/{id}/contact-discovery` exige `leads.manage`, revisão do snapshot e de acompanhamento. Recebe `contacts` com os campos públicos e `researchCompleted`. Mescla somente canais, preservando campos humanos e desconhecidos da qualificação. Promove e-mail principal vazio somente se inequívoco. Pesquisa concluída sem e-mail gera uma única nota `sem email`, avançando apenas Novo contato para Em conversa. Inconclusivo não gera essa nota. `contactDiscovery` é metadado de leitura administrativa e é preservado/rejeitado na escrita pública, como `communications`.
+
+Comunicação aceita também `cancelled`, `suppressed`, `handoff` e `reply-draft`. Cancelamento exige preparação sem reserva/tentativa; permite versão nova sem reaproveitar a intenção cancelada. Supressão, encaminhamento e intervenção humana bloqueiam reservas futuras. `questionId` identifica pergunta do roteiro fixo. `GET /leads/communication-summary` agrega as últimas 500 fichas com `inspected`, `truncated`, data e contagens, sem alegar total global ou estado local do worker. O frontend apresenta esses limites.
+
+Tudo usa snapshot/histórico existentes, sem migrations. Envios continuam desabilitados no agente e no transporte. Validação: suíte .NET local, testes Python simulados e E2E da interface; ver [GMAIL.md](../olivaw-agent/ms-trevize-py/GMAIL.md).

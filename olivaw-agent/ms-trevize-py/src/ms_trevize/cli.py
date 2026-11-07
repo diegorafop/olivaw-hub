@@ -10,7 +10,18 @@ from ms_trevize.features.lifecycle.queries.read_status import ReadStatusHandler
 
 
 def main(argv=None):
-  parser=argparse.ArgumentParser(description="Trevize — prospecção e qualificação de Leads")
+  arguments = list(sys.argv[1:] if argv is None else argv)
+  if arguments and arguments[0] == "gmail":
+    from ms_trevize.features.gmail.cli import main as gmail_main
+    return gmail_main(arguments[1:])
+  if arguments and arguments[0] == "leads":
+    from ms_trevize.features.leads.cli import main as leads_main
+    return leads_main(arguments[1:])
+  if arguments and arguments[0] == "campaign":
+    from ms_trevize.features.leads.campaign_cli import main as campaign_main
+    return campaign_main(arguments[1:])
+  parser=argparse.ArgumentParser(description="Trevize — prospecção e qualificação de Leads",
+    epilog="Integrações manuais: trevize gmail --help e trevize leads --help.")
   parser.add_argument("operation",choices=("start","stop","status","collect","audit","update"))
   parser.add_argument("--settings",type=Path,default=Path(__file__).resolve().parents[2]/"setting.json")
   args=parser.parse_args(argv)

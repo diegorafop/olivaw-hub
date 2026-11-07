@@ -28,7 +28,11 @@ def qualification_for(candidate, evidence, settings, ai):
   source = "Fonte: " + candidate.source + ". Verificado em " + datetime.now(timezone.utc).isoformat()
   return {"schemaVersion":1,"segment":candidate.category or settings["search"]["segment"],"region":settings["search"]["region"],
     "websiteUrl":candidate.website,"phone":candidate.phone,"whatsapp":evidence.get("whatsapp","") if checked else "",
-    "contactFormUrl":web_url(evidence.get("url","")) if evidence.get("hasForm") else "",
+    "publicEmails":evidence.get("publicEmails",[]) if checked else [],
+    "contactPageUrl":web_url(evidence.get("contactPage","")),
+    "contactFormUrl":web_url(evidence.get("contactFormUrl","")),
+    "contactFormStatus":evidence.get("contactFormStatus","not-checked"),
+    "contactCheckedAt":evidence.get("contactCheckedAt"),
     "sourceUrl":candidate.source,"presence":presence,"priority":"unassessed","confidence":"pending",
     "tags":["eventos","prospecção","revisão pendente"],"portfolioReference":"LTMJ — avaliar pertinência",
     "facts":(facts+" "+source)[:1500],"positives":positives[:1500],
@@ -66,6 +70,7 @@ class CreateProspectBatchHandler:
       raise CollectionFailure("maps-collection") from error
     report["collected"] = len(candidates)
     calls = 0
+    previews = []
     for candidate in candidates:
       if time.monotonic() >= deadline - 100: break
       if runtime.stopping(): break
@@ -80,6 +85,10 @@ class CreateProspectBatchHandler:
           report["aiFailed"] += 1
           result = {"status":"failed"}
       qualification = qualification_for(candidate,evidence,settings,result)
+      if not settings["leadApi"]["enabled"]:
+        previews.append({"externalId":candidate.external_id,"business":candidate.name,
+          "website":candidate.website,"contacts":{key:qualification.get(key) for key in
+          ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus","contactCheckedAt")}})
       outcome = "preview"
       if settings["leadApi"]["enabled"]:
         try:
@@ -97,4 +106,5 @@ class CreateProspectBatchHandler:
     report["contactPerformed"]=False
     # Só metadados e IDs locais; a ficha detalhada fica na API.
     runtime.save(report)
+    if previews: report = {**report,"previewEvidence":previews}
     return report

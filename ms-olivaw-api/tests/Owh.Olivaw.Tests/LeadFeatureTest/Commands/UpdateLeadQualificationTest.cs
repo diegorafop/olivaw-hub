@@ -89,6 +89,45 @@ public class UpdateLeadQualificationTest
         Assert.Equal(1, lead.Revision);
         repository.Verify(item => item.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
+    [Fact]
+    public async Task Handle_should_store_public_email_sources_and_contact_form_evidence()
+    {
+        var request = Request();
+        request.Payload.Qualification.PublicEmails = [new() { Email = "contato@example.test", SourceUrl = "https://example.test/contato" }];
+        request.Payload.Qualification.ContactPageUrl = "https://example.test/contato";
+        request.Payload.Qualification.ContactFormUrl = "https://example.test/contato";
+        request.Payload.Qualification.ContactFormStatus = "found";
+        request.Payload.Qualification.ContactCheckedAt = DateTimeOffset.UtcNow;
+        new UpdateLeadQualificationValidator().TestValidate(request.Payload).ShouldNotHaveAnyValidationErrors();
+        var lead = Lead.Create(request.ExternalId, new string('a', 64), 1, "{\"revision\":1}", DateTime.UtcNow);
+        await new UpdateLeadQualificationHandler(Repository(lead, CancellationToken.None).Object).Handle(request, CancellationToken.None);
+        using var data = JsonDocument.Parse(lead.Snapshot);
+        var qualification = data.RootElement.GetProperty("qualification");
+        Assert.Equal("contato@example.test", qualification.GetProperty("publicEmails")[0].GetProperty("email").GetString());
+        Assert.Equal("https://example.test/contato", qualification.GetProperty("publicEmails")[0].GetProperty("sourceUrl").GetString());
+        Assert.Equal("found", qualification.GetProperty("contactFormStatus").GetString());
+        Assert.Equal("https://example.test/contato", qualification.GetProperty("contactFormUrl").GetString());
+        Assert.Equal(request.Payload.Qualification.ContactCheckedAt, qualification.GetProperty("contactCheckedAt").GetDateTimeOffset());
+    }
+    [Fact]
+    public void Validator_should_reject_invalid_contact_evidence()
+    {
+        var request = Request().Payload;
+        request.Qualification.PublicEmails = [new() { Email = "invalid", SourceUrl = "javascript:alert(1)" }];
+        request.Qualification.ContactPageUrl = "file:///tmp/file";
+        request.Qualification.ContactFormStatus = "found";
+        var result = new UpdateLeadQualificationValidator().TestValidate(request);
+        result.ShouldHaveValidationErrorFor("Qualification.PublicEmails[0].Email");
+        result.ShouldHaveValidationErrorFor("Qualification.PublicEmails[0].SourceUrl");
+        result.ShouldHaveValidationErrorFor(item => item.Qualification.ContactPageUrl);
+        result.ShouldHaveValidationErrorFor(item => item.Qualification.ContactFormUrl);
+        result.ShouldHaveValidationErrorFor(item => item.Qualification.ContactCheckedAt);
+        request.Qualification.PublicEmails = Enumerable.Range(0, 6).Select(index => new LeadPublicEmail { Email = $"e{index}@example.test", SourceUrl = "https://example.test" }).ToArray();
+        request.Qualification.ContactFormStatus = "absent";
+        result = new UpdateLeadQualificationValidator().TestValidate(request);
+        result.ShouldHaveValidationErrorFor(item => item.Qualification.PublicEmails);
+        result.ShouldHaveValidationErrorFor(item => item.Qualification.ContactFormStatus);
+    }
     [Theory]
     [InlineData("javascript:alert(1)")]
     [InlineData("https://user:pass@example.test")]

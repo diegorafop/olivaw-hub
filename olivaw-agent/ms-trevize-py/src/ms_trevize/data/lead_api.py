@@ -76,7 +76,8 @@ class LeadApi:
       payload={"externalId":identity,"initiative":"outbound","origin":"Google Maps",
         "externalReference":candidate.key,"sourceUrl":candidate.source,"business":candidate.name,
         "title":("Presença digital — "+candidate.name)[:160],
-        "requirements":"Candidato para revisão de presença digital. Atividade exibida: "+candidate.category+". Nenhum contato realizado.","email":"","whatsapp":""}
+        "requirements":"Candidato para revisão de presença digital. Atividade exibida: "+candidate.category+". Nenhum contato realizado.",
+        "email":qualification["publicEmails"][0]["email"] if len(qualification.get("publicEmails",[])) == 1 else "","whatsapp":""}
       try:self.request("/leads",payload)
       except ApiError as create_error:
         if create_error.status!=409:raise
@@ -84,7 +85,20 @@ class LeadApi:
     snapshot=current.get("snapshot")
     if not isinstance(snapshot,dict):raise ValueError("Lead sem conteúdo legível.")
     if snapshot.get("qualification") is not None:return "already-registered"
-    self.request("/leads/"+identity+"/qualification",{"revision":snapshot["revision"],"qualification":qualification},"PUT")
+    updated=self.request("/leads/"+identity+"/qualification",{"revision":snapshot["revision"],"qualification":qualification},"PUT")
+    if updated.get("conflict"): raise ValueError("Lead alterado durante a qualificação; revisar antes de repetir.")
     verified=self.request("/leads/"+identity)
-    if not verified.get("snapshot",{}).get("qualification"):raise ValueError("Qualificação não confirmada.")
+    saved=verified.get("snapshot",{}).get("qualification")
+    if not saved:raise ValueError("Qualificação não confirmada.")
+    for field in ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus"):
+      if field in qualification and saved.get(field) != qualification[field]:
+        raise ValueError("Dados de contato não confirmados; verificar versão da API antes de repetir.")
+    if qualification.get("contactCheckedAt"):
+      snapshot = verified["snapshot"]
+      self.request("/leads/"+identity+"/contact-discovery",{
+        "revision":snapshot["revision"],"followUpRevision":verified.get("followUpRevision",0),
+        "researchCompleted":qualification.get("contactFormStatus") in ("found","not-detected"),
+        "contacts":{key:qualification[key] for key in ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus","contactCheckedAt")}}, "PUT")
+      if not self.request("/leads/"+identity).get("snapshot",{}).get("contactDiscovery"):
+        raise ValueError("Conclusão da pesquisa não confirmada.")
     return "delivered"
