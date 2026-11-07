@@ -142,6 +142,17 @@ Cada serviço deve ter `docker/.env.<ambiente>`, `docker/docker-compose.yml` e `
 
 Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. Ele lê `deployment/olivaw-credentials.env` na pasta do serviço; deploys administrativos usam a conta root guardada nas respectivas pastas. A lista de repositórios independentes fica em `scripts/deployment/external-services.json`; `OLIVAW_LISIERP_SERVICE_DIR` permite substituir localmente o caminho temporário da Lisierp.
 
+Para retomar um job já aceito, use `--job` com o mesmo UUID, sem ambiente/branch:
+
+```bash
+bash scripts/deployment/deploy.sh ms-olivaw-api --job UUID_DO_JOB
+bash scripts/deployment/deploy.sh --cleanup --job UUID_DO_JOB
+```
+
+Nesse modo o cliente autentica e consulta o status; não envia outro POST de deploy ou limpeza. Um ID inválido é rejeitado antes da autenticação. Não combinar `--job` com `--no-wait`.
+
+O acompanhamento repete somente consultas GET após falhas de rede, timeout, JSON inválido ou HTTP 408/425/429/5xx transitórios (500, 502, 503, 504). Usa espera progressiva de 3 a 15 segundos e interrompe após seis falhas consecutivas; uma consulta válida reinicia esse contador. HTTP 401 permite renovar a autenticação uma vez antes de nova resposta válida; 403 e outros erros permanentes não são repetidos. O limite total de acompanhamento continua em 30 minutos. A interrupção retorna código 2 e mostra o comando de retomada, sem afirmar que o job falhou no executor. Nenhum POST de criação é repetido automaticamente.
+
 A branch deve estar publicada com todos os arquivos de implantação. Se uma senha for alterada no Olivaw, atualize o arquivo versionado da conta correspondente; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente, então o JWT segue válido até expirar. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
 
 ## Primeiro deploy de um serviço e compatibilidade com lisierp
