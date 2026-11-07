@@ -69,6 +69,17 @@ public sealed class UpdateLeadQualificationValidator : AbstractValidator<UpdateL
             qualification.RuleFor(item => item.Whatsapp).NotNull().MaximumLength(11)
                 .Must(value => string.IsNullOrEmpty(value) || System.Text.RegularExpressions.Regex.IsMatch(value, "^[1-9][0-9]9[0-9]{8}$"));
             qualification.RuleFor(item => item.WebsiteUrl).NotNull().MaximumLength(2048).Must(IsWebUrl);
+            qualification.RuleFor(item => item.ContactPageUrl).NotNull().MaximumLength(2048).Must(IsWebUrl);
+            qualification.RuleFor(item => item.ContactFormStatus).Must(value => value is "not-checked" or "found" or "not-detected" or "inconclusive");
+            qualification.RuleFor(item => item.ContactFormUrl).NotEmpty().When(item => item.ContactFormStatus == "found");
+            qualification.RuleFor(item => item.ContactCheckedAt).NotNull().When(item => item.ContactFormStatus != "not-checked");
+            qualification.RuleFor(item => item.PublicEmails).NotNull().Must(items => items is { Length: <= 5 });
+            qualification.RuleForEach(item => item.PublicEmails).NotNull().ChildRules(email =>
+            {
+                email.RuleFor(item => item.Email).NotEmpty().MaximumLength(254).EmailAddress()
+                    .Must(value => value == null || !value.Any(char.IsControl));
+                email.RuleFor(item => item.SourceUrl).NotEmpty().MaximumLength(2048).Must(IsWebUrl);
+            });
             qualification.RuleFor(item => item.ContactFormUrl).NotNull().MaximumLength(2048).Must(IsWebUrl);
             qualification.RuleFor(item => item.SourceUrl).NotNull().MaximumLength(2048).Must(IsWebUrl);
             qualification.RuleFor(item => item.Presence).Must(value => value is "unknown" or "website" or "social-only" or "not-located");

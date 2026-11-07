@@ -39,3 +39,16 @@ class ApiTests(unittest.TestCase):
     api.request.assert_called_once_with('/leads/00000000-0000-0000-0000-000000000000/qualification',method='OPTIONS')
     api.request.side_effect=ApiError(405,'PUT')
     api.preflight()
+
+  def test_primary_email_is_created_and_contact_evidence_requires_readback(self):
+    candidate=Candidate('a','Empresa','Eventos','','','','https://example.test')
+    qualification={'publicEmails':[{'email':'contato@example.test','sourceUrl':'https://example.test/contato'}],
+      'contactFormStatus':'found','contactFormUrl':'https://example.test/contato'}
+    api=LeadApi({},Path('.'));api.token='fixture'
+    api.request=Mock(side_effect=[ApiError(404),{'items':[]},{},
+      {'snapshot':{'revision':1}},{'revision':2},{'snapshot':{'qualification':qualification}}])
+    self.assertEqual('delivered',api.publish(candidate,qualification))
+    self.assertEqual('contato@example.test',api.request.call_args_list[2].args[1]['email'])
+    api.request=Mock(side_effect=[{'snapshot':{'revision':1}},{'revision':2},
+      {'snapshot':{'qualification':{'contactFormUrl':qualification['contactFormUrl']}}}])
+    with self.assertRaises(ValueError):api.publish(candidate,qualification)

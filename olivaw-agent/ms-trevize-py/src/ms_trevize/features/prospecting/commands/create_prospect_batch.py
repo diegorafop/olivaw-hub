@@ -28,7 +28,11 @@ def qualification_for(candidate, evidence, settings, ai):
   source = "Fonte: " + candidate.source + ". Verificado em " + datetime.now(timezone.utc).isoformat()
   return {"schemaVersion":1,"segment":candidate.category or settings["search"]["segment"],"region":settings["search"]["region"],
     "websiteUrl":candidate.website,"phone":candidate.phone,"whatsapp":evidence.get("whatsapp","") if checked else "",
-    "contactFormUrl":web_url(evidence.get("url","")) if evidence.get("hasForm") else "",
+    "publicEmails":evidence.get("publicEmails",[]) if checked else [],
+    "contactPageUrl":web_url(evidence.get("contactPage","")),
+    "contactFormUrl":web_url(evidence.get("contactFormUrl","")),
+    "contactFormStatus":evidence.get("contactFormStatus","not-checked"),
+    "contactCheckedAt":evidence.get("contactCheckedAt"),
     "sourceUrl":candidate.source,"presence":presence,"priority":"unassessed","confidence":"pending",
     "tags":["eventos","prospecção","revisão pendente"],"portfolioReference":"LTMJ — avaliar pertinência",
     "facts":(facts+" "+source)[:1500],"positives":positives[:1500],

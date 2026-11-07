@@ -242,6 +242,33 @@
             <section class="card" aria-label="Canais da oportunidade">
               <p class="eyebrow">CANAIS REGISTRADOS</p>
               <h2>Contato e referências</h2>
+              @for (contact of qualification.publicEmails || []; track contact.email) {
+                <p>
+                  {{ contact.email }}
+                  @if (safeUrl(contact.sourceUrl); as url) {
+                    · <a [href]="url" target="_blank" rel="noopener noreferrer">Fonte ↗</a>
+                  }
+                </p>
+              }
+              @if (safeUrl(qualification.contactPageUrl); as url) {
+                <p>
+                  <a [href]="url" target="_blank" rel="noopener noreferrer">Página de contato ↗</a>
+                </p>
+              }
+              @switch (qualification.contactFormStatus) {
+                @case ('found') {
+                  <p>Formulário de contato encontrado.</p>
+                }
+                @case ('not-detected') {
+                  <p>Formulário não detectado nas páginas consultadas.</p>
+                }
+                @case ('inconclusive') {
+                  <p>Verificação de formulário inconclusiva.</p>
+                }
+                @default {
+                  <p>Formulário de contato ainda não verificado.</p>
+                }
+              }
               @if (qualification.phone) {
                 <p>Telefone · {{ qualification.phone }}</p>
               }

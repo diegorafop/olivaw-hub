@@ -1,7 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
 const id = '00000000-0000-0000-0000-000000000027';
-async function setup(page: Page, conflict = false, forbidden = false) {
-  let qualification: Record<string, unknown> | undefined;
+async function setup(
+  page: Page,
+  conflict = false,
+  forbidden = false,
+  initialQualification?: Record<string, unknown>,
+) {
+  let qualification: Record<string, unknown> | undefined = initialQualification;
   let revision = 1;
   let followUpRevision = 0;
   const writes: unknown[] = [];
@@ -97,6 +102,33 @@ async function setup(page: Page, conflict = false, forbidden = false) {
   await expect(page).not.toHaveURL(/\/login$/);
   return writes;
 }
+test('preserva emails e evidências de formulário ao editar a ficha', async ({ page }) => {
+  const evidence = {
+    publicEmails: [{ email: 'contato@example.test', sourceUrl: 'https://example.test/contato' }],
+    contactPageUrl: 'https://example.test/contato',
+    contactFormUrl: 'https://example.test/contato',
+    contactFormStatus: 'found',
+    contactCheckedAt: '2026-11-07T12:00:00Z',
+  };
+  const writes = await setup(page, false, false, evidence);
+  await page.goto(`/admin/leads/${id}/details`);
+  const channels = page.getByRole('region', { name: 'Canais da oportunidade' });
+  await expect(channels).toContainText('contato@example.test');
+  await expect(channels).toContainText('Formulário de contato encontrado.');
+  await expect(channels.getByRole('link', { name: 'Página com formulário' })).toHaveAttribute(
+    'href',
+    evidence.contactFormUrl,
+  );
+  await page.getByLabel('Segmento', { exact: true }).fill('Eventos');
+  await page.getByRole('button', { name: 'Salvar qualificação e abordagem' }).click();
+  await expect(
+    page.getByText('Qualificação e rascunho salvos. Nenhuma mensagem foi enviada.', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(writes).toHaveLength(1);
+  expect((writes[0] as { qualification: unknown }).qualification).toMatchObject(evidence);
+});
 for (const width of [1440, 390]) {
   test(`ficha qualifica e prepara abordagem sem envio ${width}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 });

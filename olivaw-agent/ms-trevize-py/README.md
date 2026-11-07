@@ -45,6 +45,16 @@ A POC validou pesquisa e rolagem com 20 candidatos; o coletor desta versão foi 
 
 ## Validação
 
+### Descoberta de canais de contato
+
+A coleta lê o HTML público da página inicial e até três páginas de contato vinculadas no mesmo site, respeitando `robots.txt` e os limites de rede existentes. Busca e-mails em links `mailto:` e no texto visível, normaliza e remove duplicados, guardando até cinco endereços com a URL de origem. Não adivinha endereços nem consulta JavaScript, anexos ou sites de terceiros.
+
+Na qualificação, `publicEmails` guarda os pares `email`/`sourceUrl`; `contactPageUrl` registra a página de contato lida; `contactFormUrl` identifica a página com um provável formulário de contato; `contactCheckedAt` informa a data UTC. `contactFormStatus` distingue `found`, `not-detected`, `inconclusive` e `not-checked`. Newsletter, busca e login não contam como formulário de contato. Não detectar não prova ausência, especialmente em sites que carregam formulários por JavaScript.
+
+O primeiro e-mail encontrado preenche o e-mail principal de **novos** Leads. Todos os endereços e as evidências ficam no snapshot da API e aparecem na ficha administrativa. A edição da qualificação preserva esses dados. Leads já qualificados não são sobrescritos nem reprocessados automaticamente; esta entrega não faz backfill dos leads existentes.
+
+Publicar a API compatível antes de usar o agente atualizado: a releitura exige confirmação dos novos campos, evitando considerar entregue um enriquecimento descartado por um backend antigo. A mudança usa o JSON já existente e não requer migration. Nenhum deploy foi feito nesta implementação. A descoberta não envia e-mails, não preenche formulários e não altera a etapa comercial.
+
 ```bash
 PYTHONPATH=olivaw-agent/ms-trevize-py/src python3 -m unittest discover -s olivaw-agent/ms-trevize-py/tests -v
 python3 -m unittest discover -s olivaw-agent/tests -v

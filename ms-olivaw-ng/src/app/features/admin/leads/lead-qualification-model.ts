@@ -6,6 +6,10 @@ export interface LeadQualification {
   phone: string;
   whatsapp: string;
   contactFormUrl: string;
+  publicEmails?: { email: string; sourceUrl: string }[];
+  contactPageUrl?: string;
+  contactFormStatus?: string;
+  contactCheckedAt?: string | null;
   sourceUrl: string;
   presence: string;
   priority: string;

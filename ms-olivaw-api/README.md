@@ -483,6 +483,14 @@ Validação local: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.
 
 ### Qualificação e abordagem de Leads
 
+O contrato de qualificação também recebe `publicEmails` (até cinco pares `email`/`sourceUrl`), `contactPageUrl`, `contactFormUrl`, `contactFormStatus` (`not-checked`, `found`, `not-detected` ou `inconclusive`) e `contactCheckedAt` (data UTC da leitura). São evidências públicas no snapshot JSON existente, sem migration. O status `found` exige URL de formulário e toda verificação realizada exige data. Endereços e fontes são validados; a edição da ficha preserva os campos. Publicar este contrato antes de atualizar o coletor. A coleta não envia mensagens nem formulários. Ver [descoberta de contatos](../docs/features/in-progress/trevize-descoberta-contatos.md).
+
+Validação local desta ampliação:
+
+```bash
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore --filter FullyQualifiedName~UpdateLeadQualificationTest
+```
+
 `PUT /leads/{externalId}/qualification` exige a política `leads.manage` (root ou permissão administrativa) e recebe `{ "revision": 1, "qualification": { "schemaVersion": 1, "segment": "Eventos", "region": "Curitiba", "approachStatus": "draft" } }`. Demais campos opcionais possuem defaults vazios. Guarda perfil, fontes, presença digital, telefone/WhatsApp confirmado, tags, fatos, positivos, observações, perguntas e abordagem. Estados do texto: `draft` ou `reviewed`; não representa envio.
 
 Atualiza somente o bloco interno do snapshot, preservando jornada, proposta e campos desconhecidos na raiz. Autor/data são obtidos do contexto autenticado; revisão desatualizada ou concorrência gera 409. Snapshot completo mantém teto de 32.000 caracteres. URLs aceitam apenas HTTP(S) sem credenciais; a API não navega nos links recebidos. O endpoint público rejeita qualificação e autoria na entrada e preserva os dados internos ao reenvio legítimo da jornada.
