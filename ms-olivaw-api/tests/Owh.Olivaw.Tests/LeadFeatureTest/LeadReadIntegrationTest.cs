@@ -62,6 +62,7 @@ public class LeadReadIntegrationTest
         reader.Setup(item => item.ReadSummaryAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>())).ReturnsAsync(new LeadReadSummary { Total = 2, Recent = 1 });
         builder.Services.AddSingleton(reader.Object);
         var request = LeadFeatureFakerBuilder.Create();
+        request.Payload.Acquisition = new() { Initiative = "outbound", Origin = "Teste HTTP" };
         var lead = Lead.Create(request.ExternalId, new string('a', 64), 1, JsonSerializer.Serialize(request.Payload, new JsonSerializerOptions(JsonSerializerDefaults.Web)), DateTime.UtcNow);
         var repository = new Mock<IRepository<Lead>>();
         repository.Setup(item => item.GetFirstOrDefaultAsync(It.IsAny<Expression<Func<Lead, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<Lead, object>>[]>())).Returns<Expression<Func<Lead, bool>>, CancellationToken, Expression<Func<Lead, object>>[]>((filter, _, _) => Task.FromResult(filter.Compile()(lead) ? lead : null!));
@@ -124,7 +125,21 @@ public class LeadReadIntegrationTest
         var communicationExpected = expected;
         if (expected == 200) communicationExpected = 400;
         Assert.Equal((HttpStatusCode)communicationExpected, communication.StatusCode);
-        using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = 0, status = "analysis", note = "Nota" });
+        if (expected == 200)
+        {
+            using var prepared = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/communications", new
+            {
+                revision = lead.Revision, followUpRevision = lead.FollowUpRevision,
+                @event = new { eventId = new string('a',64), kind = "prepared", intentId = new string('b',64), contentHash = new string('c',64), email = request.Payload.Email, subject = "Teste", bodyPreview = "Texto aprovado" }
+            });
+            Assert.Equal(HttpStatusCode.OK,prepared.StatusCode);
+            using var readback = await client.GetAsync($"/leads/{request.ExternalId}");
+            var content = await readback.Content.ReadFromJsonAsync<JsonElement>();
+            var records = content.GetProperty("snapshot").GetProperty("communications");
+            Assert.Equal(JsonValueKind.Array,records.ValueKind);
+            Assert.Equal(new string('a',64),records[0].GetProperty("eventId").GetString());
+        }
+        using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = lead.FollowUpRevision, status = "analysis", note = "Nota" });
         Assert.Equal((HttpStatusCode)expected, update.StatusCode);
         if (expected != 200)
         {

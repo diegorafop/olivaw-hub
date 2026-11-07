@@ -105,6 +105,13 @@ class WorkflowTests(unittest.TestCase):
     self.assertEqual([], self.gmail.sent)
     self.assertEqual([], self.store.intents())
 
+  def test_new_lead_with_null_communications_can_be_prepared_without_sending(self):
+    self.crm.data['snapshot']['communications'] = None
+    prepared = self.prepare()
+    self.assertEqual('prepared',prepared['state'])
+    self.assertEqual(['prepared'],[entry['kind'] for entry in self.crm.events])
+    self.assertEqual([],self.gmail.sent)
+
   def test_outbound_state_and_optout_block_approach(self):
     for changes in ({'followUpStatus':'delivered'},{'followUpStatus':'discontinued'}):
       self.crm.data.update(changes)

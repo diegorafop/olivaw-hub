@@ -39,7 +39,7 @@ class LeadOutreach:
     known = {item["email"].lower() for item in qualification.get("publicEmails", [])}
     if snapshot.get("email"): known.add(snapshot["email"].lower())
     if recipient not in known: raise ValueError("Destinatário não consta nos contatos do lead.")
-    if any(event["kind"] in ("human-takeover", "suppressed", "handoff") for event in snapshot.get("communications", [])):
+    if any(event["kind"] in ("human-takeover", "suppressed", "handoff") for event in (snapshot.get("communications") or [])):
       raise ValueError("Conversa assumida por uma pessoa; revisar no Gmail.")
 
   def event(self, intent, kind, message=None):
@@ -65,7 +65,7 @@ class LeadOutreach:
     result = self.crm.request("/leads/" + identity + "/communications",
       {"revision":lead["snapshot"]["revision"],"followUpRevision":lead.get("followUpRevision", 0),"event":event}, "PUT")
     if result.get("conflict"): raise ValueError("Conflito no CRM; conferir histórico antes de repetir.")
-    verified = self.lead(identity)["snapshot"].get("communications", [])
+    verified = (self.lead(identity)["snapshot"].get("communications") or [])
     if not any(item["eventId"] == event["eventId"] for item in verified):
       raise ValueError("Evento não confirmado no CRM.")
     return result
@@ -122,7 +122,7 @@ class LeadOutreach:
     if not intent["content"].get("leadId"): raise ValueError("Intenção sem lead associado.")
     # Uma queda após a reserva no CRM pode anteceder a atualização local.
     if intent["state"] == "prepared":
-      events = self.lead(intent["content"]["leadId"])["snapshot"].get("communications", [])
+      events = (self.lead(intent["content"]["leadId"])["snapshot"].get("communications") or [])
       if any(item["intentId"] == identity and item["kind"] == "sending" for item in events):
         with self.store.lock():
           intent.update(state="confirmation-pending")
@@ -168,10 +168,10 @@ class LeadOutreach:
       else:
         if len(list(self.store.root.glob("decision-*.json"))) >= 1000: raise ValueError("Limite de decisões atingido.")
         lead = self.lead(identity)["snapshot"]
-        asked = {entry.get("questionId") for entry in lead.get("communications", []) if entry.get("kind") in ("prepared","sent") and entry.get("questionId")}
+        asked = {entry.get("questionId") for entry in (lead.get("communications") or []) if entry.get("kind") in ("prepared","sent") and entry.get("questionId")}
         from ms_trevize.data.reply_advisor import classify, current_text
         rule = classify(current_text(message.get("body","")))
-        blocked = any(entry.get("kind") in ("suppressed","handoff","human-takeover") for entry in lead.get("communications",[]))
+        blocked = any(entry.get("kind") in ("suppressed","handoff","human-takeover") for entry in (lead.get("communications") or []))
         try:
           if rule: analysis = rule
           elif blocked: analysis = {"classification":"handoff","questionId":"","summary":"Atendimento já encaminhado ou suspenso; revisão humana necessária."}

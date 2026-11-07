@@ -49,6 +49,8 @@ public static class WebApplicationBuilderFacadeExtensions
         builder.Services.AddHostedService<Owh.Olivaw.Api.Services.ScheduledHealthCollector>();
         builder.Services.AddCorsDefaultPolicyCore();
         builder.AddControllerCore();
+        builder.Services.Configure<Microsoft.AspNetCore.Mvc.MvcNewtonsoftJsonOptions>(options =>
+            options.SerializerSettings.Converters.Add(new Owh.Olivaw.Api.Extensions.Serializations.SystemTextJsonElementConverter()));
         builder.AddSwagger();
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TemplateValidationBehavior<,>));
