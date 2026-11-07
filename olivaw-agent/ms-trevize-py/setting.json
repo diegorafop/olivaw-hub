@@ -57,5 +57,14 @@
     "baseUrl": "https://api.olivaw.com.br",
     "credentialsPath": "../../_secrets/admin.json",
     "credentialsSection": "trevize"
+  },
+  "outreach": {
+    "enabled": false,
+    "sendingEnabled": false,
+    "pollSeconds": 120,
+    "maxTurns": 2,
+    "windowHours": 72,
+    "maxPerCycle": 3,
+    "aiEnabled": false
   }
 }

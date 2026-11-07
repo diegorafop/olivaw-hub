@@ -24,6 +24,13 @@ class FakeCRM:
 
   def request(self, path, payload=None, method=None):
     if path.startswith('/leads?'): return {'items':[{'externalId':LEAD}]}
+    if path.endswith('/contact-discovery'):
+      contacts = payload['contacts']
+      qualification = self.data['snapshot']['qualification']
+      for key in ('publicEmails','contactPageUrl','contactFormUrl','contactFormStatus','contactCheckedAt'):
+        if key in contacts: qualification[key] = deepcopy(contacts[key])
+      self.data['snapshot']['revision'] += 1
+      return {'revision':self.data['snapshot']['revision']}
     if path.endswith('/qualification'):
       if payload['revision'] != self.data['snapshot']['revision']: raise ValueError('Conflict')
       self.data['snapshot']['qualification'] = deepcopy(payload['qualification'])
@@ -60,7 +67,9 @@ class WorkflowTests(unittest.TestCase):
     config = self.store.config(); config['sendingEnabled'] = True
     atomic_json(self.store.root/'config.json', config)
     self.crm, self.gmail = FakeCRM(), FakeGmail()
-    self.service = LeadOutreach(self.crm,self.store,self.gmail)
+    self.advisor = Mock()
+    self.advisor.analyze.return_value = {'classification':'qualify','questionId':'need','summary':'Entender a necessidade.'}
+    self.service = LeadOutreach(self.crm,self.store,self.gmail,self.advisor)
 
   def prepare(self):
     return self.service.prepare(LEAD,'contact@example.test','Parceria Olivaw','Olá, somos a Olivaw.',True)
@@ -86,7 +95,9 @@ class WorkflowTests(unittest.TestCase):
     website = Mock(); website.analyze.return_value = {'status':'inconclusive'}
     original = deepcopy(self.crm.data)
     self.assertEqual('inconclusive', LeadEnrichment(self.crm,website).run([LEAD],1,True)['items'][0]['status'])
-    self.assertEqual(original, self.crm.data)
+    self.assertEqual(original['snapshot']['email'], self.crm.data['snapshot']['email'])
+    self.assertEqual(original['snapshot']['qualification']['approach'], self.crm.data['snapshot']['qualification']['approach'])
+    self.assertEqual(original['snapshot']['qualification']['contactFormUrl'], self.crm.data['snapshot']['qualification']['contactFormUrl'])
 
   def test_preparation_requires_approval_and_known_recipient(self):
     with self.assertRaises(ValueError): self.service.prepare(LEAD,'contact@example.test','Oi','Oi')

@@ -1,5 +1,20 @@
 # Gmail e acompanhamento de leads
 
+## Ampliação implementada — envio continua desligado
+
+Esta seção substitui os limites do piloto descritos mais abaixo sobre ausência de campanhas, cancelamento e atendimento por IA. O código foi ampliado, mas **nenhum envio está habilitado**: `setting.json` tem `outreach.enabled=false`, `outreach.sendingEnabled=false` e `outreach.aiEnabled=false`; `gmail configure` sempre grava `sendingEnabled=false`. O transporte oficial Google também recusa escritas por padrão. Planejar/ativar uma campanha não muda essas chaves. Não foram feitos consentimento real, chamada de IA paga, envio ou deploy nesta implementação.
+
+- `PUT /leads/{id}/contact-discovery` mescla somente os canais, preserva campos humanos e preenche o e-mail principal apenas quando está vazio e há um único endereço. Múltiplos endereços sem principal são divergência para revisão.
+- Pesquisa concluída sem e-mail registra uma única nota exatamente `sem email`; move somente Novo contato para Em conversa. Etapas avançadas e notas anteriores são preservadas. Inconclusivo não dispara essa regra.
+- `leads cancel --id ID` cancela somente intenções sem tentativa de envio. `leads revise --id ID --body-file TEXTO --subject ASSUNTO --approve` cancela e cria uma versão nova; não envia. Pendências ambíguas exigem reconciliação e não podem ser canceladas para contornar a reserva.
+- `leads sync` classifica recusas e pedidos comerciais, registra suspensão/encaminhamento e mantém rascunhos em `leads decisions`. Recusa, orçamento, negociação, contrato, reclamação, reunião ou assunto fora do roteiro exigem operador, sem oferta automática.
+- O modelo de IA recebe texto mínimo, sem ferramentas/segredos, e escolhe somente uma pergunta de um roteiro fixo; não redige preços, prazos, garantias ou texto livre para envio. Perguntas repetidas são rejeitadas. Falha da IA encaminha à revisão, sem repetir chamadas indefinidamente. Trechos citados do e-mail anterior não contam como nova recusa.
+- `campaign plan --id UUID --subject 'Olá, {business}' --body-file MODELO --approve [--automatic-replies]` congela até cinco leads, destinatários e textos, aprovando também o roteiro de perguntas quando solicitado. Não substitui um plano existente nem ativa envios. `campaign activate --approve`, `campaign stop` e `campaign status` controlam o plano local. `campaign run` permanece pausado com o setting atual.
+- O worker mantém a coleta em sua agenda atual e, **quando futuramente habilitado**, consulta a campanha em intervalo separado (`outreach.pollSeconds`, padrão 120). Não há retomada no boot; exige start explícito. A campanha limita mensagens por rodada, turnos por conversa (padrão 2), janela (72h), cinco leads aprovados e cinco tentativas diárias UTC. Cancelados não são recriados automaticamente.
+- O painel `/admin/agents/trevize` inclui indicadores de contatos, mensagens, respostas, rascunhos, pendências, recusas, encaminhamentos e cancelamentos. Consulta o CRM, não inicia o agente e não afirma conhecer seu estado local. A agregação é limitada às últimas 500 fichas, com aviso de truncamento.
+
+Ainda dependem do operador: publicar a API compatível e o frontend, autorizar OAuth e executar o teste controlado. Habilitar envio real será uma ação futura explícita, fora desta entrega. Para isso existem duas chaves independentes (setting e configuração privada Gmail), além da aprovação da campanha; nenhuma delas foi ligada aqui.
+
 ## Estado da entrega
 
 Integração local por API oficial, com OAuth e comandos manuais. Inclui coleta pequena de validação, enriquecimento de leads já cadastrados, teste com destinatários controlados, abordagem aprovada, registro de respostas no CRM e reconciliação de falhas. Não inicia campanha, worker, envio ou resposta ao instalar/importar. Não usa a sessão do Firefox nem pede senha da conta.
@@ -45,7 +60,7 @@ olivaw-agent/ms-trevize-py/.venv/bin/trevize leads enrich --limit 40 --apply
 
 A primeira execução é uma prévia. A segunda lê novamente os sites e grava os canais. Sem `--id`, seleciona até o limite solicitado entre os leads de prospecção (`entry=prospecting`), na ordem da API; não presume que todos sejam do Trevize. Para escolher precisamente, use `--id UUID` repetido e um limite que comporte os IDs. Limite máximo: 100 por comando. Fichas sem qualificação são sinalizadas e não recebem texto gerado automaticamente.
 
-Preserva abordagem, observações, tags, notas, etapa e links já revisados. Mescla até cinco e-mails, sem apagar os anteriores. Leituras inconclusivas não apagam canais. Usa a revisão atual e relê a ficha para confirmar a gravação. Conflitos interrompem o comando e exigem conferir a ficha; não sobrescrevem silenciosamente outra edição. O e-mail principal já existente permanece intacto; os endereços descobertos ficam em `qualification.publicEmails`, disponíveis para o piloto.
+Preserva abordagem, observações, tags, notas, etapa e links já revisados. Mescla até cinco e-mails, sem apagar os anteriores. Leituras inconclusivas não apagam canais. Usa a revisão atual e relê a ficha para confirmar a gravação. Conflitos interrompem o comando e exigem conferir a ficha; não sobrescrevem silenciosamente outra edição. O e-mail principal não vazio permanece intacto; quando vazio, é preenchido somente se houver um único endereço. Todos os endereços e fontes permanecem em `qualification.publicEmails`.
 
 ## Configurar OAuth do Google
 
@@ -103,7 +118,7 @@ olivaw-agent/ms-trevize-py/.venv/bin/trevize leads outbox
 olivaw-agent/ms-trevize-py/.venv/bin/trevize leads send --id ID_DA_INTENCAO --confirm
 ```
 
-`prepare --approve` registra a aprovação e a intenção no CRM, sem enviar. O texto aprovado fica imutável; repetir o comando com o mesmo conteúdo recupera a mesma intenção. Alterar conteúdo depois da aprovação é bloqueado. A abordagem inicial tem chave canônica por lead, e o CRM impede outra intenção inicial para a mesma ficha. Esta versão não inclui cancelamento/reaprovação de intenções: revisar o arquivo antes de aprovar.
+`prepare --approve` registra a aprovação e a intenção no CRM, sem enviar. O texto aprovado fica imutável; repetir o comando com o mesmo conteúdo recupera a mesma intenção. Alterar conteúdo depois da aprovação é bloqueado. A abordagem inicial tem chave canônica por lead, e o CRM impede outra intenção inicial para a mesma ficha. Revisões e cancelamentos antes de qualquer tentativa estão disponíveis por `leads revise` e `leads cancel`.
 
 `send --confirm` confere novamente conta, destinatário, etapa e limites; registra uma reserva exclusiva/idempotente no CRM antes do Gmail. Somente a primeira reserva pode enviar. Sem API disponível ou persistência confirmada, não envia. A confirmação procura a mensagem específica em Enviados, sem afirmar entrega ou leitura pelo destinatário.
 
@@ -128,7 +143,7 @@ olivaw-agent/ms-trevize-py/.venv/bin/trevize leads prepare-reply \
 olivaw-agent/ms-trevize-py/.venv/bin/trevize leads send --id ID_DA_RESPOSTA --confirm
 ```
 
-Exige uma resposta já registrada pelo `sync`, no mesmo fio e do destinatário aprovado. Bloqueia `Reply-To` divergente, automações, assunto/referências inválidos e intervenção posterior à preparação. Não há resposta autônoma por IA nem envio periódico. Solicitações de não contato devem ser revisadas e marcadas com uma das tags de bloqueio antes de qualquer nova aprovação.
+Exige uma resposta já registrada pelo `sync`, no mesmo fio e do destinatário aprovado. Bloqueia `Reply-To` divergente, automações, assunto/referências inválidos e intervenção posterior à preparação. No modo manual, não há envio periódico. A campanha aprovada pode executar o roteiro limitado quando as chaves forem explicitamente habilitadas; permanecem desligadas nesta entrega. Solicitações de não contato devem ser revisadas e marcadas com uma das tags de bloqueio antes de qualquer nova aprovação.
 
 ## Recuperação sem duplicar mensagens
 

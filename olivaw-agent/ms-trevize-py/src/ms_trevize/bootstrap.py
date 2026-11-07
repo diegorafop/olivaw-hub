@@ -24,3 +24,27 @@ def compose(path, preview_limit=None):
     MapsCollector(settings["search"], min(300,settings["execution"]["timeoutSeconds"])),
     WebsiteReview(settings["website"]), AIQualification(settings["ai"],skill_path.read_text()),
     LeadApi(settings["leadApi"],runtime.path.parent))
+
+
+def run_outreach(path, directory=None):
+  runtime = LocalRuntime(path)
+  settings = runtime.settings
+  if not settings["outreach"]["enabled"]:
+    return {"status":"paused","reason":"outreach-disabled","sent":0}
+  if not settings["leadApi"]["enabled"]:
+    return {"status":"paused","reason":"crm-disabled","sent":0}
+  from ms_trevize.data.gmail_store import GmailStore
+  from ms_trevize.data.gmail_client import GoogleGmail
+  from ms_trevize.data.reply_advisor import ReplyAdvisor
+  from ms_trevize.features.leads.outreach import LeadOutreach
+  from ms_trevize.features.leads.campaign import Campaign
+  store = GmailStore(directory or runtime.path.parent/".state"/"gmail")
+  if not (store.root/"campaign.json").exists() or not (store.root/"token.json").exists():
+    return {"status":"paused","reason":"campaign-or-oauth-required","sent":0}
+  from ms_trevize.data.gmail_store import private_json
+  if not private_json(store.root/"campaign.json").get("active"):
+    return {"status":"paused","reason":"campaign-disabled","sent":0}
+  crm = LeadApi(settings["leadApi"],runtime.path.parent); crm.login()
+  ai = ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]})
+  service = LeadOutreach(crm,store,GoogleGmail.connect(store),ai)
+  return Campaign(store,service,settings["outreach"]).run()

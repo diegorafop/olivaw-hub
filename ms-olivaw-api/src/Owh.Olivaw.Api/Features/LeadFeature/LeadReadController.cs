@@ -105,6 +105,11 @@ public sealed class LeadReadController(IMediator mediator) : ControllerBase
             Payload = new() { ExternalId = externalId, BeforeRevision = beforeRevision }
         }, cancellationToken));
     }
+    [HttpGet("communication-summary")]
+    public async Task<IActionResult> ReadCommunicationSummary(CancellationToken cancellationToken)
+    {
+        return Ok(await mediator.Send(new ReadLeadCommunicationSummaryMediatorQuery(), cancellationToken));
+    }
     [HttpGet("summary")]
     public async Task<IActionResult> ReadSummary(CancellationToken cancellationToken)
     {

@@ -25,4 +25,12 @@ Não foi efetuado deploy, configurado OAuth real, executada coleta/enriqueciment
 
 ## Limites
 
-Sem migration, campanha agendada, resposta autônoma por IA ou submissão de formulários. Não muda a skill canônica. Limites locais pressupõem um operador/diretório, não uma cota global distribuída. O diário de transporte precisa ser preservado ao trocar de máquina; a ausência de uma mensagem em Enviados não autoriza reenvio. Revisão e aprovação são exigidas para cada resposta. Esta entrega não encerra uma eventual discovery de atendimento autônomo.
+Sem migration ou submissão de formulários. Campanhas e atendimento pelo roteiro limitado foram codificados, mas estão desabilitados por padrão; ver a ampliação abaixo. Não muda a skill canônica. Limites locais pressupõem um operador/diretório, não uma cota global distribuída. O diário de transporte precisa ser preservado ao trocar de máquina; a ausência de uma mensagem em Enviados não autoriza reenvio. Revisão e aprovação são exigidas para cada resposta. Esta entrega não encerra uma eventual discovery de atendimento autônomo.
+
+## Ampliação da issue031
+
+Implementados campanhas locais aprovadas, agenda de consulta independente da coleta no worker manual, classificador de IA sem ferramentas e com perguntas fixas, limites por conversa/janela, supressão de recusas e transferência ao operador. O classificador não pode inventar preços, prazos ou texto livre para envio. Cancelamento e revisão são permitidos apenas antes de reservar o envio. O endpoint de descoberta promove e-mail principal vazio e inequívoco, preserva revisão humana e registra `sem email` uma única vez após pesquisa concluída, sem regredir etapas.
+
+O painel Trevize combina indicadores de captação e de comunicação persistida, com limites de amostra explícitos. Estados de worker/falhas locais permanecem no status local e não são apresentados como disponibilidade remota. Esta ampliação exige alterações coordenadas em agente, API e interface; o tamanho é justificado pelo fluxo transacional de preparação, cancelamento, supressão e apresentação, validado em conjunto.
+
+Envio bloqueado no setting e no transporte Gmail. Nenhuma campanha real foi criada, ativada ou enviada. Sem OAuth real, IA paga, deploy, banco remoto ou migrations. O mantenedor realizará push e publicação após o Git Flow local.

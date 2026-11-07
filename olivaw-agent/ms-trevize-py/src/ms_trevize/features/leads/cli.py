@@ -12,6 +12,14 @@ def parser_for():
   parser.add_argument("--directory", type=Path, default=project/".state"/"gmail")
   commands = parser.add_subparsers(dest="operation", required=True)
   commands.add_parser("outbox", help="Consultar intenções locais, sem rede ou credenciais CRM")
+  commands.add_parser("decisions", help="Consultar classificações e rascunhos locais, sem rede")
+  cancel = commands.add_parser("cancel", help="Cancelar uma intenção antes de iniciar o envio")
+  cancel.add_argument("--id",required=True)
+  revise = commands.add_parser("revise",help="Cancelar e preparar outra versão aprovada")
+  revise.add_argument("--id",required=True)
+  revise.add_argument("--body-file",type=Path,required=True)
+  revise.add_argument("--subject")
+  revise.add_argument("--approve",action="store_true")
   preview = commands.add_parser("collect-preview", help="Coleta pequena sem IA, gravação no CRM ou contato")
   preview.add_argument("--limit", type=int, choices=range(1,6), default=3)
   for operation in ("inspect", "enrich"):
@@ -39,11 +47,15 @@ def parser_for():
 def main(argv=None):
   args = parser_for().parse_args(argv)
   try:
-    if args.operation == "outbox":
+    if args.operation in ("outbox", "decisions"):
       from ms_trevize.data.gmail_store import GmailStore
       store = GmailStore(args.directory)
-      result = {"items":[{"id":item["id"],"state":item["state"],"leadId":item["content"].get("leadId"),
-        "to":item["content"]["to"],"subject":item["content"]["subject"]} for item in store.intents()]}
+      if args.operation == "outbox":
+        result = {"items":[{"id":item["id"],"state":item["state"],"leadId":item["content"].get("leadId"),
+          "to":item["content"]["to"],"subject":item["content"]["subject"]} for item in store.intents()]}
+      else:
+        from ms_trevize.features.leads.outreach import LeadOutreach
+        result = {"items":LeadOutreach(None,store,None).decisions()}
     elif args.operation == "collect-preview":
       from ms_trevize.bootstrap import compose
       from ms_trevize.data.local_runtime import LocalRuntime, exclusive_lock
@@ -68,12 +80,25 @@ def main(argv=None):
         from ms_trevize.features.leads.outreach import LeadOutreach
         store = GmailStore(args.directory)
         # A primeira abordagem pode ser preparada sem OAuth; o envio exige conta verificada.
-        gmail = None if args.operation == "prepare" else GoogleGmail.connect(store)
-        outreach = LeadOutreach(crm, store, gmail)
+        offline = args.operation in ("prepare","cancel")
+        if args.operation == "revise": offline = not store.get(args.id)["content"].get("replyMessageId")
+        gmail = None if offline else GoogleGmail.connect(store)
+        from ms_trevize.data.reply_advisor import ReplyAdvisor
+        outreach = LeadOutreach(crm,store,gmail,ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]}))
         if args.operation in ("prepare", "prepare-reply"):
           if args.body_file.stat().st_size > 32000: raise ValueError("Texto excede limite.")
           body = args.body_file.read_text(encoding="utf-8")
           result = outreach.prepare(args.lead_id, args.to, getattr(args,"subject",None), body, args.approve, getattr(args,"message_id",None))
+        elif args.operation == "cancel": result = outreach.cancel(args.id)
+        elif args.operation == "revise":
+          if not args.approve or args.body_file.stat().st_size > 32000: raise ValueError("Revisão exige texto limitado e aprovação.")
+          original = store.get(args.id)["content"]
+          body = args.body_file.read_text(encoding="utf-8")
+          from ms_trevize.domain.mail import build_message
+          subject = args.subject or original["subject"]
+          build_message({**original,"subject":subject,"body":body,"mimeId":"<validation@trevize.invalid>"})
+          outreach.cancel(args.id)
+          result = outreach.prepare(original["leadId"],original["to"],subject,body,True,original.get("replyMessageId"),original.get("questionId",""))
         elif args.operation == "send": result = outreach.send(args.id, args.confirm)
         elif args.operation == "reconcile": result = outreach.reconcile(args.id)
         else: result = outreach.sync()

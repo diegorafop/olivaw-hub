@@ -26,11 +26,19 @@ def normalized(text):
 
 def classify(text):
   text = normalized(text)
-  if re.search(r"nao (?:tenho|temos|ha) interesse|sem interesse|nao (?:me |nos )?(?:contate|contacte|envie)|pare de enviar|remov[ae].{0,30}(?:lista|contato)|unsubscribe|descadastr|stop emailing|do not contact", text):
+  if re.search(r"nao (?:tenho|temos|ha) (?:mais )?interesse|sem interesse|nao (?:quero|desejo|gostaria).{0,40}(?:receber|contato|oferta)|nao (?:me |nos )?(?:contate|contacte|envie)|pare de enviar|(?:remov[ae]|retire).{0,30}(?:lista|contato)|unsubscribe|descadastr|stop emailing|do not contact|no thanks", text):
     return {"classification":"optout","questionId":"","summary":"Recusa ou pedido de não contato; novos envios suspensos."}
   if re.search(r"orcamento|prec[oç]|contrato|negoci|desconto|reclam|advog|juridic|agend|reuniao|proposta comercial|quanto custa|quanto cobr|valor do|prazo de entrega", text):
     return {"classification":"handoff","questionId":"","summary":"Solicitação comercial ou tema que exige análise do operador."}
   return None
+
+
+def current_text(text):
+  lines = []
+  for line in text.splitlines():
+    if re.search(r"^(?:On .+wrote:|Em .+escreveu:|[- ]*Original Message[- ]*|[- ]*Mensagem original[- ]*)$",line.strip(),re.I): break
+    if not line.lstrip().startswith('>'): lines.append(line)
+  return '\n'.join(lines)[:6000]
 
 
 class ReplyAdvisor:
@@ -38,11 +46,12 @@ class ReplyAdvisor:
     self.settings, self.runner = settings, runner
 
   def analyze(self, message, lead, asked):
-    decision = classify(message.get("body", ""))
+    text = current_text(message.get("body", ""))
+    decision = classify(text)
     if decision: return decision
     if not message.get("bodyAvailable") or not self.settings.get("enabled"):
       return {"classification":"handoff","questionId":"","summary":"Revisão humana: texto simples ou IA de atendimento indisponível."}
-    context = {"message":message.get("body", "")[:6000],"business":lead.get("business", "")[:120],
+    context = {"message":text,"business":lead.get("business", "")[:120],
       "facts":(lead.get("qualification") or {}).get("facts", "")[:1500],"asked":sorted(asked)}
     prompt = ("Classifique uma resposta recebida por e-mail pela Olivaw. Escolha somente uma pergunta ainda não feita "
       "do roteiro: need (necessidade), current-system (sistema atual), deadline (prioridade interna), contact-person (responsável). "

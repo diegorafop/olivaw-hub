@@ -12,9 +12,13 @@ def digest(value):
 
 
 class LeadOutreach:
-  def __init__(self, crm, store, gmail):
+  def __init__(self, crm, store, gmail, advisor=None):
     self.crm, self.store, self.gmail = crm, store, gmail
     self.pilot = GmailPilot(store, gmail, self.reserve)
+    if advisor is None:
+      from ms_trevize.data.reply_advisor import ReplyAdvisor
+      advisor = ReplyAdvisor({"enabled":False})
+    self.advisor = advisor
 
   def lead(self, identity):
     identity = str(UUID(identity))
@@ -127,26 +131,64 @@ class LeadOutreach:
     if result["state"] == "sent": self.record(self.store.get(identity), "sent")
     return result
 
-  def sync(self):
+  def sync(self, limit=5):
+    if type(limit) is not int or not 1 <= limit <= 5: raise ValueError("Sincronização limitada a cinco respostas por rodada.")
     # Primeiro recuperar envios confirmados localmente e ainda não registrados no CRM.
     intents = [item for item in self.store.intents() if item["content"].get("leadId") and item["state"] == "sent"]
     for intent in intents: self.record(intent, "sent")
     batch = self.pilot.replies(acknowledge=False)
     incoming = batch["messages"]
     for message in batch["takeovers"]:
-      contacts = [item for item in intents if item["threadId"] == message["threadId"]]
+      contacts = sorted([item for item in intents if item["threadId"] == message["threadId"]], key=lambda item:item["createdAt"])
       if len({item["content"]["leadId"] for item in contacts}) == 1:
         self.record(contacts[0], "human-takeover", message)
     items = []
-    for message in incoming:
-      contacts = [item for item in intents if item["threadId"] == message["threadId"]]
+    for message in incoming[:limit]:
+      contacts = sorted([item for item in intents if item["threadId"] == message["threadId"]], key=lambda item:item["createdAt"])
       lead_ids = {item["content"]["leadId"] for item in contacts}
       if len(lead_ids) != 1:
         items.append({"id":message["id"],"status":"ambiguous-lead-review"})
         continue
       intent = contacts[0]
       self.record(intent, message["disposition"], message)
+      if message["disposition"] == "received": self.review(intent, message)
       # Só reconhecer após gravar no CRM; uma falha permite retomar sem perder a resposta.
       self.pilot.acknowledge([message["id"]])
       items.append({"id":message["id"],"leadId":intent["content"]["leadId"],"status":message["disposition"]})
     return {"items":items,"autoReply":False,"contactPerformed":False}
+
+  def review(self, intent, message):
+    from ms_trevize.data.gmail_store import private_json
+    from ms_trevize.data.local_runtime import atomic_json
+    from ms_trevize.data.reply_advisor import QUESTIONS
+    identity = intent["content"]["leadId"]
+    path = self.store.root / ("decision-" + digest([identity,message["id"]]) + ".json")
+    with self.store.lock():
+      if path.exists(): decision = private_json(path)
+      else:
+        if len(list(self.store.root.glob("decision-*.json"))) >= 1000: raise ValueError("Limite de decisões atingido.")
+        lead = self.lead(identity)["snapshot"]
+        asked = {entry.get("questionId") for entry in lead.get("communications", []) if entry.get("kind") in ("prepared","sent") and entry.get("questionId")}
+        from ms_trevize.data.reply_advisor import classify, current_text
+        rule = classify(current_text(message.get("body","")))
+        blocked = any(entry.get("kind") in ("suppressed","handoff","human-takeover") for entry in lead.get("communications",[]))
+        try:
+          if rule: analysis = rule
+          elif blocked: analysis = {"classification":"handoff","questionId":"","summary":"Atendimento já encaminhado ou suspenso; revisão humana necessária."}
+          else: analysis = self.advisor.analyze(message, lead, asked)
+        except (OSError, ValueError, KeyError, TypeError):
+          analysis = {"classification":"handoff","questionId":"","summary":"Falha na classificação; encaminhar ao operador sem resposta automática."}
+        decision = {**analysis,"leadId":identity,"messageId":message["id"],"threadId":message["threadId"],
+          "intentId":intent["id"],"reply":QUESTIONS.get(analysis.get("questionId"),"") if analysis["classification"] == "qualify" else ""}
+        atomic_json(path, decision)
+    kind = {"optout":"suppressed","qualify":"reply-draft"}.get(decision["classification"],"handoff")
+    summary = {**message,"body":decision["summary"] + "\n" + decision.get("reply","")}
+    # A decisão é durável antes de reconhecer a mensagem, inclusive quando a IA falha.
+    self.record(intent, kind, summary)
+    return decision
+
+  def decisions(self):
+    from ms_trevize.data.gmail_store import private_json
+    files = sorted(self.store.root.glob("decision-*.json"))
+    if len(files) > 1000: raise ValueError("Limite de decisões atingido.")
+    return [private_json(path) for path in files]

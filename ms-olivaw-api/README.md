@@ -508,3 +508,11 @@ Atualiza somente o bloco interno do snapshot, preservando jornada, proposta e ca
 Sem mudança de schema ou migration. Contratos no projeto cliente em `Features/LeadFeature/Commands/UpdateLeadQualification.cs`. Validar por `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` e `dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client/Owh.Olivaw.Client.csproj -c Release -m:1 --no-restore`. Backend precisa ser publicado antes de iniciar o Trevize; não foi feito deploy nesta entrega.
 
 A lista administrativa projeta `phone`, `websiteUrl` e `segment` do bloco de qualificação; a busca inclui esses campos. WhatsApp original tem precedência, com fallback para o número confirmado da qualificação. As projeções existentes de PostgreSQL/SQL Server foram mantidas, sem adicionar colunas persistidas.
+
+### Descoberta de contatos e ciclo de atendimento — issue031
+
+`PUT /leads/{id}/contact-discovery` exige `leads.manage`, revisão do snapshot e de acompanhamento. Recebe `contacts` com os campos públicos e `researchCompleted`. Mescla somente canais, preservando campos humanos e desconhecidos da qualificação. Promove e-mail principal vazio somente se inequívoco. Pesquisa concluída sem e-mail gera uma única nota `sem email`, avançando apenas Novo contato para Em conversa. Inconclusivo não gera essa nota. `contactDiscovery` é metadado de leitura administrativa e é preservado/rejeitado na escrita pública, como `communications`.
+
+Comunicação aceita também `cancelled`, `suppressed`, `handoff` e `reply-draft`. Cancelamento exige preparação sem reserva/tentativa; permite versão nova sem reaproveitar a intenção cancelada. Supressão, encaminhamento e intervenção humana bloqueiam reservas futuras. `questionId` identifica pergunta do roteiro fixo. `GET /leads/communication-summary` agrega as últimas 500 fichas com `inspected`, `truncated`, data e contagens, sem alegar total global ou estado local do worker. O frontend apresenta esses limites.
+
+Tudo usa snapshot/histórico existentes, sem migrations. Envios continuam desabilitados no agente e no transporte. Validação: suíte .NET local, testes Python simulados e E2E da interface; ver [GMAIL.md](../olivaw-agent/ms-trevize-py/GMAIL.md).

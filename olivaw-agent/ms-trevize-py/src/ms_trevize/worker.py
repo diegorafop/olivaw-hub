@@ -31,12 +31,20 @@ def main(argv=None):
     state={"agentId":"trevize","instanceId":args.token,"startedAt":now(),"state":"scheduled",
       "autoStart":False,"intervalHours":runtime.settings["schedule"]["intervalHours"],"lastCollection":None}
     schedule=Schedule(runtime.settings["schedule"]["intervalHours"], time.monotonic(), runtime.settings["schedule"]["enabled"])
-    heartbeat=0;future=None
+    heartbeat=0;future=None;outreach_future=None;next_outreach=0
     atomic_json(runtime.state/"status.json",state)
-    executor=ThreadPoolExecutor(max_workers=1)
+    executor=ThreadPoolExecutor(max_workers=2)
     try:
       while not stopping:
         if read_state(runtime.state/"stop.json").get("instanceId")==args.token:break
+        if outreach_future is not None and outreach_future.done():
+          try: state["outreach"] = outreach_future.result()
+          except Exception: state["outreach"] = {"status":"failed","reason":"check-configuration","sent":0,"failures":1}
+          outreach_future = None
+          next_outreach = time.monotonic()+runtime.settings["outreach"]["pollSeconds"]
+        if outreach_future is None and runtime.settings["outreach"]["enabled"] and time.monotonic() >= next_outreach:
+          from ms_trevize.bootstrap import run_outreach
+          outreach_future = executor.submit(run_outreach,args.settings)
         if future is not None and future.done():
           try:state["lastCollection"]=future.result()
           except CollectionFailure as error:

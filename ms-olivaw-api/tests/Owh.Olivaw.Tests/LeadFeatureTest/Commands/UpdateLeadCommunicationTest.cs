@@ -153,6 +153,34 @@ public class UpdateLeadCommunicationTest
         await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null!, CancellationToken.None));
     }
     [Fact]
+    public async Task Handle_should_cancel_before_reservation_and_allow_a_revised_initial_intent()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("cancelled", '1'), CancellationToken.None);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(Request("sending", 'd'), CancellationToken.None));
+        var revised = Request("prepared", '2'); revised.Payload.Event.IntentId = new string('2',64);
+        await handler.Handle(revised, CancellationToken.None);
+        var sending = Request("sending", '3'); sending.Payload.Event.IntentId = new string('2',64);
+        await handler.Handle(sending, CancellationToken.None);
+        var cancel = Request("cancelled", '4'); cancel.Payload.Event.IntentId = new string('2',64);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(cancel, CancellationToken.None));
+    }
+    [Theory]
+    [InlineData("suppressed")]
+    [InlineData("handoff")]
+    public async Task Handle_should_block_responses_after_refusal_or_operator_handoff(string kind)
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'd'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'e', "sent1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("received", 'f', "reply1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request(kind, '1', "reply1", "thread1"), CancellationToken.None);
+        var reply = Request("prepared", '2',threadId:"thread1",replyMessageId:"reply1"); reply.Payload.Event.IntentId = new string('2',64);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(reply, CancellationToken.None));
+    }
+    [Fact]
     public void Validator_should_enforce_bounded_safe_events_actor_and_revisions()
     {
         var request = Request("prepared", 'a');

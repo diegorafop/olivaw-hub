@@ -17,6 +17,9 @@ def main(argv=None):
   if arguments and arguments[0] == "leads":
     from ms_trevize.features.leads.cli import main as leads_main
     return leads_main(arguments[1:])
+  if arguments and arguments[0] == "campaign":
+    from ms_trevize.features.leads.campaign_cli import main as campaign_main
+    return campaign_main(arguments[1:])
   parser=argparse.ArgumentParser(description="Trevize — prospecção e qualificação de Leads",
     epilog="Integrações manuais: trevize gmail --help e trevize leads --help.")
   parser.add_argument("operation",choices=("start","stop","status","collect","audit","update"))
