@@ -188,3 +188,15 @@ button:disabled {
     margin-left: 0;
   }
 }
+
+.assessment-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(0, 3fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+@media (max-width: 600px) {
+  .assessment-row {
+    grid-template-columns: 1fr;
+  }
+}

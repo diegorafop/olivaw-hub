@@ -185,3 +185,36 @@ dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --
 ```
 
 Fontes: [Python quickstart](https://developers.google.com/workspace/gmail/api/quickstart/python), [envio](https://developers.google.com/workspace/gmail/api/guides/sending), [threads](https://developers.google.com/workspace/gmail/api/guides/threads), [OAuth para aplicativos instalados](https://developers.google.com/identity/protocols/oauth2/native-app), [escopos](https://developers.google.com/workspace/gmail/api/auth/scopes).
+
+## Pesquisa comercial e conversa contextualizada
+
+A [skill canônica](../skills/trevize-prospect/SKILL.md) orienta aquisição e respostas. Ela é lida pelo agente diretamente do caminho configurado; a atualização versionada não instala cópias em skills pessoais. Referências comerciais ficam junto da skill, sem navegação pela IA em execução.
+
+Publique a **API v1.1.3 desta feature** e o frontend correspondente antes de usar o diagnóstico persistido. Não basta a v1.1.2 do teste de retomada. Não faça finish antes do aceite. A coleta confirma `commercialResearchVersion: 1` para não perder campos novos em API antiga.
+
+Na ficha, preencha ou revise cinco notas de 0 a 10 e suas evidências. Vazio significa não avaliado. Leitura HTML produz apenas avaliação provisória de conteúdo sustentada por trecho literal; visual, usabilidade real e gestão interna ficam pendentes. O indício de área restrita aparece sem testar login. Após a conversa, o operador pode complementar gestão com o relato do lead.
+
+Pesquisa individual, sem alterar contatos ou etapas:
+
+```bash
+olivaw-agent/ms-trevize-py/.venv/bin/trevize leads research --id UUID
+# Após revisar a pesquisa; grava sem preparar envio:
+olivaw-agent/ms-trevize-py/.venv/bin/trevize leads research --id UUID --apply
+```
+
+O exemplo pedido pelo mantenedor tem UI e UX em 5/10, cores/consistência como oportunidade e gestão não avaliada. É simulação, não análise de site real. O comando limita a aplicação ao lead fictício e preserva texto humano já revisado:
+
+```bash
+olivaw-agent/ms-trevize-py/.venv/bin/trevize leads research \
+  --id 1178e525-487f-58d8-a3bc-624338770a8b \
+  --simulation-file olivaw-agent/ms-trevize-py/examples/empresa-exemplo-assessment.json
+# Acrescente --apply somente após publicar a API compatível.
+```
+
+O termômetro usa interesse evidenciado, independente das notas: não confirmado, frio, morno, quente ou não contatar. Exibe motivo e data. Não estima probabilidade de compra nem faz rastreamento de abertura. Recusa permanece bloqueada. Um envio não aquece o lead; reclamação exige operador sem ser sinal de compra.
+
+Textos livres da IA consideram mensagem e resumos anteriores e ficam com `requiresReview=true`. A campanha não os envia, mesmo com aprovação antiga e transporte ativo. Revise em `leads decisions` e aprove cada resposta pelo comando existente `leads prepare-reply --body-file ... --approve`. O envio ainda exige comando e chaves de transporte; esta melhoria não os habilita. Uma pergunta sobre origem pode ser respondida com URL pública registrada para aquele endereço; não inventar origem para e-mails manuais ou de teste.
+
+Em novos planos, um arquivo de corpo contendo `{approach}` usa a abordagem individual **revisada** da ficha e congela o texto para aprovação. Planos existentes não são substituídos. O botão de sugestão da ficha oferece uma alternativa determinística; a pesquisa por IA produz rascunho contextual para revisão.
+
+A política é uma abordagem inicial por destinatário e continuidade somente após resposta. Não há lembretes por silêncio. O diário local também bloqueia reutilizar o mesmo endereço em outro lead para repetir a abordagem; preserve o diário ao migrar de máquina. Essa proteção local não representa cota global distribuída.

@@ -1,4 +1,27 @@
+export const WEBSITE_DIMENSIONS = {
+  modernity: 'Modernidade',
+  content: 'Conteúdo',
+  ui: 'UI / identidade visual',
+  ux: 'Usabilidade',
+  management: 'Gestão',
+} as const;
+export interface WebsiteMetric {
+  score: number | null;
+  evidence: string;
+  sourceUrl: string;
+  confidence: 'unknown' | 'provisional' | 'confirmed';
+}
+export interface WebsiteAssessment {
+  schemaVersion: number;
+  assessedAt: string;
+  basis: string;
+  strategy: string;
+  metrics: Record<keyof typeof WEBSITE_DIMENSIONS, WebsiteMetric>;
+}
 export interface LeadQualification {
+  websiteAssessment?: WebsiteAssessment | null;
+  commercialObservation?: string;
+  restrictedAreaUrl?: string;
   schemaVersion: number;
   segment: string;
   region: string;
@@ -73,18 +96,47 @@ export function webUrl(value: string | undefined): string | null {
     return null;
   }
 }
-export function approachSuggestion(business: string, qualification: LeadQualification): string {
-  const greeting = business ? `Olá, pessoal da ${business}.` : 'Olá!';
-  const context = qualification.segment ? ` do segmento de ${qualification.segment}` : '';
-  const location = qualification.region ? ` em ${qualification.region}` : '';
-  const positive = qualification.positives.trim();
-  const acknowledgement = positive
-    ? `\n\nAo conhecer a apresentação de vocês, destacamos: ${positive}`
-    : '';
-  let question =
-    'Hoje, a tecnologia atende bem à rotina de vocês ou há algo que gostariam de facilitar no negócio?';
-  if (qualification.presence === 'website')
-    question =
-      'O site atual atende bem às necessidades de vocês ou existe algo que gostariam de melhorar, seja na apresentação ou na gestão do negócio?';
-  return `${greeting} Somos da Olivaw, uma nova empresa de desenvolvimento de sistemas. Estamos conhecendo empresas${context}${location} para construir parcerias.${acknowledgement}\n\nGostaríamos de entender como podemos apoiar a operação de vocês. ${question}`;
+export function assessmentStrategy(assessment?: WebsiteAssessment | null): string {
+  const scored = Object.entries(assessment?.metrics || {}).filter(
+    ([, item]) => item.score !== null,
+  );
+  scored.sort((a, b) => a[1].score! - b[1].score!);
+  if (!scored.length) return 'discovery';
+  return scored[0][1].score! < 8 ? scored[0][0] : 'operations';
+}
+export function approachSuggestion(
+  business: string,
+  qualification: LeadQualification,
+  recipient = '',
+): string {
+  const greeting = business ? `Olá, pessoal da ${business}!` : 'Olá!';
+  const observation = qualification.commercialObservation?.trim();
+  const email = qualification.publicEmails?.find(
+    (item) => item.email.toLowerCase() === recipient.toLowerCase(),
+  );
+  const source = webUrl(email?.sourceUrl);
+  const questions: Record<string, string> = {
+    modernity:
+      'Vocês têm pensado em atualizar a apresentação do site para acompanhar a fase atual da empresa?',
+    content:
+      'Hoje vocês conseguem atualizar os serviços e novidades do site com a facilidade que gostariam?',
+    ui: 'A apresentação do site hoje transmite a identidade que vocês querem passar aos clientes?',
+    ux: 'Quem chega pelo celular consegue encontrar o que precisa e entrar em contato do jeito que vocês gostariam?',
+    management:
+      'Como vocês organizam as atualizações do site e os pedidos que chegam por ele hoje?',
+    operations:
+      'Há alguma rotina entre o contato pelo site e o atendimento que vocês gostariam de simplificar?',
+    discovery: 'O site atende ao que vocês precisam hoje ou há algo que gostariam de facilitar?',
+  };
+  const strategy = assessmentStrategy(qualification.websiteAssessment);
+  return [
+    greeting,
+    observation ? `Ao conhecer o site de vocês, chamou nossa atenção: ${observation}` : '',
+    'Somos da Olivaw. Criamos sites e sistemas para facilitar a apresentação e a rotina dos negócios.',
+    source ? `Encontramos este e-mail na página pública de contato: ${source}.` : '',
+    questions[strategy] || questions['discovery'],
+    'Abraços,\nEquipe Olivaw',
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 }

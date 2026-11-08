@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import time
 from ms_trevize.core.prospecting import BatchState, Collector, LeadStore
 from ms_trevize.domain.candidate import web_url
+from ms_trevize.domain.commercial import assessment_for, opening
 
 
 def qualification_for(candidate, evidence, settings, ai):
@@ -26,7 +27,7 @@ def qualification_for(candidate, evidence, settings, ai):
   if ai.get("status") == "completed":
     positives, observations, questions, approach = (ai[key] for key in ("positives","observations","questions","approach"))
   source = "Fonte: " + candidate.source + ". Verificado em " + datetime.now(timezone.utc).isoformat()
-  return {"schemaVersion":1,"segment":candidate.category or settings["search"]["segment"],"region":settings["search"]["region"],
+  result = {"schemaVersion":1,"segment":candidate.category or settings["search"]["segment"],"region":settings["search"]["region"],
     "websiteUrl":candidate.website,"phone":candidate.phone,"whatsapp":evidence.get("whatsapp","") if checked else "",
     "publicEmails":evidence.get("publicEmails",[]) if checked else [],
     "contactPageUrl":web_url(evidence.get("contactPage","")),
@@ -37,7 +38,14 @@ def qualification_for(candidate, evidence, settings, ai):
     "tags":["eventos","prospecção","revisão pendente"],"portfolioReference":"LTMJ — avaliar pertinência",
     "facts":(facts+" "+source)[:1500],"positives":positives[:1500],
     "observations":(observations+" Limite: "+evidence.get("limitations",evidence.get("reason","verificação incompleta")))[:1500],
-    "questions":questions[:1500],"approach":approach[:3000],"approachStatus":"draft"}
+    "questions":questions[:1500],"approach":approach[:3000],"approachStatus":"draft",
+    "restrictedAreaUrl":web_url(evidence.get("restrictedAreaUrl", "")),
+    "commercialObservation":ai.get("commercialObservation", ""),
+    "websiteAssessment":ai.get("websiteAssessment") or assessment_for({},evidence)}
+  # Sem IA disponível, a sugestão usa estratégia e origem registradas, sempre para revisão.
+  recipient = result["publicEmails"][0]["email"] if len(result["publicEmails"]) == 1 else ""
+  result["approach"] = ai.get("approach") or opening(candidate.name,result,recipient)
+  return result
 
 
 class CollectionFailure(RuntimeError):

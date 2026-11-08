@@ -18,6 +18,9 @@ export interface LeadItem {
   phone?: string;
   websiteUrl?: string;
   segment?: string;
+  temperature?: string;
+  temperatureReason?: string;
+  temperatureUpdatedAt?: string;
   followUpStatus: string;
 }
 export interface LeadPage {

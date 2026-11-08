@@ -99,6 +99,7 @@ class ProspectingTests(unittest.TestCase):
   def test_ai_has_no_tools_and_rejects_tool_events_or_invalid_schema(self):
     import subprocess
     result={"positives":"Serviços publicados.","observations":"Análise limitada.","questions":"O que querem facilitar?","approach":"Olá, somos da Olivaw."}
+    result.update(commercialObservation="",ratings={key:{"score":None,"evidence":""} for key in ("modernity","content","ui","ux","management")})
     runner=Mock(return_value=subprocess.CompletedProcess([],0,json.dumps({"type":"item.completed","item":{"type":"agent_message","text":json.dumps(result)}})))
     review=AIQualification(self.runtime.settings['ai'],'Não enviar mensagens.',runner)
     data=review.analyze(parse_card(card(),[]),{'status':'checked'},'Curitiba')

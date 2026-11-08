@@ -1,5 +1,6 @@
 """Piloto comercial: aprovação humana, reserva CRM e reconciliação sem reenvio."""
 import hashlib
+from datetime import datetime, timezone
 import json
 from uuid import UUID
 
@@ -64,6 +65,8 @@ class LeadOutreach:
     record["questionId"] = content.get("questionId", "")
     if message and message.get("reviewRevision"):
       record["eventId"] = digest([intent["id"],kind,message["id"],message["reviewRevision"]])
+    if message and message.get("interestSignal"):
+      record.update(interestSignal=message["interestSignal"],interestEvidence=message.get("interestEvidence", "")[:300])
     if message:
       record.update(gmailMessageId=message["id"], threadId=message["threadId"],
         subject=message.get("subject", "")[:200],
@@ -87,6 +90,11 @@ class LeadOutreach:
     if approved is not True: raise ValueError("Preparação exige --approve após revisar destinatário e texto.")
     identity, recipient = str(UUID(identity)), address(recipient)
     self.eligible(self.lead(identity), recipient)
+    if not reply_id:
+      existing = [item for item in self.store.intents() if item["content"]["to"] == recipient
+        and not item["content"].get("replyMessageId") and item["content"].get("leadId") != identity
+        and item["state"] != "cancelled"]
+      if existing: raise ValueError("Destinatário já possui abordagem inicial; continuar somente após resposta, na conversa existente.")
     if reply_id:
       # O próprio adaptador verifica remetente, última mensagem e automações.
       from ms_trevize.domain.mail import message_view, reply_context
@@ -232,17 +240,29 @@ class LeadOutreach:
         rule = classify(current_text(message.get("body","")))
         blocked = paused(lead)
         try:
-          if rule: analysis = rule
+          if rule:
+            analysis = rule
+            if rule["classification"] == "handoff":
+              from ms_trevize.data.reply_advisor import ready_for_operator
+              text = current_text(message.get("body", ""))
+              if ready_for_operator(text):
+                analysis.update(interestSignal="ready",interestEvidence=text[:300])
           elif blocked: analysis = {"classification":"handoff","questionId":"","summary":"Atendimento já encaminhado ou suspenso; revisão humana necessária."}
-          else: analysis = self.advisor.analyze(message, lead, asked)
+          else:
+            history = sorted((item for item in self.decisions() if item.get("leadId") == identity),key=lambda item:item.get("reviewedAt", ""))[-8:]
+            context = [{"summary":item.get("summary", "")[:500],"reply":item.get("reply", "")[:1000]} for item in history]
+            analysis = self.advisor.analyze(message,{**lead,"conversationContext":context,"initialContact":intent["content"]["body"][:2000]},asked)
         except (OSError, ValueError, KeyError, TypeError):
           analysis = {"classification":"handoff","questionId":"","summary":"Falha na classificação; encaminhar ao operador sem resposta automática."}
         decision = {**analysis,"leadId":identity,"messageId":message["id"],"threadId":message["threadId"],
-          "intentId":intent["id"],"reply":QUESTIONS.get(analysis.get("questionId"),"") if analysis["classification"] == "qualify" else ""}
+          "reviewedAt":datetime.now(timezone.utc).isoformat(),
+          "intentId":intent["id"],"reply":analysis.get("reply") or QUESTIONS.get(analysis.get("questionId"),"") if analysis["classification"] == "qualify" else ""}
         if previous: decision["reviewRevision"] = previous.get("reviewRevision",0)
         atomic_json(path, decision)
     kind = {"optout":"suppressed","qualify":"reply-draft"}.get(decision["classification"],"handoff")
     summary = {**message,"body":decision["summary"] + "\n" + decision.get("reply",""),"reviewRevision":decision.get("reviewRevision",0)}
+    if decision.get("interestSignal"):
+      summary.update(interestSignal=decision["interestSignal"],interestEvidence=decision.get("interestEvidence", ""))
     # A decisão é durável antes de reconhecer a mensagem, inclusive quando a IA falha.
     self.record(intent, kind, summary)
     return decision

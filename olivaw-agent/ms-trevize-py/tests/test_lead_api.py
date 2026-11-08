@@ -37,8 +37,10 @@ class ApiTests(unittest.TestCase):
     api.request=Mock(side_effect=ApiError(404))
     with self.assertRaises(ValueError):api.preflight()
     api.request.assert_called_once_with('/leads/00000000-0000-0000-0000-000000000000/qualification',method='OPTIONS')
-    api.request.side_effect=ApiError(405,'PUT')
+    api.request.side_effect=[ApiError(405,'PUT'), {'commercialResearchVersion':1}]
     api.preflight()
+    api.request.side_effect=[ApiError(405,'PUT'), {}]
+    with self.assertRaises(ValueError):api.preflight()
 
   def test_primary_email_is_created_and_contact_evidence_requires_readback(self):
     candidate=Candidate('a','Empresa','Eventos','','','','https://example.test')

@@ -28,6 +28,11 @@ class Campaign:
       business = snapshot.get("business", "")[:120]
       item = {"leadId":identity,"to":recipient,"subject":subject.replace("{business}",business),
         "body":body.replace("{business}",business)}
+      if "{approach}" in item["body"]:
+        qualification = snapshot.get("qualification") or {}
+        if qualification.get("approachStatus") != "reviewed" or not qualification.get("approach"):
+          raise ValueError("Abordagem individual precisa estar revisada na ficha antes de aprovar o lote.")
+        item["body"] = item["body"].replace("{approach}",qualification["approach"])
       build_message({**item,"sender":self.store.config()["sender"],"mimeId":"<validation@trevize.invalid>"})
       leads.append(item)
     with self.store.lock():
@@ -111,6 +116,8 @@ class Campaign:
           summary["paused"] += 1
           continue
         summary["drafts"] += 1
+        # Texto livre contextual é revisável; o lote antigo não aprova respostas novas da IA.
+        if decision.get("requiresReview"): continue
         if not can_send: continue
         try:
           prepared = self.outreach.prepare(decision["leadId"],roster["to"],None,decision["reply"],True,

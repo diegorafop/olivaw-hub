@@ -45,6 +45,8 @@ def run_outreach(path, directory=None):
   if not private_json(store.root/"campaign.json").get("active"):
     return {"status":"paused","reason":"campaign-disabled","sent":0}
   crm = LeadApi(settings["leadApi"],runtime.path.parent); crm.login()
-  ai = ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]})
+  skill = (runtime.path.parent/settings["skill"]["path"]).resolve(strict=True)
+  if skill.stat().st_size > 32768: raise ValueError("Skill excede limite.")
+  ai = ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]},skill=skill.read_text())
   service = LeadOutreach(crm,store,GoogleGmail.connect(store),ai)
   return Campaign(store,service,settings["outreach"]).run()

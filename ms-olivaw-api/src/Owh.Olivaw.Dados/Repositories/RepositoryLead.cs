@@ -25,7 +25,10 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
                     COALESCE(NULLIF(snapshot::jsonb ->> 'whatsapp', ''), snapshot::jsonb -> 'qualification' ->> 'whatsapp', '') AS "Whatsapp",
                     COALESCE(snapshot::jsonb -> 'qualification' ->> 'phone', '') AS "Phone",
                     COALESCE(snapshot::jsonb -> 'qualification' ->> 'websiteUrl', '') AS "WebsiteUrl",
-                    COALESCE(snapshot::jsonb -> 'qualification' ->> 'segment', '') AS "Segment"
+                    COALESCE(snapshot::jsonb -> 'qualification' ->> 'segment', '') AS "Segment",
+                    COALESCE(snapshot::jsonb -> 'engagement' ->> 'level', 'unassessed') AS "Temperature",
+                    COALESCE(snapshot::jsonb -> 'engagement' ->> 'reason', '') AS "TemperatureReason",
+                    COALESCE(snapshot::jsonb -> 'engagement' ->> 'updatedAt', '') AS "TemperatureUpdatedAt"
                 FROM lead WHERE deletedat IS NULL
                 """;
         }
@@ -40,7 +43,10 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
                     COALESCE(NULLIF(JSON_VALUE(snapshot, '$.whatsapp'), ''), JSON_VALUE(snapshot, '$.qualification.whatsapp'), '') AS [Whatsapp],
                     COALESCE(JSON_VALUE(snapshot, '$.qualification.phone'), '') AS [Phone],
                     COALESCE(JSON_VALUE(snapshot, '$.qualification.websiteUrl'), '') AS [WebsiteUrl],
-                    COALESCE(JSON_VALUE(snapshot, '$.qualification.segment'), '') AS [Segment]
+                    COALESCE(JSON_VALUE(snapshot, '$.qualification.segment'), '') AS [Segment],
+                    COALESCE(JSON_VALUE(snapshot, '$.engagement.level'), 'unassessed') AS [Temperature],
+                    COALESCE(JSON_VALUE(snapshot, '$.engagement.reason'), '') AS [TemperatureReason],
+                    COALESCE(JSON_VALUE(snapshot, '$.engagement.updatedAt'), '') AS [TemperatureUpdatedAt]
                 FROM lead WHERE deletedat IS NULL
                 """;
         }
@@ -69,7 +75,7 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
             .Select(item => new LeadReadItem
             {
                 ExternalId = item.ExternalId, CreatedAt = item.CreatedAt, UpdatedAt = item.UpdatedAt,
-                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Phone = item.Phone, WebsiteUrl = item.WebsiteUrl, Segment = item.Segment, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus
+                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Phone = item.Phone, WebsiteUrl = item.WebsiteUrl, Segment = item.Segment, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus, Temperature = item.Temperature, TemperatureReason = item.TemperatureReason, TemperatureUpdatedAt = item.TemperatureUpdatedAt
             }).ToListAsync(cancellationToken);
         return new LeadReadPage { Total = total, Items = items };
     }
@@ -87,6 +93,9 @@ public sealed class RepositoryLead(WriteDbContext context) : Repository<Lead>(co
 
 public sealed class LeadReadRow
 {
+    [Column("Temperature")] public string Temperature { get; set; } = "unassessed";
+    [Column("TemperatureReason")] public string TemperatureReason { get; set; } = string.Empty;
+    [Column("TemperatureUpdatedAt")] public string TemperatureUpdatedAt { get; set; } = string.Empty;
     [Column("ExternalId")] public Guid ExternalId { get; set; }
     [Column("CreatedAt")] public DateTime CreatedAt { get; set; }
     [Column("UpdatedAt")] public DateTime? UpdatedAt { get; set; }

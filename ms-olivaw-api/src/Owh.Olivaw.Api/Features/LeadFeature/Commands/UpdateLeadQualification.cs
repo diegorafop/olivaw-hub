@@ -62,6 +62,9 @@ public sealed class UpdateLeadQualificationValidator : AbstractValidator<UpdateL
         RuleFor(item => item.Qualification).NotNull();
         When(item => item.Qualification != null, () => RuleFor(item => item.Qualification).ChildRules(qualification =>
         {
+            qualification.RuleFor(item => item.CommercialObservation).NotNull().MaximumLength(400);
+            qualification.RuleFor(item => item.RestrictedAreaUrl).NotNull().MaximumLength(2048).Must(IsWebUrl);
+            qualification.RuleFor(item => item.WebsiteAssessment).SetValidator(new LeadWebsiteAssessmentValidator()!);
             qualification.RuleFor(item => item.SchemaVersion).Equal(1);
             qualification.RuleFor(item => item.Segment).NotNull().MaximumLength(100);
             qualification.RuleFor(item => item.Region).NotNull().MaximumLength(120);
@@ -105,5 +108,30 @@ public sealed class UpdateLeadQualificationMediatorValidator : AbstractValidator
         RuleFor(item => item.ActorUserId).NotEmpty();
         RuleFor(item => item.ActorName).NotEmpty().MaximumLength(120);
         RuleFor(item => item.Payload).NotNull().SetValidator(new UpdateLeadQualificationValidator()).OverridePropertyName(string.Empty);
+    }
+}
+
+public sealed class LeadWebsiteAssessmentValidator : AbstractValidator<LeadWebsiteAssessment>
+{
+    private static readonly string[] Dimensions = ["modernity", "content", "ui", "ux", "management"];
+    public LeadWebsiteAssessmentValidator()
+    {
+        RuleFor(item => item.SchemaVersion).Equal(1);
+        RuleFor(item => item.AssessedAt).NotEmpty();
+        RuleFor(item => item.Basis).Must(value => value is "html" or "manual" or "simulation" or "conversation");
+        RuleFor(item => item.Strategy).Must(value => Dimensions.Contains(value) || value is "discovery" or "operations");
+        RuleFor(item => item.Metrics).NotNull().Must(items => items != null && items.Count == 5 && Dimensions.All(items.ContainsKey));
+        RuleForEach(item => item.Metrics).ChildRules(pair =>
+        {
+            pair.RuleFor(item => item.Value).NotNull().ChildRules(metric =>
+            {
+                metric.RuleFor(item => item.Score).InclusiveBetween(0, 10);
+                metric.RuleFor(item => item.Evidence).NotEmpty().MaximumLength(400);
+                metric.RuleFor(item => item.Confidence).Must(value => value is "unknown" or "provisional" or "confirmed");
+                metric.RuleFor(item => item.Score).Null().When(item => item.Confidence == "unknown");
+                metric.RuleFor(item => item.Score).NotNull().When(item => item.Confidence != "unknown");
+                metric.RuleFor(item => item.SourceUrl).NotNull().MaximumLength(2048).Must(value => string.IsNullOrEmpty(value) || Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" && string.IsNullOrEmpty(uri.UserInfo));
+            });
+        });
     }
 }

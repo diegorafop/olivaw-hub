@@ -11,8 +11,16 @@ const item = {
   email: '',
   whatsapp: '11987654321',
   followUpStatus: 'new',
+  temperature: 'hot',
+  temperatureReason: 'Pediu uma proposta de site.',
+  temperatureUpdatedAt: '2026-11-08T10:00:00Z',
 };
 const snapshot = {
+  engagement: {
+    level: 'hot',
+    reason: 'Pediu uma proposta de site.',
+    updatedAt: '2026-11-08T10:00:00Z',
+  },
   schemaVersion: 1,
   revision: 1,
   startedAt: createdAt,
@@ -286,4 +294,14 @@ test('administrador com permissão acessa leads sem ganhar acesso a clientes', a
   await expect(page.getByRole('heading', { name: 'Acompanhamento', exact: true })).toBeVisible();
   await page.goto('/admin/customers');
   await expect(page).toHaveURL(/\/acesso-negado$/);
+});
+
+test('exibe termômetro na lista e o motivo ao abrir o lead', async ({ page }) => {
+  await setup(page);
+  await page.goto('/admin/leads');
+  await expect(
+    page.getByRole('link', { name: /Pastelaria Aurora/ }).getByText('Quente', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: /Pastelaria Aurora/ }).click();
+  await expect(page.getByText('Pediu uma proposta de site.', { exact: true })).toBeVisible();
 });
