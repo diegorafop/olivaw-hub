@@ -35,7 +35,15 @@ Referências e aplicação editorial: [pesquisa comercial da skill](../../../oli
 
 Validação local concluída: 101 testes Python, 514 testes .NET, 8 testes unitários Angular e 15 E2E de lista/ficha aprovados. Build Angular, lint, pack do cliente e validação estrutural da skill concluídos. O build mantém somente os quatro avisos de orçamento de CSS anteriores, sem novos avisos de template. Testes usam fixtures, mocks e servidor local, sem Gmail, Maps, IA ou bancos reais. Diff e links locais conferidos.
 
-Publicação e aceite no ambiente permanecem pendentes. API v1.1.3 e frontend devem ser publicados da feature pelo mantenedor, sem merge antecipado em develop. Exemplo fictício está preparado localmente; a aplicação na ficha real de teste ocorrerá após publicação compatível, antes de uma nova mensagem aprovada para o endereço do mantenedor. Chaves de envio permanecem desligadas. Nenhuma mensagem foi enviada nesta implementação. Nenhum contato autorizado por esta documentação. O mantenedor publica a feature após revisão; não fazer finish automaticamente.
+API v1.1.3 publicada e confirmada pelo contrato autenticado. Exemplo fictício aplicado e resposta controlada confirmada em Enviados, conforme aceite abaixo. Frontend publicado ainda não confirmado nesta rodada. Não houve finish, push ou implantação pelo agente. Transporte segue desligado e nenhuma campanha geral foi ativada. O mantenedor mantém o controle da publicação e do aceite das próximas respostas.
+
+### Aceite controlado após publicação em 08/11/2026
+
+API v1.1.3 e `commercialResearchVersion: 1` confirmados no ambiente. O operador autorizou teste com o próprio endereço e pediu tratar o lead pelo fluxo normal. UI e UX em 5/10 foram persistidas, demais notas permanecem pendentes. A origem verdadeira foi registrada como contato fornecido à equipe, com tag `contact-provided` e confiança confirmada; não foi inventada coleta em site público.
+
+O fluxo `resume`/`sync` reprocessou a resposta já recebida, preservou o histórico e usou o `ReplyAdvisor` com a skill canônica. Classificação `qualify`, interesse neutro e rascunho com resposta à finalidade/origem e uma pergunta sobre a operação. O operador revisou o texto dentro do teste autorizado; uma única resposta foi enviada na thread existente e confirmada em Enviados, com registro CRM. Isso não comprova caixa de entrada ou leitura pelo destinatário. Transporte novamente desligado; nenhum worker ou campanha foi iniciado.
+
+O teste revelou dois ajustes locais do agente: aceitar finalidade/origem no transporte e permitir explicar contato fornecido confirmado, sem equipará-lo a fonte pública. Esses ajustes não alteram API ou schema. Validação posterior: 103 testes Python e validação estrutural da skill aprovados. Rascunhos livres continuam com revisão individual. Frontend e cenário posterior ainda dependem do aceite do mantenedor.
 
 ## user-feedback
 
@@ -116,4 +124,14 @@ perfeito, simulando de fato um ser humano.
 podemos deixar claroq ue achamos o contato no site publico desse lead/cliente.
 
 isso melhora a tratativa do gmail?
+```
+
+```text
+pronto, api publicada.
+
+pode fazer o teste do trevize
+```
+
+```text
+deixe o lead ficticio como se fosse 'real' para o trevize trabalhar normalmente
 ```

@@ -218,3 +218,5 @@ Textos livres da IA consideram mensagem e resumos anteriores e ficam com `requir
 Em novos planos, um arquivo de corpo contendo `{approach}` usa a abordagem individual **revisada** da ficha e congela o texto para aprovação. Planos existentes não são substituídos. O botão de sugestão da ficha oferece uma alternativa determinística; a pesquisa por IA produz rascunho contextual para revisão.
 
 A política é uma abordagem inicial por destinatário e continuidade somente após resposta. Não há lembretes por silêncio. O diário local também bloqueia reutilizar o mesmo endereço em outro lead para repetir a abordagem; preserve o diário ao migrar de máquina. Essa proteção local não representa cota global distribuída.
+
+Contatos fornecidos à equipe pelo operador podem usar a tag `contact-provided` junto de confiança `confirmed`, após revisão humana da origem. O Trevize explica essa origem e não a apresenta como coleta em site. Sem URL pública associada nem origem fornecida confirmada, a dúvida continua encaminhada ao operador. Perguntas de finalidade/origem também são aceitas pelo transporte do roteiro revisável; textos livres mantêm aprovação individual.

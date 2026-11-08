@@ -263,5 +263,13 @@ class GmailTests(unittest.TestCase):
       result=main(['gmail','--directory',str(self.store.root),'profile'])
     self.assertEqual(result,1);self.assertNotIn('SECRET',output.getvalue())
 
+  def test_reviewed_purpose_and_origin_questions_are_accepted_by_transport(self):
+    for question in ('purpose','contact-origin'):
+      intent = self.prepare('review-'+question,question_id=question)
+      self.assertEqual(question,intent['content']['questionId'])
+      self.assertEqual('prepared',intent['state'])
+    with self.assertRaises(ValueError): self.prepare('forbidden',question_id='negotiate-price')
+    self.assertEqual([],self.api.sent)
+
 
 if __name__ == "__main__": unittest.main()

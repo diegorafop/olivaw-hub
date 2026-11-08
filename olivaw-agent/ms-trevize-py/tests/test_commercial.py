@@ -109,3 +109,20 @@ class CommercialTests(unittest.TestCase):
     result = LeadResearch(crm,website,ai).run(workflow.LEAD)
     self.assertEqual('human-assessment-preserved',result['status'])
     website.analyze.assert_not_called(); ai.analyze.assert_not_called()
+
+  def test_confirmed_provided_contact_uses_normal_advisor_without_inventing_public_source(self):
+    decision = {'classification':'qualify','questionId':'purpose','summary':'Origem informada pelo operador.',
+      'reply':'Seu contato foi fornecido à equipe Olivaw. Como o site atende o negócio hoje?',
+      'interestSignal':'neutral','interestEvidence':'Como conheceram meu e-mail?'}
+    runner = Mock(return_value=subprocess.CompletedProcess([],0,json.dumps({'type':'item.completed','item':{'type':'agent_message','text':json.dumps(decision)}})))
+    advisor = ReplyAdvisor({'enabled':True,'timeoutSeconds':10},runner)
+    message = {'body':'Como conheceram meu e-mail?','bodyAvailable':True}
+    lead = {'qualification':{'tags':['contact-provided'],'confidence':'confirmed','facts':'Fornecido à equipe pelo operador.'}}
+    result = advisor.analyze(message,lead,set())
+    self.assertEqual('qualify',result['classification'])
+    self.assertTrue(result['requiresReview'])
+    self.assertIn('Contato fornecido',runner.call_args.kwargs['input'])
+    self.assertNotIn('site público',result['reply'])
+    lead['qualification']['confidence'] = 'pending'
+    self.assertEqual('handoff',advisor.analyze(message,lead,set())['classification'])
+    self.assertEqual(1,runner.call_count)

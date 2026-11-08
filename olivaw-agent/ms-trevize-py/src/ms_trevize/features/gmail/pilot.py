@@ -30,7 +30,7 @@ class GmailPilot:
     config = self.store.config()
     content = {"sender":config["sender"],"body":body}
     if question_id:
-      if question_id not in ("need", "current-system", "deadline", "contact-person"):
+      if question_id not in ("need", "current-system", "deadline", "contact-person", "purpose", "contact-origin"):
         raise ValueError("Pergunta fora do roteiro autorizado.")
       content["questionId"] = question_id
     if lead_id:
