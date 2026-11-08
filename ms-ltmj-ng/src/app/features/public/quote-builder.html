@@ -1,0 +1,102 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="prepare()"
+  class="flex flex-col gap-3"
+  aria-label="Pedido de orçamento"
+>
+  <div class="grid gap-3 sm:grid-cols-2">
+    <mat-form-field appearance="outline" floatLabel="always"
+      ><mat-label>Qual é a ocasião?</mat-label
+      ><mat-select formControlName="occasion" required>
+        <mat-option value="Casamento">Casamento</mat-option
+        ><mat-option value="Aniversário">Aniversário</mat-option>
+        <mat-option value="Evento corporativo">Evento corporativo</mat-option
+        ><mat-option value="Confraternização">Confraternização</mat-option
+        ><mat-option value="Outro momento especial">Outro momento especial</mat-option>
+      </mat-select>
+      @if (form.controls.occasion.invalid) {
+        <mat-error>Escolha a ocasião.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" floatLabel="always"
+      ><mat-label>Cidade do evento</mat-label
+      ><input
+        matInput
+        formControlName="city"
+        maxlength="100"
+        placeholder="Ex.: Curitiba"
+        required
+      />
+      @if (form.controls.city.invalid) {
+        <mat-error>Informe a cidade.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" floatLabel="always"
+      ><mat-label>Convidados, aproximadamente</mat-label
+      ><input matInput type="number" formControlName="guests" min="1" max="100000" step="1" />
+      <mat-hint>Pode deixar em branco se ainda não souber.</mat-hint>
+      @if (form.controls.guests.invalid) {
+        <mat-error>Informe um número entre 1 e 100.000.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" floatLabel="always"
+      ><mat-label>Data, se já souber</mat-label><input matInput type="date" formControlName="date"
+    /></mat-form-field>
+  </div>
+  <fieldset class="mb-4 rounded-xl border border-outline/40 p-4">
+    <legend class="px-2 text-sm">O que você imagina para o evento?</legend>
+    <div class="flex flex-wrap gap-2">
+      @for (service of services; track service) {
+        <button
+          mat-stroked-button
+          type="button"
+          [attr.aria-pressed]="form.controls.services.value.includes(service)"
+          (click)="toggle(service)"
+        >
+          {{ service }}
+        </button>
+      }
+    </div>
+    <p class="mt-3 text-xs text-on-surface/70">
+      Escolha quantos quiser. Se ainda não souber, ajudamos você a decidir.
+    </p>
+  </fieldset>
+  <mat-form-field appearance="outline" floatLabel="always"
+    ><mat-label>Conte um pouco sobre a sua ideia</mat-label
+    ><textarea
+      matInput
+      rows="3"
+      formControlName="notes"
+      maxlength="1500"
+      placeholder="Preferências de cardápio, estilo da festa ou algo que não pode faltar…"
+    ></textarea>
+  </mat-form-field>
+  <button mat-flat-button type="submit">
+    Preparar meu pedido <span aria-hidden="true">↗</span>
+  </button>
+</form>
+@if (summary()) {
+  <section class="mt-6 rounded-xl border border-outline/40 p-5" aria-label="Revisão do pedido">
+    <h4 class="mb-3 text-lg font-semibold">Confira o seu resumo</h4>
+    <pre class="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed">{{
+      summary()
+    }}</pre>
+    <div class="mt-5 flex flex-wrap gap-3">
+      <button mat-flat-button type="button" (click)="copy()">Copiar resumo</button>
+      @if (whatsappHref(); as href) {
+        <a mat-stroked-button [href]="href" target="_blank" rel="noopener noreferrer"
+          >Abrir no WhatsApp</a
+        >
+      } @else {
+        <a mat-stroked-button [href]="contact.instagram" target="_blank" rel="noopener noreferrer"
+          >Conversar no Instagram</a
+        >
+      }
+    </div>
+  </section>
+}
+<p role="status" aria-live="polite" class="mt-4 text-sm">{{ message() }}</p>
+<p class="mt-4 text-xs leading-relaxed text-on-surface/65">
+  Este protótipo prepara o resumo no seu navegador. Nada é salvo ou enviado automaticamente. O
+  WhatsApp comercial será ativado após confirmação do número; por enquanto, use o Instagram oficial.
+</p>

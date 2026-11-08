@@ -1,0 +1,133 @@
+<main id="operation-content" tabindex="-1">
+  <a routerLink="/admin/configuration">Voltar à configuração</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / INFRAESTRUTURA</p>
+      <h1>Recursos</h1>
+      <p>Um catálogo único para entender onde cada serviço se apoia.</p>
+    </div>
+    <a class="primary" routerLink="/admin/resources/new">Cadastrar recurso</a>
+  </header>
+  @if (linkCustomer) {
+    <p class="surface">
+      Escolha um recurso existente e abra seus vínculos para associar este cliente.
+    </p>
+  }
+  <form class="filters" [formGroup]="form" (ngSubmit)="apply()" aria-label="Filtrar recursos">
+    <label
+      >Buscar recurso<input
+        formControlName="search"
+        maxlength="100"
+        type="search"
+        placeholder="Nome ou identificador"
+    /></label>
+    <label
+      >Tipo<select formControlName="type">
+        <option value="">Todos</option>
+        @for (option of typeOptions; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select></label
+    >
+    <label
+      >Provedor<input
+        formControlName="provider"
+        maxlength="80"
+        placeholder="Nome exato do provedor"
+    /></label>
+    <label
+      >Situação<select formControlName="status">
+        <option value="">Todas</option>
+        @for (option of statusOptions; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select></label
+    >
+    <label
+      >Ambiente<select formControlName="environment">
+        <option value="">Todos</option>
+        @for (option of environmentOptions; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select></label
+    >
+    <label
+      >Compartilhamento<select formControlName="shared">
+        <option value="">Todos</option>
+        <option value="true">Mais de um cliente</option>
+        <option value="false">Até um cliente</option>
+      </select></label
+    >
+    <label
+      >Buscar cliente<input
+        type="search"
+        [value]="customerSearch()"
+        (input)="customerSearch.set($any($event.target).value)"
+        placeholder="Nome do cliente"
+    /></label>
+    <label
+      >Cliente<select formControlName="customerExternalId">
+        <option value="">Todos</option>
+        @if (form.controls.customerExternalId.value) {
+          <option [value]="form.controls.customerExternalId.value">Cliente selecionado</option>
+        }
+        @for (item of customerChoices(); track item.externalId) {
+          <option [value]="item.externalId">{{ item.business }}</option>
+        }
+      </select></label
+    >
+    @if (customerError()) {
+      <p role="status">Não foi possível buscar clientes. Tente a busca novamente.</p>
+    }
+    <button class="primary" type="submit">Filtrar</button
+    ><button type="button" (click)="clear()">Limpar</button>
+  </form>
+  @if (list().loading) {
+    <p role="status">Carregando recursos…</p>
+  } @else if (list().error) {
+    <p role="alert">{{ list().error }}</p>
+    <button type="button" (click)="reload()">Tentar novamente</button>
+  } @else if (list().data; as page) {
+    <p class="help">
+      {{ page.total }} recurso(s) · Beneficiários registrados não representam medição de consumo ou
+      rateio.
+    </p>
+    <div class="resource-grid">
+      @for (item of page.items; track item.externalId) {
+        <a
+          class="resource-card"
+          [routerLink]="['/admin/resources', item.externalId]"
+          [queryParams]="{ customer: linkCustomer }"
+          ><span class="badge">{{ statuses[item.status] }}</span>
+          <h2>{{ item.name }}</h2>
+          <p>{{ types[item.type] }} · {{ item.provider || 'Provedor não informado' }}</p>
+          <small>{{ item.technicalId }}</small>
+          <p>
+            {{
+              item.customerCount > 1
+                ? 'Compartilhado por ' + item.customerCount + ' clientes'
+                : item.customerCount === 1
+                  ? '1 cliente identificado'
+                  : 'Sem cliente identificado'
+            }}
+          </p></a
+        >
+      } @empty {
+        <p class="surface">
+          Nenhum recurso neste recorte. Ajuste os filtros ou cadastre o primeiro recurso.
+        </p>
+      }
+    </div>
+    <footer>
+      <button type="button" (click)="go(page.page - 1)" [disabled]="page.page <= 1">Anterior</button
+      ><span>Página {{ page.page }}</span
+      ><button
+        type="button"
+        (click)="go(page.page + 1)"
+        [disabled]="page.page * page.pageSize >= page.total"
+      >
+        Próxima
+      </button>
+    </footer>
+  }
+</main>

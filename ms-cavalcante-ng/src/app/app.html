@@ -1,0 +1,11 @@
+<a class="sr-only focus:not-sr-only" href="#conteudo">Pular para o conteúdo</a>
+@if (http.loading()) {
+  <mat-progress-bar mode="indeterminate" aria-label="Carregando" />
+}
+@if (http.error(); as error) {
+  <div role="alert" class="flex items-center justify-between gap-4 p-4">
+    <span>{{ error }}</span>
+    <button mat-button type="button" (click)="http.error.set(null)">Fechar aviso</button>
+  </div>
+}
+<main id="conteudo" tabindex="-1"><router-outlet /></main>

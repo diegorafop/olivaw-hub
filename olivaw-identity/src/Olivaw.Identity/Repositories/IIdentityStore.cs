@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Mps.OlivawCore.Domain;
+using Owh.OlivawCore.Domain;
 
 namespace Olivaw.Identity.Repositories;
 

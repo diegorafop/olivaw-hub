@@ -1,0 +1,222 @@
+<main id="operation-content" tabindex="-1">
+  <a [routerLink]="id() || creating() ? '/admin/invoices' : '/admin/finance'">{{
+    id() || creating() ? 'Voltar às faturas' : 'Voltar ao financeiro'
+  }}</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / FINANCEIRO</p>
+      <h1>
+        {{ creating() ? 'Registrar fatura AWS' : id() ? 'Detalhes da fatura' : 'Faturas AWS' }}
+      </h1>
+      <p>
+        Documento de origem e despesas são registros diferentes. Registrar uma fatura não cria novas
+        despesas.
+      </p>
+    </div>
+  </header>
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (loading()) {
+    <p role="status">Consultando faturas…</p>
+  }
+  @if (creating()) {
+    <form class="surface" [formGroup]="form" (ngSubmit)="save()">
+      <div class="fields">
+        <label>Emissor *<input formControlName="issuer" maxlength="200" /></label>
+        <label
+          >Referência da conta *<input formControlName="accountReference" maxlength="120"
+        /></label>
+        <label>Número da fatura<input formControlName="invoiceNumber" maxlength="120" /></label>
+        <label
+          >Ano *<input type="number" formControlName="billingYear" min="2000" max="2100"
+        /></label>
+        <label>Mês *<input type="number" formControlName="billingMonth" min="1" max="12" /></label>
+        <label
+          >Moeda original<select formControlName="currency">
+            <option value="USD">USD</option>
+            <option value="BRL">BRL</option>
+          </select></label
+        >
+        <label
+          >Situação<select formControlName="documentStatus">
+            <option value="provisional">Provisório</option>
+            <option value="issued">Emitida</option>
+            <option value="paid">Paga</option>
+          </select></label
+        >
+        <label
+          >Cobertura<select formControlName="completeness">
+            <option value="partial">Captura parcial</option>
+            <option value="issuer-section">Seção de emissor</option>
+            <option value="complete">Documento completo</option>
+          </select></label
+        >
+        <label
+          >Custo bruto<input type="number" formControlName="grossAmount" min="0" step="any"
+        /></label>
+        <label
+          >Créditos (somente evidência)<input
+            type="number"
+            formControlName="creditAmount"
+            min="0"
+            step="any"
+        /></label>
+        <label
+          >Impostos adicionais<input type="number" formControlName="taxAmount" min="0" step="any"
+        /></label>
+        <label
+          >Líquido do documento<input type="number" formControlName="netAmount" min="0" step="any"
+        /></label>
+        <label
+          >Conversão para real<input
+            type="number"
+            formControlName="exchangeRateToBrl"
+            min="0.000001"
+            step="0.000001"
+        /></label>
+        <label
+          >Natureza do câmbio<select formControlName="exchangeRateNature">
+            <option value="unknown">Não informado</option>
+            <option value="managerial">Gerencial</option>
+            <option value="payment">Efetivo do pagamento</option>
+          </select></label
+        >
+      </div>
+      <p>
+        Deixe valores desconhecidos vazios. Bruto − créditos + impostos adicionais deve corresponder
+        ao líquido quando todos estiverem informados. Créditos não reduzem as despesas da operação.
+      </p>
+      <label>Fonte *<input formControlName="source" maxlength="300" /></label>
+      <label
+        >Dados originais em JSON *<textarea
+          formControlName="rawData"
+          rows="12"
+          spellcheck="false"
+        ></textarea>
+      </label>
+      <label
+        >IDs públicos das despesas já lançadas (opcional)<textarea
+          formControlName="expenseIds"
+          rows="3"
+        ></textarea>
+      </label>
+      <p>
+        Separe IDs por linha ou vírgula. Cada despesa pode pertencer a uma evidência e deve ter a
+        mesma competência.
+      </p>
+      <button type="submit" class="primary" [disabled]="pending()">
+        {{ pending() ? 'Registrando…' : 'Registrar documento' }}
+      </button>
+    </form>
+  } @else if (detail(); as result) {
+    <section class="surface">
+      <h2>{{ result.invoice.issuer }}</h2>
+      <p>
+        {{ result.invoice.billingMonth }}/{{ result.invoice.billingYear }} ·
+        {{ label(result.invoice.documentStatus) }} · {{ label(result.invoice.completeness) }}
+      </p>
+      <p>
+        Conta: {{ result.invoice.accountReference }} · Documento:
+        {{ result.invoice.invoiceNumber || 'Não informado' }}
+      </p>
+      <dl>
+        <div>
+          <dt>Custo bruto</dt>
+          <dd>
+            {{
+              result.invoice.grossAmount === null
+                ? 'Não informado'
+                : (result.invoice.grossAmount | currency: result.invoice.currency)
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>Créditos na evidência</dt>
+          <dd>
+            {{
+              result.invoice.creditAmount === null
+                ? 'Não informado'
+                : (result.invoice.creditAmount | currency: result.invoice.currency)
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>Líquido do documento</dt>
+          <dd>
+            {{
+              result.invoice.netAmount === null
+                ? 'Não informado'
+                : (result.invoice.netAmount | currency: result.invoice.currency)
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>Câmbio registrado</dt>
+          <dd>
+            {{ result.invoice.exchangeRateToBrl ?? 'Não informado' }} ·
+            {{ label(result.invoice.exchangeRateNature) }}
+          </dd>
+        </div>
+      </dl>
+      <p>{{ result.invoice.source }}</p>
+    </section>
+    <section class="surface">
+      <h2>Despesas relacionadas</h2>
+      @for (expense of result.expenses; track expense.externalId) {
+        <p>
+          {{ expense.description }} · {{ expense.amountBrl | currency: 'BRL' }}
+          {{ expense.kind === 'credit' ? '· crédito histórico' : '' }}
+        </p>
+      } @empty {
+        <p>Nenhuma despesa vinculada. O registro documental não lança custos automaticamente.</p>
+      }
+      <a
+        [routerLink]="'/admin/expenses'"
+        [queryParams]="{
+          from:
+            result.invoice.billingYear +
+            '-' +
+            ('' + result.invoice.billingMonth).padStart(2, '0') +
+            '-01',
+        }"
+        >Consultar despesas →</a
+      >
+    </section>
+    <section class="surface">
+      <h2>Dados originais</h2>
+      <p>Campos adicionais são preservados mesmo quando não têm coluna própria.</p>
+      <pre style="white-space: pre-wrap; overflow-wrap: anywhere">{{ raw() | json }}</pre>
+    </section>
+  } @else if (!id()) {
+    <p><a routerLink="/admin/invoices/new">Registrar documento AWS →</a></p>
+    @for (invoice of items(); track invoice.externalId) {
+      <article class="surface">
+        <h2>
+          <a [routerLink]="['/admin/invoices', invoice.externalId]"
+            >{{ invoice.billingMonth }}/{{ invoice.billingYear }} · {{ invoice.issuer }}</a
+          >
+        </h2>
+        <p>
+          {{ label(invoice.documentStatus) }} · {{ label(invoice.completeness) }} ·
+          {{ invoice.invoiceNumber || 'Sem número informado' }}
+        </p>
+        <p>
+          Bruto:
+          {{
+            invoice.grossAmount === null
+              ? 'Não informado'
+              : (invoice.grossAmount | currency: invoice.currency)
+          }}
+        </p>
+      </article>
+    } @empty {
+      @if (!loading() && !error()) {
+        <p>Nenhum documento registrado.</p>
+      }
+    }
+    @if (cursor()) {
+      <button type="button" (click)="older()" [disabled]="loading()">Faturas anteriores</button>
+    }
+  }
+</main>

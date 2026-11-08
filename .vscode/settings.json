@@ -33,29 +33,64 @@
   "yaml.schemas": {
     "kubernetes": "/*.yaml"
   },
+  "yapf.args": [
+    "--style",
+    "{based_on_style: pep8, indent_width: 2}"
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "eeyore.yapf",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modifications",
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  },
   "files.exclude": {
     "**/bin": true,
     "**/obj": true,
     "**/.vs": true,
+    "**/.angular": true,
+    "**/node_modules": true,
     "**/dist": true,
     "**/TestResults": true,
     "**/*.csproj.user": true,
     "**/results": true,
     "**/coverage": true,
     "**/artifacts": true,
-    "**/BenchmarkDotNet.Artifacts": true
+    "**/BenchmarkDotNet.Artifacts": true,
+    "**/.venv": true,
+    "**/__pycache__": true
   },
   "search.exclude": {
     "**/bin": true,
     "**/obj": true,
     "**/.vs": true,
+    "**/.angular": true,
+    "**/node_modules": true,
     "**/dist": true,
     "**/TestResults": true,
     "**/*.csproj.user": true,
     "**/results": true,
     "**/coverage": true,
     "**/artifacts": true,
-    "**/BenchmarkDotNet.Artifacts": true
+    "**/BenchmarkDotNet.Artifacts": true,
+    "**/.venv/**": true,
+    "**/__pycache__": true
   },
-  "python.terminal.useEnvFile": true
+  "files.watcherExclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true,
+    "**/.angular": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/TestResults": true,
+    "**/*.csproj.user": true,
+    "**/results": true,
+    "**/coverage": true,
+    "**/artifacts": true,
+    "**/.venv/**": true,
+    "**/__pycache__": true
+  },
+  "python.terminal.useEnvFile": true,
+  "dotnet.defaultSolution": "Olivaw.sln"
 }

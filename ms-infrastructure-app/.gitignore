@@ -1,0 +1,6 @@
+state/
+backups/
+audit-output/
+acme.json
+*.pem
+*.key

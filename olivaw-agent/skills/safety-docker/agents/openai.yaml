@@ -1,0 +1,4 @@
+interface:
+  display_name: "Safety Docker"
+  short_description: "Audite hosts Docker e APIs com evidências seguras"
+  default_prompt: "Use $safety-docker para auditar o alvo autorizado e gerar um relatório JSON com evidências, riscos e limitações."

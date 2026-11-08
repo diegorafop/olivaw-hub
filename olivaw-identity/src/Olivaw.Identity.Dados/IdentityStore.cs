@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Mps.OlivawCore.Domain;
+using Owh.OlivawCore.Domain;
 using Olivaw.Identity.Domain;
 using Olivaw.Identity.Repositories;
 
@@ -11,10 +11,10 @@ public sealed class IdentityStore<TContext>(TContext context) : IIdentityStore w
     private IQueryable<T> Query<T>() where T : Entity
     {
         var query = context.Set<T>().AsQueryable();
-        if (typeof(T) == typeof(UsuarioPerfilAcesso))
-            return query.Include(nameof(UsuarioPerfilAcesso.Usuario)).Include(nameof(UsuarioPerfilAcesso.PerfilAcesso));
-        if (typeof(T) == typeof(PerfilAcessoAutorizacao))
-            return query.Include(nameof(PerfilAcessoAutorizacao.PerfilAcesso)).Include(nameof(PerfilAcessoAutorizacao.Autorizacao));
+        if (typeof(T) == typeof(UserProfileAccessProfile))
+            return query.Include(nameof(UserProfileAccessProfile.UserProfile)).Include(nameof(UserProfileAccessProfile.AccessProfile));
+        if (typeof(T) == typeof(AccessProfileAuthorization))
+            return query.Include(nameof(AccessProfileAuthorization.AccessProfile)).Include(nameof(AccessProfileAuthorization.Authorization));
         return query;
     }
 
@@ -51,13 +51,13 @@ public sealed class IdentityStore<TContext>(TContext context) : IIdentityStore w
 
     public async Task<IReadOnlyList<string>> PermissionsAsync(int usuarioId, CancellationToken cancellationToken)
     {
-        var query = from usuario in context.Set<Usuario>().Where(item => item.Ativo)
-                    join vinculo in context.Set<UsuarioPerfilAcesso>() on usuario.Id equals vinculo.UsuarioId
-                    join perfil in context.Set<PerfilAcesso>().Where(item => item.Ativo) on vinculo.PerfilAcessoId equals perfil.Id
-                    join permissao in context.Set<PerfilAcessoAutorizacao>() on perfil.Id equals permissao.PerfilAcessoId
-                    join autorizacao in context.Set<Autorizacao>() on permissao.AutorizacaoId equals autorizacao.Id
+        var query = from usuario in context.Set<UserProfile>().Where(item => item.IsActive)
+                    join vinculo in context.Set<UserProfileAccessProfile>() on usuario.Id equals vinculo.UserProfileId
+                    join perfil in context.Set<AccessProfile>().Where(item => item.IsActive) on vinculo.AccessProfileId equals perfil.Id
+                    join permissao in context.Set<AccessProfileAuthorization>() on perfil.Id equals permissao.AccessProfileId
+                    join autorizacao in context.Set<Authorization>() on permissao.AuthorizationId equals autorizacao.Id
                     where usuario.Id == usuarioId
-                    select autorizacao.Chave;
+                    select autorizacao.Key;
         return await query.Distinct().ToListAsync(cancellationToken);
     }
 }

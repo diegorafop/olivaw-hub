@@ -1,0 +1,11 @@
+# Acesso local, sem Traefik ou rede externa obrigatória.
+services:
+  ms-ltmj-ng:
+    ports:
+      - '127.0.0.1:${FRONTEND_PORT:-8081}:8080'
+    labels:
+      traefik.enable: 'false'
+networks:
+  traefik-net:
+    external: false
+    name: ms-ltmj-ng-local

@@ -1,0 +1,11 @@
+<article class="area-card">
+  <div class="card-top">
+    <span class="area-icon"
+      ><svg viewBox="0 0 24 24" aria-hidden="true">
+        <path [attr.d]="area().icon" /></svg></span
+    ><span class="card-number">{{ area().number }}</span>
+  </div>
+  <h3>{{ area().title }}</h3>
+  <p>{{ area().text }}</p>
+  <span class="availability">{{ area().status }}</span>
+</article>

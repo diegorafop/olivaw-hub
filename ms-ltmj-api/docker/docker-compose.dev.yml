@@ -1,0 +1,17 @@
+name: ms-ltmj-api-dev
+services:
+  ms-ltmj-api:
+    container_name: ms-ltmj-api-dev
+    image: ms-ltmj-api:dev
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-ltmj-api-dev.rule: Host(`${PUBLIC_HOST:-api.ltmj-dev.olivaw.com.br}`)
+      traefik.http.routers.ms-ltmj-api-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-ltmj-api-dev.tls: 'true'
+      traefik.http.routers.ms-ltmj-api-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-ltmj-api-dev.service: ms-ltmj-api-dev
+      traefik.http.services.ms-ltmj-api-dev.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-ltmj-api-dev.loadbalancer.server.scheme: http

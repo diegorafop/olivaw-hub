@@ -1,0 +1,5 @@
+@use '@angular/material' as mat;
+// Personalização por cliente em tempo de build.
+$primary: mat.$azure-palette;
+$tertiary: mat.$blue-palette;
+$font: Arial, sans-serif;

@@ -1,10 +1,10 @@
-# Configuração da VM AWS, DuckDNS e Traefik
+# Configuração da VM AWS, domínio e Traefik
 
 ## Referência e escopo
 
 As configurações de `ms-limpo-api` e `ms-devops-api` seguem o appsettings de produção e os arquivos Docker do FinTalk, consultados somente para leitura. O core e a identidade são bibliotecas; configuração de banco, broker e exposição HTTP pertence aos hosts consumidores.
 
-Foram reaproveitados os endereços internos `ms-postgres-db`, `ms-rabbit-mq` e `ms-redis-db`. O banco é separado por organização e ambiente; cada serviço possui seu schema. Domínio e prefixo de mensagens identificam serviço e ambiente. O banco `fintalk_core` não é usado pelo Olivaw Hub.
+Foram reaproveitados os endereços internos `ms-postgres-db`, `ms-rabbit-mq` e `ms-redis-db`. Cada cliente mantém bancos isolados dos serviços internos. Olivaw e DevOps compartilham um banco por ambiente e mantêm schemas exclusivos. Domínio e prefixo de mensagens identificam serviço e ambiente. O banco `fintalk_core` não é usado pelo Olivaw.
 
 Nenhum banco, schema, usuário, fila, certificado ou recurso da AWS foi criado ou alterado nesta tarefa. Também não houve publicação de containers.
 
@@ -12,26 +12,28 @@ Nenhum banco, schema, usuário, fila, certificado ou recurso da AWS foi criado o
 
 | Serviço | URL de produção | Banco de produção | Schema |
 | --- | --- | --- | --- |
-| Template | `https://api.limpo.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_limpo` |
-| DevOps | `https://api.devops.olivaw-hub.duckdns.org` | `olivaw_prd` | `ms_devops` |
+| Template | `https://api.limpo.olivaw.com.br` | `olivaw_prd` | `ms_limpo` |
+| Olivaw API | `https://api.olivaw.com.br` | `olivaw_prd` | `ms_olivaw` |
+| DevOps | `https://api.devops.olivaw.com.br` | `olivaw_prd` | `ms_devops` |
+| LTMJ API | `https://api.ltmj.olivaw.com.br` | `ltmj_prd` | `ms_ltmj` |
 
-Os bancos usam sempre o sufixo do ambiente: `olivaw_dev`, `olivaw_qas`, `olivaw_rls`, `olivaw_stg` e `olivaw_prd`. O domínio de produção não tem sufixo; os demais usam, por exemplo, `api.devops-stg.olivaw-hub.duckdns.org`.
+Os bancos usam o sufixo do ambiente: `_dev`, `_qas`, `_rls`, `_stg` e `_prd`. O domínio de produção não tem sufixo; os demais usam, por exemplo, `api.devops-stg.olivaw.com.br`.
 
 Os routers Traefik usam hosts explícitos e solicitam certificados por hostname; não presumem um único certificado wildcard para todos os níveis de subdomínio.
 
 Os nomes de bancos e schemas usam somente minúsculas, números e sublinhados. Ao gerar `cloud-validacao`, o template produz `olivaw_dev` e `ms_cloud_validacao`, preservando os hífens em `ms-cloud-validacao-api` e no domínio.
 
-`olivaw-hub.duckdns.org` é a base aprovada para o Olivaw Hub. O cadastro dessa base e o apontamento para a VM devem ser feitos no DuckDNS; a configuração local não registra o domínio. APIs usam `api.<serviço>.olivaw-hub.duckdns.org`; futuros frontends usam `<serviço>.olivaw-hub.duckdns.org`. Se trocar `PUBLIC_HOST`, atualize também `Identity__Issuer` e `Identity__Audience` para a URL correspondente.
+`olivaw.com.br` é a base aprovada e comprada no Registro.br. Seus registros A apontam para o Elastic IP `98.95.250.122`; a publicação DNS estava em transição durante a migração. Consulte [o roteiro e resultado da migração](registrobr/migracao-servicos.md). APIs usam `api.<serviço>.olivaw.com.br`; futuros frontends usam `<serviço>.olivaw.com.br`. Emissor e audiência JWT são identificadores explícitos por autoridade/ambiente e devem coincidir nos consumidores; o host HTTP é configurado separadamente.
 
 ## Governança dos dados e identidade
 
-- Serviços internos do Olivaw compartilham `olivaw_<ambiente>`, cada um com seu schema (`ms_devops`, `ms_servico_novo`).
+- Olivaw e DevOps compartilham `olivaw_<ambiente>`, cada serviço no próprio schema (`ms_olivaw` e `ms_devops`). Somente o Olivaw mantém identidade administrativa interna.
 - Cada cliente possui seu banco, por exemplo `pastelaria_dev`, com schemas `ms_service1` e `ms_service2` para seus serviços.
 - Cada serviço mantém seu `DbContext`, migrations e histórico `__efmigrationshistory` no próprio schema. Prepare o schema antes de executar migrations; `SearchPath` não o cria e não substitui permissões de acesso.
-- Use usuários de banco limitados ao schema em produção. As conexões atuais com `postgres` são temporárias para testes. Evite consultas e chaves estrangeiras entre schemas de serviços; integre por APIs ou mensagens.
+- As conexões usam o usuário `postgres` nesta etapa; posteriormente, crie um usuário por serviço com acesso limitado ao próprio schema. Evite consultas e chaves estrangeiras entre schemas de serviços; integre por APIs ou mensagens.
 - A identidade pertence ao serviço principal do cliente. Serviços agregados consumirão o JWT desse emissor, sem cadastros de identidade próprios. Chave compartilhada exige isolamento por cliente/ambiente e validação de emissor, audiência e expiração; permissões e revogação também precisam de um contrato comum.
 
-O módulo atual de identidade consulta usuários e permissões locais; aceitar tokens em um serviço agregado sem essas tabelas exigirá um modo de validação próprio. Essa implementação não faz parte desta configuração do DevOps.
+`AddOlivawIdentityConsumer` valida JWT localmente com secret, emissor e audiência do Olivaw. Os claims assinados definem permissões até o token expirar; não há consulta ao Olivaw por requisição. Contas técnicas de clientes no Olivaw são independentes dos usuários locais dos clientes.
 
 Backups automatizados e restauração serão implementados posteriormente. O planejamento deve incluir retenção, cópia independente do volume da VM e testes de restauração; um restore completo do banco afeta todos os serviços da organização naquele ambiente.
 
@@ -42,11 +44,11 @@ Backups automatizados e restauração serão implementados posteriormente. O pla
 - `docker/docker-compose.yml`: build a partir da raiz do monorepo, porta interna e redes comuns.
 - `docker/docker-compose.<dev|qas|rls|stg|prd>.yml`: ambiente, imagem, nome do container e roteamento Traefik.
 - `docker/.env.example`: exemplo versionado, sem credenciais reais.
-- `docker/.env` e `.env.dev`, `.env.qas`, `.env.rls`, `.env.stg`, `.env.prd`: configurações locais preparadas para os testes, ignoradas pelo Git e pelo contexto Docker. `.env` equivale à configuração de produção.
+- `docker/.env` e `.env.dev`, `.env.qas`, `.env.rls`, `.env.stg`, `.env.prd`: configurações dos ambientes versionadas no repositório privado e excluídas do contexto Docker. `.env` é o arquivo padrão local; os comandos de publicação sempre indicam `.env.<ambiente>` explicitamente.
 
-As senhas atuais de banco, RabbitMQ e Redis foram reaproveitadas do FinTalk somente nesses arquivos locais. Os hosts atuais receberam chaves JWT aleatórias por ambiente. Para futuros serviços agregados de um cliente, o emissor principal será único e a configuração de validação deverá ser compatível com seus tokens. Não reutilizamos a chave de autenticação do FinTalk. O bootstrap de root e a aplicação automática de migrations permanecem desligados.
+As senhas atuais de banco, RabbitMQ e Redis foram reaproveitadas do FinTalk somente nesses arquivos locais. Os hosts atuais receberam chaves JWT aleatórias por ambiente. Para futuros serviços agregados de um cliente, o emissor principal será único e a configuração de validação deverá ser compatível com seus tokens. Não reutilizamos a chave de autenticação do FinTalk. Todos aplicam suas migrations no startup. Olivaw e autoridades de clientes executam bootstrap de root automaticamente; DevOps não tem bootstrap.
 
-Os arquivos reais não acompanham um clone/pull: transfira o arquivo do ambiente necessário para a VM por um meio apropriado ou recrie-o a partir do exemplo. Não é necessário copiar os cinco ambientes se usar somente produção. O gerador exclui os dotenv reais e inclui apenas os exemplos; cada novo serviço precisa receber suas próprias credenciais e chaves.
+Os dotenv dos ambientes de todos os projetos acompanham o Git privado por decisão do mantenedor. Novos clones recebem a configuração sem transferência manual ou scripts de preparação. Key Vault será adotado futuramente. O gerador de API cria dotenv iniciais versionados com secrets JWT e senhas root independentes por serviço e ambiente.
 
 ## Traefik e redes Docker
 
@@ -111,3 +113,17 @@ A validação local resolve as combinações dos dois serviços nos cinco ambien
 Configuração validada não comprova disponibilidade da VM, bancos preparados, permissões, regras do Security Group ou emissão de certificado. Antes da primeira implantação, confirme a resolução DNS, o acesso público ao Traefik nas portas usadas e a existência dos bancos/schemas previstos. O bootstrap de root só pode ser executado depois de preparar o schema; consulte [Olivaw Identity](../olivaw-identity/README.md).
 
 Referências: [roteamento Docker no Traefik](https://doc.traefik.io/traefik/reference/routing-configuration/other-providers/docker/) e [configuração de proxy no ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-10.0). Headers encaminhados por proxies devem ser tratados com uma configuração explícita de proxies confiáveis quando incorporarmos essa integração; não foi habilitada confiança irrestrita em headers recebidos.
+
+## Frontends Angular
+
+`ms-limpo-ng` e `ms-olivaw-ng` seguem o mesmo padrão de cinco ambientes das APIs: Compose base sem portas públicas, override local em loopback e `docker-compose.<dev|qas|rls|stg|prd>.yml` para Traefik. Os dotenv públicos preenchidos são versionados e acompanham o clone, sem script de preparação. O Schematics personaliza os seis arquivos conhecidos (local e cinco de nuvem); os arquivos de ambiente acompanham o repositório privado até a futura migração para Key Vault. Cada ambiente tem projeto Compose, imagem, container e routers próprios.
+
+O site institucional de produção usa `olivaw.com.br`; a API futura usa `api.olivaw.com.br`. Os ambientes adicionais usam `<ambiente>.olivaw.com.br` e `api.<ambiente>.olivaw.com.br`. Para frontends de cliente com subdomínio, o gerador usa `<cliente>-<ambiente>.olivaw.com.br`, alinhado aos hosts das APIs. DNS e certificados desses hosts precisam ser conferidos na VM.
+
+No container, `API_URL` do dotenv gera os settings públicos em runtime. O Nginx entrega arquivos do frontend e não faz proxy para a API. Não há configurações de banco, JWT secreto ou RabbitMQ no frontend. O contexto de build é somente a pasta do frontend. Consulte os comandos em [Docker do site](../ms-olivaw-ng/docker/README.md) e [Docker do template](../ms-limpo-ng/docker/README.md).
+
+A estrutura de arquivos passa a ser compatível com o comando do executor DevOps; o serviço ainda precisa ser autorizado na allowlist da VM. Não houve implantação nem alteração remota nesta preparação.
+
+## Migração aplicada — 18/10/2026
+
+O [registro da migração](registrobr/migracao-servicos.md) atualiza o estado histórico deste guia: banco administrativo renomeado com backup, checkout e executor atualizados e seis serviços publicados com os novos hosts. A validação por IP com Host/SNI confirmou HTTP 200 nos sete endereços; DNS público e certificados ainda aguardavam publicação.

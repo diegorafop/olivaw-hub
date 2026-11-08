@@ -1,0 +1,182 @@
+<main id="operation-content" tabindex="-1">
+  <a routerLink="/admin/configuration">Voltar à configuração</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / OPERAÇÃO</p>
+      <h1>{{ config.title }}</h1>
+      <p>{{ config.notice }}</p>
+    </div>
+  </header>
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  <section class="surface">
+    <h2>{{ config.anchor === 'customerExternalId' ? 'Cliente' : 'Recurso' }}</h2>
+    <div class="fields">
+      <label>Buscar cadastro<input [formControl]="search" maxlength="100" /></label
+      ><button type="button" (click)="loadChoices()">Buscar</button>
+      <label
+        >Cadastro vinculado<select [formControl]="anchor">
+          <option value="">Selecione um cadastro existente</option>
+          @for (choice of choices(); track choice.externalId) {
+            <option [value]="choice.externalId">{{ choice.name || choice.business }}</option>
+          }
+        </select></label
+      >
+    </div>
+    <div class="choices">
+      @if (choicePage() > 1) {
+        <button type="button" (click)="loadChoices(choicePage() - 1)">Cadastros anteriores</button>
+      }
+      @if (choicePage() * 20 < choiceTotal()) {
+        <button type="button" (click)="loadChoices(choicePage() + 1)">Mais cadastros</button>
+      }
+      <button type="button" [disabled]="loading() || pending()" (click)="load()">
+        Consultar registros
+      </button>
+    </div>
+  </section>
+  @if (config.endpoint === 'health-readings') {
+    <section class="surface">
+      <h2>Verificação HTTP pontual</h2>
+      <p>
+        A URL precisa estar cadastrada no recurso e autorizada na configuração do servidor. Somente
+        HTTPS público, sem redirecionamentos; timeout de 5 segundos. Não há coleta periódica ativa.
+      </p>
+      <button
+        type="button"
+        [disabled]="pending() || loading() || !anchor.value"
+        (click)="runHttp()"
+      >
+        Verificar HTTP agora
+      </button>
+    </section>
+  }
+  @if (state()) {
+    <p role="status">
+      {{
+        state() === 'unmonitored'
+          ? 'Sem verificação registrada'
+          : state() === 'stale'
+            ? 'Dados desatualizados'
+            : state() === 'operational'
+              ? 'Última verificação pontual OK'
+              : state() === 'source-error'
+                ? 'Erro na fonte de informação'
+                : 'Atenção: confira a evidência'
+      }}
+    </p>
+  }
+  <form [formGroup]="form" (ngSubmit)="save()" class="editor" aria-label="Registro operacional">
+    <section class="surface">
+      <h2>{{ selected() ? 'Atualizar registro' : 'Novo registro' }}</h2>
+      <div class="fields">
+        @for (field of config.fields; track field.key) {
+          <label for="operation-{{ field.key }}" [class.wide]="field.type === 'textarea'"
+            >{{ field.label }}{{ field.required ? ' *' : '' }}
+            @if (field.source) {
+              <select [id]="'operation-' + field.key" [formControlName]="field.key">
+                <option value="">Sem vínculo específico</option>
+                @for (
+                  option of field.source === 'services' ? sourceServices() : sourceRequests();
+                  track option.externalId
+                ) {
+                  <option [value]="option.externalId">{{ option.name }}</option>
+                }
+              </select>
+            } @else if (field.options) {
+              <select [id]="'operation-' + field.key" [formControlName]="field.key">
+                @for (option of optionsFor(field); track option[0]) {
+                  <option [value]="option[0]">{{ option[1] }}</option>
+                }
+              </select>
+            } @else if (field.type === 'textarea') {
+              <textarea
+                [id]="'operation-' + field.key"
+                [formControlName]="field.key"
+                rows="3"
+                [attr.maxlength]="field.max ?? null"
+              ></textarea>
+            } @else {
+              <input
+                [type]="field.type ?? 'text'"
+                [id]="'operation-' + field.key"
+                [formControlName]="field.key"
+                [attr.maxlength]="field.max ?? null"
+                [attr.step]="field.type === 'number' ? '0.001' : null"
+              />
+            }
+          </label>
+        }
+      </div>
+      <footer>
+        <button type="submit" class="primary" [disabled]="pending() || loading()">
+          {{ pending() ? 'Salvando…' : 'Salvar registro' }}
+        </button>
+        @if (!pending()) {
+          <button type="button" [disabled]="pending()" (click)="newEntry()">Novo registro</button>
+        }
+      </footer>
+    </section>
+  </form>
+  <section class="surface">
+    <h2>Registros</h2>
+    @if (loading()) {
+      <p role="status">Carregando…</p>
+    } @else if (entries().length === 0) {
+      <p>Nenhum registro neste recorte.</p>
+    }
+    @for (entry of entries(); track entry.externalId) {
+      <article>
+        <h3>{{ entry['title'] || 'Evidência registrada' }}</h3>
+        <p>{{ entry['observedAt'] || entry['createdAt'] | date: 'dd/MM/yyyy HH:mm' }}</p>
+        @for (field of config.fields; track field.key) {
+          @if (field.key !== 'observedAt') {
+            <p>
+              <strong>{{ field.label }}:</strong> {{ display(field, entry[field.key]) }}
+            </p>
+          }
+        }
+        @if (config.workflow) {
+          <button type="button" [disabled]="pending()" (click)="edit(entry)">Abrir registro</button>
+        }
+      </article>
+    }
+    <button type="button" [disabled]="loading() || pending()" (click)="load()">
+      Mais recentes
+    </button>
+    @if (next(); as cursor) {
+      <button type="button" [disabled]="loading() || pending()" (click)="load(cursor)">
+        Registros anteriores
+      </button>
+    }
+  </section>
+  @if (selected()) {
+    <section class="surface">
+      <h2>Histórico interno</h2>
+      @for (entry of history(); track entry['revision']) {
+        <details>
+          <summary>
+            Revisão {{ entry['revision'] }} · {{ entry['actorName'] }} ·
+            {{ entry['createdAt'] | date: 'dd/MM/yyyy HH:mm' }}
+          </summary>
+          @for (field of config.fields; track field.key) {
+            <p>{{ field.label }}: {{ display(field, entry[field.key]) }}</p>
+          }
+        </details>
+      }
+      @if (historyNext(); as cursor) {
+        <button type="button" (click)="loadHistory(cursor)">Revisões anteriores</button>
+      }
+    </section>
+  }
+</main>
+
+@if (config.endpoint === 'support-requests') {
+  @if (selected(); as request) {
+    <app-support-conversation [requestId]="request.externalId" />
+  }
+}

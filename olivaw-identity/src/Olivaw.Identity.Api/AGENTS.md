@@ -19,3 +19,7 @@ Organize operações em `Features/<Recurso>Feature/Commands` e `Queries`, com re
 ## Validação
 
 Execute a suíte de identidade e a integração do template quando alterar registro de DI, descoberta de controllers ou segurança. Atualize o README do módulo se mudar rotas, configuração ou comportamento público. Não publique pacotes nem crie migrations nesta camada.
+
+## Limite do domínio
+
+Não crie pasta `Domain` neste projeto `.Api`. Entidades e invariantes de identidade pertencem ao núcleo `Olivaw.Identity`. Modelos internos de casos de uso permanecem junto às features; detalhes de persistência pertencem à camada Dados.

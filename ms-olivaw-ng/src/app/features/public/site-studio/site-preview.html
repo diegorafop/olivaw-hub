@@ -1,0 +1,228 @@
+<div
+  class="site-viewport"
+  #viewport
+  [class.mobile]="mobile()"
+  role="region"
+  aria-label="Prévia interativa do seu site"
+>
+  @for (site of [preset()]; track site.id) {
+    <div class="site" [class.management]="site.id === 'management'" animate.enter="site-arrive">
+      <header class="site-header" data-block="top">
+        <span class="site-brand"
+          ><span aria-hidden="true">✳</span>
+          {{
+            site.id === 'catalog'
+              ? 'essencial / loja'
+              : site.id === 'management'
+                ? 'meu negócio / gestão'
+                : 'sua empresa'
+          }}</span
+        >
+        <span class="example-label">Exemplo da sua ideia</span>
+      </header>
+      @if (site.id === 'management') {
+        <nav class="site-tabs" aria-label="Áreas do sistema de exemplo">
+          <span>Visão geral</span>
+          @for (option of options; track option.id) {
+            @if (has(option.id)) {
+              <button type="button" (click)="reveal(option.id)" animate.enter="tab-arrive">
+                {{ option.label }}
+              </button>
+            }
+          }
+        </nav>
+      }
+      <section class="site-hero" [class.catalog]="site.id === 'catalog'">
+        <div class="hero-copy">
+          <p class="eyebrow">{{ site.eyebrow }}</p>
+          <h2>{{ site.headline }}</h2>
+          <p class="hero-description">{{ site.description }}</p>
+        </div>
+        @if (site.id === 'business') {
+          <div class="brand-art" aria-hidden="true">✳<span>Seu jeito de fazer.</span></div>
+        }
+        @if (site.id === 'management' && blocks().length === 0) {
+          <div class="work-placeholder">
+            <span aria-hidden="true">▦</span>
+            <p>Seu próximo passo começa aqui.</p>
+            <small>Experimente uma das quatro possibilidades ao lado.</small>
+          </div>
+        }
+      </section>
+      @if (site.id === 'catalog') {
+        @if (has('categories')) {
+          <nav
+            class="site-tabs"
+            data-block="categories"
+            aria-label="Categorias de produtos"
+            animate.enter="block-arrive"
+          >
+            @for (name of ['Todos', 'Iluminação', 'Decoração']; track name) {
+              <button
+                type="button"
+                [attr.aria-pressed]="category() === name"
+                (click)="category.set(name)"
+              >
+                {{ name }}
+              </button>
+            }
+          </nav>
+        }
+        <section class="site-section">
+          <div class="product-grid">
+            @for (item of [1, 2, 3]; track item) {
+              @if (
+                !has('categories') ||
+                category() === 'Todos' ||
+                (category() === 'Iluminação' ? item === 1 : item !== 1)
+              ) {
+                <article animate.enter="block-arrive">
+                  <div class="product-art" [class.alt]="item === 2">
+                    <span aria-hidden="true"></span>
+                  </div>
+                  <h4>
+                    {{
+                      item === 1
+                        ? 'Luminária Aurora'
+                        : item === 2
+                          ? 'Vaso Horizonte'
+                          : 'Objeto Essencial'
+                    }}
+                  </h4>
+                  <p>R$ {{ item === 1 ? '189' : item === 2 ? '89' : '59' }},00</p>
+                  @if (has('details')) {
+                    <p data-block="details" animate.enter="block-arrive">
+                      Design autoral, acabamento artesanal e cuidado em cada detalhe.
+                    </p>
+                  }
+                  @if (has('cart')) {
+                    <button type="button" (click)="cartCount.set(cartCount() + 1)">
+                      Adicionar ao carrinho +
+                    </button>
+                  }
+                </article>
+              }
+            }
+          </div>
+        </section>
+      }
+      @for (option of options; track option.id) {
+        @if (has(option.id) && option.id !== 'categories' && option.id !== 'details') {
+          <section
+            class="site-section"
+            [attr.data-block]="option.id"
+            animate.enter="block-arrive"
+            animate.leave="block-leave"
+          >
+            @switch (option.id) {
+              @case ('services') {
+                <p class="eyebrow">Como podemos ajudar</p>
+                <h3>Soluções com o seu jeito.</h3>
+                <div class="service-grid">
+                  <article>
+                    <span class="item-number">01</span>
+                    <h4>Consultoria</h4>
+                    <p>Uma nova perspectiva para sua ideia.</p>
+                  </article>
+                  <article>
+                    <span class="item-number">02</span>
+                    <h4>Projetos sob medida</h4>
+                    <p>Cuidado do primeiro passo à entrega.</p>
+                  </article>
+                </div>
+              }
+              @case ('gallery') {
+                <h3>Trabalhos que contam histórias.</h3>
+                <div class="gallery-grid">
+                  @for (item of [1, 2]; track item) {
+                    <article>
+                      <div class="example-art" [class.alt]="item === 2">
+                        <span aria-hidden="true">{{ item === 1 ? '✳' : '◒' }}</span>
+                      </div>
+                      <h4>Projeto 0{{ item }}</h4>
+                    </article>
+                  }
+                </div>
+              }
+              @case ('testimonials') {
+                <h3>Quem já caminhou com a gente.</h3>
+                <blockquote>
+                  “Entenderam nossa ideia e cuidaram de cada detalhe.”
+                  <p>Marina · cliente de exemplo</p>
+                </blockquote>
+              }
+              @case ('contact') {
+                <h3>Uma boa conversa abre possibilidades.</h3>
+                <p>Seu canal de contato pode aparecer aqui.</p>
+                <span class="contact-example">oi&#64;suaempresa.exemplo ↗</span>
+              }
+              @case ('cart') {
+                <h3>Seu carrinho</h3>
+                <p role="status">
+                  {{ cartCount() }}
+                  {{ cartCount() === 1 ? 'produto escolhido' : 'produtos escolhidos' }}.
+                </p>
+                <p>Experimente adicionar um produto na vitrine.</p>
+              }
+              @case ('orders') {
+                <h3>Meus pedidos</h3>
+                <div class="data-row">
+                  <strong>Pedido #1042</strong><span>Em preparação</span
+                  ><span>Entrega prevista · sexta-feira</span>
+                </div>
+              }
+              @case ('spreadsheet') {
+                <app-studio-table />
+              }
+              @case ('dashboard') {
+                <h3>Seu negócio em um olhar.</h3>
+                <div class="metric-grid">
+                  <article><small>Vendas no mês</small><strong>R$ 12.480</strong></article>
+                  <article><small>Pedidos</small><strong>48</strong></article>
+                  <article><small>Novos clientes</small><strong>16</strong></article>
+                </div>
+                <div
+                  class="chart"
+                  aria-label="Vendas em crescimento nas últimas seis semanas"
+                  role="img"
+                >
+                  @for (height of [30, 48, 40, 68, 58, 90]; track $index) {
+                    <i [style.height.%]="height" [style.animation-delay.ms]="$index * 70"></i>
+                  }
+                </div>
+              }
+              @case ('payables') {
+                <h3>Contas a pagar</h3>
+                <div class="data-row">
+                  <strong>Fornecedor · materiais</strong><span>R$ 840,00 · vence amanhã</span
+                  ><button
+                    type="button"
+                    class="demo-cta"
+                    [disabled]="paid()"
+                    (click)="paid.set(true)"
+                  >
+                    {{ paid() ? 'Pagamento registrado ✓' : 'Registrar pagamento' }}
+                  </button>
+                </div>
+              }
+              @case ('inventory') {
+                <h3>Estoque sob controle.</h3>
+                <div class="data-row">
+                  <strong>Luminária Aurora</strong><span>12 unidades · disponível</span>
+                </div>
+                <div class="data-row">
+                  <strong>Cadeira Horizonte</strong
+                  ><span class="stock-alert">3 unidades · hora de repor</span>
+                </div>
+              }
+            }
+          </section>
+        }
+      }
+      <footer class="site-footer">
+        <strong>{{ site.id === 'management' ? 'Sua rotina, do seu jeito.' : 'Seu negócio' }}</strong
+        ><span>Uma ideia inicial. Seu projeto vai além.</span>
+      </footer>
+    </div>
+  }
+</div>

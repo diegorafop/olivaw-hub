@@ -1,0 +1,205 @@
+<main id="operation-content" tabindex="-1">
+  <a routerLink="/admin/configuration">Voltar à configuração</a>
+  <header>
+    <div>
+      <p class="eyebrow">OLIVAW / PORTAL</p>
+      <h1>Acessos e conteúdo do portal</h1>
+      <p>
+        Sugestão inicial: convite válido por 48 horas; papéis de consulta, solicitação e gestão.
+      </p>
+    </div>
+  </header>
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  <section class="surface">
+    <label>Buscar empresa<input [formControl]="search" maxlength="100" /></label
+    ><button type="button" (click)="loadCustomers()">Buscar</button
+    ><label
+      >Empresa<select [formControl]="customer" (change)="chooseCustomer()">
+        <option value="">Selecione</option>
+        @for (company of customers(); track company.externalId) {
+          <option [value]="company.externalId">{{ company.business }}</option>
+        }
+      </select></label
+    >
+    @if (customerPage() > 1) {
+      <button type="button" (click)="loadCustomers(customerPage() - 1)">Empresas anteriores</button>
+    }
+    @if (customerPage() * 20 < customerTotal()) {
+      <button type="button" (click)="loadCustomers(customerPage() + 1)">Mais empresas</button>
+    }
+    @if (customer.value) {
+      <a [routerLink]="['/admin/portal-preview']" [queryParams]="{ customer: customer.value }"
+        >Abrir prévia do cliente</a
+      >
+    }
+  </section>
+  @if (customer.value) {
+    @if (!configured()) {
+      <p role="status">
+        A autoridade do portal aguarda configuração própria antes de permitir login. A prévia
+        interna permanece disponível para revisar a experiência.
+      </p>
+    }
+    <form
+      [formGroup]="invitationForm"
+      (ngSubmit)="invite()"
+      class="editor"
+      aria-label="Convite do portal"
+    >
+      <section class="surface">
+        <h2>Convidar uma pessoa</h2>
+        <div class="fields">
+          <label>Nome<input formControlName="name" maxlength="120" /></label
+          ><label
+            >E-mail do destinatário<input
+              type="email"
+              formControlName="email"
+              maxlength="254" /></label
+          ><label
+            >Papel<select formControlName="role">
+              <option value="viewer">Consulta</option>
+              <option value="requester">Consulta e solicitações</option>
+              <option value="manager">Gestão, solicitações e cobranças</option>
+            </select></label
+          >
+        </div>
+        <button type="submit" [disabled]="pending()">Gerar convite</button>
+      </section>
+    </form>
+    @if (invitation(); as info) {
+      <section class="surface">
+        <h2>Convite gerado</h2>
+        <p>
+          Compartilhe somente com o destinatário por um canal autorizado. Este link permite ativar o
+          acesso e será exibido apenas nesta tela. Válido até
+          {{ info.expiresAt | date: 'dd/MM/yyyy HH:mm' }}.
+        </p>
+        <label
+          >Link do convite<input readonly [value]="info.url" (focus)="$any($event.target).select()"
+        /></label>
+      </section>
+    }
+    <section class="surface">
+      <h2>Pessoas com vínculo</h2>
+      @for (member of members(); track member.externalId) {
+        <article>
+          <h3>{{ member.name }}</h3>
+          <p>
+            {{ member.email }} · {{ roleLabels[member.role] || member.role }} ·
+            {{ member.isActive ? 'Ativo' : 'Revogado' }}
+          </p>
+          @if (member.isActive) {
+            <button type="button" [disabled]="pending()" (click)="revoke(member)">
+              Revogar vínculo</button
+            ><button type="button" [disabled]="pending()" (click)="selectRecovery(member)">
+              Recuperar acesso
+            </button>
+          }
+        </article>
+      } @empty {
+        <p>Nenhum vínculo aceito neste recorte. Convites só concedem acesso após aceitação.</p>
+      }
+      @if (nextMember(); as cursor) {
+        <button type="button" (click)="loadMembers(cursor)">Vínculos anteriores</button>
+      }
+    </section>
+    <form
+      [formGroup]="linkForm"
+      (ngSubmit)="saveLink()"
+      class="editor"
+      aria-label="Serviço público do portal"
+    >
+      <section class="surface">
+        <h2>
+          {{ selectedLink() ? 'Editar serviço publicado' : 'Publicar serviço no acompanhamento' }}
+        </h2>
+        <p>
+          Somente estes nomes e links são apresentados no portal. Contas, custos e topologia
+          permanecem internos.
+        </p>
+        <div class="fields">
+          <label
+            >Serviço vinculado<select formControlName="serviceExternalId">
+              <option value="">Selecione</option>
+              @for (service of services(); track service.externalId) {
+                <option [value]="service.externalId">{{ service.name }}</option>
+              }
+            </select></label
+          ><label>Nome para o cliente<input formControlName="label" maxlength="120" /></label
+          ><label>Link público HTTPS<input formControlName="publicUrl" maxlength="300" /></label
+          ><label
+            >Fonte de saúde, se conhecida<select formControlName="healthResourceExternalId">
+              <option value="">Sem fonte confirmada</option>
+              @for (resource of resources(); track resource.externalId) {
+                <option [value]="resource.externalId">{{ resource.name }}</option>
+              }
+            </select></label
+          ><label><input type="checkbox" formControlName="isActive" /> Exibir no portal</label>
+        </div>
+        <button type="submit" [disabled]="pending()">Salvar conteúdo público</button>
+      </section>
+    </form>
+    <section class="surface">
+      <h2>Serviços configurados</h2>
+      @for (link of links(); track link.externalId) {
+        <article>
+          <h3>{{ link.label }}</h3>
+          <p>{{ link.serviceName }} · {{ link.isActive ? 'Publicado' : 'Oculto' }}</p>
+          <button type="button" [disabled]="pending()" (click)="editLink(link)">
+            Editar serviço público
+          </button>
+        </article>
+      } @empty {
+        <p>Nenhum serviço publicado para esta empresa.</p>
+      }
+      @if (nextLink(); as cursor) {
+        <button type="button" (click)="loadLinks(cursor)">Configurações anteriores</button>
+      }
+    </section>
+  }
+</main>
+
+@if (recoveryMember(); as member) {
+  <section class="surface">
+    <h2>Recuperar acesso de {{ member.name }}</h2>
+    <p>
+      Esta ação invalida as sessões desta pessoa em todas as empresas do portal e gera um convite
+      para definir uma nova senha. Vínculos revogados não são reativados.
+    </p>
+    <label
+      >Motivo da recuperação<textarea
+        [formControl]="recoveryReason"
+        maxlength="500"
+        rows="3"
+      ></textarea></label
+    ><button type="button" [disabled]="pending()" (click)="recover()">
+      Invalidar sessões e gerar recuperação
+    </button>
+  </section>
+}
+@if (customer.value) {
+  <section class="surface">
+    <h2>Histórico dos acessos</h2>
+    @for (event of audit(); track event.externalId) {
+      <article>
+        <strong>{{ actionLabels[event.action] || event.action }}</strong>
+        <p>
+          {{ event.actorName }} ·
+          {{ event.actorAuthority === 'portal' ? 'Portal do cliente' : 'Administração' }} ·
+          {{ event.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+        </p>
+        <p>{{ event.details }}</p>
+      </article>
+    } @empty {
+      <p>Nenhuma alteração registrada neste recorte.</p>
+    }
+    @if (nextAudit(); as cursor) {
+      <button type="button" (click)="loadAudit(cursor)">Eventos anteriores</button>
+    }
+  </section>
+}

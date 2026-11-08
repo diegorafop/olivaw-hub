@@ -1,0 +1,283 @@
+:host {
+  display: block;
+  color: var(--brand-ink);
+}
+.studio {
+  background: var(--brand-paper);
+  min-height: 100vh;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+.studio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 4%;
+  border-bottom: 1px solid #162c3917;
+  background: white;
+}
+.olivaw-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.olivaw-brand strong {
+  font-size: 1.15rem;
+}
+.olivaw-brand > span {
+  border-left: 1px solid #162c3924;
+  padding-left: 0.9rem;
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+.back-home {
+  font-size: 0.8rem;
+}
+.studio-main {
+  max-width: 1480px;
+  padding: 3rem 4%;
+  margin: auto;
+}
+.studio-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.studio-eyebrow,
+h1 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.055em;
+  line-height: 1.1;
+  font-weight: 700;
+  margin: 0.75rem 0 1rem;
+}
+h1 span {
+  font-weight: 400;
+}
+.studio-intro p:last-child,
+.care > div > p:last-child {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  line-height: 1.7;
+}
+.explore-badge {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  border: 1px solid #162c3920;
+  padding: 0.8rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+.explore-badge > span {
+  font-size: 1.4rem;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 1.75rem;
+  align-items: start;
+}
+h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.block-option[aria-pressed='true'] .block-option[aria-pressed='true'] .preview-column {
+  min-width: 0;
+}
+.preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0 1rem;
+  font-size: 0.75rem;
+}
+.preview-heading > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-accent);
+}
+.device-switch {
+  display: flex;
+  padding: 3px;
+  border: 1px solid #162c391a;
+  border-radius: 2rem;
+}
+.device-switch button {
+  border: 0;
+  border-radius: 1rem;
+  padding: 0.5rem 0.8rem;
+  background: none;
+  font-size: 0.65rem;
+}
+.device-switch button[aria-pressed='true'] {
+  background: var(--brand-ink);
+  color: white;
+}
+.browser-frame {
+  overflow: hidden;
+  border-radius: 0.85rem;
+  border: 1px solid #162c3922;
+  background: white;
+  box-shadow: 0 16px 45px #162c3909;
+}
+.browser-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #162c3917;
+  font-size: 0.55rem;
+  color: #52656e;
+}
+.browser-dots {
+  display: flex;
+  gap: 4px;
+}
+.browser-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d1d9d7;
+}
+.preview-label {
+  letter-spacing: 0.12em;
+  font-size: 0.45rem;
+}
+.preview-stage {
+  background: #e9eeeb;
+}
+.mobile-stage {
+  padding: 1.5rem;
+}
+.change-notice {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  margin: 1rem 0 0.4rem;
+}
+.preview-note,
+.care-note {
+  font-size: 0.65rem;
+  line-height: 1.7;
+  opacity: 0.6;
+}
+.care {
+  margin-top: 4rem;
+  border-top: 1px solid #162c3920;
+  padding-top: 2.5rem;
+}
+.care h2 {
+  font-size: 1.75rem;
+  margin: 0.8rem 0;
+}
+.care-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin: 2rem 0;
+}
+.care-grid article > span {
+  font-size: 1.6rem;
+}
+.care-grid h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0.8rem 0;
+}
+.care-grid p {
+  font-size: 0.8rem;
+  line-height: 1.8;
+  opacity: 0.75;
+}
+.studio-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 4%;
+  border-top: 1px solid #162c3917;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 1000px) {
+  .workspace {
+    grid-template-columns: 270px minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .explore-badge {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .studio-main {
+    padding: 2rem 5%;
+  }
+  .olivaw-brand > span {
+    display: none;
+  }
+  .studio-intro {
+    margin-bottom: 1.5rem;
+  }
+  .care-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .mobile-stage {
+    padding: 0.75rem;
+  }
+  .preview-heading {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    --site-preview-height: 340px;
+  }
+  app-site-controls {
+    width: 100%;
+  }
+  .preview-column {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    width: 100%;
+    background: var(--brand-paper);
+    padding-top: 0.5rem;
+  }
+  .preview-note {
+    display: none;
+  }
+}

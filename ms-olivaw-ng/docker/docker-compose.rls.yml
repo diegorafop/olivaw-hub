@@ -1,0 +1,17 @@
+name: ms-olivaw-ng-rls
+services:
+  ms-olivaw-ng:
+    container_name: ms-olivaw-ng-rls
+    image: ${FRONTEND_IMAGE:-ms-olivaw-ng:rls}
+    environment:
+      API_URL: ${API_URL:-https://api.rls.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-ng-rls.rule: Host(`${PUBLIC_HOST:-rls.olivaw.com.br}`)
+      traefik.http.routers.ms-olivaw-ng-rls.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-ng-rls.tls: 'true'
+      traefik.http.routers.ms-olivaw-ng-rls.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-ng-rls.service: ms-olivaw-ng-rls
+      traefik.http.services.ms-olivaw-ng-rls.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-ng-rls.loadbalancer.server.scheme: http

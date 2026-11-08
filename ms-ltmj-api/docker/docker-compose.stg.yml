@@ -1,0 +1,17 @@
+name: ms-ltmj-api-stg
+services:
+  ms-ltmj-api:
+    container_name: ms-ltmj-api-stg
+    image: ms-ltmj-api:stg
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-ltmj-api-stg.rule: Host(`${PUBLIC_HOST:-api.ltmj-stg.olivaw.com.br}`)
+      traefik.http.routers.ms-ltmj-api-stg.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-ltmj-api-stg.tls: 'true'
+      traefik.http.routers.ms-ltmj-api-stg.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-ltmj-api-stg.service: ms-ltmj-api-stg
+      traefik.http.services.ms-ltmj-api-stg.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-ltmj-api-stg.loadbalancer.server.scheme: http

@@ -1,0 +1,250 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.studio-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  font-weight: 700;
+}
+.recap > p {
+  font-size: 0.8rem;
+  line-height: 1.8;
+  opacity: 0.75;
+}
+.recap .recap-note {
+  font-size: 0.65rem;
+}
+.controls {
+  padding: 1.5rem;
+  border: 1px solid #162c391c;
+  border-radius: 1.25rem;
+  background: white;
+}
+.controls {
+  padding: 1.1rem;
+}
+.controls {
+  padding: 1.25rem;
+}
+.control-heading {
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  font-weight: 700;
+}
+.control-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.5rem;
+}
+.control-heading button {
+  background: none;
+  border: 0;
+  padding: 0.5rem 0;
+  text-decoration: underline;
+  letter-spacing: 0;
+  font-size: 0.65rem;
+}
+.control-hint {
+  font-size: 0.7rem;
+  line-height: 1.7;
+  opacity: 0.65;
+  margin: 0.5rem 0 1rem;
+}
+.preset-list,
+.block-options {
+  display: grid;
+  gap: 0.6rem;
+}
+.preset-option {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.9rem;
+  border: 1px solid #162c3920;
+  background: white;
+  border-radius: 0.75rem;
+  text-align: left;
+}
+.preset-option[aria-pressed='true'] {
+  border-color: var(--brand-ink);
+  background: var(--brand-mist);
+}
+.preset-option > span:last-child {
+  margin-left: auto;
+}
+strong,
+small {
+  display: block;
+}
+.preset-option strong,
+.block-option strong {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+small {
+  font-size: 0.6rem;
+  opacity: 0.65;
+  line-height: 1.5;
+  margin-top: 0.25rem;
+}
+.choice-mark {
+  font-size: 0.8rem;
+}
+.blocks-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin-top: 1.75rem;
+}
+.step-dot {
+  font-size: 1.5rem;
+}
+.block-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid #d3dcd7;
+  border-radius: 12px;
+  background: white;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+  text-align: left;
+}
+.review-button {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.9rem 1rem;
+  background: var(--brand-ink);
+  color: white;
+  border: 0;
+  border-radius: 2rem;
+  font-size: 0.7rem;
+}
+.recap ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+  font-size: 0.8rem;
+  margin: 1.5rem 0;
+}
+.recap-arrive {
+  animation: recap-in 0.2s ease-out;
+}
+@keyframes recap-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (max-width: 760px) {
+  .controls {
+    padding: 1.25rem;
+  }
+  .block-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.piece-icon {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 44px;
+  background: #e7f0e9;
+  border-radius: 10px;
+  color: #27684c;
+  font-size: 1.8rem;
+}
+
+.block-option[aria-pressed='true'] {
+  background: #e4efe7;
+  border-color: #256347;
+  box-shadow: inset 3px 0 #256347;
+}
+.block-option[aria-pressed='true'] .piece-icon {
+  background: #256347;
+  color: white;
+}
+.selection-state {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6rem;
+  color: #52635a;
+  white-space: nowrap;
+}
+.block-option[aria-pressed='true'] .selection-state {
+  color: #205435;
+  font-weight: 700;
+}
+.selection-state > span {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.8rem;
+}
+button:focus-visible {
+  outline: 3px solid #256347;
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .block-options {
+    grid-template-columns: 1fr;
+  }
+}
+.idea-label {
+  display: block;
+  margin: 24px 0 10px;
+  font-weight: 600;
+}
+textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #bbcdc4;
+  border-radius: 12px;
+  padding: 14px;
+  font: inherit;
+  line-height: 1.6;
+  background: white;
+  color: #162c39;
+}
+textarea:focus-visible {
+  outline: 2px solid #256347;
+  outline-offset: 2px;
+}

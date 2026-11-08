@@ -1,0 +1,13 @@
+FROM node:24-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build && chmod -R a+rX /app/dist/ms-olivaw-ng/browser
+
+FROM nginxinc/nginx-unprivileged:stable-alpine AS runtime
+COPY --chmod=755 docker/30-runtime-config.sh /docker-entrypoint.d/30-runtime-config.sh
+COPY --chmod=644 docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build --chmod=755 /app/dist/ms-olivaw-ng/browser /usr/share/nginx/html
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s CMD wget -q -O /dev/null http://127.0.0.1:8080/health || exit 1

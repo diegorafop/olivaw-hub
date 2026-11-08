@@ -13,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{7E
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.OlivawCore.Api", "src\Mps.OlivawCore.Api\Mps.OlivawCore.Api.csproj", "{37B20C49-A02C-4A3A-906E-287E432DDEDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.OlivawCore.Api", "src\Owh.OlivawCore.Api\Owh.OlivawCore.Api.csproj", "{37B20C49-A02C-4A3A-906E-287E432DDEDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.OlivawCore", "src\Mps.OlivawCore\Mps.OlivawCore.csproj", "{EFD08747-D687-45ED-B6AD-63439507C6FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.OlivawCore", "src\Owh.OlivawCore\Owh.OlivawCore.csproj", "{EFD08747-D687-45ED-B6AD-63439507C6FE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.OlivawCore.Tests", "tests\Mps.OlivawCore.Tests\Mps.OlivawCore.Tests.csproj", "{1BB99E41-8A7F-4AD7-8CEA-EBDC42683A4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.OlivawCore.Tests", "tests\Owh.OlivawCore.Tests\Owh.OlivawCore.Tests.csproj", "{1BB99E41-8A7F-4AD7-8CEA-EBDC42683A4E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{18FA643D-A533-49CA-9BB8-8BCB5BDDCA10}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{18FA64
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mps.OlivawCore.Dados", "src\Mps.OlivawCore.Dados\Mps.OlivawCore.Dados.csproj", "{4E7BDB1B-CBA9-4FFE-A08D-335F9189CBE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.OlivawCore.Dados", "src\Owh.OlivawCore.Dados\Owh.OlivawCore.Dados.csproj", "{4E7BDB1B-CBA9-4FFE-A08D-335F9189CBE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

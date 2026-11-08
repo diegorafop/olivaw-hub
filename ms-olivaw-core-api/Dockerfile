@@ -6,20 +6,20 @@ RUN update-ca-certificates
 WORKDIR /src
 COPY . .
 
-WORKDIR "/src/src/Mps.OlivawCore.Api"
-RUN dotnet restore "Mps.OlivawCore.Api.csproj"
-RUN dotnet build "Mps.OlivawCore.Api.csproj" -c ${BUILD_CONFIG} -o /app/build
+WORKDIR "/src/src/Owh.OlivawCore.Api"
+RUN dotnet restore "Owh.OlivawCore.Api.csproj"
+RUN dotnet build "Owh.OlivawCore.Api.csproj" -c ${BUILD_CONFIG} -o /app/build
 
 FROM build AS tests
 ARG SKIP_UNITARY_TESTS
-WORKDIR /src/tests/Mps.OlivawCore.Tests
+WORKDIR /src/tests/Owh.OlivawCore.Tests
 RUN if [ "$SKIP_UNITARY_TESTS" = "false" ]; then \
     echo -e "========= STARTING TESTS =============\n" ; \
     \
     # Restore
     dotnet tool install dotnet-reportgenerator-globaltool --tool-path /dotnetglobaltools --version 5.5.3 && \
     dotnet add package coverlet.msbuild --version 10.0.1 && \
-    dotnet restore "Mps.OlivawCore.Tests.csproj" && \
+    dotnet restore "Owh.OlivawCore.Tests.csproj" && \
     \
     # Run
     dotnet test \
@@ -28,7 +28,7 @@ RUN if [ "$SKIP_UNITARY_TESTS" = "false" ]; then \
         /p:ThresholdType=line \
         /p:ThresholdStat=total \
         /p:CoverletOutputFormat=cobertura \
-        /p:Include="[Mps.OlivawCore*]*" \
+        /p:Include="[Owh.OlivawCore*]*" \
         /p:ExcludeByFile="**/*.generated.cs" \
         /p:CoverletOutput='./results/' && \
     \
@@ -50,4 +50,4 @@ RUN dotnet pack "OlivawCore.sln" -c ${BUILD_CONFIG} -o /app/packages
 
 FROM scratch AS final
 COPY --from=pack /app/packages ./packages
-COPY --from=tests /src/tests/Mps.OlivawCore.Tests/results ./results
+COPY --from=tests /src/tests/Owh.OlivawCore.Tests/results ./results

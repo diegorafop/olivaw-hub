@@ -1,0 +1,9 @@
+{
+  "settingsVersion": 1,
+  "agent": { "id": "limpo", "module": "ms_limpo" },
+  "schedule": { "enabled": false, "intervalHours": 6 },
+  "execution": { "enabled": false, "timeoutSeconds": 900 },
+  "ai": { "provider": null, "model": null },
+  "skill": { "path": null },
+  "localState": { "directory": ".state" }
+}

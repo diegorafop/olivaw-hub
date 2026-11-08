@@ -1,0 +1,12 @@
+{
+  "externalId": "3b7c7afe-2338-53b9-a5b6-1f1d235614a5",
+  "initiative": "outbound",
+  "origin": "99Freelas",
+  "externalReference": "795341",
+  "sourceUrl": "https://www.99freelas.com.br/project/desenvolvimento-de-sistema-de-agendamento-online-para-clinica-de-estetica-795341",
+  "business": "",
+  "title": "Desenvolvimento de sistema de agendamento online para clínica de estética",
+  "requirements": " Desenvolvimento de sistema de agendamento online para clínica de estética\nontem às 09:57\nDescrição do Projeto:\nSobre o Projeto:\n\nProcuro um desenvolvedor (ou equipe) para criar um sistema de agendamento online moderno, responsivo e intuitivo para uma clínica de estética. O objetivo principal é permitir que clientes agendem seus procedimentos de forma autônoma e os profissionais gerenciem suas agendas com facilidade.\n\nPrincipais Funcionalidades:\n\n1. Para os Clientes (Web / Mobile):\n\n- Cadastro simples e login (e-mail ou redes sociais).\n- Catálogo de procedimentos estéticos por categoria (ex: Facial, Corporal, Depilação a Laser, Massagens) com descrição, tempo de duração e valor.\n- Escolha do profissional responsável ou opção \"Primeiro disponível\".\n- Calendário interativo para seleção de data e horários disponíveis em tempo real.\n- Histórico de procedimentos realizados e agendamentos futuros.\n- Opção de cancelamento e remarcação (respeitando antecedência mínima).\n\n2. Para a Clínica / Profissionais (Painel Administrativo):\n\n- Dashboard de gestão da agenda diária, semanal e mensal.\n- Gestão de profissionais (cadastro de horários de trabalho, folgas e especialidades).\n- Ficha básica do cliente / Histórico de atendimento (registro de observações/anamnese simplificada).\n- Controle de status do agendamento (Confirmado, Concluído, Cancelado, No-show).\n\n3. Notificações e Comunicação:\n\n- Envio de confirmação imediata do agendamento.\n- Envio de lembrete automático pré-consulta (via WhatsApp ou E-mail) para reduzir faltas.\n\nRequisitos Técnicos Desejados:\n\n- Interface limpa, moderna, elegante e fácil de usar em celulares.\n- Código limpo, bem documentado e com boa segurança de dados.\n- Aberto a sugestões de tecnologias (Node.js, React, PHP/Laravel, Flutter, Python, etc.).\n\nO que espero do profissional:\n\n- Experiência comprovada em desenvolvimento web/sistemas de agendamento.\n- Apresentar portfólio de projetos anteriores.\n- Estimativa clara de prazo de entrega e etapas de desenvolvimento.",
+  "email": "",
+  "whatsapp": ""
+}

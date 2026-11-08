@@ -1,0 +1,17 @@
+name: ms-olivaw-api-qas
+services:
+  ms-olivaw-api:
+    container_name: ms-olivaw-api-qas
+    image: ms-olivaw-api:qas
+    environment:
+      ASPNETCORE_ENVIRONMENT: Quality
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-api-qas.rule: Host(`${PUBLIC_HOST:-api.olivaw-hub-qas.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-api-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-api-qas.tls: 'true'
+      traefik.http.routers.ms-olivaw-api-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-api-qas.service: ms-olivaw-api-qas
+      traefik.http.services.ms-olivaw-api-qas.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-api-qas.loadbalancer.server.scheme: http

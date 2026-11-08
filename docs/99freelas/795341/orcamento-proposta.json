@@ -1,0 +1,121 @@
+{
+  "title": "Sistema de agendamento para clínica de estética — ASP.NET Core e Angular",
+  "status": "draft",
+  "platform": "Estrutura Olivaw: backend ASP.NET Core, frontend Angular e banco independente da clínica. Infraestrutura AWS administrada pela Olivaw mediante mensalidade.",
+  "requirementsAnalysis": "Catálogo editável, portal de clientes, disponibilidade por profissional, primeiro disponível, histórico, cancelamento/remarcação, agenda diária/semanal/mensal, horários/folgas, ficha básica, status e notificações por e-mail.",
+  "technicalApproach": "Reaproveitar template, bibliotecas e padrões Olivaw. Desenvolver domínio de agendamento próprio, identidade e dados separados por serviço. Autorizações no servidor, confirmação transacional de disponibilidade, histórico de preço/duração e fila idempotente de notificações. Painel permite à clínica alterar categorias, procedimentos, preços, durações e profissionais. Entregas demonstradas por etapa.",
+  "assumptions": "Uma unidade, português, fuso America/Sao_Paulo, uma reserva por profissional/intervalo e um procedimento por agendamento. Até dez profissionais como premissa de validação, não limite fixo do produto. Login por e-mail e um lembrete por e-mail incluídos. Sem pagamento online, pacotes, estoque, financeiro, migração, fotos clínicas, assinatura de termos, prontuário completo ou app nativo. Salas/equipamentos, multiclinica, sessões em grupo e múltiplos procedimentos exigem reestimativa. Observações/anamnese simples com campos a confirmar; sem certificação de prontuário.",
+  "externalCosts": "Infraestrutura em nuvem AWS administrada pela Olivaw mediante mensalidade, incluindo hospedagem, banco, backups e operação conforme dimensionamento e limites contratuais. Valor mensal a cotar; não embutido nas horas de implantação. Domínio, volume de e-mails e WhatsApp precisam constar expressamente da composição mensal; não há consumo ilimitado ou tarifa de mensagens aprovada.",
+  "deadline": "Estimativa de 6–8 semanas após confirmação do escopo e liberação de acessos/materiais. Etapas: regras e telas; núcleo de agenda e catálogo; painéis e ficha; notificações, testes e entrega. Esperas por homologação e terceiros podem ampliar o calendário.",
+  "terms": "Estimativa interna, não preço aprovado: 196 h a R$ 100/h = R$ 19.600; reserva de 20% = R$ 3.920; implantação simulada R$ 23.520. Opcionais fora do total: WhatsApp 16 h / R$ 1.600 e login social 8 h / R$ 800, antes de reserva e custos externos. Mensalidade de infraestrutura a definir. Preço final, validade, pagamento por marcos e aceite precisam de aprovação comercial; observar regras do 99Freelas.",
+  "continuity": "Oferta preferida do mantenedor: implantação acompanhada de infraestrutura AWS administrada pela Olivaw por custo mensal, com hospedagem, banco, backups e cuidados operacionais. Capacidade, retenção, restauração, disponibilidade, suporte e atualização de pacotes terão limites definidos. Mensalidade, manutenção evolutiva, permanência e cancelamento ainda não aprovados. Alternativa avulsa pode ser negociada, com transferência operacional e ambiente custeado pelo cliente. Sem desconto ou financiamento automático.",
+  "reservePercent": 20,
+  "discountPercent": 0,
+  "installments": 1,
+  "rows": [
+    {
+      "description": "Levantamento de regras e arquitetura",
+      "role": "Analista / arquiteto",
+      "solution": "analysis",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "UX e interface responsiva Angular",
+      "role": "Designer / frontend",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Identidade da clínica e perfis de acesso",
+      "role": "Programador backend",
+      "solution": "integration",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Catálogo editável de categorias e procedimentos",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Disponibilidade, primeiro disponível e prevenção de conflitos",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 32,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Portal do cliente: agendar, histórico, cancelar e remarcar",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 20,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Painel de agenda, profissionais, horários e status",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 24,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Ficha básica e observações com acesso restrito",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Confirmações e lembretes automáticos por e-mail",
+      "role": "Programador de integrações",
+      "solution": "integration",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Testes, segurança, concorrência e homologação",
+      "role": "QA / programador",
+      "solution": "validation",
+      "hours": 24,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Configuração AWS inicial, documentação e orientação",
+      "role": "DevOps / analista",
+      "solution": "integration",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "Integração WhatsApp oficial; conta e templates disponíveis",
+      "role": "Programador de integrações",
+      "solution": "integration",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": true
+    },
+    {
+      "description": "Login social com um provedor",
+      "role": "Programador de integrações",
+      "solution": "integration",
+      "hours": 8,
+      "hourlyRate": 100,
+      "optional": true
+    }
+  ]
+}

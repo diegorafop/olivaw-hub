@@ -1,0 +1,204 @@
+<section class="surface" aria-label="Vínculos do inventário">
+  <h2>{{ deployment() ? 'Recursos utilizados' : 'Vínculos e relações' }}</h2>
+  @if (!deployment()) {
+    <div class="tabs" aria-label="Tipo de vínculo">
+      <button
+        type="button"
+        [attr.aria-pressed]="kind() === 'customer'"
+        (click)="changeTab('customer')"
+      >
+        Clientes diretos</button
+      ><button
+        type="button"
+        [attr.aria-pressed]="kind() === 'dependency'"
+        (click)="changeTab('dependency')"
+      >
+        Relações técnicas</button
+      ><button
+        type="button"
+        [attr.aria-pressed]="kind() === 'deployment'"
+        (click)="changeTab('deployment')"
+      >
+        Usos por ambiente
+      </button>
+    </div>
+  }
+  <label class="check"
+    ><input
+      type="checkbox"
+      [checked]="includeEnded()"
+      (change)="toggleHistory($any($event.target).checked)"
+    />
+    Incluir vínculos encerrados</label
+  >
+  @if (list().loading) {
+    <p role="status">Consultando vínculos…</p>
+  } @else if (list().error) {
+    <p role="alert">{{ list().error }}</p>
+    <button type="button" (click)="reload()">Tentar novamente</button>
+  } @else if (list().data; as data) {
+    @for (item of data.items; track item.externalId) {
+      <article class="record">
+        <strong>
+          @if (kind() === 'customer') {
+            <a [routerLink]="['/admin/customers', item.targetExternalId]">{{ item.targetName }}</a>
+          } @else if (kind() === 'dependency') {
+            <a [routerLink]="['/admin/resources', item.resourceExternalId]">{{
+              item.resourceName
+            }}</a>
+            {{ relationLabels[item.relationshipKind] }}
+            <a [routerLink]="['/admin/resources', item.targetExternalId]">{{ item.targetName }}</a>
+          } @else {
+            <a [routerLink]="['/admin/resources', item.resourceExternalId]">{{
+              item.resourceName
+            }}</a>
+            →
+            <a [routerLink]="['/admin/deployments', item.targetExternalId]">{{
+              item.targetName
+            }}</a>
+            · {{ environmentLabels[item.environment] }}
+          }
+        </strong>
+        <p>{{ item.purpose }}</p>
+        <small
+          >Desde {{ item.startedAt | date: 'dd/MM/yyyy HH:mm' }} · {{ item.startedByName }}</small
+        >
+        @if (kind() === 'deployment') {
+          <p class="help">
+            Reserva: {{ item.reservedCpu ?? '—' }} vCPU · {{ item.reservedMemoryGiB ?? '—' }} GiB de
+            memória · {{ item.reservedStorageGiB ?? '—' }} GiB de armazenamento
+          </p>
+        }
+        @if (item.endedAt) {
+          <p class="help">
+            Encerrado em {{ item.endedAt | date: 'dd/MM/yyyy HH:mm' }} · {{ item.endedByName }}
+          </p>
+        } @else {
+          <footer>
+            <span class="badge">Vigente</span
+            ><button type="button" [disabled]="saving()" (click)="close(item)">
+              Encerrar vínculo
+            </button>
+          </footer>
+        }
+      </article>
+    } @empty {
+      <p>Nenhum vínculo neste recorte.</p>
+    }
+    <footer>
+      <button type="button" (click)="page.set(page() - 1)" [disabled]="page() <= 1">Anterior</button
+      ><small>{{ data.total }} vínculo(s) · página {{ page() }}</small
+      ><button
+        type="button"
+        (click)="page.set(page() + 1)"
+        [disabled]="page() * data.pageSize >= data.total"
+      >
+        Próxima
+      </button>
+    </footer>
+  }
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p role="status">{{ success() }}</p>
+  }
+  @if (!readOnly()) {
+    @if (kind() === 'deployment' && !deployment()) {
+      <p>
+        <a routerLink="/admin/services"
+          >Abra um serviço e seu ambiente para vincular um recurso existente.</a
+        >
+      </p>
+    } @else {
+      <details>
+        <summary>
+          {{
+            kind() === 'customer'
+              ? 'Vincular cliente existente'
+              : kind() === 'dependency'
+                ? 'Relacionar outro recurso'
+                : 'Vincular recurso existente'
+          }}
+        </summary>
+        <label
+          >Buscar {{ kind() === 'customer' ? 'cliente' : 'recurso'
+          }}<input
+            type="search"
+            maxlength="100"
+            [value]="search()"
+            (input)="search.set($any($event.target).value)"
+        /></label>
+        @if (pickError()) {
+          <p role="alert">{{ pickError() }}</p>
+        }
+        <div class="search-choices">
+          @for (choice of choices(); track choice.externalId) {
+            <button
+              type="button"
+              [disabled]="saving()"
+              [attr.aria-pressed]="selected()?.externalId === choice.externalId"
+              (click)="selected.set(choice)"
+            >
+              {{ choice.name }}
+            </button>
+          } @empty {
+            <p>Nenhum resultado nesta página. Refine a busca.</p>
+          }
+        </div>
+        <p class="help">
+          Até 20 opções por busca. Escolha o cadastro existente para evitar duplicatas.
+        </p>
+        @if (selected(); as item) {
+          <p>
+            Selecionado: <strong>{{ item.name }}</strong>
+          </p>
+        }
+        <form [formGroup]="form" (ngSubmit)="add()" aria-label="Novo vínculo">
+          @if (kind() === 'dependency') {
+            <label
+              >Relação<select formControlName="kind">
+                @for (option of relationOptions; track option[0]) {
+                  <option [value]="option[0]">{{ option[1] }}</option>
+                }
+              </select></label
+            >
+          }
+          <label>Finalidade do vínculo *<input formControlName="purpose" maxlength="300" /></label>
+          @if (deployment()) {
+            <div class="fields">
+              <label
+                >CPU reservada (vCPU)<input
+                  type="number"
+                  formControlName="reservedCpu"
+                  min="0"
+                  max="1000000000"
+                  step="0.001" /></label
+              ><label
+                >Memória reservada (GiB)<input
+                  type="number"
+                  formControlName="reservedMemoryGiB"
+                  min="0"
+                  max="1000000000"
+                  step="0.001" /></label
+              ><label
+                >Armazenamento reservado (GiB)<input
+                  type="number"
+                  formControlName="reservedStorageGiB"
+                  min="0"
+                  max="1000000000"
+                  step="0.001"
+              /></label>
+            </div>
+            <p class="help">
+              Reservas declaradas, sem medição de consumo. Deixe vazio quando desconhecido.
+            </p>
+          }
+          <button class="primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Registrando…' : 'Registrar vínculo' }}
+          </button>
+        </form>
+      </details>
+    }
+  }
+</section>

@@ -1,0 +1,17 @@
+name: ms-olivaw-api-stg
+services:
+  ms-olivaw-api:
+    container_name: ms-olivaw-api-stg
+    image: ms-olivaw-api:stg
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-olivaw-api-stg.rule: Host(`${PUBLIC_HOST:-api.olivaw-hub-stg.duckdns.org}`)
+      traefik.http.routers.ms-olivaw-api-stg.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-olivaw-api-stg.tls: 'true'
+      traefik.http.routers.ms-olivaw-api-stg.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-olivaw-api-stg.service: ms-olivaw-api-stg
+      traefik.http.services.ms-olivaw-api-stg.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-olivaw-api-stg.loadbalancer.server.scheme: http
