@@ -58,6 +58,9 @@ test('login, acesso e logout seguem o contrato da API', async ({ page }) => {
   await page.getByRole('button', { name: 'Sair', exact: true }).click();
   await expect(page).toHaveURL(/\/gestao\/entrar$/);
   expect(logout).toBe(true);
+  await page.reload();
+  await page.goto('/gestao');
+  await expect(page).toHaveURL(/\/gestao\/entrar$/);
   expect(authenticationCalls).toEqual([
     '/identity/authentication/login',
     '/identity/authentication/access',
