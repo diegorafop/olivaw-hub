@@ -15,6 +15,10 @@ def parser_for():
   commands.add_parser("decisions", help="Consultar classificações e rascunhos locais, sem rede")
   cancel = commands.add_parser("cancel", help="Cancelar uma intenção antes de iniciar o envio")
   cancel.add_argument("--id",required=True)
+  resume = commands.add_parser("resume",help="Retomar conversa encaminhada, com justificativa e aprovação")
+  resume.add_argument("--lead-id",required=True)
+  resume.add_argument("--note",required=True)
+  resume.add_argument("--approve",action="store_true")
   revise = commands.add_parser("revise",help="Cancelar e preparar outra versão aprovada")
   revise.add_argument("--id",required=True)
   revise.add_argument("--body-file",type=Path,required=True)
@@ -80,7 +84,7 @@ def main(argv=None):
         from ms_trevize.features.leads.outreach import LeadOutreach
         store = GmailStore(args.directory)
         # A primeira abordagem pode ser preparada sem OAuth; o envio exige conta verificada.
-        offline = args.operation in ("prepare","cancel")
+        offline = args.operation in ("prepare","cancel","resume")
         if args.operation == "revise": offline = not store.get(args.id)["content"].get("replyMessageId")
         gmail = None if offline else GoogleGmail.connect(store)
         from ms_trevize.data.reply_advisor import ReplyAdvisor
@@ -90,6 +94,7 @@ def main(argv=None):
           body = args.body_file.read_text(encoding="utf-8")
           result = outreach.prepare(args.lead_id, args.to, getattr(args,"subject",None), body, args.approve, getattr(args,"message_id",None))
         elif args.operation == "cancel": result = outreach.cancel(args.id)
+        elif args.operation == "resume": result = outreach.resume(args.lead_id,args.note,args.approve)
         elif args.operation == "revise":
           if not args.approve or args.body_file.stat().st_size > 32000: raise ValueError("Revisão exige texto limitado e aprovação.")
           original = store.get(args.id)["content"]

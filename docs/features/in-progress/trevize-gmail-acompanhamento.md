@@ -29,6 +29,12 @@ Sem migration ou submissão de formulários. Campanhas e atendimento pelo roteir
 
 ## Ampliação da issue031
 
+No teste controlado, o envio inicial foi aceito pelo Gmail e a resposta do destinatário foi lida. O provedor reescreveu o `Message-ID`; o agente agora confirma pelo ID durável retornado pelo envio, com destinatário, remetente, assunto e conteúdo conferidos, sem repetir a mensagem. A classificação foi inicialmente interrompida por um aviso de inicialização do Codex; a execução agora suprime apenas esse aviso de recurso experimental, preservando as restrições de ferramentas. O diagnóstico posterior escolheu encaminhamento ao operador por pergunta sobre finalidade/origem do contato.
+
+Preparada retomada auditada `resumed` e `leads resume --approve --note ...`, com preservação do histórico, revisão local versionada, recusa não removível e bloqueio de envios incertos. A API v1.1.2 precisa ser publicada para essa retomada; ela não foi executada automaticamente no teste. Mensagem inicial única, sem segunda resposta automática, sem campanha de leads reais.
+
+Validação desta ampliação: 90 testes Python e 506 testes da API aprovados. Os relatos abaixo descrevem verificações anteriores ao OAuth e ao teste controlado; o estado atual é conta autorizada, envio automático desativado e uma mensagem inicial enviada ao endereço próprio do mantenedor.
+
 Implementados campanhas locais aprovadas, agenda de consulta independente da coleta no worker manual, classificador de IA sem ferramentas e com perguntas fixas, limites por conversa/janela, supressão de recusas e transferência ao operador. O classificador não pode inventar preços, prazos ou texto livre para envio. Cancelamento e revisão são permitidos apenas antes de reservar o envio. O endpoint de descoberta promove e-mail principal vazio e inequívoco, preserva revisão humana e registra `sem email` uma única vez após pesquisa concluída, sem regredir etapas.
 
 O painel Trevize combina indicadores de captação e de comunicação persistida, com limites de amostra explícitos. Estados de worker/falhas locais permanecem no status local e não são apresentados como disponibilidade remota. Esta ampliação exige alterações coordenadas em agente, API e interface; o tamanho é justificado pelo fluxo transacional de preparação, cancelamento, supressão e apresentação, validado em conjunto.

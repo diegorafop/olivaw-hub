@@ -11,6 +11,17 @@ def digest(value):
   return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=True).encode()).hexdigest()
 
 
+def active_events(snapshot):
+  records = snapshot.get("communications") or []
+  position = max((index for index,item in enumerate(records) if item["kind"] == "resumed"),default=-1)
+  return records[position+1:]
+
+
+def paused(snapshot):
+  records = snapshot.get("communications") or []
+  return any(item["kind"] == "suppressed" for item in records) or any(item["kind"] in ("human-takeover","handoff") for item in active_events(snapshot))
+
+
 class LeadOutreach:
   def __init__(self, crm, store, gmail, advisor=None):
     self.crm, self.store, self.gmail = crm, store, gmail
@@ -39,7 +50,7 @@ class LeadOutreach:
     known = {item["email"].lower() for item in qualification.get("publicEmails", [])}
     if snapshot.get("email"): known.add(snapshot["email"].lower())
     if recipient not in known: raise ValueError("Destinatário não consta nos contatos do lead.")
-    if any(event["kind"] in ("human-takeover", "suppressed", "handoff") for event in (snapshot.get("communications") or [])):
+    if paused(snapshot):
       raise ValueError("Conversa assumida por uma pessoa; revisar no Gmail.")
 
   def event(self, intent, kind, message=None):
@@ -51,6 +62,8 @@ class LeadOutreach:
       "threadId":intent.get("threadId", content.get("threadId", "")),
       "replyMessageId":content.get("replyMessageId", "")}
     record["questionId"] = content.get("questionId", "")
+    if message and message.get("reviewRevision"):
+      record["eventId"] = digest([intent["id"],kind,message["id"],message["reviewRevision"]])
     if message:
       record.update(gmailMessageId=message["id"], threadId=message["threadId"],
         subject=message.get("subject", "")[:200],
@@ -104,6 +117,45 @@ class LeadOutreach:
       self.store.save(intent)
       return {"id":identity,"state":"cancelled"}
 
+  def resume(self, identity, note, approved=False):
+    from ms_trevize.data.gmail_store import private_json
+    from ms_trevize.data.local_runtime import atomic_json
+    identity = str(UUID(identity))
+    if not approved or not isinstance(note,str) or not note.strip() or len(note)>1000:
+      raise ValueError("Retomada exige --approve e justificativa até 1.000 caracteres.")
+    if any(item["content"].get("leadId") == identity and item["state"] == "confirmation-pending" for item in self.store.intents()):
+      raise ValueError("Reconcilie os envios pendentes antes de retomar.")
+    lead = self.lead(identity)
+    snapshot = lead["snapshot"]
+    records = snapshot.get("communications") or []
+    if any(item["kind"] == "suppressed" for item in records): raise ValueError("Recusa não pode ser removida pela retomada.")
+    blockers = [item for item in active_events(snapshot) if item["kind"] in ("handoff","human-takeover")]
+    if blockers:
+      blocker = blockers[-1]
+      intent = self.store.get(blocker["intentId"])
+      message = {"id":blocker["gmailMessageId"],"threadId":blocker["threadId"],"subject":intent["content"]["subject"],
+        "from":intent["content"]["to"],"body":note,"reviewRevision":snapshot["revision"]}
+      self.record(intent,"resumed",message)
+      event = self.event(intent,"resumed",message)
+    else:
+      previous = [item for item in records if item["kind"] == "resumed"]
+      if not previous: raise ValueError("Conversa não está pausada para retomada.")
+      event = previous[-1]
+    with self.store.lock():
+      marker = self.store.root/("resume-"+event["eventId"]+".json")
+      if not marker.exists():
+        decision_path = self.store.root/("decision-"+digest([identity,event["gmailMessageId"]])+".json")
+        if decision_path.exists():
+          decision = private_json(decision_path)
+          decision.update(reprocess=True,reviewRevision=decision.get("reviewRevision",0)+1)
+          atomic_json(decision_path,decision)
+          received = self.store.root/"received.json"
+          if received.exists():
+            state = private_json(received)
+            atomic_json(received,{"seen":[item for item in state["seen"] if item!=event["gmailMessageId"]]})
+        atomic_json(marker,{"eventId":event["eventId"],"leadId":identity})
+    return {"leadId":identity,"state":"resumed","sent":False}
+
   def reserve(self, intent):
     if not intent["content"].get("leadId"): raise ValueError("Intenção sem lead associado.")
     result = self.record(intent, "sending")
@@ -136,7 +188,13 @@ class LeadOutreach:
     # Primeiro recuperar envios confirmados localmente e ainda não registrados no CRM.
     intents = [item for item in self.store.intents() if item["content"].get("leadId") and item["state"] == "sent"]
     for intent in intents: self.record(intent, "sent")
-    batch = self.pilot.replies(acknowledge=False)
+    ignored = set()
+    for identity in {item["content"]["leadId"] for item in intents}:
+      records = self.lead(identity)["snapshot"].get("communications") or []
+      current = active_events({"communications":records})
+      previous = records[:len(records)-len(current)]
+      ignored.update(item["gmailMessageId"] for item in previous if item["kind"] == "human-takeover")
+    batch = self.pilot.replies(acknowledge=False,ignored_human_ids=ignored)
     incoming = batch["messages"]
     for message in batch["takeovers"]:
       contacts = sorted([item for item in intents if item["threadId"] == message["threadId"]], key=lambda item:item["createdAt"])
@@ -164,14 +222,15 @@ class LeadOutreach:
     identity = intent["content"]["leadId"]
     path = self.store.root / ("decision-" + digest([identity,message["id"]]) + ".json")
     with self.store.lock():
-      if path.exists(): decision = private_json(path)
+      previous = private_json(path) if path.exists() else None
+      if previous and not previous.get("reprocess"): decision = previous
       else:
         if len(list(self.store.root.glob("decision-*.json"))) >= 1000: raise ValueError("Limite de decisões atingido.")
         lead = self.lead(identity)["snapshot"]
         asked = {entry.get("questionId") for entry in (lead.get("communications") or []) if entry.get("kind") in ("prepared","sent") and entry.get("questionId")}
         from ms_trevize.data.reply_advisor import classify, current_text
         rule = classify(current_text(message.get("body","")))
-        blocked = any(entry.get("kind") in ("suppressed","handoff","human-takeover") for entry in (lead.get("communications") or []))
+        blocked = paused(lead)
         try:
           if rule: analysis = rule
           elif blocked: analysis = {"classification":"handoff","questionId":"","summary":"Atendimento já encaminhado ou suspenso; revisão humana necessária."}
@@ -180,9 +239,10 @@ class LeadOutreach:
           analysis = {"classification":"handoff","questionId":"","summary":"Falha na classificação; encaminhar ao operador sem resposta automática."}
         decision = {**analysis,"leadId":identity,"messageId":message["id"],"threadId":message["threadId"],
           "intentId":intent["id"],"reply":QUESTIONS.get(analysis.get("questionId"),"") if analysis["classification"] == "qualify" else ""}
+        if previous: decision["reviewRevision"] = previous.get("reviewRevision",0)
         atomic_json(path, decision)
     kind = {"optout":"suppressed","qualify":"reply-draft"}.get(decision["classification"],"handoff")
-    summary = {**message,"body":decision["summary"] + "\n" + decision.get("reply","")}
+    summary = {**message,"body":decision["summary"] + "\n" + decision.get("reply",""),"reviewRevision":decision.get("reviewRevision",0)}
     # A decisão é durável antes de reconhecer a mensagem, inclusive quando a IA falha.
     self.record(intent, kind, summary)
     return decision

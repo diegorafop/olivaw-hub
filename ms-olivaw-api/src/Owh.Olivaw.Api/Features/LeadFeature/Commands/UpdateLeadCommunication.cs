@@ -45,7 +45,11 @@ public sealed class UpdateLeadCommunicationHandler(IRepository<Lead> repository,
         if (lead.Revision != payload.Revision || lead.FollowUpRevision != payload.FollowUpRevision) return new() { Conflict = true };
         var validator = new InlineValidator<LeadCommunicationEvent>();
         validator.RuleFor(item => entries.Count).LessThan(40).OverridePropertyName("Event").WithMessage("Limite do piloto atingido; revisar histórico sem apagá-lo.");
-        if (record.Kind is "prepared" or "sending")
+        var lastResume = -1;
+        for (var index = 0; index < entries.Count; index++)
+            if (entries[index]?["kind"]?.GetValue<string>() == "resumed") lastResume = index;
+        var activeEntries = entries.Skip(lastResume + 1).ToArray();
+        if (record.Kind is "prepared" or "sending" or "resumed")
         {
             validator.RuleFor(item => lead.FollowUpStatus).Must(status => status is "new" or "conversation").OverridePropertyName("Event");
             var initiative = snapshot["acquisition"]?["initiative"]?.GetValue<string>();
@@ -56,7 +60,16 @@ public sealed class UpdateLeadCommunicationHandler(IRepository<Lead> repository,
             validator.RuleFor(item => allowed).Equal(true).OverridePropertyName("Event.Email");
             var tags = qualification?["tags"]?.AsArray().Select(item => item?.GetValue<string>()?.ToLowerInvariant()).ToArray() ?? [];
             validator.RuleFor(item => tags).Must(items => !items.Any(tag => tag is "opt-out" or "do-not-contact" or "não contatar" or "nao contatar")).OverridePropertyName("Event");
-            validator.RuleFor(item => entries).Must(items => !items.Any(entry => entry?["kind"]?.GetValue<string>() is "human-takeover" or "suppressed" or "handoff")).OverridePropertyName("Event");
+            validator.RuleFor(item => entries).Must(items => !items.Any(entry => entry?["kind"]?.GetValue<string>() == "suppressed")).OverridePropertyName("Event");
+            if (record.Kind != "resumed")
+                validator.RuleFor(item => activeEntries).Must(items => !items.Any(entry => entry?["kind"]?.GetValue<string>() is "human-takeover" or "handoff")).OverridePropertyName("Event");
+        }
+        if (record.Kind == "resumed")
+        {
+            var pending = entries.Any(entry => entry?["kind"]?.GetValue<string>() == "sending" && !entries.Any(sent => sent?["kind"]?.GetValue<string>() == "sent" && sent?["intentId"]?.GetValue<string>() == entry?["intentId"]?.GetValue<string>()));
+            validator.RuleFor(item => pending).Equal(false).OverridePropertyName("Event").WithMessage("Reconcilie os envios pendentes antes de retomar.");
+            validator.RuleFor(item => activeEntries).Must(items => items.Any(entry => entry?["kind"]?.GetValue<string>() is "human-takeover" or "handoff" && entry?["gmailMessageId"]?.GetValue<string>() == record.GmailMessageId)).OverridePropertyName("Event");
+            validator.RuleFor(item => item.BodyPreview).NotEmpty();
         }
         bool IsCancelled(JsonNode? entry) => entries.Any(cancelled => cancelled?["kind"]?.GetValue<string>() == "cancelled" && cancelled?["intentId"]?.GetValue<string>() == entry?["intentId"]?.GetValue<string>());
         if (record.Kind == "prepared")
@@ -83,7 +96,7 @@ public sealed class UpdateLeadCommunicationHandler(IRepository<Lead> repository,
             if (record.Kind == "sent") required = "sending";
             validator.RuleFor(item => entries).Must(items => items.Any(entry => entry?["kind"]?.GetValue<string>() == required && entry?["intentId"]?.GetValue<string>() == record.IntentId && entry?["contentHash"]?.GetValue<string>() == record.ContentHash && entry?["email"]?.GetValue<string>() == record.Email && entry?["subject"]?.GetValue<string>() == record.Subject && entry?["replyMessageId"]?.GetValue<string>() == record.ReplyMessageId)).OverridePropertyName("Event");
         }
-        if (record.Kind is "received" or "review-required" or "human-takeover" or "suppressed" or "handoff" or "reply-draft")
+        if (record.Kind is "received" or "review-required" or "human-takeover" or "suppressed" or "handoff" or "reply-draft" or "resumed")
         {
             validator.RuleFor(item => entries).Must(items => items.Any(entry => entry?["kind"]?.GetValue<string>() == "sent" && entry?["threadId"]?.GetValue<string>() == record.ThreadId)).OverridePropertyName("Event");
         }
@@ -129,7 +142,7 @@ public sealed class UpdateLeadCommunicationValidator : AbstractValidator<UpdateL
             record.RuleFor(item => item.EventId).NotEmpty().Matches("^[a-f0-9]{64}$");
             record.RuleFor(item => item.IntentId).NotEmpty().Matches("^[a-f0-9]{64}$");
             record.RuleFor(item => item.ContentHash).NotEmpty().Matches("^[a-f0-9]{64}$");
-            record.RuleFor(item => item.Kind).Must(value => value is "prepared" or "sending" or "sent" or "received" or "review-required" or "human-takeover" or "cancelled" or "suppressed" or "handoff" or "reply-draft");
+            record.RuleFor(item => item.Kind).Must(value => value is "prepared" or "sending" or "sent" or "received" or "review-required" or "human-takeover" or "cancelled" or "suppressed" or "handoff" or "reply-draft" or "resumed");
             record.RuleFor(item => item.Email).NotEmpty().MaximumLength(254).EmailAddress().Must(value => value == null || !value.Any(char.IsControl));
             record.RuleFor(item => item.Subject).NotNull().MaximumLength(200).Must(value => value == null || !value.Any(char.IsControl));
             record.RuleFor(item => item.QuestionId).Must(value => value is "" or "need" or "current-system" or "deadline" or "contact-person");
@@ -137,8 +150,8 @@ public sealed class UpdateLeadCommunicationValidator : AbstractValidator<UpdateL
             record.RuleFor(item => item.GmailMessageId).NotNull().MaximumLength(200).Matches("^[a-zA-Z0-9_-]*$");
             record.RuleFor(item => item.ThreadId).NotNull().MaximumLength(200).Matches("^[a-zA-Z0-9_-]*$");
             record.RuleFor(item => item.ReplyMessageId).NotNull().MaximumLength(200).Matches("^[a-zA-Z0-9_-]*$");
-            record.RuleFor(item => item.GmailMessageId).NotEmpty().When(item => item.Kind is "sent" or "received" or "review-required" or "human-takeover" or "suppressed" or "handoff" or "reply-draft");
-            record.RuleFor(item => item.ThreadId).NotEmpty().When(item => item.Kind is "sent" or "received" or "review-required" or "human-takeover" or "suppressed" or "handoff" or "reply-draft");
+            record.RuleFor(item => item.GmailMessageId).NotEmpty().When(item => item.Kind is "sent" or "received" or "review-required" or "human-takeover" or "suppressed" or "handoff" or "reply-draft" or "resumed");
+            record.RuleFor(item => item.ThreadId).NotEmpty().When(item => item.Kind is "sent" or "received" or "review-required" or "human-takeover" or "suppressed" or "handoff" or "reply-draft" or "resumed");
         }));
     }
 }

@@ -127,3 +127,53 @@ class CampaignTests(unittest.TestCase):
       runtime.return_value.settings = {'outreach':{'enabled':False}}
       self.assertEqual('outreach-disabled',run_outreach('unused')['reason'])
       api.assert_not_called()
+
+  def test_resume_requires_approval_and_preserves_handoff_audit_when_reprocessing(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.advisor.analyze.side_effect = ValueError('startup warning')
+    self.gmail.messages['reply1'] = remote_message('reply1')
+    self.service.sync()
+    with self.assertRaises(ValueError): self.service.resume(fixtures.LEAD,'Corrigido o classificador.')
+    self.advisor.analyze.side_effect = None
+    self.service.resume(fixtures.LEAD,'Operador autorizou nova classificação após correção.',True)
+    self.service.sync(); self.service.sync()
+    self.assertIn('handoff',[entry['kind'] for entry in self.crm.events])
+    self.assertIn('resumed',[entry['kind'] for entry in self.crm.events])
+    self.assertEqual('qualify',self.service.decisions()[0]['classification'])
+    self.assertEqual(2,self.advisor.analyze.call_count)
+    self.assertEqual(1,len(self.gmail.sent))
+
+  def test_resume_cannot_override_refusal(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.service.record(self.store.get(first['id']),'suppressed',{'id':'refusal1','threadId':'thread1','from':'contact@example.test','subject':'Parceria Olivaw','body':'Não tenho interesse.'})
+    with self.assertRaises(ValueError): self.service.resume(fixtures.LEAD,'Quero insistir.',True)
+    self.assertEqual(1,len(self.gmail.sent))
+
+  def test_resume_after_human_intervention_ignores_only_previously_acknowledged_human_messages(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.gmail.messages['human1'] = remote_message('human1','olivaw@example.test',labels=['SENT'])
+    self.service.sync()
+    self.service.resume(fixtures.LEAD,'Retomada autorizada pelo operador.',True)
+    self.gmail.messages['reply1'] = remote_message('reply1')
+    result = self.service.sync()
+    self.assertEqual('received',result['items'][0]['status'])
+    self.gmail.messages['human2'] = remote_message('human2','olivaw@example.test',labels=['SENT'])
+    self.service.sync()
+    self.assertEqual('human-takeover',self.crm.events[-1]['kind'])
+
+  def test_resume_retry_does_not_queue_message_twice(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.advisor.analyze.side_effect = ValueError('startup warning')
+    self.gmail.messages['reply1'] = remote_message('reply1'); self.service.sync()
+    self.advisor.analyze.side_effect = None
+    self.service.resume(fixtures.LEAD,'Revisado pelo operador.',True); self.service.sync()
+    self.service.resume(fixtures.LEAD,'Revisado pelo operador.',True); self.service.sync()
+    self.assertEqual(2,self.advisor.analyze.call_count)
+    self.assertEqual(1,sum(entry['kind']=='resumed' for entry in self.crm.events))
+
+  def test_resume_requires_reconciliation_of_uncertain_sends(self):
+    first = self.prepare()
+    self.gmail.timeout = True
+    self.service.send(first['id'],True)
+    with self.assertRaises(ValueError): self.service.resume(fixtures.LEAD,'Quero retomar.',True)
+    self.assertFalse(any(entry['kind']=='resumed' for entry in self.crm.events))

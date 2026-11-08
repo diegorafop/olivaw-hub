@@ -181,6 +181,57 @@ public class UpdateLeadCommunicationTest
         await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(reply, CancellationToken.None));
     }
     [Fact]
+    public async Task Handle_should_resume_handoff_explicitly_without_deleting_history()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("received", 'd', "reply1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("handoff", 'e', "reply1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("resumed", 'f', "reply1", "thread1"), CancellationToken.None);
+        var reply = Request("prepared", '1', threadId:"thread1", replyMessageId:"reply1"); reply.Payload.Event.IntentId = new string('1',64);
+        await handler.Handle(reply, CancellationToken.None);
+        using var snapshot = JsonDocument.Parse(_lead.Snapshot);
+        Assert.Equal(7,snapshot.RootElement.GetProperty("communications").GetArrayLength());
+        Assert.Equal("handoff",snapshot.RootElement.GetProperty("communications")[4].GetProperty("kind").GetString());
+    }
+    [Fact]
+    public async Task Handle_should_reject_resume_without_a_pause()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(Request("resumed", 'd', "sent1", "thread1"), CancellationToken.None));
+    }
+    [Fact]
+    public async Task Handle_should_never_resume_a_suppressed_recipient()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("handoff", 'd', "reply1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("suppressed", 'e', "reply1", "thread1"), CancellationToken.None);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(Request("resumed", 'f', "reply1", "thread1"), CancellationToken.None));
+    }
+    [Fact]
+    public async Task Handle_should_reject_resume_when_an_outgoing_response_is_uncertain()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("received", 'd', "reply1", "thread1"), CancellationToken.None);
+        var reply = Request("prepared", 'e', threadId:"thread1", replyMessageId:"reply1"); reply.Payload.Event.IntentId = new string('e',64);
+        await handler.Handle(reply,CancellationToken.None);
+        var sending = Request("sending", 'f', threadId:"thread1", replyMessageId:"reply1"); sending.Payload.Event.IntentId = new string('e',64);
+        await handler.Handle(sending,CancellationToken.None);
+        await handler.Handle(Request("handoff", '1', "reply2", "thread1"),CancellationToken.None);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(Request("resumed", '2', "reply2", "thread1"),CancellationToken.None));
+    }
+    [Fact]
     public void Validator_should_enforce_bounded_safe_events_actor_and_revisions()
     {
         var request = Request("prepared", 'a');

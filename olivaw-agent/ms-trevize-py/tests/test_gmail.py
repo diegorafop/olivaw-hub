@@ -224,6 +224,32 @@ class GmailTests(unittest.TestCase):
     self.assertNotIn("PRIVATE",str(error.exception))
     request.execute.assert_called_once_with(num_retries=0)
 
+  def test_reconcile_accepts_provider_rewritten_message_id_only_with_exact_returned_id_and_body(self):
+    intent = self.prepare()
+    self.pilot.send(intent['id'],True)
+    saved = self.store.get(intent['id']); saved['state'] = 'confirmation-pending'; self.store.save(saved)
+    remote = self.api.messages[saved['gmailMessageId']]
+    for entry in remote['payload']['headers']:
+      if entry['name'].lower() == 'message-id': entry['value'] = '<provider-generated@example.test>'
+    remote['payload']['body']['data'] = base64.urlsafe_b64encode((intent['content']['body']+'\r\n').encode()).decode()
+    self.assertEqual([],self.api.find_sent(intent['mimeId']))
+    self.assertEqual('sent',self.pilot.reconcile(intent['id'])['state'])
+    self.assertEqual(1,len(self.api.sent))
+    self.assertEqual('<provider-generated@example.test>',self.store.get(intent['id'])['gmailMimeId'])
+
+  def test_rewritten_message_id_with_different_content_or_without_send_response_remains_unconfirmed(self):
+    intent = self.prepare()
+    self.pilot.send(intent['id'],True)
+    saved = self.store.get(intent['id']); saved['state'] = 'confirmation-pending'; self.store.save(saved)
+    remote = self.api.messages[saved['gmailMessageId']]
+    for entry in remote['payload']['headers']:
+      if entry['name'].lower() == 'message-id': entry['value'] = '<provider-generated@example.test>'
+    with self.assertRaises(ValueError): self.pilot.reconcile(intent['id'])
+    self.assertEqual('confirmation-pending',self.store.get(intent['id'])['state'])
+    saved.pop('gmailMessageId'); self.store.save(saved)
+    self.assertEqual('confirmation-pending',self.pilot.reconcile(intent['id'])['state'])
+    self.assertEqual(1,len(self.api.sent))
+
   def test_gmail_cli_routes_without_collecting_or_starting(self):
     stdout,stderr=StringIO(),StringIO()
     with redirect_stdout(stdout),redirect_stderr(stderr),patch('ms_trevize.cli.LocalRuntime') as runtime:

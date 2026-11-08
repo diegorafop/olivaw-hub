@@ -63,7 +63,7 @@ class ReplyAdvisor:
       args = ["codex","--ask-for-approval","never","exec","--ignore-user-config","--ignore-rules","--ephemeral",
         "--skip-git-repo-check","--sandbox","read-only","--json","--disable","shell_tool","--disable","unified_exec",
         "--disable","apps","--disable","plugins","--disable","skill_search","--enable","skip_host_skill_discovery",
-        "-c",'web_search="disabled"',"--output-schema",str(schema)]
+        "-c",'web_search="disabled"',"-c","suppress_unstable_features_warning=true","--output-schema",str(schema)]
       if self.settings.get("model"): args += ["--model",self.settings["model"]]
       args += ["-"]
       env = {key:value for key,value in os.environ.items() if key in {"PATH","HOME","LANG","LC_ALL","TZ"}}

@@ -38,7 +38,10 @@ public sealed class ReadLeadCommunicationSummaryHandler(IRepository<Lead> reposi
             var hasEmail = !string.IsNullOrEmpty(Text(snapshot, "email"));
             var qualification = snapshot["qualification"] as JsonObject;
             hasEmail |= qualification?["publicEmails"] is JsonArray { Count: > 0 };
-            var blocked = kinds.Overlaps(new[] { "suppressed", "handoff", "human-takeover" });
+            var lastResume = -1;
+            for (var index = 0; index < entries.Count; index++)
+                if (Text(entries[index], "kind") == "resumed") lastResume = index;
+            var blocked = kinds.Contains("suppressed") || entries.Skip(lastResume + 1).Any(item => Text(item, "kind") is "handoff" or "human-takeover");
             var tags = qualification?["tags"] as JsonArray ?? new JsonArray();
             blocked |= tags.Any(item => Scalar(item).ToLowerInvariant() is "opt-out" or "do-not-contact" or "não contatar" or "nao contatar");
             if (hasEmail && !blocked && lead.FollowUpStatus is "new" or "conversation") response.Counts["ready"]++;

@@ -147,6 +147,23 @@ Exige uma resposta já registrada pelo `sync`, no mesmo fio e do destinatário a
 
 ## Recuperação sem duplicar mensagens
 
+O Gmail pode reescrever o `Message-ID` RFC da mensagem. Se a resposta do envio já forneceu um `gmailMessageId` e `threadId` duráveis, a reconciliação consulta esse recurso específico e confere Enviados, remetente, destinatário e assunto. Se o cabeçalho mudou, exige também o mesmo texto simples integral, sem truncamento. Guarda o `gmailMimeId` efetivo sem alterar a intenção original. Sem ID retornado ou com conteúdo divergente, mantém confirmação pendente e nunca reenvia cegamente. Um ID válido é requisito de formatação; não garante inbox nem explica sozinho uma classificação como spam. [Diretrizes do Gmail](https://support.google.com/mail/answer/81126?hl=pt-BR).
+
+### Retomada autorizada de atendimento
+
+Requer API **v1.1.2**. Depois de revisar o histórico e resolver a causa da pausa:
+
+```bash
+olivaw-agent/ms-trevize-py/.venv/bin/trevize leads resume \
+  --lead-id UUID_DO_LEAD --note 'Motivo da retomada revisado pelo operador' --approve
+```
+
+Registra `resumed` no CRM e preserva os eventos de encaminhamento/intervenção. Não envia mensagem. Não remove recusas nem permite retomar com envio pendente. Para encaminhamento com decisão local, recoloca somente a mensagem correspondente na fila de revisão, com versão nova e sem perder a auditoria anterior. Repetir a retomada não repete a classificação já concluída. Intervenções humanas anteriores à autorização deixam de pausar o fluxo; intervenções posteriores continuam bloqueando.
+
+O diagnóstico do teste identificou que o aviso inicial do Codex sobre `skip_host_skill_discovery` aparecia como item `error`, embora a classificação final fosse válida. O agente usa `suppress_unstable_features_warning=true` somente na execução isolada, sem alterar o config global nem relaxar o bloqueio de ferramentas. JSONL e JSON Schema continuam obrigatórios. [Documentação oficial do Codex](https://learn.chatgpt.com/docs/non-interactive-mode).
+
+### Consultar uma tentativa incerta
+
 Se houver timeout, erro ou `confirmation-pending`, não prepare outra abordagem e não apague a intenção:
 
 ```bash

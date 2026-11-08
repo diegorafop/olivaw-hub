@@ -34,7 +34,7 @@ def mailbox(value):
   return address(parsed[0][1])
 
 
-def message_view(message, include_body=False):
+def message_view(message, include_body=False, body_limit=12000):
   payload = message.get("payload", {})
   headers = {}
   for item in payload.get("headers", []):
@@ -52,20 +52,28 @@ def message_view(message, include_body=False):
     "autoSubmitted": headers.get("auto-submitted", ""), "precedence": headers.get("precedence", "")}
   if include_body:
     texts = []
+    truncated = False
     def visit(part, depth=0):
+      nonlocal truncated
       if depth > 12 or part.get("filename"):
         return
       if part.get("mimeType") == "text/plain":
         data = part.get("body", {}).get("data", "")
         if len(data) <= 131072:
           try:
-            texts.append(base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)).decode("utf-8", errors="replace")[:12000])
+            text = base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)).decode("utf-8", errors="replace")
+            text = text.replace("\r\n","\n").replace("\r","\n")
+            truncated |= len(text) > body_limit
+            texts.append(text[:body_limit])
           except (ValueError, TypeError):
             raise ValueError("Corpo de mensagem inválido.") from None
+        else: truncated = True
       for child in part.get("parts", [])[:50]:
         visit(child, depth+1)
     visit(payload)
-    result["body"] = "\n".join(texts)[:12000]
+    body = "\n".join(texts)
+    result["body"] = body[:body_limit]
+    result["bodyTruncated"] = truncated or len(body) > body_limit
     result["bodyAvailable"] = bool(texts)
   return result
 
