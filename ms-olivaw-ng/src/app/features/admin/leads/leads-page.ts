@@ -1,3 +1,4 @@
+import { LeadTemperature } from './lead-temperature';
 import { LEAD_ENTRIES } from './lead-proposal-model';
 import { LEAD_STATUSES } from './lead-status';
 import { formatWhatsapp } from '../../public/contact-details';
@@ -11,7 +12,7 @@ import { LeadsApi, type LeadPage, type LeadDetailData, type LeadFilters } from '
 import { LeadDetail } from './lead-detail';
 @Component({
   selector: 'app-leads-page',
-  imports: [DatePipe, RouterLink, ReactiveFormsModule, LeadDetail],
+  imports: [LeadTemperature, DatePipe, RouterLink, ReactiveFormsModule, LeadDetail],
   templateUrl: './leads-page.html',
   styleUrl: './leads-page.scss',
 })

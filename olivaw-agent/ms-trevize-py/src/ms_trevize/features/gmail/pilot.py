@@ -30,7 +30,7 @@ class GmailPilot:
     config = self.store.config()
     content = {"sender":config["sender"],"body":body}
     if question_id:
-      if question_id not in ("need", "current-system", "deadline", "contact-person"):
+      if question_id not in ("need", "current-system", "deadline", "contact-person", "purpose", "contact-origin"):
         raise ValueError("Pergunta fora do roteiro autorizado.")
       content["questionId"] = question_id
     if lead_id:
@@ -128,7 +128,7 @@ class GmailPilot:
         return {"id":identity,"state":intent["state"],"message":"Mensagem não localizada ou ambígua; manter para revisão, sem reenviar."}
       return self._confirm(intent, matches[0]["id"])
 
-  def replies(self, acknowledge=True, ignored_human_ids=()):
+  def replies(self, acknowledge=True, ignored_human_ids=(), excluded_lead_ids=()):
     """Consulta somente fios conhecidos; não altera lido/não lido e não envia respostas."""
     with self.store.lock():
       self.profile()
@@ -136,7 +136,7 @@ class GmailPilot:
       from ms_trevize.data.gmail_store import private_json
       state = private_json(path) if path.exists() else {"seen":[]}
       seen = set(state["seen"])
-      intents = [i for i in self.store.intents() if i["state"] == "sent"]
+      intents = [i for i in self.store.intents() if i["state"] == "sent" and i["content"].get("leadId") not in excluded_lead_ids]
       own_ids = {i["gmailMessageId"] for i in intents}
       threads = {}
       for intent in intents:
@@ -176,7 +176,7 @@ class GmailPilot:
           for view in collected:
             view["disposition"] = "human-takeover"
         incoming.extend(collected)
-      if len(seen) > 1000:
+      if len(seen) > (100000 if self.store.config().get("mode") == "commercial" else 1000):
         raise ValueError("Limite de histórico do piloto atingido; não descartar IDs para repetir processamento.")
       # Conteúdo fica somente na saída explícita; estado guarda IDs, não corpos da caixa.
       if acknowledge:
@@ -191,5 +191,5 @@ class GmailPilot:
       path = self.store.root / "received.json"
       state = private_json(path) if path.exists() else {"seen":[]}
       seen = set(state["seen"]) | set(identities)
-      if len(seen) > 1000: raise ValueError("Limite de mensagens recebidas atingido.")
+      if len(seen) > (100000 if self.store.config().get("mode") == "commercial" else 1000): raise ValueError("Limite de mensagens recebidas atingido.")
       atomic_json(path, {"seen":sorted(seen)})

@@ -185,3 +185,52 @@ dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --
 ```
 
 Fontes: [Python quickstart](https://developers.google.com/workspace/gmail/api/quickstart/python), [envio](https://developers.google.com/workspace/gmail/api/guides/sending), [threads](https://developers.google.com/workspace/gmail/api/guides/threads), [OAuth para aplicativos instalados](https://developers.google.com/identity/protocols/oauth2/native-app), [escopos](https://developers.google.com/workspace/gmail/api/auth/scopes).
+
+## Pesquisa comercial e conversa contextualizada
+
+A [skill canônica](../skills/trevize-prospect/SKILL.md) orienta aquisição e respostas. Ela é lida pelo agente diretamente do caminho configurado; a atualização versionada não instala cópias em skills pessoais. Referências comerciais ficam junto da skill, sem navegação pela IA em execução.
+
+Publique a **API v1.1.3 desta feature** e o frontend correspondente antes de usar o diagnóstico persistido. Não basta a v1.1.2 do teste de retomada. Não faça finish antes do aceite. A coleta confirma `commercialResearchVersion: 1` para não perder campos novos em API antiga.
+
+Na ficha, preencha ou revise cinco notas de 0 a 10 e suas evidências. Vazio significa não avaliado. Leitura HTML produz apenas avaliação provisória de conteúdo sustentada por trecho literal; visual, usabilidade real e gestão interna ficam pendentes. O indício de área restrita aparece sem testar login. Após a conversa, o operador pode complementar gestão com o relato do lead.
+
+Pesquisa individual, sem alterar contatos ou etapas:
+
+```bash
+olivaw-agent/ms-trevize-py/.venv/bin/trevize leads research --id UUID
+# Após revisar a pesquisa; grava sem preparar envio:
+olivaw-agent/ms-trevize-py/.venv/bin/trevize leads research --id UUID --apply
+```
+
+O exemplo pedido pelo mantenedor tem UI e UX em 5/10, cores/consistência como oportunidade e gestão não avaliada. É simulação, não análise de site real. O comando limita a aplicação ao lead fictício e preserva texto humano já revisado:
+
+```bash
+olivaw-agent/ms-trevize-py/.venv/bin/trevize leads research \
+  --id 1178e525-487f-58d8-a3bc-624338770a8b \
+  --simulation-file olivaw-agent/ms-trevize-py/examples/empresa-exemplo-assessment.json
+# Acrescente --apply somente após publicar a API compatível.
+```
+
+O termômetro usa interesse evidenciado, independente das notas: não confirmado, frio, morno, quente ou não contatar. Exibe motivo e data. Não estima probabilidade de compra nem faz rastreamento de abertura. Recusa permanece bloqueada. Um envio não aquece o lead; reclamação exige operador sem ser sinal de compra.
+
+Textos livres da IA consideram mensagem e resumos anteriores e ficam com `requiresReview=true`. A campanha não os envia, mesmo com aprovação antiga e transporte ativo. Revise em `leads decisions` e aprove cada resposta pelo comando existente `leads prepare-reply --body-file ... --approve`. O envio ainda exige comando e chaves de transporte; esta melhoria não os habilita. Uma pergunta sobre origem pode ser respondida com URL pública registrada para aquele endereço; não inventar origem para e-mails manuais ou de teste.
+
+Em novos planos, um arquivo de corpo contendo `{approach}` usa a abordagem individual **revisada** da ficha e congela o texto para aprovação. Planos existentes não são substituídos. O botão de sugestão da ficha oferece uma alternativa determinística; a pesquisa por IA produz rascunho contextual para revisão.
+
+A política é uma abordagem inicial por destinatário e continuidade somente após resposta. Não há lembretes por silêncio. O diário local também bloqueia reutilizar o mesmo endereço em outro lead para repetir a abordagem; preserve o diário ao migrar de máquina. Essa proteção local não representa cota global distribuída.
+
+Contatos fornecidos à equipe pelo operador podem usar a tag `contact-provided` junto de confiança `confirmed`, após revisão humana da origem. O Trevize explica essa origem e não a apresenta como coleta em site. Sem URL pública associada nem origem fornecida confirmada, a dúvida continua encaminhada ao operador. Perguntas de finalidade/origem também são aceitas pelo transporte do roteiro revisável; textos livres mantêm aprovação individual.
+
+O diagnóstico alimenta `commercialFocus`: categorias com oportunidade orientam a pergunta específica. UI/UX medianas priorizam apresentação e navegação no celular; dúvidas sobre origem não descartam essa pauta. O relato explícito do cliente tem precedência. A skill traduz melhorias em situações reconhecíveis por um cliente leigo, sem presumir planilhas, agenda ou necessidade de uma ferramenta pelo ramo.
+
+## Política comercial automática autorizada em 08/11/2026
+
+Esta seção substitui os limites de execução do piloto para a máquina expressamente autorizada pelo mantenedor: coleta 20/24h, até duas abordagens iniciais/hora (uma a cada 30min) e consulta/respostas a cada 15min. As três frentes usam tarefas independentes no worker. O histórico de tentativas é persistente e os envios não se repetem por reinício.
+
+O modo privado `commercial` exige `policyApprovedAt`, além das chaves explícitas no setting. Só esse modo amplia o teto técnico total para 500 tentativas/dia UTC e permite aprovação automática de contatos públicos qualificados e rascunhos de qualificação. O piloto e planos antigos continuam exigindo sua aprovação anterior; eles não são reescritos. Não há meta de 500 envios. O provedor pode bloquear antes desse teto.
+
+O primeiro contato automático seleciona apenas leads novos de prospecção Google Maps, com um endereço público inequívoco e fonte do mesmo site. O lead fictício não entra nessa fila. O especialista de respostas acompanha todas as conversas conhecidas elegíveis, inclusive o teste existente, e usa apenas a última mensagem válida de cada thread. Silêncio, cancelamento, recusa e intervenção humana não autorizam novos contatos. Resultado incerto permanece pendente de reconciliação. Orçamento, negociação, dúvida sem base e limites de histórico vão para o operador.
+
+`requiresReview` continua identificando texto gerado pela IA; o especialista automático somente o envia sob a política nova explicitamente autorizada. O modo comercial não remove impedimentos humanos, não executa formulários nem faz negociação. As filas não usam o limite antigo de três mensagens compartilhado, duas respostas ou 72h da campanha de piloto. O teto do histórico CRM continua protegido.
+
+Modelo por chamada: `gpt-6.1-sol` com `model_reasoning_effort="low"`. Configuração global do Codex é ignorada. Ver [modelos oficiais](https://learn.chatgpt.com/docs/models) e [configuração do Codex](https://learn.chatgpt.com/docs/config-file/config-basic#reasoning-effort).

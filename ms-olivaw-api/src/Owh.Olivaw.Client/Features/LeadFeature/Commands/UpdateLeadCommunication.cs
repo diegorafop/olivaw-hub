@@ -8,6 +8,10 @@ public sealed class UpdateLeadCommunicationCommand
 }
 public sealed class LeadCommunicationEvent
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? InterestSignal { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? InterestEvidence { get; set; }
     public string EventId { get; set; } = string.Empty;
     public string Kind { get; set; } = string.Empty;
     public string IntentId { get; set; } = string.Empty;

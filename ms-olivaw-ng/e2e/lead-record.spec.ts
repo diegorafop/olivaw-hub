@@ -8,6 +8,7 @@ async function setup(
 ) {
   let qualification: Record<string, unknown> | undefined = initialQualification;
   let revision = 1;
+  let deleted = false;
   let followUpRevision = 0;
   const writes: unknown[] = [];
   await page.route('https://api.olivaw.com.br/**', (route) => {
@@ -26,6 +27,13 @@ async function setup(
         },
       });
     expect(route.request().headers()['authorization']).toBe('Bearer test');
+    if (route.request().method() === 'DELETE' && url.pathname === `/leads/${id}`) {
+      const body = route.request().postDataJSON();
+      expect(body.revision).toBe(revision);
+      expect(body.followUpRevision).toBe(followUpRevision);
+      deleted = true;
+      return route.fulfill({ json: { alreadyDeleted: false } });
+    }
     if (url.pathname.endsWith('/qualification')) {
       writes.push(route.request().postDataJSON());
       if (conflict) return route.fulfill({ status: 409, json: {} });
@@ -75,22 +83,24 @@ async function setup(
         json: {
           page: 1,
           pageSize: 20,
-          total: 1,
+          total: deleted ? 0 : 1,
           asOf: '2026-11-01T10:00:00Z',
-          items: [
-            {
-              externalId: id,
-              business: 'Eventos Aurora',
-              title: 'Presença digital',
-              createdAt: '2026-11-01T10:00:00Z',
-              entry: 'prospecting',
-              followUpStatus: 'new',
-              email: '',
-              whatsapp: '',
-              phone: '(41) 99897-0017',
-              segment: 'Eventos',
-            },
-          ],
+          items: deleted
+            ? []
+            : [
+                {
+                  externalId: id,
+                  business: 'Eventos Aurora',
+                  title: 'Presença digital',
+                  createdAt: '2026-11-01T10:00:00Z',
+                  entry: 'prospecting',
+                  followUpStatus: 'new',
+                  email: '',
+                  whatsapp: '',
+                  phone: '(41) 99897-0017',
+                  segment: 'Eventos',
+                },
+              ],
         },
       });
     return route.fulfill({ json: {} });
@@ -146,6 +156,9 @@ for (const width of [1440, 390]) {
     await page.getByLabel('Região', { exact: true }).fill('Curitiba');
     await page.getByLabel('Presença digital').selectOption('website');
     await page.getByLabel('Pontos positivos').fill('Apresentação clara dos serviços.');
+    await page
+      .getByLabel('Observação pública para personalizar a conversa')
+      .fill('Montagem de estandes corporativos.');
     await page.getByLabel('Telefone comercial').fill('(41) 99897-0017');
     await page
       .getByRole('navigation', { name: 'Seções da ficha' })
@@ -156,7 +169,7 @@ for (const width of [1440, 390]) {
     await page.getByRole('button', { name: 'Preparar sugestão' }).click();
     const approach = page.getByLabel('Rascunho de abordagem');
     await expect(approach).toHaveValue(/pessoal da Eventos Aurora/);
-    await expect(approach).toHaveValue(/Apresentação clara dos serviços/);
+    await expect(approach).toHaveValue(/Montagem de estandes corporativos/);
     expect(writes).toHaveLength(0);
     await page.getByLabel('Nota interna').fill('Perguntar sobre a operação.');
     await page.getByRole('button', { name: 'Salvar qualificação e abordagem' }).click();
@@ -170,7 +183,7 @@ for (const width of [1440, 390]) {
     await expect(page.getByLabel('Nota interna')).toHaveValue('');
     await page.reload();
     await expect(page.getByLabel('Segmento', { exact: true })).toHaveValue('eventos');
-    await expect(approach).toHaveValue(/construir parcerias/);
+    await expect(approach).toHaveValue(/Somos da Olivaw/);
     const channels = page.getByRole('region', { name: 'Canais da oportunidade' });
     await expect(channels).toContainText('(41) 99897-0017');
     await expect(channels.getByRole('link', { name: /WhatsApp/ })).toHaveCount(0);
@@ -202,4 +215,43 @@ test('ficha exige permissão de leads', async ({ page }) => {
   await setup(page, false, true);
   await page.goto(`/admin/leads/${id}/details`);
   await expect(page).toHaveURL(/\/acesso-negado$/);
+});
+
+test('registra UI e usabilidade medianas sem inventar gestão e sem incluir notas na abordagem', async ({
+  page,
+}) => {
+  const writes = await setup(page);
+  await page.goto(`/admin/leads/${id}/details`);
+  await expect(page.getByText('Interesse não confirmado', { exact: true })).toBeVisible();
+  await page.locator('#score-ui').fill('5');
+  await page
+    .locator('#evidence-ui')
+    .fill('Simulação: evoluir consistência das cores e dos componentes.');
+  await page.locator('#score-ux').fill('5');
+  await page.locator('#evidence-ux').fill('Simulação: simplificar o caminho de contato.');
+  await expect(page.locator('#score-management')).toHaveValue('');
+  await page.getByRole('button', { name: 'Salvar qualificação e abordagem' }).click();
+  await expect(
+    page.getByText('Qualificação e rascunho salvos. Nenhuma mensagem foi enviada.', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  const assessment = writes[0].qualification.websiteAssessment;
+  expect(assessment.metrics.ui.score).toBe(5);
+  expect(assessment.metrics.ux.score).toBe(5);
+  expect(assessment.metrics.management.score).toBeNull();
+  expect(assessment.strategy).toBe('ui');
+  await page.getByRole('link', { name: 'Voltar ao resumo' }).click();
+  await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}$`));
+});
+
+test('exclui o lead com confirmação e vetor de revisão antes de voltar à lista', async ({
+  page,
+}) => {
+  await setup(page);
+  await page.goto(`/admin/leads/${id}/details`);
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Excluir lead', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/leads$/);
+  await expect(page.getByText('Nenhum lead neste recorte.', { exact: true })).toBeVisible();
 });

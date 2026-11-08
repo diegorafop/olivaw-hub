@@ -14,6 +14,7 @@ class LifecycleTests(unittest.TestCase):
     self.temp=TemporaryDirectory();self.addCleanup(self.temp.cleanup)
     self.path=Path(self.temp.name)/'setting.json'
     settings=json.loads((ROOT/'setting.json').read_text());settings['execution']['enabled']=False
+    settings['outreach']['enabled']=False
     self.path.write_text(json.dumps(settings));self.runtime=LocalRuntime(self.path)
     self.addCleanup(self.runtime.stop)
 

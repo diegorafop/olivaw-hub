@@ -14,9 +14,9 @@ Da raiz do monorepo:
 ./olivaw-agent/olivaw-agent update --agent baley --format text
 ```
 
-`start` inicia um supervisor local e executa o primeiro ciclo imediatamente. O timer espera `schedule.intervalHours` após terminar o ciclo anterior; padrão seis horas, configurável para três. Sem sobreposição entre worker e `audit`. `stop` é cooperativo: a coleta/interpretação em andamento pode levar até seus timeouts para terminar. Nenhum PID arbitrário é encerrado. O agendamento depende desta máquina permanecer ligada e do supervisor ativo; não instala serviço de boot automaticamente.
+`start` inicia um supervisor local e executa o primeiro ciclo imediatamente. O timer espera `schedule.intervalHours` após terminar o ciclo anterior; configurado para 48 horas. Sem sobreposição entre worker e `audit`. `stop` é cooperativo: a coleta/interpretação em andamento pode levar até seus timeouts para terminar. Nenhum PID arbitrário é encerrado. O agendamento depende desta máquina permanecer ligada e do supervisor ativo; não instala serviço de boot automaticamente.
 
-`status` distingue `auditing`, `scheduled`, `waiting-configuration` e `stopped`, mostrando última execução, próxima execução, entrega e tamanho da fila em quantidade. `update` continua somente leitura e não altera agente, skill ou resultados.
+`status --verbose` distingue `auditing`, `scheduled`, `waiting-configuration` e `stopped`, mostrando última execução, próxima execução, entrega e tamanho da fila em quantidade. `update` continua somente leitura e não altera agente, skill ou resultados.
 
 ## Configuração
 
@@ -26,7 +26,7 @@ O arquivo real é `setting.json`. Caminhos são relativos a esta pasta; a chave 
 - `execution.enabled`: habilita auditoria; nunca habilita remediação.
 - `audit.expectedPublicTcpPorts`: portas TCP previstas nas interfaces do host, inicialmente 22/80/443. A lista não libera portas nem substitui firewall ou Security Group. Listeners fora dela recebem achado para revisão; serviços sensíveis recebem gravidade alta.
 - `audit.logWindowHours`: janela de leitura de logs entre uma e 24 horas, independente do intervalo; manter pelo menos o intervalo escolhido para reduzir lacunas. Há limite de linhas, então janela não garante cobertura integral.
-- `ai.enabled`, `ai.provider=codex-cli`, `ai.model` e `ai.timeoutSeconds`: usa Codex instalado e autenticado nesta máquina. Modelo nulo preserva o padrão do CLI; consumo e limites pertencem à conta local. Sem shell, apps, plugins, web ou configuração pessoal de ferramentas; JSON estruturado e timeout. Falha de IA preserva a análise determinística e é registrada.
+- `ai.enabled`, `ai.provider=codex-cli`, `ai.model`, `ai.reasoningEffort` e `ai.timeoutSeconds`: usa Codex instalado e autenticado nesta máquina. Baley está configurado com `gpt-6-luna` e esforço `high`; cada execução envia `--model gpt-6-luna -c 'model_reasoning_effort="high"'`, sem alterar a configuração global. Valores ausentes preservam o padrão do CLI; consumo e limites pertencem à conta local. Sem shell, apps, plugins, web ou configuração pessoal de ferramentas; JSON estruturado e timeout. Falha de IA preserva a análise determinística e é registrada.
 - `reportApi.baseUrl`: destino HTTPS fixo `https://api.olivaw.com.br`; arquivo privado `../../_secrets/admin.json`, seção `baley` com `login`/`password`. JWT somente em memória. Não usar root no runtime.
 - `localState`: fila `.state/outbox`, máximo 20 MiB e sete dias, arquivos 0600 e diretórios 0700. Limites por tamanho e idade; descarte aparece em `droppedCount`. Relatórios entregues são removidos da fila local. A retenção do banco é independente e não apaga relatórios automaticamente.
 
@@ -81,4 +81,6 @@ A [skill de limpeza](../skills/safety-docker/references/cleanup.md) preserva con
 
 ### Início manual e timer
 
-`lifecycle.autoStart=false` é obrigatório. `start` mantém o supervisor local aberto e agenda auditorias; isso não instala inicialização automática no boot. `status` não inicia auditoria. Ao desligar o PC, o processo termina e só volta após novo start. O timer de seis horas vale para auditorias; a consulta de correções aprovadas tem intervalo próprio (`remediation.pollSeconds`), sem repetir auditoria por causa dessa consulta.
+`lifecycle.autoStart=false` é obrigatório. `start` mantém o supervisor local aberto e agenda auditorias; isso não instala inicialização automática no boot. `status` não inicia auditoria. Ao desligar o PC, o processo termina e só volta após novo start. O timer de 48 horas vale para auditorias; a consulta de correções aprovadas tem intervalo próprio (`remediation.pollSeconds`), sem repetir auditoria por causa dessa consulta.
+
+O intervalo entre auditorias está configurado em 48 horas. A janela de logs permanece em seis horas: esta configuração usa amostragem, sem cobertura contínua das 48 horas.

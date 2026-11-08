@@ -148,3 +148,10 @@ Copiar o bloco abaixo em uma nova entrada, sem preencher fatos por suposição:
 - **Decisão confirmada:** documentos antes mantidos em `ms-ltmj-ng/docs` e `ms-ltmj-api/docs` foram reunidos em `docs/clients/ltmj`, incluindo acervo e guias da API.
 - **Impacto:** novas conversas, brainstorms e features específicas da LTMJ ficam nesta pasta; a decisão anterior de localização é histórica. READMEs técnicos permanecem junto ao código.
 - **Pendências:** nenhuma alteração de escopo funcional ou publicação decorrente desta reorganização.
+
+## 08/11/2026 — Cadastro de eventos e sessão no celular
+
+- **Origem:** mantenedor relatou erro ao salvar evento e logout ao puxar a página para atualizar no celular; pediu aviso claro para fotos grandes.
+- **Estado:** causa do logout confirmada no código (sessão somente em memória). Causa do erro de cadastro ainda não confirmada por resposta real ou arquivo original.
+- **Impacto:** preservar sessão na mesma aba até o vencimento, sem renovação automática; identificar fotos acima de 10 MB e explicar falha de upload mantendo o rascunho na tela.
+- **Pendências:** publicar e repetir com a foto que apresentou erro. Recarregar não restaura alterações não salvas nem arquivos selecionados.

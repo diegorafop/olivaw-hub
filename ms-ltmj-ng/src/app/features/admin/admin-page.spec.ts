@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -107,6 +108,32 @@ describe('Gestão do portfólio', () => {
     api.upload.mockResolvedValue({});
     await component.save();
     expect(api.create).toHaveBeenCalledTimes(1);
+  });
+  it('identifica a foto grande antes do upload', () => {
+    const file = new File([new Uint8Array(11 * 1024 * 1024)], 'camera.jpg', { type: 'image/jpeg' });
+    component.selectFiles({ target: { files: [file], value: '' } } as unknown as Event);
+    expect(component.error()).toContain('camera.jpg');
+    expect(component.error()).toContain('11.0 MB');
+    expect(component.error()).toContain('10 MB');
+    expect(component.selectedPhotos()).toHaveLength(0);
+    expect(api.upload).not.toHaveBeenCalled();
+  });
+  it('explica HTTP 413 e permite repetir sem duplicar o evento', async () => {
+    api.upload.mockRejectedValue(
+      new HttpErrorResponse({ status: 413, error: '<html>Too large</html>' }),
+    );
+    component.form.setValue({ title: 'Evento', description: 'Descrição', category: 'Casamentos' });
+    component.selectFiles({
+      target: { files: [new File(['a'], 'a.jpg', { type: 'image/jpeg' })], value: '' },
+    } as unknown as Event);
+    await component.save();
+    expect(component.error()).toContain('grandes demais');
+    expect(component.message()).toContain('foram salvos');
+    expect(component.selectedPhotos()).toHaveLength(1);
+    api.upload.mockResolvedValue({});
+    await component.save();
+    expect(api.create).toHaveBeenCalledTimes(1);
+    expect(component.selectedPhotos()).toHaveLength(0);
   });
   it('dispara atualização de visibilidade', async () => {
     await component.toggle(event, false);

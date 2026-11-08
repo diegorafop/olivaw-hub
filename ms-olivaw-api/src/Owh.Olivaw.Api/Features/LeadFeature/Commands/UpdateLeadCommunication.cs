@@ -109,6 +109,13 @@ public sealed class UpdateLeadCommunicationHandler(IRepository<Lead> repository,
         entry["actor"] = request.ActorName;
         entries.Add(entry);
         snapshot["communications"] = entries;
+        if (record.Kind == "suppressed")
+            snapshot["engagement"] = JsonSerializer.SerializeToNode(new { level = "closed", reason = "Pedido de não contato; novos envios suspensos.", updatedAt = DateTime.UtcNow, messageId = record.GmailMessageId });
+        else if (!entries.Any(item => item?["kind"]?.GetValue<string>() == "suppressed") && record.InterestSignal != null)
+        {
+            var level = record.InterestSignal switch { "ready" => "hot", "positive" => "warm", "negative" => "cold", _ => "unassessed" };
+            snapshot["engagement"] = JsonSerializer.SerializeToNode(new { level, reason = record.InterestEvidence, updatedAt = DateTime.UtcNow, messageId = record.GmailMessageId });
+        }
         snapshot["revision"] = lead.Revision + 1;
         var serialized = snapshot.ToJsonString();
         var size = new InlineValidator<string>();
@@ -139,13 +146,17 @@ public sealed class UpdateLeadCommunicationValidator : AbstractValidator<UpdateL
         RuleFor(item => item.Event).NotNull();
         When(item => item.Event != null, () => RuleFor(item => item.Event).ChildRules(record =>
         {
+            record.RuleFor(item => item.InterestSignal).Must(value => value is null or "neutral" or "negative" or "positive" or "ready");
+            record.RuleFor(item => item.Kind).Must(value => value is "reply-draft" or "handoff").When(item => item.InterestSignal != null);
+            record.RuleFor(item => item.InterestEvidence).NotEmpty().MaximumLength(300).When(item => item.InterestSignal != null);
+            record.RuleFor(item => item.InterestEvidence).Null().When(item => item.InterestSignal == null);
             record.RuleFor(item => item.EventId).NotEmpty().Matches("^[a-f0-9]{64}$");
             record.RuleFor(item => item.IntentId).NotEmpty().Matches("^[a-f0-9]{64}$");
             record.RuleFor(item => item.ContentHash).NotEmpty().Matches("^[a-f0-9]{64}$");
             record.RuleFor(item => item.Kind).Must(value => value is "prepared" or "sending" or "sent" or "received" or "review-required" or "human-takeover" or "cancelled" or "suppressed" or "handoff" or "reply-draft" or "resumed");
             record.RuleFor(item => item.Email).NotEmpty().MaximumLength(254).EmailAddress().Must(value => value == null || !value.Any(char.IsControl));
             record.RuleFor(item => item.Subject).NotNull().MaximumLength(200).Must(value => value == null || !value.Any(char.IsControl));
-            record.RuleFor(item => item.QuestionId).Must(value => value is "" or "need" or "current-system" or "deadline" or "contact-person");
+            record.RuleFor(item => item.QuestionId).Must(value => value is "" or "need" or "current-system" or "deadline" or "contact-person" or "contact-origin" or "purpose");
             record.RuleFor(item => item.BodyPreview).NotNull().MaximumLength(1500);
             record.RuleFor(item => item.GmailMessageId).NotNull().MaximumLength(200).Matches("^[a-zA-Z0-9_-]*$");
             record.RuleFor(item => item.ThreadId).NotNull().MaximumLength(200).Matches("^[a-zA-Z0-9_-]*$");

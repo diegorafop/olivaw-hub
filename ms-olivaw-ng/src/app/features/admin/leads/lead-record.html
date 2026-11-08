@@ -11,6 +11,16 @@
       <a class="secondary" [routerLink]="['/admin/leads', id]" [queryParams]="queryParams"
         >Voltar ao resumo</a
       ><button type="button" class="secondary" (click)="reload()">Atualizar ficha</button>
+      @if (lead()?.snapshot) {
+        <button
+          type="button"
+          class="secondary"
+          [disabled]="busy() || conflict()"
+          (click)="remove()"
+        >
+          Excluir lead
+        </button>
+      }
     </div>
   </header>
   @if (loading()) {
@@ -25,6 +35,7 @@
       ><span>Desde {{ data.createdAt | date: 'dd/MM/yyyy' }}</span
       ><a [routerLink]="['/admin/leads', id, 'proposal']">Orçamento e proposta ↗</a>
     </div>
+    <app-lead-temperature [engagement]="data.snapshot?.engagement" [detail]="true" />
     <nav class="section-links" aria-label="Seções da ficha">
       <a
         [routerLink]="['/admin/leads', id, 'details']"
@@ -54,6 +65,63 @@
     @if (data.snapshot && !data.contentUnavailable) {
       <div class="columns">
         <form [formGroup]="form" (ngSubmit)="save()" aria-label="Qualificação do lead">
+          <section class="card" aria-labelledby="website-assessment-title">
+            <h2 id="website-assessment-title">Diagnóstico interno do site</h2>
+            <p class="muted">
+              Notas de 0 a 10: quanto maior, melhor o aspecto avaliado. Campo vazio significa não
+              avaliado. Estas notas não medem interesse comercial e não entram no e-mail.
+            </p>
+            @if (data.snapshot.qualification?.websiteAssessment; as assessment) {
+              <p class="muted">
+                Base: {{ assessment.basis }} ·
+                {{ assessment.assessedAt | date: 'dd/MM/yyyy HH:mm' }}. Avaliação qualitativa,
+                sujeita à revisão.
+              </p>
+            }
+            @if (safeUrl(data.snapshot.qualification?.restrictedAreaUrl || ''); as loginUrl) {
+              <p>
+                <a [href]="loginUrl" target="_blank" rel="noopener noreferrer"
+                  >Indício de área restrita ↗</a
+                >
+                · não comprova painel de gestão.
+              </p>
+            }
+            @for (row of metricRows; track row.key) {
+              <div class="assessment-row">
+                <label [for]="'score-' + row.key"
+                  >{{ row.label
+                  }}<input
+                    [id]="'score-' + row.key"
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="1"
+                    [formControl]="row.score"
+                    placeholder="Não avaliado"
+                /></label>
+                <label [for]="'evidence-' + row.key"
+                  >Evidência / justificativa<textarea
+                    [id]="'evidence-' + row.key"
+                    [formControl]="row.evidence"
+                    maxlength="400"
+                    rows="2"
+                  ></textarea>
+                </label>
+              </div>
+            }
+            <label
+              >Observação pública para personalizar a conversa<textarea
+                formControlName="commercialObservation"
+                maxlength="400"
+                rows="2"
+                placeholder="Um serviço ou conteúdo específico que realmente encontramos no site"
+              ></textarea>
+            </label>
+            <p class="muted">
+              Gestão costuma depender do relato do cliente. Um link de login é apenas um indício;
+              não teste acessos.
+            </p>
+          </section>
           <section class="card" id="qualification">
             <p class="eyebrow">01 / CONHECER A EMPRESA</p>
             <h2>Perfil e presença digital</h2>
@@ -217,10 +285,14 @@
             }
           </section>
           <div class="save-bar">
-            <button type="submit" class="primary" [disabled]="busy() || conflict() || !form.dirty">
+            <button
+              type="submit"
+              class="primary"
+              [disabled]="busy() || conflict() || !hasQualificationChanges()"
+            >
               {{ busy() ? 'Salvando…' : 'Salvar qualificação e abordagem' }}</button
             ><small>
-              @if (form.dirty) {
+              @if (hasQualificationChanges()) {
                 Alterações ainda não salvas
               } @else if (data.snapshot.qualificationUpdatedAt) {
                 Salvo em {{ data.snapshot.qualificationUpdatedAt | date: 'dd/MM/yyyy HH:mm' }}

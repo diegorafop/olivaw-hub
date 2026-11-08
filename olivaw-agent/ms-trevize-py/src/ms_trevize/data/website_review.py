@@ -23,7 +23,7 @@ class PageParser(HTMLParser):
     self.current_form = None
 
   def handle_starttag(self, tag, attrs):
-    values = dict(attrs)
+    values = {key:value or "" for key,value in attrs}
     if self.ignore and tag not in ("script", "style", "noscript"): return
     if tag in ("script", "style", "noscript"):
       self.ignore += 1
@@ -149,7 +149,9 @@ class WebsiteReview:
       return {"status":"checked", "url":target, "httpStatus":status, "title":" ".join(parser.title)[:300],
               "hasForm":bool(parser.forms), "hasDescription":parser.description, "hasViewport":parser.viewport, "h1Count":parser.h1,
               "imagesWithoutAlt":parser.images_without_alt, "whatsapp":whatsapp.group(1) if whatsapp else "",
-              **contacts, "publicText":" ".join(parser.text)[:6000],
+              **contacts, "restrictedAreaUrl":next((urljoin(target,link) for link in parser.links
+                if re.search(r"(?:^|[/#])(?:login|entrar|admin|painel|area-do-cliente)(?:[/#?.]|$)",link,re.I)
+                and urlsplit(urljoin(target,link)).netloc.lower() == urlsplit(target).netloc.lower()), ""), "publicText":" ".join(parser.text)[:6000],
               "limitations":"Leitura passiva da página inicial e até três páginas de contato do mesmo site; sem medição de desempenho, teste visual ou envio de formulário. Formulários via JavaScript podem não ser detectados."}
     except (OSError, ValueError, http.client.HTTPException):
       return {"status":"inconclusive", "reason":"leitura-indisponível-ou-destino-restrito"}

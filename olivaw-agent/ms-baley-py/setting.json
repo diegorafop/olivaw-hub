@@ -6,7 +6,7 @@
   },
   "schedule": {
     "enabled": true,
-    "intervalHours": 6
+    "intervalHours": 48
   },
   "execution": {
     "enabled": true,
@@ -16,7 +16,8 @@
   "ai": {
     "enabled": true,
     "provider": "codex-cli",
-    "model": null,
+    "model": "gpt-6-luna",
+    "reasoningEffort": "high",
     "timeoutSeconds": 120
   },
   "skill": {

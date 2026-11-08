@@ -1,5 +1,6 @@
 """Composição explícita dos adaptadores de um ciclo."""
 from ms_trevize.data.local_runtime import LocalRuntime
+from datetime import datetime, timezone, timedelta
 from ms_trevize.data.batch_state import BatchState
 from ms_trevize.data.maps_collector import MapsCollector
 from ms_trevize.data.website_review import WebsiteReview
@@ -18,6 +19,13 @@ def compose(path, preview_limit=None):
     settings["leadApi"]["enabled"] = False
     settings["ai"]["enabled"] = False
     runtime.prepare()
+  if preview_limit is None and settings["execution"]["enabled"]:
+    recent = BatchState(runtime).seen()
+    cutoff = datetime.now(timezone.utc)-timedelta(hours=24)
+    count = sum(datetime.fromisoformat(stamp.replace("Z","+00:00")) > cutoff for stamp in recent.values())
+    settings["execution"]["dailyTarget"] = settings["search"]["limit"]
+    settings["execution"]["dailyCollected"] = count
+    settings["search"]["limit"] = max(0,settings["search"]["limit"]-count)
   skill_path = (runtime.path.parent/settings["skill"]["path"]).resolve(strict=True)
   if skill_path.stat().st_size>32768: raise ValueError("Skill excede limite.")
   return CreateProspectBatchHandler(BatchState(runtime),
@@ -45,6 +53,48 @@ def run_outreach(path, directory=None):
   if not private_json(store.root/"campaign.json").get("active"):
     return {"status":"paused","reason":"campaign-disabled","sent":0}
   crm = LeadApi(settings["leadApi"],runtime.path.parent); crm.login()
-  ai = ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]})
+  skill = (runtime.path.parent/settings["skill"]["path"]).resolve(strict=True)
+  if skill.stat().st_size > 32768: raise ValueError("Skill excede limite.")
+  ai = ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]},skill=skill.read_text())
   service = LeadOutreach(crm,store,GoogleGmail.connect(store),ai)
   return Campaign(store,service,settings["outreach"]).run()
+
+
+def commercial_context(path, directory=None):
+  """Composição da política comercial explicitamente autorizada, sem iniciar worker."""
+  runtime = LocalRuntime(path)
+  settings = runtime.settings
+  if not settings["outreach"]["enabled"] or not settings["leadApi"]["enabled"]:
+    return None
+  from ms_trevize.data.gmail_store import GmailStore
+  from ms_trevize.data.gmail_client import GoogleGmail
+  from ms_trevize.data.reply_advisor import ReplyAdvisor
+  from ms_trevize.features.leads.outreach import LeadOutreach
+  store = GmailStore(directory or runtime.path.parent/".state"/"gmail")
+  if not (store.root/"config.json").exists() or not (store.root/"token.json").exists(): return None
+  if store.config().get("mode") != "commercial": return None
+  skill = (runtime.path.parent/settings["skill"]["path"]).resolve(strict=True)
+  if skill.stat().st_size > 32768: raise ValueError("Skill excede limite.")
+  text = skill.read_text()
+  crm = LeadApi(settings["leadApi"],runtime.path.parent)
+  crm.login()
+  service = LeadOutreach(crm,store,GoogleGmail.connect(store),
+    ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]},skill=text))
+  return runtime,settings,store,crm,service,text
+
+
+def run_initial_outreach(path):
+  from ms_trevize.features.leads.dispatch import OutboundDispatcher
+  context = commercial_context(path)
+  if context is None: return {"status":"paused","reason":"commercial-policy-disabled","sent":0}
+  runtime,settings,store,crm,service,skill = context
+  return OutboundDispatcher(crm,store,service,WebsiteReview(settings["website"]),
+    AIQualification(settings["ai"],skill),settings["outreach"]).run()
+
+
+def run_followup(path):
+  from ms_trevize.features.leads.followup import FollowUpSpecialist
+  context = commercial_context(path)
+  if context is None: return {"status":"paused","reason":"commercial-policy-disabled","sent":0}
+  runtime,settings,store,crm,service,skill = context
+  return FollowUpSpecialist(service,store,settings["outreach"],stopping=BatchState(runtime).stopping).run()

@@ -114,6 +114,11 @@
                     }
                   </div>
                   <div class="lead-meta">
+                    <app-lead-temperature
+                      [level]="lead.temperature"
+                      [reason]="lead.temperatureReason"
+                      [updatedAt]="lead.temperatureUpdatedAt"
+                    />
                     <span>{{ statuses[lead.followUpStatus] || 'Novo contato' }}</span>
                     <span>{{ entries[lead.entry] || lead.entry }}</span
                     ><time>{{ lead.createdAt | date: 'dd/MM/yyyy HH:mm' }}</time>

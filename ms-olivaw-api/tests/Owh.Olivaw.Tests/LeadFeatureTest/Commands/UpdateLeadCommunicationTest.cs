@@ -41,6 +41,54 @@ public class UpdateLeadCommunicationTest
             }
         }
     };
+    [Theory]
+    [InlineData("neutral", "unassessed")]
+    [InlineData("negative", "cold")]
+    [InlineData("positive", "warm")]
+    [InlineData("ready", "hot")]
+    public async Task Handle_should_persist_interest_from_evidenced_reply_without_heating_on_send(string signal, string expected)
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared",'a'),CancellationToken.None);
+        await handler.Handle(Request("sending",'d'),CancellationToken.None);
+        await handler.Handle(Request("sent",'e',"gmail1","thread1"),CancellationToken.None);
+        using (var sent = JsonDocument.Parse(_lead.Snapshot)) Assert.False(sent.RootElement.TryGetProperty("engagement",out _));
+        var request = Request("reply-draft",'f',"reply1","thread1");
+        request.Payload.Event.InterestSignal = signal;
+        request.Payload.Event.InterestEvidence = "Relato registrado do cliente.";
+        Assert.True(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+        await handler.Handle(request,CancellationToken.None);
+        using var snapshot = JsonDocument.Parse(_lead.Snapshot);
+        Assert.Equal(expected,snapshot.RootElement.GetProperty("engagement").GetProperty("level").GetString());
+        Assert.Equal("reply1",snapshot.RootElement.GetProperty("engagement").GetProperty("messageId").GetString());
+        Assert.Equal("Relato registrado do cliente.",snapshot.RootElement.GetProperty("engagement").GetProperty("reason").GetString());
+    }
+    [Fact]
+    public void Validator_should_refuse_interest_without_evidence_or_attached_to_an_outbound_event()
+    {
+        var request = Request("sent",'a',"gmail1","thread1");
+        request.Payload.Event.InterestSignal = "ready";
+        Assert.False(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+        request.Payload.Event.InterestEvidence = "Observação";
+        Assert.False(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+        request.Payload.Event.Kind = "handoff";
+        Assert.True(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+    }
+    [Fact]
+    public async Task Handle_should_never_reheat_a_suppressed_lead()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared",'a'),CancellationToken.None);
+        await handler.Handle(Request("sending",'d'),CancellationToken.None);
+        await handler.Handle(Request("sent",'e',"gmail1","thread1"),CancellationToken.None);
+        await handler.Handle(Request("suppressed",'f',"reply1","thread1"),CancellationToken.None);
+        var request = Request("handoff",'1',"reply2","thread1");
+        request.Payload.Event.InterestSignal = "ready";
+        request.Payload.Event.InterestEvidence = "Não deve remover bloqueio.";
+        await handler.Handle(request,CancellationToken.None);
+        using var snapshot = JsonDocument.Parse(_lead.Snapshot);
+        Assert.Equal("closed",snapshot.RootElement.GetProperty("engagement").GetProperty("level").GetString());
+    }
     [Fact]
     public async Task Handle_should_reserve_send_record_history_and_deduplicate_stale_retries()
     {

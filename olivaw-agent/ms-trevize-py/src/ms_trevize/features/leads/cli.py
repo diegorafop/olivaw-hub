@@ -13,6 +13,10 @@ def parser_for():
   commands = parser.add_subparsers(dest="operation", required=True)
   commands.add_parser("outbox", help="Consultar intenções locais, sem rede ou credenciais CRM")
   commands.add_parser("decisions", help="Consultar classificações e rascunhos locais, sem rede")
+  research = commands.add_parser("research",help="Pesquisar diagnóstico e abordagem de um lead, sem enviar")
+  research.add_argument("--id",required=True)
+  research.add_argument("--apply",action="store_true")
+  research.add_argument("--simulation-file",type=Path)
   cancel = commands.add_parser("cancel", help="Cancelar uma intenção antes de iniciar o envio")
   cancel.add_argument("--id",required=True)
   resume = commands.add_parser("resume",help="Retomar conversa encaminhada, com justificativa e aprovação")
@@ -74,7 +78,18 @@ def main(argv=None):
       if not settings["leadApi"]["enabled"]: raise ValueError("API de leads desabilitada.")
       crm = LeadApi(settings["leadApi"], args.settings.resolve().parent)
       crm.login()
-      if args.operation in ("inspect", "enrich"):
+      if args.operation == "research":
+        from ms_trevize.data.website_review import WebsiteReview
+        from ms_trevize.data.ai_qualification import AIQualification
+        from ms_trevize.features.leads.research import LeadResearch
+        skill = (args.settings.resolve().parent/settings["skill"]["path"]).resolve(strict=True)
+        if skill.stat().st_size > 32768: raise ValueError("Skill excede limite.")
+        simulation = None
+        if args.simulation_file:
+          if args.simulation_file.stat().st_size > 16000: raise ValueError("Simulação excede limite.")
+          simulation = json.loads(args.simulation_file.read_text())
+        result = LeadResearch(crm,WebsiteReview(settings["website"]),AIQualification(settings["ai"],skill.read_text())).run(args.id,args.apply,simulation)
+      elif args.operation in ("inspect", "enrich"):
         from ms_trevize.data.website_review import WebsiteReview
         from ms_trevize.features.leads.enrichment import LeadEnrichment
         result = LeadEnrichment(crm, WebsiteReview(settings["website"])).run(args.id, args.limit, getattr(args,"apply",False))
@@ -88,7 +103,9 @@ def main(argv=None):
         if args.operation == "revise": offline = not store.get(args.id)["content"].get("replyMessageId")
         gmail = None if offline else GoogleGmail.connect(store)
         from ms_trevize.data.reply_advisor import ReplyAdvisor
-        outreach = LeadOutreach(crm,store,gmail,ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]}))
+        skill = (args.settings.resolve().parent/settings["skill"]["path"]).resolve(strict=True)
+        if skill.stat().st_size > 32768: raise ValueError("Skill excede limite.")
+        outreach = LeadOutreach(crm,store,gmail,ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]},skill=skill.read_text()))
         if args.operation in ("prepare", "prepare-reply"):
           if args.body_file.stat().st_size > 32000: raise ValueError("Texto excede limite.")
           body = args.body_file.read_text(encoding="utf-8")

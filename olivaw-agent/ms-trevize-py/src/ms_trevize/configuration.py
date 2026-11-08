@@ -24,8 +24,14 @@ def load_settings(path):
     "maxTurns":2,"windowHours":72,"maxPerCycle":3,"aiEnabled":False})
   for key in ("enabled","sendingEnabled","aiEnabled"):
     if type(outreach.get(key)) is not bool: raise ValueError("Habilitação de atendimento inválida.")
-  for key, low, high in (("pollSeconds",30,3600),("maxTurns",1,3),("windowHours",1,168),("maxPerCycle",1,5)):
+  for key, low, high in (("pollSeconds",30,3600),("maxTurns",1,20),("windowHours",1,168),("maxPerCycle",1,5)):
     if type(outreach.get(key)) is not int or not low <= outreach[key] <= high: raise ValueError("Limite de atendimento inválido.")
+  for key in ("automaticInitials","automaticReplies"):
+    outreach.setdefault(key,False)
+    if type(outreach[key]) is not bool: raise ValueError("Política automática inválida.")
+  for key,default,low,high in (("initialIntervalSeconds",1800,1800,86400),("initialPollSeconds",60,30,3600)):
+    outreach.setdefault(key,default)
+    if type(outreach[key]) is not int or not low <= outreach[key] <= high: raise ValueError("Intervalo de abordagem inválido.")
   if type(data.get("settingsVersion")) is not int or data.get("settingsVersion") != 1 or data.get("agent") != {"id": "trevize", "module": "ms_trevize"}:
     raise ValueError("Identidade ou versão inválida.")
   if data.get("lifecycle", {}).get("autoStart") is not False:
@@ -59,6 +65,8 @@ def load_settings(path):
     raise ValueError("Provedor IA inválido.")
   if data["ai"].get("model") is not None and not isinstance(data["ai"]["model"], str):
     raise ValueError("Modelo inválido.")
+  if data["ai"].get("reasoningEffort") not in (None,"low","medium","high","xhigh","max"):
+    raise ValueError("Esforço de raciocínio inválido.")
   for section, key in (("skill", "path"), ("localState", "directory"), ("leadApi", "credentialsPath"), ("leadApi", "credentialsSection")):
     if not isinstance(data.get(section, {}).get(key), str) or not data[section][key]:
       raise ValueError("Caminho ou seção obrigatório.")

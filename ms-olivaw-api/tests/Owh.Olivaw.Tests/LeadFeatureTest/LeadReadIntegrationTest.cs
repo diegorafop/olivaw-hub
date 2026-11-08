@@ -141,6 +141,19 @@ public class LeadReadIntegrationTest
         }
         using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = lead.FollowUpRevision, status = "analysis", note = "Nota" });
         Assert.Equal((HttpStatusCode)expected, update.StatusCode);
+        using var deleteRequest = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Delete,$"/leads/{request.ExternalId}")
+        {
+            Content = JsonContent.Create(new { revision = lead.Revision, followUpRevision = lead.FollowUpRevision })
+        };
+        using var deletion = await client.SendAsync(deleteRequest);
+        Assert.Equal((HttpStatusCode)expected,deletion.StatusCode);
+        if (expected == 200)
+        {
+            Assert.NotNull(lead.DeletedAt);
+            using var hidden = await client.GetAsync($"/leads/{request.ExternalId}");
+            Assert.False(hidden.IsSuccessStatusCode);
+        }
+
         if (expected != 200)
         {
             reader.Verify(item => item.ReadAsync(It.IsAny<LeadReadFilter>(), It.IsAny<CancellationToken>()), Times.Never);

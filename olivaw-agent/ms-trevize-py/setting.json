@@ -40,9 +40,10 @@
   "ai": {
     "enabled": true,
     "provider": "codex-cli",
-    "model": null,
+    "model": "gpt-6.1-sol",
     "timeoutSeconds": 120,
-    "maxCallsPerCycle": 20
+    "maxCallsPerCycle": 20,
+    "reasoningEffort": "low"
   },
   "skill": {
     "path": "../skills/trevize-prospect/SKILL.md"
@@ -59,12 +60,16 @@
     "credentialsSection": "trevize"
   },
   "outreach": {
-    "enabled": false,
-    "sendingEnabled": false,
-    "pollSeconds": 120,
-    "maxTurns": 2,
+    "enabled": true,
+    "sendingEnabled": true,
+    "pollSeconds": 900,
+    "maxTurns": 6,
     "windowHours": 72,
-    "maxPerCycle": 3,
-    "aiEnabled": false
+    "maxPerCycle": 5,
+    "aiEnabled": true,
+    "automaticInitials": true,
+    "automaticReplies": true,
+    "initialIntervalSeconds": 1800,
+    "initialPollSeconds": 60
   }
 }

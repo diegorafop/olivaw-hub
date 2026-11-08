@@ -26,6 +26,7 @@ public class UpdateLeadTest
         var node = System.Text.Json.Nodes.JsonNode.Parse(previous)!;
         node["qualification"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadQualification { Facts = "Fato interno" });
         node["qualificationUpdatedBy"] = "Operador";
+        node["engagement"] = System.Text.Json.Nodes.JsonNode.Parse("{\"level\":\"warm\"}");
         node["communications"] = System.Text.Json.Nodes.JsonNode.Parse("[{\"eventId\":\"preservado\"}]");
         node["proposal"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadProposal { Title = "Proposta interna" }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         var lead = Lead.Create(request.ExternalId, hash, 1, node.ToJsonString(), DateTime.UtcNow);
@@ -37,6 +38,7 @@ public class UpdateLeadTest
         using var saved = System.Text.Json.JsonDocument.Parse(lead.Snapshot);
         Assert.Equal("Proposta interna", saved.RootElement.GetProperty("proposal").GetProperty("title").GetString());
         Assert.Equal("Novo pedido público", saved.RootElement.GetProperty("requirements").GetString());
+        Assert.Equal("warm", saved.RootElement.GetProperty("engagement").GetProperty("level").GetString());
         Assert.Equal("Fato interno", saved.RootElement.GetProperty("qualification").GetProperty("facts").GetString());
         Assert.Equal("Operador", saved.RootElement.GetProperty("qualificationUpdatedBy").GetString());
         Assert.Equal("preservado", saved.RootElement.GetProperty("communications")[0].GetProperty("eventId").GetString());

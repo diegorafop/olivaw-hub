@@ -1,9 +1,11 @@
 """Piloto comercial: aprovação humana, reserva CRM e reconciliação sem reenvio."""
 import hashlib
+import re
+from datetime import datetime, timezone
 import json
 from uuid import UUID
 
-from ms_trevize.domain.mail import address, build_message
+from ms_trevize.domain.mail import address, build_message, mailbox
 from ms_trevize.features.gmail.pilot import GmailPilot
 
 
@@ -39,6 +41,7 @@ class LeadOutreach:
 
   def eligible(self, lead, recipient):
     snapshot = lead["snapshot"]
+    if lead.get("externalId") in self.store.retired_leads(): raise ValueError("Lead encerrado pelo operador.")
     if (snapshot.get("acquisition") or {}).get("initiative") != "outbound":
       raise ValueError("Piloto comercial somente para leads outbound.")
     if lead.get("followUpStatus", "new") not in ("new", "conversation"):
@@ -64,6 +67,8 @@ class LeadOutreach:
     record["questionId"] = content.get("questionId", "")
     if message and message.get("reviewRevision"):
       record["eventId"] = digest([intent["id"],kind,message["id"],message["reviewRevision"]])
+    if message and message.get("interestSignal"):
+      record.update(interestSignal=message["interestSignal"],interestEvidence=message.get("interestEvidence", "")[:300])
     if message:
       record.update(gmailMessageId=message["id"], threadId=message["threadId"],
         subject=message.get("subject", "")[:200],
@@ -87,6 +92,11 @@ class LeadOutreach:
     if approved is not True: raise ValueError("Preparação exige --approve após revisar destinatário e texto.")
     identity, recipient = str(UUID(identity)), address(recipient)
     self.eligible(self.lead(identity), recipient)
+    if not reply_id:
+      existing = [item for item in self.store.intents() if item["content"]["to"] == recipient
+        and not item["content"].get("replyMessageId") and item["content"].get("leadId") != identity
+        and item["state"] != "cancelled"]
+      if existing: raise ValueError("Destinatário já possui abordagem inicial; continuar somente após resposta, na conversa existente.")
     if reply_id:
       # O próprio adaptador verifica remetente, última mensagem e automações.
       from ms_trevize.domain.mail import message_view, reply_context
@@ -162,11 +172,19 @@ class LeadOutreach:
     if result.get("repeated"):
       raise ValueError("Reserva já utilizada; reconciliar sem enviar novamente.")
 
+  def confirm_crm(self, intent):
+    if intent.get("crmSentRecordedAt"): return
+    self.record(intent,"sent")
+    with self.store.lock():
+      current = self.store.get(intent["id"])
+      current["crmSentRecordedAt"] = datetime.now(timezone.utc).isoformat()
+      self.store.save(current)
+
   def send(self, identity, confirmed=False):
     intent = self.store.get(identity)
     if not intent["content"].get("leadId"): raise ValueError("Intenção sem lead associado.")
     result = self.pilot.send(identity, confirmed)
-    if result["state"] == "sent": self.record(self.store.get(identity), "sent")
+    if result["state"] == "sent": self.confirm_crm(self.store.get(identity))
     return result
 
   def reconcile(self, identity):
@@ -180,21 +198,53 @@ class LeadOutreach:
           intent.update(state="confirmation-pending")
           self.store.save(intent)
     result = self.pilot.reconcile(identity)
-    if result["state"] == "sent": self.record(self.store.get(identity), "sent")
+    if result["state"] == "sent": self.confirm_crm(self.store.get(identity))
     return result
 
-  def sync(self, limit=5):
-    if type(limit) is not int or not 1 <= limit <= 5: raise ValueError("Sincronização limitada a cinco respostas por rodada.")
+  def delivery_failure(self, intent, message):
+    try: sender = mailbox(message.get("from", ""))
+    except ValueError: return False
+    body = message.get("body", "")
+    if sender not in ("mailer-daemon@googlemail.com","mailer-daemon@google.com"): return False
+    if message.get("autoSubmitted", "").lower() != "auto-replied": return False
+    if intent["content"]["to"].casefold() not in body.casefold(): return False
+    status = re.search(r"(?:^|\n)Status:\s*(5\.1\.\d+)",body,re.I)
+    if not status: return False
+    reason = "domínio inexistente (NXDOMAIN)" if "NXDOMAIN" in body else "endereço recusado pelo servidor"
+    note = "Falha permanente de entrega ("+status.group(1)+"): "+reason+". Contato publicado inválido; não repetir o envio sem nova validação."
+    self.record(intent,"handoff",{**message,"body":note})
+    lead = self.lead(intent["content"]["leadId"])
+    qualification = lead["snapshot"].get("qualification") or {}
+    tags = qualification.get("tags", [])
+    if "email-invalid" not in tags and len(tags)<12:
+      qualification["tags"] = [*tags,"email-invalid"]
+      result = self.crm.request("/leads/"+intent["content"]["leadId"]+"/qualification",
+        {"revision":lead["snapshot"]["revision"],"qualification":qualification},"PUT")
+      if result.get("conflict"): raise ValueError("Contato alterado durante registro da falha de entrega.")
+    return True
+
+  def sync(self, limit=5, stopping=None):
+    if type(limit) is not int or not 1 <= limit <= 100: raise ValueError("Sincronização limitada a cem respostas por lote.")
     # Primeiro recuperar envios confirmados localmente e ainda não registrados no CRM.
-    intents = [item for item in self.store.intents() if item["content"].get("leadId") and item["state"] == "sent"]
-    for intent in intents: self.record(intent, "sent")
-    ignored = set()
+    retired = self.store.retired_leads()
+    intents = [item for item in self.store.intents() if item["content"].get("leadId") and item["content"].get("leadId") not in retired and item["state"] == "sent"]
+    from ms_trevize.data.lead_api import ApiError
+    snapshots = {}
     for identity in {item["content"]["leadId"] for item in intents}:
-      records = self.lead(identity)["snapshot"].get("communications") or []
+      try: snapshots[identity] = self.lead(identity)["snapshot"]
+      except ApiError as error:
+        if error.status != 404: raise
+        self.store.retire_lead(identity,"Cadastro não está mais disponível no CRM; acompanhamento encerrado.")
+        retired.add(identity)
+    intents = [item for item in intents if item["content"]["leadId"] not in retired]
+    for intent in intents: self.confirm_crm(intent)
+    ignored = set()
+    for identity,snapshot in snapshots.items():
+      records = snapshot.get("communications") or []
       current = active_events({"communications":records})
       previous = records[:len(records)-len(current)]
       ignored.update(item["gmailMessageId"] for item in previous if item["kind"] == "human-takeover")
-    batch = self.pilot.replies(acknowledge=False,ignored_human_ids=ignored)
+    batch = self.pilot.replies(acknowledge=False,ignored_human_ids=ignored,excluded_lead_ids=retired)
     incoming = batch["messages"]
     for message in batch["takeovers"]:
       contacts = sorted([item for item in intents if item["threadId"] == message["threadId"]], key=lambda item:item["createdAt"])
@@ -202,6 +252,7 @@ class LeadOutreach:
         self.record(contacts[0], "human-takeover", message)
     items = []
     for message in incoming[:limit]:
+      if stopping and stopping(): break
       contacts = sorted([item for item in intents if item["threadId"] == message["threadId"]], key=lambda item:item["createdAt"])
       lead_ids = {item["content"]["leadId"] for item in contacts}
       if len(lead_ids) != 1:
@@ -210,10 +261,11 @@ class LeadOutreach:
       intent = contacts[0]
       self.record(intent, message["disposition"], message)
       if message["disposition"] == "received": self.review(intent, message)
+      elif message["disposition"] == "review-required": self.delivery_failure(intent,message)
       # Só reconhecer após gravar no CRM; uma falha permite retomar sem perder a resposta.
       self.pilot.acknowledge([message["id"]])
       items.append({"id":message["id"],"leadId":intent["content"]["leadId"],"status":message["disposition"]})
-    return {"items":items,"autoReply":False,"contactPerformed":False}
+    return {"items":items,"autoReply":False,"contactPerformed":False,"remaining":max(0,len(incoming)-len(items)),"interrupted":bool(stopping and stopping())}
 
   def review(self, intent, message):
     from ms_trevize.data.gmail_store import private_json
@@ -221,28 +273,41 @@ class LeadOutreach:
     from ms_trevize.data.reply_advisor import QUESTIONS
     identity = intent["content"]["leadId"]
     path = self.store.root / ("decision-" + digest([identity,message["id"]]) + ".json")
-    with self.store.lock():
+    from ms_trevize.data.local_runtime import exclusive_lock
+    with exclusive_lock(path.with_suffix(".lock")):
       previous = private_json(path) if path.exists() else None
       if previous and not previous.get("reprocess"): decision = previous
       else:
-        if len(list(self.store.root.glob("decision-*.json"))) >= 1000: raise ValueError("Limite de decisões atingido.")
+        if len(list(self.store.root.glob("decision-*.json"))) >= (100000 if self.store.config().get("mode") == "commercial" else 1000): raise ValueError("Limite de decisões atingido.")
         lead = self.lead(identity)["snapshot"]
         asked = {entry.get("questionId") for entry in (lead.get("communications") or []) if entry.get("kind") in ("prepared","sent") and entry.get("questionId")}
         from ms_trevize.data.reply_advisor import classify, current_text
         rule = classify(current_text(message.get("body","")))
         blocked = paused(lead)
         try:
-          if rule: analysis = rule
+          if rule:
+            analysis = rule
+            if rule["classification"] == "handoff":
+              from ms_trevize.data.reply_advisor import ready_for_operator
+              text = current_text(message.get("body", ""))
+              if ready_for_operator(text):
+                analysis.update(interestSignal="ready",interestEvidence=text[:300])
           elif blocked: analysis = {"classification":"handoff","questionId":"","summary":"Atendimento já encaminhado ou suspenso; revisão humana necessária."}
-          else: analysis = self.advisor.analyze(message, lead, asked)
+          else:
+            history = sorted((item for item in self.decisions() if item.get("leadId") == identity),key=lambda item:item.get("reviewedAt", ""))[-8:]
+            context = [{"summary":item.get("summary", "")[:500],"reply":item.get("reply", "")[:1000]} for item in history]
+            analysis = self.advisor.analyze(message,{**lead,"conversationContext":context,"initialContact":intent["content"]["body"][:2000]},asked)
         except (OSError, ValueError, KeyError, TypeError):
           analysis = {"classification":"handoff","questionId":"","summary":"Falha na classificação; encaminhar ao operador sem resposta automática."}
         decision = {**analysis,"leadId":identity,"messageId":message["id"],"threadId":message["threadId"],
-          "intentId":intent["id"],"reply":QUESTIONS.get(analysis.get("questionId"),"") if analysis["classification"] == "qualify" else ""}
+          "reviewedAt":datetime.now(timezone.utc).isoformat(),
+          "intentId":intent["id"],"reply":analysis.get("reply") or QUESTIONS.get(analysis.get("questionId"),"") if analysis["classification"] == "qualify" else ""}
         if previous: decision["reviewRevision"] = previous.get("reviewRevision",0)
         atomic_json(path, decision)
     kind = {"optout":"suppressed","qualify":"reply-draft"}.get(decision["classification"],"handoff")
     summary = {**message,"body":decision["summary"] + "\n" + decision.get("reply",""),"reviewRevision":decision.get("reviewRevision",0)}
+    if decision.get("interestSignal"):
+      summary.update(interestSignal=decision["interestSignal"],interestEvidence=decision.get("interestEvidence", ""))
     # A decisão é durável antes de reconhecer a mensagem, inclusive quando a IA falha.
     self.record(intent, kind, summary)
     return decision
@@ -250,5 +315,5 @@ class LeadOutreach:
   def decisions(self):
     from ms_trevize.data.gmail_store import private_json
     files = sorted(self.store.root.glob("decision-*.json"))
-    if len(files) > 1000: raise ValueError("Limite de decisões atingido.")
+    if len(files) > (100000 if (self.store.root/"config.json").exists() and self.store.config().get("mode") == "commercial" else 1000): raise ValueError("Limite de decisões atingido.")
     return [private_json(path) for path in files]
