@@ -43,6 +43,10 @@ class LeadResearch:
       qualification["websiteAssessment"] = analysis.get("websiteAssessment") or assessment_for({},evidence)
       qualification["restrictedAreaUrl"] = evidence.get("restrictedAreaUrl", "")
       qualification["commercialObservation"] = analysis.get("commercialObservation", "")
+      if analysis.get("status") == "completed":
+        tags = qualification.get("tags",[])
+        if "trevize-researched" not in tags and len(tags)<12:
+          qualification["tags"] = [*tags,"trevize-researched"]
     if qualification.get("approachStatus") != "reviewed":
       qualification["approach"] = (analysis.get("approach") if simulation is None else "") or opening(snapshot.get("business", ""),qualification,snapshot.get("email", ""))
       qualification["approachStatus"] = "draft"

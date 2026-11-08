@@ -26,7 +26,7 @@ class Specialists:
       if future is not None and future.done():
         try: outcome = future.result()
         except CollectionFailure as error: outcome = {"status":"failed","phase":error.phase}
-        except Exception: outcome = {"status":"failed","reason":"check-configuration","sent":0}
+        except Exception as error: outcome = {"status":"failed","reason":"check-configuration","errorType":type(error).__name__,"sent":0}
         completed[name] = outcome
         self.finished.add(name)
         del self.pending[name]

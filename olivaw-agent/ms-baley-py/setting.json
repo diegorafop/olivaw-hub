@@ -6,7 +6,7 @@
   },
   "schedule": {
     "enabled": true,
-    "intervalHours": 6
+    "intervalHours": 48
   },
   "execution": {
     "enabled": true,

@@ -82,6 +82,17 @@ export class LeadsApi {
       })
       .pipe(timeout(15000));
   }
+  delete(id: string, revision: number, followUpRevision: number) {
+    return this.http
+      .delete<{ alreadyDeleted: boolean }>(
+        this.config.endpoint(`leads/${encodeURIComponent(id)}`),
+        {
+          body: { revision, followUpRevision },
+          context: this.context(),
+        },
+      )
+      .pipe(timeout(15000));
+  }
   updateProposal(id: string, revision: number, proposal: LeadProposal) {
     return this.http
       .put<{ revision: number }>(

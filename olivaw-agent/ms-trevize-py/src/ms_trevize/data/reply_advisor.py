@@ -89,7 +89,7 @@ class ReplyAdvisor:
         for item in (lead.get("communications") or [])[-12:]]}
     prompt = ("Atenda como assistente comercial da equipe Olivaw, em português natural e breve. "
       "Responda primeiro à dúvida concreta, reconheça o contexto e faça no máximo uma pergunta relevante ainda não respondida. "
-      "Não use saudação e agradecimento iguais a cada turno, lista de serviços ou elogio genérico. Não finja ser uma pessoa específica. "
+      "Use parágrafos curtos, separados por uma linha em branco; no máximo duas frases por parágrafo. Não use o nome interno Trevize na apresentação nem assinatura. Apresente apenas a equipe Olivaw. Não repita a apresentação em toda resposta. Não finja ser uma pessoa específica. "
       "A resposta é rascunho revisável, nunca envio autorizado. Use classification qualify e questionId do próximo tema: need, current-system, deadline, contact-person ou purpose. "
       "Use commercialFocus para transformar o diagnóstico numa proposta concreta. Se prioritizeWebsite for verdadeiro, mantenha a próxima pergunta no site: apresentação, modernização, navegação, conteúdo ou autonomia de atualização. "
       "Não termine com 'qual atividade da rotina gostariam de simplificar?' quando já existe oportunidade específica no site. Se UI e UX são medianas, proponha avaliar modernização e facilitar acesso aos serviços/contato pelo celular. "
@@ -135,6 +135,7 @@ class ReplyAdvisor:
       return {"classification":"handoff","questionId":"","summary":"Roteiro esgotado ou pergunta repetida; encaminhar ao operador."}
     if not isinstance(decision["questionId"],str): raise ValueError("Pergunta inválida.")
     if not isinstance(decision["reply"],str) or len(decision["reply"])>1500: raise ValueError("Rascunho inválido.")
+    if re.search(r"\btrevize\b",decision["reply"],re.I): raise ValueError("Nome interno não permitido no atendimento.")
     signal, quote = decision["interestSignal"], decision["interestEvidence"]
     if signal not in ("neutral","negative","positive","ready") or not isinstance(quote,str) or len(quote)>300:
       raise ValueError("Sinal comercial inválido.")

@@ -8,6 +8,7 @@ async function setup(
 ) {
   let qualification: Record<string, unknown> | undefined = initialQualification;
   let revision = 1;
+  let deleted = false;
   let followUpRevision = 0;
   const writes: unknown[] = [];
   await page.route('https://api.olivaw.com.br/**', (route) => {
@@ -26,6 +27,13 @@ async function setup(
         },
       });
     expect(route.request().headers()['authorization']).toBe('Bearer test');
+    if (route.request().method() === 'DELETE' && url.pathname === `/leads/${id}`) {
+      const body = route.request().postDataJSON();
+      expect(body.revision).toBe(revision);
+      expect(body.followUpRevision).toBe(followUpRevision);
+      deleted = true;
+      return route.fulfill({ json: { alreadyDeleted: false } });
+    }
     if (url.pathname.endsWith('/qualification')) {
       writes.push(route.request().postDataJSON());
       if (conflict) return route.fulfill({ status: 409, json: {} });
@@ -75,22 +83,24 @@ async function setup(
         json: {
           page: 1,
           pageSize: 20,
-          total: 1,
+          total: deleted ? 0 : 1,
           asOf: '2026-11-01T10:00:00Z',
-          items: [
-            {
-              externalId: id,
-              business: 'Eventos Aurora',
-              title: 'Presença digital',
-              createdAt: '2026-11-01T10:00:00Z',
-              entry: 'prospecting',
-              followUpStatus: 'new',
-              email: '',
-              whatsapp: '',
-              phone: '(41) 99897-0017',
-              segment: 'Eventos',
-            },
-          ],
+          items: deleted
+            ? []
+            : [
+                {
+                  externalId: id,
+                  business: 'Eventos Aurora',
+                  title: 'Presença digital',
+                  createdAt: '2026-11-01T10:00:00Z',
+                  entry: 'prospecting',
+                  followUpStatus: 'new',
+                  email: '',
+                  whatsapp: '',
+                  phone: '(41) 99897-0017',
+                  segment: 'Eventos',
+                },
+              ],
         },
       });
     return route.fulfill({ json: {} });
@@ -233,4 +243,15 @@ test('registra UI e usabilidade medianas sem inventar gestão e sem incluir nota
   expect(assessment.strategy).toBe('ui');
   await page.getByRole('link', { name: 'Voltar ao resumo' }).click();
   await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}$`));
+});
+
+test('exclui o lead com confirmação e vetor de revisão antes de voltar à lista', async ({
+  page,
+}) => {
+  await setup(page);
+  await page.goto(`/admin/leads/${id}/details`);
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Excluir lead', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/leads$/);
+  await expect(page.getByText('Nenhum lead neste recorte.', { exact: true })).toBeVisible();
 });

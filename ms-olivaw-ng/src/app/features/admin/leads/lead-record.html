@@ -11,6 +11,16 @@
       <a class="secondary" [routerLink]="['/admin/leads', id]" [queryParams]="queryParams"
         >Voltar ao resumo</a
       ><button type="button" class="secondary" (click)="reload()">Atualizar ficha</button>
+      @if (lead()?.snapshot) {
+        <button
+          type="button"
+          class="secondary"
+          [disabled]="busy() || conflict()"
+          (click)="remove()"
+        >
+          Excluir lead
+        </button>
+      }
     </div>
   </header>
   @if (loading()) {

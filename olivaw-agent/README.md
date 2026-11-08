@@ -25,7 +25,7 @@ Para escolher só um agente:
 ./olivaw-agent/olivaw-agent status --agent baley
 ```
 
-O Baley configurado executa auditoria inicial e ciclos a cada seis horas, com coleta SSH, interpretação por GPT-6 Luna/high e relatório por API. Correções dependem de tickets explicitamente aprovados e dos procedimentos permitidos. `running=true` identifica o worker; resultados e falhas ficam no status, sem presumir sucesso de auditoria. Configurações com execução desativada ainda usam `waiting-configuration`.
+O Baley configurado executa auditoria inicial e ciclos a cada 48 horas, com coleta SSH, interpretação por GPT-6 Luna/high e relatório por API. Correções dependem de tickets explicitamente aprovados e dos procedimentos permitidos. `running=true` identifica o worker; resultados e falhas ficam no status, sem presumir sucesso de auditoria. Configurações com execução desativada ainda usam `waiting-configuration`.
 
 ## Adicionar um projeto
 
@@ -109,3 +109,7 @@ As verificações de processos usam projetos/estados temporários e encerram os 
 O projeto [ms-trevize-py](ms-trevize-py/README.md), gerado pelo scaffold, coleta até 20 candidatos de eventos por ciclo para Curitiba e prepara fichas e abordagens por API. O primeiro ciclo começa no start; próximos ficam elegíveis a cada 24h, sem sobreposição. Os especialistas de primeiro contato e respostas têm agendas independentes: até duas abordagens/h e consulta/respostas a cada 15min, sob a política comercial autorizada. Conferir publicação da API de qualificação antes de iniciar.
 
 `olivaw-agent start` inicia Baley e Trevize. `olivaw-agent start --agent trevize` limita a operação a ele. Nenhum agente inicia no boot ou por consultar status; não instalar cron, serviços ou chamada de start em arquivos do shell. Após desligar o PC, os agentes precisam de novo start manual. Supervisor ativo aguardando timer não equivale a auditoria/coleta contínua. `lifecycle.autoStart=false` é declarado e validado no Baley e Trevize.
+
+### Retorno dos comandos
+
+`start`, `stop` e `status` retornam um JSON resumido com agente, estado e indicação de execução. Falhas continuam visíveis. Use `./olivaw-agent/olivaw-agent status --verbose` para consultar o diagnóstico e histórico completos; a mesma opção vale para `start` e `stop`.

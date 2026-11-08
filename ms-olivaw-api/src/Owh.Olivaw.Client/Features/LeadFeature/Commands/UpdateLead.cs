@@ -16,6 +16,8 @@ public sealed class UpdateLeadCommand
     public System.Text.Json.JsonElement? Communications { get; set; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public System.Text.Json.JsonElement? ContactDiscovery { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public System.Text.Json.JsonElement? Engagement { get; set; }
     public int SchemaVersion { get; set; }
     public long Revision { get; set; }
     public DateTimeOffset StartedAt { get; set; }

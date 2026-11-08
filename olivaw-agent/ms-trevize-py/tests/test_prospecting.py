@@ -157,3 +157,23 @@ class ProspectingTests(unittest.TestCase):
     self.assertEqual('maps-collection',failure.exception.phase)
     self.assertNotIn('SECRET',str(failure.exception))
     ai.analyze.assert_not_called();api.publish.assert_not_called()
+
+  def test_malformed_public_html_attributes_do_not_crash_the_batch(self):
+    fetch=Mock(side_effect=[(404,'text/plain','','https://example.test/robots.txt'),
+      (200,'text/html','<title>Eventos</title><meta name><img alt><form><input type><textarea></textarea></form>','https://example.test')])
+    result=WebsiteReview(self.runtime.settings['website'],fetch).analyze('https://example.test')
+    self.assertEqual('checked',result['status'])
+    self.assertEqual(1,result['imagesWithoutAlt'])
+
+  def test_new_collection_budget_preserves_previous_deliveries_on_restart(self):
+    from datetime import datetime,timezone
+    from ms_trevize.bootstrap import compose
+    self.runtime.settings['search']['limit']=20
+    self.runtime.prepare()
+    (self.runtime.state/'seen.json').write_text(json.dumps({str(i):datetime.now(timezone.utc).isoformat() for i in range(14)}))
+    skill=Path(self.temp.name)/'skill.md';skill.write_text('Somente revisão.')
+    self.runtime.settings['skill']['path']=str(skill)
+    with patch('ms_trevize.bootstrap.LocalRuntime',return_value=self.runtime):
+      handler=compose(self.path)
+    self.assertEqual(6,handler.runtime.settings['search']['limit'])
+    self.assertEqual(14,handler.runtime.settings['execution']['dailyCollected'])

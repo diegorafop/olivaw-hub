@@ -43,3 +43,13 @@ class HubTests(unittest.TestCase):
       self.assertFalse(result["success"])
       self.assertEqual(2, len(result["rejectedProjects"]))
       self.assertEqual(["baley"], [r["agent"] for r in result["agents"]])
+
+  def test_lifecycle_summary_omits_history_but_preserves_errors_and_full_mode(self):
+    original={'operation':'stop','success':False,'rejectedProjects':[], 'agents':[
+      {'agent':'baley','exitCode':0,'result':{'state':'stopped','running':False,'lastAnalysis':{'raw':'large'}}},
+      {'agent':'trevize','exitCode':1,'error':'agent-operation-failed'}]}
+    summary=hub.concise_lifecycle(original)
+    self.assertNotIn('lastAnalysis',json.dumps(summary))
+    self.assertEqual('agent-operation-failed',summary['agents'][1]['error'])
+    self.assertFalse(summary['success'])
+    self.assertIn('lastAnalysis',original['agents'][0]['result'])

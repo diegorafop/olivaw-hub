@@ -1,10 +1,11 @@
 """Piloto comercial: aprovação humana, reserva CRM e reconciliação sem reenvio."""
 import hashlib
+import re
 from datetime import datetime, timezone
 import json
 from uuid import UUID
 
-from ms_trevize.domain.mail import address, build_message
+from ms_trevize.domain.mail import address, build_message, mailbox
 from ms_trevize.features.gmail.pilot import GmailPilot
 
 
@@ -40,6 +41,7 @@ class LeadOutreach:
 
   def eligible(self, lead, recipient):
     snapshot = lead["snapshot"]
+    if lead.get("externalId") in self.store.retired_leads(): raise ValueError("Lead encerrado pelo operador.")
     if (snapshot.get("acquisition") or {}).get("initiative") != "outbound":
       raise ValueError("Piloto comercial somente para leads outbound.")
     if lead.get("followUpStatus", "new") not in ("new", "conversation"):
@@ -199,18 +201,50 @@ class LeadOutreach:
     if result["state"] == "sent": self.confirm_crm(self.store.get(identity))
     return result
 
+  def delivery_failure(self, intent, message):
+    try: sender = mailbox(message.get("from", ""))
+    except ValueError: return False
+    body = message.get("body", "")
+    if sender not in ("mailer-daemon@googlemail.com","mailer-daemon@google.com"): return False
+    if message.get("autoSubmitted", "").lower() != "auto-replied": return False
+    if intent["content"]["to"].casefold() not in body.casefold(): return False
+    status = re.search(r"(?:^|\n)Status:\s*(5\.1\.\d+)",body,re.I)
+    if not status: return False
+    reason = "domínio inexistente (NXDOMAIN)" if "NXDOMAIN" in body else "endereço recusado pelo servidor"
+    note = "Falha permanente de entrega ("+status.group(1)+"): "+reason+". Contato publicado inválido; não repetir o envio sem nova validação."
+    self.record(intent,"handoff",{**message,"body":note})
+    lead = self.lead(intent["content"]["leadId"])
+    qualification = lead["snapshot"].get("qualification") or {}
+    tags = qualification.get("tags", [])
+    if "email-invalid" not in tags and len(tags)<12:
+      qualification["tags"] = [*tags,"email-invalid"]
+      result = self.crm.request("/leads/"+intent["content"]["leadId"]+"/qualification",
+        {"revision":lead["snapshot"]["revision"],"qualification":qualification},"PUT")
+      if result.get("conflict"): raise ValueError("Contato alterado durante registro da falha de entrega.")
+    return True
+
   def sync(self, limit=5, stopping=None):
     if type(limit) is not int or not 1 <= limit <= 100: raise ValueError("Sincronização limitada a cem respostas por lote.")
     # Primeiro recuperar envios confirmados localmente e ainda não registrados no CRM.
-    intents = [item for item in self.store.intents() if item["content"].get("leadId") and item["state"] == "sent"]
+    retired = self.store.retired_leads()
+    intents = [item for item in self.store.intents() if item["content"].get("leadId") and item["content"].get("leadId") not in retired and item["state"] == "sent"]
+    from ms_trevize.data.lead_api import ApiError
+    snapshots = {}
+    for identity in {item["content"]["leadId"] for item in intents}:
+      try: snapshots[identity] = self.lead(identity)["snapshot"]
+      except ApiError as error:
+        if error.status != 404: raise
+        self.store.retire_lead(identity,"Cadastro não está mais disponível no CRM; acompanhamento encerrado.")
+        retired.add(identity)
+    intents = [item for item in intents if item["content"]["leadId"] not in retired]
     for intent in intents: self.confirm_crm(intent)
     ignored = set()
-    for identity in {item["content"]["leadId"] for item in intents}:
-      records = self.lead(identity)["snapshot"].get("communications") or []
+    for identity,snapshot in snapshots.items():
+      records = snapshot.get("communications") or []
       current = active_events({"communications":records})
       previous = records[:len(records)-len(current)]
       ignored.update(item["gmailMessageId"] for item in previous if item["kind"] == "human-takeover")
-    batch = self.pilot.replies(acknowledge=False,ignored_human_ids=ignored)
+    batch = self.pilot.replies(acknowledge=False,ignored_human_ids=ignored,excluded_lead_ids=retired)
     incoming = batch["messages"]
     for message in batch["takeovers"]:
       contacts = sorted([item for item in intents if item["threadId"] == message["threadId"]], key=lambda item:item["createdAt"])
@@ -227,6 +261,7 @@ class LeadOutreach:
       intent = contacts[0]
       self.record(intent, message["disposition"], message)
       if message["disposition"] == "received": self.review(intent, message)
+      elif message["disposition"] == "review-required": self.delivery_failure(intent,message)
       # Só reconhecer após gravar no CRM; uma falha permite retomar sem perder a resposta.
       self.pilot.acknowledge([message["id"]])
       items.append({"id":message["id"],"leadId":intent["content"]["leadId"],"status":message["disposition"]})

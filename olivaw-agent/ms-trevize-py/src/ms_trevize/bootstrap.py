@@ -1,5 +1,6 @@
 """Composição explícita dos adaptadores de um ciclo."""
 from ms_trevize.data.local_runtime import LocalRuntime
+from datetime import datetime, timezone, timedelta
 from ms_trevize.data.batch_state import BatchState
 from ms_trevize.data.maps_collector import MapsCollector
 from ms_trevize.data.website_review import WebsiteReview
@@ -18,6 +19,13 @@ def compose(path, preview_limit=None):
     settings["leadApi"]["enabled"] = False
     settings["ai"]["enabled"] = False
     runtime.prepare()
+  if preview_limit is None and settings["execution"]["enabled"]:
+    recent = BatchState(runtime).seen()
+    cutoff = datetime.now(timezone.utc)-timedelta(hours=24)
+    count = sum(datetime.fromisoformat(stamp.replace("Z","+00:00")) > cutoff for stamp in recent.values())
+    settings["execution"]["dailyTarget"] = settings["search"]["limit"]
+    settings["execution"]["dailyCollected"] = count
+    settings["search"]["limit"] = max(0,settings["search"]["limit"]-count)
   skill_path = (runtime.path.parent/settings["skill"]["path"]).resolve(strict=True)
   if skill_path.stat().st_size>32768: raise ValueError("Skill excede limite.")
   return CreateProspectBatchHandler(BatchState(runtime),

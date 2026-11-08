@@ -2,7 +2,7 @@ import { LeadTemperature } from './lead-temperature';
 import { Component, HostListener, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { LeadsApi, type LeadDetailData } from './leads-api';
@@ -30,6 +30,8 @@ import {
 export class LeadRecord {
   private readonly api = inject(LeadsApi);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private removed = false;
   private readonly followUp = viewChild(LeadFollowUp);
   readonly id = this.route.snapshot.paramMap.get('id')!;
   readonly queryParams = this.route.snapshot.queryParams;
@@ -123,12 +125,39 @@ export class LeadRecord {
     return this.metricsDirty() || this.form.dirty || !!this.followUp()?.form.dirty;
   }
   canLeave() {
+    if (this.removed) return true;
     if (this.busy() || this.followUp()?.pending()) return false;
     return !this.hasChanges() || window.confirm('Descartar alterações não salvas da ficha?');
   }
   @HostListener('window:beforeunload', ['$event'])
   beforeUnload(event: BeforeUnloadEvent) {
     if (this.hasChanges() || this.busy()) event.preventDefault();
+  }
+  async remove() {
+    const data = this.lead();
+    if (!data?.snapshot || this.busy() || this.conflict()) return;
+    if (
+      !window.confirm(
+        'Excluir este lead da operação? O histórico será preservado. Alterações não salvas serão descartadas.',
+      )
+    )
+      return;
+    this.busy.set(true);
+    this.error.set('');
+    try {
+      await firstValueFrom(this.api.delete(this.id, data.snapshot.revision, data.followUpRevision));
+      this.removed = true;
+      await this.router.navigate(['/admin/leads'], { queryParams: this.queryParams });
+    } catch (error) {
+      this.conflict.set(error instanceof HttpErrorResponse && error.status === 409);
+      this.error.set(
+        this.conflict()
+          ? 'O lead mudou. Recarregue antes de excluir.'
+          : 'Não foi possível confirmar a exclusão. Confira a lista antes de repetir.',
+      );
+    } finally {
+      this.busy.set(false);
+    }
   }
   async reload() {
     if (this.canLeave()) await this.load();

@@ -33,6 +33,7 @@ class FakeStore:
 
 class DispatchTests(unittest.TestCase):
   def setUp(self):
+    dns=patch("ms_trevize.features.leads.dispatch.check_email_domain",return_value={"status":"valid"});dns.start();self.addCleanup(dns.stop)
     self.directory=TemporaryDirectory();self.addCleanup(self.directory.cleanup)
     self.store=FakeStore(self.directory.name)
     self.leads={FIRST:lead(),SECOND:lead(SECOND,'second@example.test')}
@@ -127,7 +128,8 @@ class DispatchTests(unittest.TestCase):
     self.assertEqual('partial',result['status'])
     self.assertNotIn('PRIVATE',str(result))
     self.assertEqual(1,self.outreach.prepare.call_count)
-    self.assertEqual(self.leads[FIRST]['snapshot']['qualification']['approach'],self.outreach.prepare.call_args.args[3])
+    self.assertIn('Faz sentido modernizar o site?',self.outreach.prepare.call_args.args[3])
+    self.assertIn('Olá, somos da equipe Olivaw.',self.outreach.prepare.call_args.args[3])
     self.assertIs(True,self.outreach.prepare.call_args.args[4])
 
   def test_unknown_attempt_time_blocks_initials_for_review(self):
@@ -141,3 +143,25 @@ class DispatchTests(unittest.TestCase):
       'content':{'leadId':FIRST,'to':'contact@example.test','replyMessageId':'received1'}}]
     self.assertEqual('daily-sending-limit',self.service.run()['reason'])
     self.crm.request.assert_not_called(); self.outreach.prepare.assert_not_called()
+
+  def test_completed_research_can_be_ready_without_inventing_unknown_scores(self):
+    q=self.leads[FIRST]['snapshot']['qualification'];q['commercialObservation']=''
+    q['tags']=['trevize-researched'];q['websiteAssessment']['metrics']={'ui':{'score':None,'confidence':'unknown'}}
+    self.assertTrue(self.service._ready(q))
+    self.assertIsNone(q['websiteAssessment']['metrics']['ui']['score'])
+
+  def test_failed_research_uses_short_cooldown_but_qualified_research_waits_a_day(self):
+    self.store.prepare()
+    self.assertTrue(self.service._research_due(FIRST,NOW))
+    self.service._research_finished(FIRST,'failed')
+    self.assertFalse(self.service._research_due(FIRST,NOW+timedelta(minutes=14)))
+    self.assertTrue(self.service._research_due(FIRST,NOW+timedelta(minutes=16)))
+    self.service._research_finished(FIRST,'qualified')
+    self.assertFalse(self.service._research_due(FIRST,NOW+timedelta(hours=2)))
+
+  def test_invalid_contact_domain_does_not_trigger_research_or_transport(self):
+    self.service.email_check=Mock(return_value={'status':'invalid','reason':'domain-nxdomain'})
+    result=self.service.run()
+    self.assertEqual(0,result['sent'])
+    self.assertEqual(2,result['deferredDomains'])
+    self.outreach.prepare.assert_not_called();self.outreach.send.assert_not_called()

@@ -19,7 +19,7 @@ def private_json(path):
   descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
   with os.fdopen(descriptor, "r", encoding="utf-8") as source:
     info = os.fstat(source.fileno())
-    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077 or info.st_size > (4194304 if path.name in ("received.json","approvals.json") else 131072):
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077 or info.st_size > (4194304 if path.name in ("received.json","approvals.json","retired-leads.json") else 131072):
       raise ValueError("Arquivo Gmail deve pertencer ao operador, respeitar o limite privado do tipo de arquivo e ter permissão 0600.")
     value = json.load(source)
   if not isinstance(value, dict):
@@ -114,6 +114,22 @@ class GmailStore:
         raise ValueError("Lead já aprovado para outro destinatário; revisar manualmente.")
       approvals[lead_id] = recipient
       atomic_json(path, approvals)
+
+  def retired_leads(self):
+    path = self.root/"retired-leads.json"
+    return set(private_json(path)) if path.exists() else set()
+
+  def retire_lead(self, identity, note):
+    from uuid import UUID
+    from ms_trevize.data.local_runtime import now
+    identity = str(UUID(identity))
+    if not isinstance(note,str) or not note.strip() or len(note)>300: raise ValueError("Informe o motivo do encerramento.")
+    with self.lock():
+      path = self.root/"retired-leads.json"
+      records = private_json(path) if path.exists() else {}
+      if identity not in records:
+        records[identity] = {"at":now(),"reason":note}
+        atomic_json(path,records)
 
   def allowed(self, recipient, lead_id=None):
     config = self.config()

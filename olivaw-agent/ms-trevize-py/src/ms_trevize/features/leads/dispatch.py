@@ -7,15 +7,18 @@ from ms_trevize.data.gmail_store import private_json
 from ms_trevize.data.local_runtime import atomic_json, exclusive_lock
 from ms_trevize.domain.commercial import contact_source
 from ms_trevize.domain.mail import address
+from ms_trevize.domain.presentation import initial_presentation
 from ms_trevize.features.leads.outreach import paused
+from ms_trevize.data.email_domain import check_email_domain
 from ms_trevize.features.leads.research import LeadResearch, EXAMPLE_ID
 
 
 class OutboundDispatcher:
-  def __init__(self, crm, store, outreach, website=None, ai=None, settings=None, clock=None):
+  def __init__(self, crm, store, outreach, website=None, ai=None, settings=None, clock=None, email_check=None):
     self.crm, self.store, self.outreach = crm, store, outreach
     self.website, self.ai = website, ai
     self.settings = settings or {}
+    self.email_check = email_check or check_email_domain
     self.clock = clock or (lambda: datetime.now(timezone.utc))
 
   def _rate(self, intents, now):
@@ -40,7 +43,7 @@ class OutboundDispatcher:
     return None
 
   @staticmethod
-  def _recipient(lead):
+  def _base_eligible(lead):
     snapshot = lead.get("snapshot") or {}
     qualification = snapshot.get("qualification") or {}
     acquisition = snapshot.get("acquisition") or {}
@@ -51,6 +54,13 @@ class OutboundDispatcher:
     if tags & {"teste", "test", "teste interno", "fake", "simulação", "simulation", "opt-out", "do-not-contact", "não contatar", "nao contatar"}: return None
     if (qualification.get("websiteAssessment") or {}).get("basis") == "simulation": return None
     if any(item.get("kind") in ("prepared", "sending", "sent", "received") for item in snapshot.get("communications") or []): return None
+    return bool(qualification.get("websiteUrl"))
+
+  @staticmethod
+  def _recipient(lead):
+    if not OutboundDispatcher._base_eligible(lead): return None
+    snapshot = lead["snapshot"]
+    qualification = snapshot["qualification"]
     try: emails = {address(item["email"]) for item in qualification.get("publicEmails", [])}
     except (ValueError, KeyError, TypeError): return None
     if len(emails) != 1: return None
@@ -73,7 +83,7 @@ class OutboundDispatcher:
     if qualification.get("approachStatus") == "reviewed": return True
     assessment = qualification.get("websiteAssessment") or {}
     if assessment.get("basis") not in ("html", "manual", "conversation") or not assessment.get("assessedAt"): return False
-    return bool(qualification.get("commercialObservation")) or any(
+    return "trevize-researched" in qualification.get("tags",[]) or bool(qualification.get("commercialObservation")) or any(
       type(metric.get("score")) is int and metric.get("confidence") != "unknown" and metric.get("evidence")
       for metric in (assessment.get("metrics") or {}).values())
 
@@ -89,14 +99,24 @@ class OutboundDispatcher:
   def _research_due(self, identity, now):
     path = self.store.root/"dispatch-research.json"
     history = private_json(path) if path.exists() else {}
-    if identity in history:
-      last = datetime.fromisoformat(history[identity].replace("Z", "+00:00"))
-      if last > now-timedelta(hours=24): return False
+    entry = history.get(identity)
+    if entry:
+      # Reservas antigas foram gravadas sem resultado: reavaliar após uma hora,
+      # preservando o registro original em vez de apagar o diário.
+      stamp = entry if isinstance(entry,str) else entry["attemptedAt"]
+      hours = 1 if isinstance(entry,str) else (24 if entry.get("status") == "qualified" else .25)
+      if datetime.fromisoformat(stamp.replace("Z","+00:00")) > now-timedelta(hours=hours): return False
     if len(history) >= 1000 and identity not in history: return False
-    # Reserva anterior à chamada impede repetir pesquisa paga após queda do processo.
-    history[identity] = now.isoformat()
+    history[identity] = {"attemptedAt":now.isoformat(),"status":"running","previousAttemptAt":stamp if entry else None}
     atomic_json(path,history)
     return True
+
+  def _research_finished(self, identity, status):
+    path = self.store.root/"dispatch-research.json"
+    history = private_json(path) if path.exists() else {}
+    if isinstance(history.get(identity),dict):
+      history[identity]["status"] = status
+      atomic_json(path,history)
 
   def run(self):
     if not all(self.settings.get(key) is True for key in ("enabled", "sendingEnabled", "automaticInitials")):
@@ -120,14 +140,19 @@ class OutboundDispatcher:
         if not item["content"].get("replyMessageId") and item["state"] != "cancelled"}
       researched = False
       checked = 0
+      deferred = 0
       for row in self._candidates():
         identity = str(UUID(row["externalId"]))
         if identity in used_leads: continue
         try:
           lead = self.outreach.lead(identity)
           checked += 1
+          if not self._base_eligible(lead): continue
           recipient = self._recipient(lead)
           if not recipient or recipient in used: continue
+          if self.email_check(recipient).get("status") != "valid":
+            deferred += 1
+            continue
           self.outreach.eligible(lead,recipient)
           qualification = lead["snapshot"]["qualification"]
           if not self._ready(qualification):
@@ -138,15 +163,19 @@ class OutboundDispatcher:
             lead = self.outreach.lead(identity)
             if self._recipient(lead) != recipient: continue
             qualification = lead["snapshot"]["qualification"]
-            if not self._ready(qualification): continue
+            if not self._ready(qualification):
+              self._research_finished(identity,"qualification-unavailable")
+              continue
+            self._research_finished(identity,"qualified")
           subject = "Uma ideia para o site da " + lead["snapshot"].get("business", "empresa")[:120]
-          prepared = self.outreach.prepare(identity,recipient,subject,qualification["approach"],True)
+          prepared = self.outreach.prepare(identity,recipient,subject,initial_presentation(qualification["approach"]),True)
           if self.store.get(prepared["id"])["state"] != "prepared":
             return {"status":"paused","reason":"initial-already-started","sent":0,"leadId":identity}
           result = self.outreach.send(prepared["id"],True)
           return {"status":"completed","sent":int(result["state"] == "sent"),"leadId":identity,
             "intentId":prepared["id"],"transportState":result["state"],"nextInitialAt":(self.clock()+timedelta(minutes=30)).isoformat()}
         except (OSError, ValueError, KeyError, TypeError):
+          if researched: self._research_finished(identity,"failed")
           # Uma reserva/preparação pode ter sido aceita; não selecionar outro lead neste ciclo.
           return {"status":"partial","reason":"initial-not-confirmed-review-required","sent":0,"leadId":identity}
-      return {"status":"idle","reason":"no-qualified-public-contact","sent":0,"checked":checked,"researched":researched}
+      return {"status":"idle","reason":"no-qualified-public-contact","sent":0,"checked":checked,"researched":researched,"deferredDomains":deferred}

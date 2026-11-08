@@ -95,12 +95,32 @@ def review_text(report):
   return "\n".join(lines)
 
 
+def concise_lifecycle(report):
+  agents = []
+  for entry in report["agents"]:
+    data = entry.get("result",{})
+    row = {"agent":entry["agent"],"state":data.get("state","failed"),"running":bool(data.get("running"))}
+    if entry.get("error") or entry.get("exitCode"):
+      row["error"] = entry.get("error") or data.get("message") or "agent-operation-failed"
+    if report["operation"] == "status" and data.get("running"):
+      warnings = [name+": "+details["lastResult"].get("reason","check-results")
+        for name,details in data.get("specialists",{}).items()
+        if details.get("lastResult",{}).get("status") in ("failed","partial")]
+      if warnings: row["warnings"] = warnings
+    agents.append(row)
+  result = {"operation":report["operation"],"agents":agents,"success":report["success"]}
+  if report["rejectedProjects"]: result["rejectedProjects"] = report["rejectedProjects"]
+  return result
+
+
 def main(argv=None):
   parser = argparse.ArgumentParser(description="Opera todos os projetos de agentes do agrupador Olivaw.")
   parser.add_argument("operation", choices=("start", "stop", "status", "update", "audit"))
   parser.add_argument("--agent", help="Opcional: nome curto de um agente, como baley.")
+  parser.add_argument("--verbose", action="store_true", help="Inclui diagnóstico e histórico completos no JSON.")
   parser.add_argument("--format", choices=("json", "text"), default="json")
   args = parser.parse_args(argv)
   result = operate(ROOT, args.operation, args.agent)
+  if args.operation in ("start","stop","status") and not args.verbose: result = concise_lifecycle(result)
   print(review_text(result) if args.format == "text" and args.operation == "update" else json.dumps(result, ensure_ascii=False, indent=2))
   return 0 if result["success"] else 1

@@ -128,7 +128,7 @@ class GmailPilot:
         return {"id":identity,"state":intent["state"],"message":"Mensagem não localizada ou ambígua; manter para revisão, sem reenviar."}
       return self._confirm(intent, matches[0]["id"])
 
-  def replies(self, acknowledge=True, ignored_human_ids=()):
+  def replies(self, acknowledge=True, ignored_human_ids=(), excluded_lead_ids=()):
     """Consulta somente fios conhecidos; não altera lido/não lido e não envia respostas."""
     with self.store.lock():
       self.profile()
@@ -136,7 +136,7 @@ class GmailPilot:
       from ms_trevize.data.gmail_store import private_json
       state = private_json(path) if path.exists() else {"seen":[]}
       seen = set(state["seen"])
-      intents = [i for i in self.store.intents() if i["state"] == "sent"]
+      intents = [i for i in self.store.intents() if i["state"] == "sent" and i["content"].get("leadId") not in excluded_lead_ids]
       own_ids = {i["gmailMessageId"] for i in intents}
       threads = {}
       for intent in intents:

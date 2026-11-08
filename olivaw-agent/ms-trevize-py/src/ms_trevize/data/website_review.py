@@ -23,7 +23,7 @@ class PageParser(HTMLParser):
     self.current_form = None
 
   def handle_starttag(self, tag, attrs):
-    values = dict(attrs)
+    values = {key:value or "" for key,value in attrs}
     if self.ignore and tag not in ("script", "style", "noscript"): return
     if tag in ("script", "style", "noscript"):
       self.ignore += 1

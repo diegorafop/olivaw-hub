@@ -42,6 +42,7 @@ def qualification_for(candidate, evidence, settings, ai):
     "restrictedAreaUrl":web_url(evidence.get("restrictedAreaUrl", "")),
     "commercialObservation":ai.get("commercialObservation", ""),
     "websiteAssessment":ai.get("websiteAssessment") or assessment_for({},evidence)}
+  if checked and ai.get("status") == "completed": result["tags"].append("trevize-researched")
   # Sem IA disponível, a sugestão usa estratégia e origem registradas, sempre para revisão.
   recipient = result["publicEmails"][0]["email"] if len(result["publicEmails"]) == 1 else ""
   result["approach"] = ai.get("approach") or opening(candidate.name,result,recipient)
@@ -66,6 +67,8 @@ class CreateProspectBatchHandler:
     deadline = time.monotonic() + settings["execution"]["timeoutSeconds"]
     report = {"schemaVersion":1,"agentId":"trevize","startedAt":datetime.now(timezone.utc).isoformat(),
               "target":settings["search"]["limit"],"collected":0,"delivered":0,"duplicates":0,"failed":0,"aiCompleted":0,"aiFailed":0,"items":[]}
+    if settings["search"]["limit"] == 0:
+      return {**report,"status":"scheduled","reason":"daily-collection-limit","dailyTarget":settings["execution"].get("dailyTarget"),"contactPerformed":False}
     if not settings["execution"]["enabled"]: return {**report,"status":"disabled"}
     if settings["leadApi"]["enabled"]:
       try:
@@ -82,7 +85,10 @@ class CreateProspectBatchHandler:
     for candidate in candidates:
       if time.monotonic() >= deadline - 100: break
       if runtime.stopping(): break
-      evidence = self.website.analyze(candidate.website)
+      try:
+        evidence = self.website.analyze(candidate.website)
+      except (OSError,ValueError,TypeError,AttributeError,AssertionError) as error:
+        evidence = {"status":"inconclusive","reason":"website-review-failed","errorType":type(error).__name__}
       result = {"status":"disabled"}
       if settings["ai"]["enabled"] and calls < settings["ai"]["maxCallsPerCycle"]:
         calls += 1
@@ -92,7 +98,13 @@ class CreateProspectBatchHandler:
         except (OSError, ValueError, KeyError, TimeoutError):
           report["aiFailed"] += 1
           result = {"status":"failed"}
-      qualification = qualification_for(candidate,evidence,settings,result)
+      try:
+        qualification = qualification_for(candidate,evidence,settings,result)
+      except (ValueError,TypeError,KeyError,AttributeError) as error:
+        report["failed"] += 1
+        report["items"].append({"externalId":candidate.external_id,"outcome":"qualification-failed","phase":"qualification","errorType":type(error).__name__})
+        runtime.save({**report,"status":"running","contactPerformed":False})
+        continue
       if not settings["leadApi"]["enabled"]:
         previews.append({"externalId":candidate.external_id,"business":candidate.name,
           "website":candidate.website,"contacts":{key:qualification.get(key) for key in
@@ -109,8 +121,9 @@ class CreateProspectBatchHandler:
           report["items"].append({"externalId":candidate.external_id,"outcome":outcome,"analysis":evidence.get("status"),"ai":result.get("status")})
           break
       report["items"].append({"externalId":candidate.external_id,"outcome":outcome,"analysis":evidence.get("status"),"ai":result.get("status")})
+      runtime.save({**report,"status":"running","contactPerformed":False})
     report["completedAt"]=datetime.now(timezone.utc).isoformat()
-    report["status"]="completed" if report["failed"]==0 and len(report["items"])==report["target"] else "partial"
+    report["status"]="completed" if report["failed"]==0 and report["aiFailed"]==0 and len(report["items"])==report["target"] else "partial"
     report["contactPerformed"]=False
     # Só metadados e IDs locais; a ficha detalhada fica na API.
     runtime.save(report)

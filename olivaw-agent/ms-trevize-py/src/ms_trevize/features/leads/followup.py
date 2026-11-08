@@ -38,7 +38,8 @@ class FollowUpSpecialist:
       return result
     decisions = self.outreach.decisions()
     result["handoffs"] += sum(item.get("messageId") in seen and item.get("classification") in ("handoff","uncertain","optout") for item in decisions)
-    pending = [item for item in decisions if item.get("classification") == "qualify"
+    retired = getattr(self.store,"retired_leads",lambda:set())()
+    pending = [item for item in decisions if item.get("classification") == "qualify" and item.get("leadId") not in retired
       and not item.get("campaignPaused") and not item.get("reprocess") and isinstance(item.get("reply"),str) and item["reply"].strip()]
     result["drafts"] = len(pending)
     can_send = (self.settings.get("automaticReplies") is True and self.settings.get("aiEnabled") is True
