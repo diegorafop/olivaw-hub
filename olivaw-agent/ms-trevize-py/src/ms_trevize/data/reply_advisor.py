@@ -10,7 +10,7 @@ import unicodedata
 
 from ms_trevize.data.process_io import bounded_run
 
-from ms_trevize.domain.commercial import contact_source
+from ms_trevize.domain.commercial import contact_source, commercial_focus
 
 QUESTIONS = {
   "need":"Obrigado pelo retorno! Qual necessidade da rotina da empresa vocês gostariam de resolver com tecnologia?",
@@ -67,19 +67,23 @@ class ReplyAdvisor:
     qualification = lead.get("qualification") or {}
     source = contact_source(qualification,parseaddr(message.get("from", ""))[1] or lead.get("email", ""))
     provided = qualification.get("confidence") == "confirmed" and "contact-provided" in qualification.get("tags", [])
-    if re.search(r"(?:onde|como).{0,50}(?:email|e-mail|contato)|origem.{0,20}(?:email|e-mail|contato)",normalized(text)):
-      if source:
-        return {"classification":"qualify","questionId":"contact-origin","summary":"Pergunta sobre origem: fonte pública registrada.",
-          "reply":"Encontramos este e-mail na página pública " + source + ". Somos da Olivaw e entramos em contato para entender se podemos ajudar com o site ou a rotina do negócio. Faz sentido para vocês?",
-          "requiresReview":True,"interestSignal":"neutral","interestEvidence":text[:300]}
-      if not provided:
+    focus = commercial_focus(qualification)
+    origin_question = bool(re.search(r"(?:onde|como).{0,50}(?:email|e-mail|contato)|origem.{0,20}(?:email|e-mail|contato)",normalized(text)))
+    if origin_question:
+      if not source and not provided:
         return {"classification":"handoff","questionId":"","summary":"Origem do contato não registrada; não inventar uma fonte."}
+      if source and not self.settings.get("enabled"):
+        return {"classification":"qualify","questionId":"contact-origin","summary":"Pergunta sobre origem: fonte pública registrada.",
+          "reply":"Encontramos este e-mail na página pública " + source + ". Somos da Olivaw e desenvolvemos sites e sistemas. " + focus["question"],
+          "requiresReview":True,"interestSignal":"neutral","interestEvidence":text[:300]}
     if not message.get("bodyAvailable") or not self.settings.get("enabled"):
       return {"classification":"handoff","questionId":"","summary":"Revisão humana: texto simples ou IA de atendimento indisponível."}
     context = {"message":text,"business":lead.get("business", "")[:120],
       "facts":qualification.get("facts", "")[:1500],"asked":sorted(asked),"sourceUrl":source,
       "contactOrigin":"Contato fornecido à equipe Olivaw; origem confirmada pelo operador." if provided else "",
-      "assessment":(lead.get("qualification") or {}).get("websiteAssessment"),
+      "assessment":qualification.get("websiteAssessment"),"commercialFocus":focus,
+      "segment":qualification.get("segment", "")[:100],"websiteUrl":qualification.get("websiteUrl", "")[:2048],
+      "publicObservation":qualification.get("commercialObservation", "")[:400],
       "conversation":lead.get("conversationContext", []),"initialContact":lead.get("initialContact", ""),
       "history":[{"kind":item.get("kind"),"questionId":item.get("questionId"),"subject":item.get("subject", "")[:200]}
         for item in (lead.get("communications") or [])[-12:]]}
@@ -87,6 +91,12 @@ class ReplyAdvisor:
       "Responda primeiro à dúvida concreta, reconheça o contexto e faça no máximo uma pergunta relevante ainda não respondida. "
       "Não use saudação e agradecimento iguais a cada turno, lista de serviços ou elogio genérico. Não finja ser uma pessoa específica. "
       "A resposta é rascunho revisável, nunca envio autorizado. Use classification qualify e questionId do próximo tema: need, current-system, deadline, contact-person ou purpose. "
+      "Use commercialFocus para transformar o diagnóstico numa proposta concreta. Se prioritizeWebsite for verdadeiro, mantenha a próxima pergunta no site: apresentação, modernização, navegação, conteúdo ou autonomia de atualização. "
+      "Não termine com 'qual atividade da rotina gostariam de simplificar?' quando já existe oportunidade específica no site. Se UI e UX são medianas, proponha avaliar modernização e facilitar acesso aos serviços/contato pelo celular. "
+      "Responda origem/finalidade sem abandonar esse foco. Uma demanda explícita diferente do cliente tem precedência; não force a hipótese do site. Não despeje várias soluções ou perguntas. "
+      "Fale para alguém leigo em tecnologia. Troque 'processos ou rotinas para simplificar' por uma situação concreta do negócio: como consulta valores, monta um orçamento, recebe pedidos ou publica serviços, conforme a evidência disponível. "
+      "Esses são exemplos de tradução, não um checklist nem uma agenda fixa por ramo. Escolha um exemplo pertinente, pergunte como faz hoje e só depois explique a possibilidade de ajuda. Não suponha uso de planilhas ou necessidade de agenda. "
+      "Use need ou current-system para essa qualificação específica, respeitando perguntas anteriores. "
       "Se o cliente já respondeu um tema, não o pergunte novamente. Se pediu proposta, preço, reunião ou condições, use handoff sem negociar. "
       "Sem base para responder, handoff. Recusa: não insistir. Não afirme análise visual nem origem do e-mail sem fonte. "
       "interestSignal deve refletir só o texto: neutral=curiosidade sem interesse confirmado; negative=sem necessidade agora; positive=interesse explícito ou necessidade relatada; ready=pedido de proposta/reunião. "

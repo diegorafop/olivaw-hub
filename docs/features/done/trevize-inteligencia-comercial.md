@@ -45,6 +45,14 @@ O fluxo `resume`/`sync` reprocessou a resposta já recebida, preservou o histór
 
 O teste revelou dois ajustes locais do agente: aceitar finalidade/origem no transporte e permitir explicar contato fornecido confirmado, sem equipará-lo a fonte pública. Esses ajustes não alteram API ou schema. Validação posterior: 103 testes Python e validação estrutural da skill aprovados. Rascunhos livres continuam com revisão individual. Frontend e cenário posterior ainda dependem do aceite do mantenedor.
 
+### Refinamento da pauta após feedback comercial
+
+Notas agora geram `commercialFocus` explícito com dimensões prioritárias, pergunta concreta e limite da alegação de pesquisa. UI/UX medianas levam a modernização da apresentação e acesso a serviços/contato no celular. Origem pública e foco comercial são fornecidos juntos à IA habilitada, evitando o retorno antecipado a uma mensagem genérica. Não presumir inspeção real com base em notas simuladas.
+
+A skill orienta linguagem de cliente leigo: situação reconhecível, confirmação de como acontece hoje e benefício concreto. Agenda e planilha são exemplos, nunca uma receita por segmento. Trevize atua no atendimento comercial da Olivaw, sem jargão espontâneo de IA e com transparência se questionado diretamente sobre automação.
+
+Validação: 105 testes Python e estrutura da skill aprovados. Uma simulação manual isolada pelo `ReplyAdvisor` real produziu rascunho sobre modernização/apresentação e navegação no celular, com `current-system` após a pergunta `need` já utilizada. Sem acesso ao Gmail, nova mensagem, alteração de decisão histórica, escrita no CRM ou worker nesta rodada. Alterações apenas no agente/skill; não requerem novo deploy da API.
+
 ## user-feedback
 
 ```text
@@ -134,4 +142,47 @@ pode fazer o teste do trevize
 
 ```text
 deixe o lead ficticio como se fosse 'real' para o trevize trabalhar normalmente
+```
+
+```text
+otimo no caso o trevize não mentiu né.
+mas para o cliente ele vai falar que pegou o contato em site publico.
+
+porém ainda muito generico...
+poderia comentar algo como, olhamos o seu site seu negocio.
+
+
+para sites de eventos a pergunta 'Hoje, qual atividade na rotina com eventos vocês gostariam de simplificar?"
+
+talvez seja muito generica ...
+o site 'ficticio' da olivaw recebeu categoria 5 em UX e ui.
+o trevize tem essas informacoes certo?
+
+será que n é melhor ele ser mais especifico.
+
+POR EXEMPLO: 'efetuamos uma pré analise no seu site, voce tem interesse em modernizar ele? ter alguma ferramenata de gestao no proprio site como agenda ? é algo do seu interesse"
+
+.
+
+O que acha dessa abordagem com coisas MAIS especificas.
+ainda estamos em mensagens CASUAIS E genericas
+```
+
+```text
+modernidade, etc etc.
+
+ao coletar novos sites, o trevize deve categorizar varios pontos.
+Essas categorias sao usadas pra que ele monte sua abordagem comercial a mais HUMANA possivel, ele nunca deve responder que é um AGENT DE IA.
+coloca isso na SKILL Dele,trevize é um funcionario da equipe olivaw
+```
+
+```text
+agenda foi um EXEMPLO, é que falar para um cliente LEIGO em tecnologia e sistemas se ele tem 'processos ou rotinas para simplificar' quase nunca ele vai ligar isso a um sistema.
+
+Agora se a agenda dele é feita em planilha assim como os calculos de despesas em planilhas, ele vai associar mais facilmente
+```
+
+```text
+se tiver tudo pronto me avisa;
+eu vou responder aquele mesmo email blz?
 ```

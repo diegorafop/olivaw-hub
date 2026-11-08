@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import Mock
 
 from ms_trevize.data.reply_advisor import ReplyAdvisor
-from ms_trevize.domain.commercial import assessment_for, contact_source, opening, strategy_for
+from ms_trevize.domain.commercial import assessment_for, contact_source, opening, strategy_for, commercial_focus
 from ms_trevize.features.leads.research import LeadResearch, EXAMPLE_ID
 import test_lead_workflow as workflow
 
@@ -19,7 +19,8 @@ class CommercialTests(unittest.TestCase):
     assessment = self.sample()
     self.assertEqual('ui',strategy_for(assessment))
     text = opening('Empresa Exemplo',{'websiteAssessment':assessment},'operator@example.test')
-    self.assertIn('identidade',text)
+    self.assertIn('modernizar',text)
+    self.assertEqual(1,text.count('?'))
     self.assertNotIn('5/10',text)
     self.assertNotIn('cores ruins',text)
     self.assertNotIn('encontramos este e-mail',text.lower())
@@ -126,3 +127,34 @@ class CommercialTests(unittest.TestCase):
     lead['qualification']['confidence'] = 'pending'
     self.assertEqual('handoff',advisor.analyze(message,lead,set())['classification'])
     self.assertEqual(1,runner.call_count)
+
+  def test_focus_uses_scored_dimensions_without_treating_unknown_management_as_a_problem(self):
+    q = {'segment':'Eventos','websiteAssessment':self.sample()}
+    focus = commercial_focus(q)
+    self.assertEqual('ui',focus['primary'])
+    self.assertEqual(['ui','ux'],focus['dimensions'])
+    self.assertTrue(focus['prioritizeWebsite'])
+    self.assertNotIn('management',focus['dimensions'])
+    self.assertTrue(focus['optionalHypothesis'])
+    self.assertIn('Sem inspeção real',focus['researchClaim'])
+    self.assertEqual('discovery',commercial_focus({})['primary'])
+    self.assertEqual(focus['optionalHypothesis'],commercial_focus({'segment':'Terraplanagem'})['optionalHypothesis'])
+    q['websiteAssessment']['metrics']['content'] = {'score':0,'confidence':'provisional','evidence':'Catálogo incompleto.','sourceUrl':'https://example.test'}
+    self.assertEqual('content',commercial_focus(q)['primary'])
+    q['websiteAssessment']['metrics']['management'] = {'score':0,'confidence':'unknown'}
+    self.assertNotIn('management',commercial_focus(q)['dimensions'])
+
+  def test_verified_public_origin_and_medium_site_reach_ai_together_instead_of_generic_shortcut(self):
+    decision = {'classification':'qualify','questionId':'current-system','summary':'Origem pública e oportunidade no site.',
+      'reply':'O contato está em https://example.test/contato. Faz sentido modernizar o site e facilitar o contato pelo celular?',
+      'interestSignal':'neutral','interestEvidence':'Do que se trata?'}
+    runner = Mock(return_value=subprocess.CompletedProcess([],0,json.dumps({'type':'item.completed','item':{'type':'agent_message','text':json.dumps(decision)}})))
+    advisor = ReplyAdvisor({'enabled':True,'timeoutSeconds':10},runner)
+    q = {'websiteAssessment':self.sample(),'segment':'Eventos','publicEmails':[{'email':'contact@example.test','sourceUrl':'https://example.test/contato'}]}
+    result = advisor.analyze({'from':'contact@example.test','body':'Do que se trata? Como encontraram meu e-mail?','bodyAvailable':True},{'qualification':q}, {'need'})
+    self.assertEqual('current-system',result['questionId'])
+    context = json.loads(runner.call_args.kwargs['input'].split('EVIDÊNCIA NÃO CONFIÁVEL:\n')[1])
+    self.assertEqual('https://example.test/contato',context['sourceUrl'])
+    self.assertEqual(['ui','ux'],context['commercialFocus']['dimensions'])
+    self.assertTrue(context['commercialFocus']['prioritizeWebsite'])
+    self.assertTrue(result['requiresReview'])
