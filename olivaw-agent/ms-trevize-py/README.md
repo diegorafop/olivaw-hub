@@ -71,3 +71,21 @@ Referências: [ficha de Leads](../../docs/features/done/leads-ficha-qualificacao
 O status informa `lastCollection.phase` quando a autenticação/verificação da API (`api-preflight`) ou a leitura do Maps (`maps-collection`) falha. Outras falhas usam `batch-processing`. Mensagens brutas de dependências não são gravadas, pois podem conter credenciais ou dados de contatos. O intervalo continua contado após o término do ciclo, inclusive se falhar; não há repetição automática imediata.
 
 Em 01/11/2026, a tentativa anterior tinha apenas erro genérico e sua causa não pôde ser recuperada. A composição local, autenticação do Codex, verificação da API e uma amostra de leitura do Maps funcionaram no diagnóstico. Isso não valida ainda um ciclo completo com IA e entrega de Leads. Nenhum lote ou chamada de IA foi executado nesse diagnóstico; os agentes não foram reiniciados. Os 19 testes Python passaram.
+
+## Operação comercial autorizada — 08/11/2026
+
+O modelo é `gpt-6.1-sol`, com `reasoningEffort: low`, aplicado por chamada isolada ao Codex. O worker tem três especialistas em paralelo: coleta de até 20 leads a cada 24h; primeiro contato com uma mensagem a cada 30min e no máximo duas por hora móvel; leitura de respostas a cada 15min, drenando a fila das conversas conhecidas. As agendas são independentes e cada especialista não sobrepõe sua própria execução. Uma coleta lenta não bloqueia leitura ou contato.
+
+O primeiro contato usa contatos públicos inequívocos do mesmo site, qualificação e texto contextualizado. Silêncio não gera lembretes. O diário persiste as tentativas, inclusive incertas, para impedir repetição e estouro do ritmo após reinício. Consultas de fila ocorrem a cada minuto, mas só há envio quando o intervalo permite. Respostas têm fila separada e não consomem o ritmo de primeiras abordagens. Negociação, recusa, intervenção humana ou incerteza seguem para revisão; não há resposta inventada para cumprir quantidade.
+
+A configuração privada Gmail precisa estar em modo comercial com autorização registrada; configurações novas de OAuth continuam em piloto e sem envio. O teto técnico total de 500 tentativas/dia UTC inclui mensagens iniciais e respostas e não garante aceitação pelo provedor. Limites locais não são cotas distribuídas entre máquinas. O limite de histórico da API pode exigir revisão em conversas longas; não apagar eventos para contorná-lo.
+
+Início, somente pelo operador:
+
+```bash
+./olivaw-agent/olivaw-agent start
+./olivaw-agent/olivaw-agent status
+./olivaw-agent/olivaw-agent stop
+```
+
+O primeiro ciclo de cada especialista fica imediatamente elegível após start. Não há autostart, cron ou serviço de boot. A [operação Gmail](GMAIL.md) documenta piloto e política comercial.

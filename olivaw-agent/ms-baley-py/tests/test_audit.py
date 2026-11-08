@@ -142,3 +142,20 @@ class AuditTests(unittest.TestCase):
     rows = parse_listeners('tcp LISTEN 0 128 0.0.0.0:22 0.0.0.0:*\ntcp LISTEN 0 128 [::]:443 [::]:*')
     self.assertEqual([22,443],[row['port'] for row in rows])
     self.assertEqual('::',rows[1]['address'])
+
+  def test_ai_uses_configured_luna_high_without_global_or_environment_override(self):
+    output = json.dumps({'type':'item.completed','item':{'type':'agent_message','text':json.dumps({'summary':'Resumo','recommendations':[]})}})
+    runner = Mock(return_value=subprocess.CompletedProcess([],0,output))
+    settings = {'enabled':True,'provider':'codex-cli','model':'gpt-6-luna','reasoningEffort':'high'}
+    result = AIReview(settings,runner).analyze({'executionStatus':'completed','hostId':'fixture','result':{}},'Somente leitura')
+    args = runner.call_args.args[0]
+    self.assertEqual('gpt-6-luna',args[args.index('--model')+1])
+    self.assertIn('model_reasoning_effort="high"',args)
+    self.assertIn('--ignore-user-config',args)
+    self.assertIn('suppress_unstable_features_warning=true',args)
+    self.assertEqual('gpt-6-luna',result['model'])
+    self.assertEqual('high',result['reasoningEffort'])
+    self.assertNotIn('model_reasoning_effort',runner.call_args.kwargs['env'])
+    settings['reasoningEffort'] = 'invalid'
+    with self.assertRaises(ValueError): AIReview(settings,runner).analyze({'executionStatus':'completed','hostId':'fixture','result':{}},'Somente leitura')
+    self.assertEqual(1,runner.call_count)

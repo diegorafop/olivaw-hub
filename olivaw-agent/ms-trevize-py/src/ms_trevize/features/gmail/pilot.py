@@ -176,7 +176,7 @@ class GmailPilot:
           for view in collected:
             view["disposition"] = "human-takeover"
         incoming.extend(collected)
-      if len(seen) > 1000:
+      if len(seen) > (100000 if self.store.config().get("mode") == "commercial" else 1000):
         raise ValueError("Limite de histórico do piloto atingido; não descartar IDs para repetir processamento.")
       # Conteúdo fica somente na saída explícita; estado guarda IDs, não corpos da caixa.
       if acknowledge:
@@ -191,5 +191,5 @@ class GmailPilot:
       path = self.store.root / "received.json"
       state = private_json(path) if path.exists() else {"seen":[]}
       seen = set(state["seen"]) | set(identities)
-      if len(seen) > 1000: raise ValueError("Limite de mensagens recebidas atingido.")
+      if len(seen) > (100000 if self.store.config().get("mode") == "commercial" else 1000): raise ValueError("Limite de mensagens recebidas atingido.")
       atomic_json(path, {"seen":sorted(seen)})

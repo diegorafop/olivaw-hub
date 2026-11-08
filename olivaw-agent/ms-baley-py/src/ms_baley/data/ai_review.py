@@ -22,6 +22,9 @@ class AIReview:
     if not self.settings.get("enabled"):
       return {"status": "disabled", "provider": None}
     if self.settings.get("provider") != "codex-cli": raise ValueError("Provedor IA não suportado.")
+    effort = self.settings.get("reasoningEffort")
+    if effort is not None and effort not in ("low", "medium", "high", "xhigh", "max"):
+      raise ValueError("Esforço de raciocínio IA inválido.")
     # Credential values, raw logs and arbitrary URLs never enter this prompt.
     content = {"executionStatus": report["executionStatus"], "hostId": report["hostId"], "result": report["result"]}
     prompt = ("Você é Baley, analista de segurança. Use somente a evidência JSON fornecida. "
@@ -37,10 +40,12 @@ class AIReview:
               "--ephemeral", "--skip-git-repo-check", "--sandbox", "read-only", "--json",
               "--disable", "shell_tool", "--disable", "unified_exec", "--disable", "apps",
               "--disable", "plugins", "--disable", "skill_search", "--enable", "skip_host_skill_discovery",
-              "-c", 'web_search="disabled"', "--output-schema", str(schema), "-"]
+              "-c", 'web_search="disabled"', "-c", "suppress_unstable_features_warning=true", "--output-schema", str(schema), "-"]
       model = self.settings.get("model")
       if model:
         args[args.index("-"):args.index("-")] = ["--model", model]
+      if effort:
+        args[args.index("-"):args.index("-")] = ["-c", "model_reasoning_effort=" + json.dumps(effort)]
       environment = {key: value for key, value in os.environ.items() if key in {"PATH", "HOME", "LANG", "LC_ALL", "TZ"}}
       result = self.runner(args, input=prompt, timeout=self.settings.get("timeoutSeconds", 120),
                            maximum=262144, cwd=directory, env=environment)
@@ -56,4 +61,4 @@ class AIReview:
       data = json.loads(messages[-1])
       if set(data) != {"summary", "recommendations"} or not isinstance(data["summary"], str) or len(data["summary"]) > 5000 or not isinstance(data["recommendations"], list) or len(data["recommendations"]) > 20 or any(not isinstance(value, str) or len(value) > 2000 for value in data["recommendations"]):
         raise ValueError("Resposta IA incompatível.")
-      return {"status": "completed", "provider": "codex-cli", "model": model or "cli-default", **data}
+      return {"status": "completed", "provider": "codex-cli", "model": model or "cli-default", "reasoningEffort": effort or "cli-default", **data}

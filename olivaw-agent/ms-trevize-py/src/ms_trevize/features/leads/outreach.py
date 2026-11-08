@@ -170,11 +170,19 @@ class LeadOutreach:
     if result.get("repeated"):
       raise ValueError("Reserva já utilizada; reconciliar sem enviar novamente.")
 
+  def confirm_crm(self, intent):
+    if intent.get("crmSentRecordedAt"): return
+    self.record(intent,"sent")
+    with self.store.lock():
+      current = self.store.get(intent["id"])
+      current["crmSentRecordedAt"] = datetime.now(timezone.utc).isoformat()
+      self.store.save(current)
+
   def send(self, identity, confirmed=False):
     intent = self.store.get(identity)
     if not intent["content"].get("leadId"): raise ValueError("Intenção sem lead associado.")
     result = self.pilot.send(identity, confirmed)
-    if result["state"] == "sent": self.record(self.store.get(identity), "sent")
+    if result["state"] == "sent": self.confirm_crm(self.store.get(identity))
     return result
 
   def reconcile(self, identity):
@@ -188,14 +196,14 @@ class LeadOutreach:
           intent.update(state="confirmation-pending")
           self.store.save(intent)
     result = self.pilot.reconcile(identity)
-    if result["state"] == "sent": self.record(self.store.get(identity), "sent")
+    if result["state"] == "sent": self.confirm_crm(self.store.get(identity))
     return result
 
-  def sync(self, limit=5):
-    if type(limit) is not int or not 1 <= limit <= 5: raise ValueError("Sincronização limitada a cinco respostas por rodada.")
+  def sync(self, limit=5, stopping=None):
+    if type(limit) is not int or not 1 <= limit <= 100: raise ValueError("Sincronização limitada a cem respostas por lote.")
     # Primeiro recuperar envios confirmados localmente e ainda não registrados no CRM.
     intents = [item for item in self.store.intents() if item["content"].get("leadId") and item["state"] == "sent"]
-    for intent in intents: self.record(intent, "sent")
+    for intent in intents: self.confirm_crm(intent)
     ignored = set()
     for identity in {item["content"]["leadId"] for item in intents}:
       records = self.lead(identity)["snapshot"].get("communications") or []
@@ -210,6 +218,7 @@ class LeadOutreach:
         self.record(contacts[0], "human-takeover", message)
     items = []
     for message in incoming[:limit]:
+      if stopping and stopping(): break
       contacts = sorted([item for item in intents if item["threadId"] == message["threadId"]], key=lambda item:item["createdAt"])
       lead_ids = {item["content"]["leadId"] for item in contacts}
       if len(lead_ids) != 1:
@@ -221,7 +230,7 @@ class LeadOutreach:
       # Só reconhecer após gravar no CRM; uma falha permite retomar sem perder a resposta.
       self.pilot.acknowledge([message["id"]])
       items.append({"id":message["id"],"leadId":intent["content"]["leadId"],"status":message["disposition"]})
-    return {"items":items,"autoReply":False,"contactPerformed":False}
+    return {"items":items,"autoReply":False,"contactPerformed":False,"remaining":max(0,len(incoming)-len(items)),"interrupted":bool(stopping and stopping())}
 
   def review(self, intent, message):
     from ms_trevize.data.gmail_store import private_json
@@ -229,11 +238,12 @@ class LeadOutreach:
     from ms_trevize.data.reply_advisor import QUESTIONS
     identity = intent["content"]["leadId"]
     path = self.store.root / ("decision-" + digest([identity,message["id"]]) + ".json")
-    with self.store.lock():
+    from ms_trevize.data.local_runtime import exclusive_lock
+    with exclusive_lock(path.with_suffix(".lock")):
       previous = private_json(path) if path.exists() else None
       if previous and not previous.get("reprocess"): decision = previous
       else:
-        if len(list(self.store.root.glob("decision-*.json"))) >= 1000: raise ValueError("Limite de decisões atingido.")
+        if len(list(self.store.root.glob("decision-*.json"))) >= (100000 if self.store.config().get("mode") == "commercial" else 1000): raise ValueError("Limite de decisões atingido.")
         lead = self.lead(identity)["snapshot"]
         asked = {entry.get("questionId") for entry in (lead.get("communications") or []) if entry.get("kind") in ("prepared","sent") and entry.get("questionId")}
         from ms_trevize.data.reply_advisor import classify, current_text
@@ -270,5 +280,5 @@ class LeadOutreach:
   def decisions(self):
     from ms_trevize.data.gmail_store import private_json
     files = sorted(self.store.root.glob("decision-*.json"))
-    if len(files) > 1000: raise ValueError("Limite de decisões atingido.")
+    if len(files) > (100000 if (self.store.root/"config.json").exists() and self.store.config().get("mode") == "commercial" else 1000): raise ValueError("Limite de decisões atingido.")
     return [private_json(path) for path in files]

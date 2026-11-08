@@ -222,3 +222,15 @@ A política é uma abordagem inicial por destinatário e continuidade somente ap
 Contatos fornecidos à equipe pelo operador podem usar a tag `contact-provided` junto de confiança `confirmed`, após revisão humana da origem. O Trevize explica essa origem e não a apresenta como coleta em site. Sem URL pública associada nem origem fornecida confirmada, a dúvida continua encaminhada ao operador. Perguntas de finalidade/origem também são aceitas pelo transporte do roteiro revisável; textos livres mantêm aprovação individual.
 
 O diagnóstico alimenta `commercialFocus`: categorias com oportunidade orientam a pergunta específica. UI/UX medianas priorizam apresentação e navegação no celular; dúvidas sobre origem não descartam essa pauta. O relato explícito do cliente tem precedência. A skill traduz melhorias em situações reconhecíveis por um cliente leigo, sem presumir planilhas, agenda ou necessidade de uma ferramenta pelo ramo.
+
+## Política comercial automática autorizada em 08/11/2026
+
+Esta seção substitui os limites de execução do piloto para a máquina expressamente autorizada pelo mantenedor: coleta 20/24h, até duas abordagens iniciais/hora (uma a cada 30min) e consulta/respostas a cada 15min. As três frentes usam tarefas independentes no worker. O histórico de tentativas é persistente e os envios não se repetem por reinício.
+
+O modo privado `commercial` exige `policyApprovedAt`, além das chaves explícitas no setting. Só esse modo amplia o teto técnico total para 500 tentativas/dia UTC e permite aprovação automática de contatos públicos qualificados e rascunhos de qualificação. O piloto e planos antigos continuam exigindo sua aprovação anterior; eles não são reescritos. Não há meta de 500 envios. O provedor pode bloquear antes desse teto.
+
+O primeiro contato automático seleciona apenas leads novos de prospecção Google Maps, com um endereço público inequívoco e fonte do mesmo site. O lead fictício não entra nessa fila. O especialista de respostas acompanha todas as conversas conhecidas elegíveis, inclusive o teste existente, e usa apenas a última mensagem válida de cada thread. Silêncio, cancelamento, recusa e intervenção humana não autorizam novos contatos. Resultado incerto permanece pendente de reconciliação. Orçamento, negociação, dúvida sem base e limites de histórico vão para o operador.
+
+`requiresReview` continua identificando texto gerado pela IA; o especialista automático somente o envia sob a política nova explicitamente autorizada. O modo comercial não remove impedimentos humanos, não executa formulários nem faz negociação. As filas não usam o limite antigo de três mensagens compartilhado, duas respostas ou 72h da campanha de piloto. O teto do histórico CRM continua protegido.
+
+Modelo por chamada: `gpt-6.1-sol` com `model_reasoning_effort="low"`. Configuração global do Codex é ignorada. Ver [modelos oficiais](https://learn.chatgpt.com/docs/models) e [configuração do Codex](https://learn.chatgpt.com/docs/config-file/config-basic#reasoning-effort).

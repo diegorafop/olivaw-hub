@@ -50,3 +50,5 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 - [Dashboards gerenciais de Trevize e Baley](done/dashboards-gerenciais-dos-agentes.md) — captação e segurança com indicadores, gráficos e navegação própria; limites da amostra e de atribuição explícitos; publicação pendente.
 
 - [Trevize — Pesquisa e conversa comercial contextualizada](done/trevize-inteligencia-comercial.md) — diagnóstico interno, rascunhos e termômetro; API v1.1.3 confirmada e resposta controlada enviada; frontend e próximos aceites pelo mantenedor.
+
+- [Departamento comercial paralelo e modelos dos agents](done/trevize-departamento-comercial-paralelo.md) — três especialistas, ritmo persistente e modelos fixados; início manual pelo mantenedor, alterações sem commit.

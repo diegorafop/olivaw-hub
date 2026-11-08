@@ -50,3 +50,43 @@ def run_outreach(path, directory=None):
   ai = ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]},skill=skill.read_text())
   service = LeadOutreach(crm,store,GoogleGmail.connect(store),ai)
   return Campaign(store,service,settings["outreach"]).run()
+
+
+def commercial_context(path, directory=None):
+  """Composição da política comercial explicitamente autorizada, sem iniciar worker."""
+  runtime = LocalRuntime(path)
+  settings = runtime.settings
+  if not settings["outreach"]["enabled"] or not settings["leadApi"]["enabled"]:
+    return None
+  from ms_trevize.data.gmail_store import GmailStore
+  from ms_trevize.data.gmail_client import GoogleGmail
+  from ms_trevize.data.reply_advisor import ReplyAdvisor
+  from ms_trevize.features.leads.outreach import LeadOutreach
+  store = GmailStore(directory or runtime.path.parent/".state"/"gmail")
+  if not (store.root/"config.json").exists() or not (store.root/"token.json").exists(): return None
+  if store.config().get("mode") != "commercial": return None
+  skill = (runtime.path.parent/settings["skill"]["path"]).resolve(strict=True)
+  if skill.stat().st_size > 32768: raise ValueError("Skill excede limite.")
+  text = skill.read_text()
+  crm = LeadApi(settings["leadApi"],runtime.path.parent)
+  crm.login()
+  service = LeadOutreach(crm,store,GoogleGmail.connect(store),
+    ReplyAdvisor({**settings["ai"],"enabled":settings["outreach"]["aiEnabled"]},skill=text))
+  return runtime,settings,store,crm,service,text
+
+
+def run_initial_outreach(path):
+  from ms_trevize.features.leads.dispatch import OutboundDispatcher
+  context = commercial_context(path)
+  if context is None: return {"status":"paused","reason":"commercial-policy-disabled","sent":0}
+  runtime,settings,store,crm,service,skill = context
+  return OutboundDispatcher(crm,store,service,WebsiteReview(settings["website"]),
+    AIQualification(settings["ai"],skill),settings["outreach"]).run()
+
+
+def run_followup(path):
+  from ms_trevize.features.leads.followup import FollowUpSpecialist
+  context = commercial_context(path)
+  if context is None: return {"status":"paused","reason":"commercial-policy-disabled","sent":0}
+  runtime,settings,store,crm,service,skill = context
+  return FollowUpSpecialist(service,store,settings["outreach"],stopping=BatchState(runtime).stopping).run()

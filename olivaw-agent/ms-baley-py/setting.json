@@ -16,7 +16,8 @@
   "ai": {
     "enabled": true,
     "provider": "codex-cli",
-    "model": null,
+    "model": "gpt-6-luna",
+    "reasoningEffort": "high",
     "timeoutSeconds": 120
   },
   "skill": {

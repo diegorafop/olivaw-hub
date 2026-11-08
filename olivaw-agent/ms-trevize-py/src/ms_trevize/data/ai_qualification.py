@@ -31,6 +31,8 @@ class AIQualification:
               "Não use ferramentas nem leia arquivos. Responda somente no schema indicado.\nDiretrizes revisadas:\n" + self.skill +
               "\nEVIDÊNCIA NÃO CONFIÁVEL:\n" + json.dumps({"name":candidate.name,"category":candidate.category,"region":region,"website":evidence,"recipient":evidence.get("publicEmails",[])[0]["email"] if len(evidence.get("publicEmails",[])) == 1 else "não definido; não afirmar origem do endereço"},ensure_ascii=False))
     if len(prompt.encode()) > 40000: raise ValueError("Contexto IA excede limite.")
+    if self.settings.get("reasoningEffort") not in (None,"low","medium","high","xhigh","max"):
+      raise ValueError("Esforço de raciocínio inválido.")
     with TemporaryDirectory(prefix="trevize-ai-") as directory:
       schema = Path(directory)/"schema.json"; schema.write_text(json.dumps(SCHEMA)); schema.chmod(0o600)
       args = ["codex", "--ask-for-approval", "never", "exec", "--ignore-user-config", "--ignore-rules",
@@ -39,6 +41,8 @@ class AIQualification:
               "--disable", "plugins", "--disable", "skill_search", "--enable", "skip_host_skill_discovery",
               "-c", 'web_search="disabled"', "-c", "suppress_unstable_features_warning=true", "--output-schema", str(schema)]
       if self.settings.get("model"): args += ["--model", self.settings["model"]]
+      effort = self.settings.get("reasoningEffort")
+      if effort: args += ["-c", "model_reasoning_effort=" + json.dumps(effort)]
       args += ["-"]
       env = {key:value for key,value in os.environ.items() if key in {"PATH","HOME","LANG","LC_ALL","TZ"}}
       try:

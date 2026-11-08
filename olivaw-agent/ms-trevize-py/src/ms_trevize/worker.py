@@ -1,14 +1,46 @@
-"""Worker manual: primeiro ciclo imediato, demais 24h após o término anterior."""
+"""Três especialistas paralelos, com início manual e agendas independentes."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 import os
 import signal
 import time
-from ms_trevize.bootstrap import compose
+from ms_trevize.bootstrap import compose, run_initial_outreach, run_followup
 from ms_trevize.features.prospecting.commands.create_prospect_batch import CollectionFailure
-from ms_trevize.domain.schedule import Schedule
 from ms_trevize.data.local_runtime import LocalRuntime, atomic_json, exclusive_lock, now, read_state
+
+
+class Specialists:
+  """Uma tarefa por especialista; uma coleta lenta não segura leitura ou contato."""
+  def __init__(self, executor, jobs, clock=time.monotonic, once=()):
+    self.executor, self.jobs, self.clock = executor, jobs, clock
+    self.pending = {}
+    self.once, self.finished = set(once), set()
+    self.next_due = {name:clock() for name in jobs}
+    self.states = {name:{"state":"scheduled","nextAt":now()} for name in jobs}
+
+  def tick(self):
+    completed = {}
+    for name,(operation,interval,enabled) in self.jobs.items():
+      future = self.pending.get(name)
+      if future is not None and future.done():
+        try: outcome = future.result()
+        except CollectionFailure as error: outcome = {"status":"failed","phase":error.phase}
+        except Exception: outcome = {"status":"failed","reason":"check-configuration","sent":0}
+        completed[name] = outcome
+        self.finished.add(name)
+        del self.pending[name]
+        self.states[name].update(state="scheduled",lastResult=outcome)
+      if not enabled or (name in self.once and name in self.finished):
+        self.states[name]["state"] = "disabled"
+        continue
+      stamp = self.clock()
+      if name not in self.pending and stamp >= self.next_due[name]:
+        self.pending[name] = self.executor.submit(operation)
+        self.next_due[name] = stamp+interval
+        self.states[name].update(state="running",startedAt=now(),
+          nextAt=(datetime.now(timezone.utc)+timedelta(seconds=interval)).isoformat())
+    return completed
 
 
 def main(argv=None):
@@ -28,38 +60,30 @@ def main(argv=None):
     atomic_json(runtime.state/"stop.json",{"instanceId":args.token})
   signal.signal(signal.SIGTERM,stop_signal);signal.signal(signal.SIGINT,stop_signal)
   with exclusive_lock(runtime.state/"worker.lock"):
+    settings = runtime.settings
     state={"agentId":"trevize","instanceId":args.token,"startedAt":now(),"state":"scheduled",
-      "autoStart":False,"intervalHours":runtime.settings["schedule"]["intervalHours"],"lastCollection":None}
-    schedule=Schedule(runtime.settings["schedule"]["intervalHours"], time.monotonic(), runtime.settings["schedule"]["enabled"])
-    heartbeat=0;future=None;outreach_future=None;next_outreach=0
+      "autoStart":False,"intervalHours":settings["schedule"]["intervalHours"],"lastCollection":None,
+      "ai":{"model":settings["ai"].get("model"),"reasoningEffort":settings["ai"].get("reasoningEffort")}}
+    executor=ThreadPoolExecutor(max_workers=3,thread_name_prefix="trevize-commercial")
+    jobs = {
+      "prospecting":(lambda:compose(args.settings).handle(),settings["schedule"]["intervalHours"]*3600,settings["execution"]["enabled"]),
+      "first-contact":(lambda:run_initial_outreach(args.settings),settings["outreach"]["initialPollSeconds"],settings["outreach"]["enabled"] and settings["outreach"]["automaticInitials"]),
+      "follow-up":(lambda:run_followup(args.settings),settings["outreach"]["pollSeconds"],settings["outreach"]["enabled"]),
+    }
+    specialists = Specialists(executor,jobs,once=() if settings["schedule"]["enabled"] else ("prospecting",))
+    heartbeat=0
     atomic_json(runtime.state/"status.json",state)
-    executor=ThreadPoolExecutor(max_workers=2)
     try:
       while not stopping:
         if read_state(runtime.state/"stop.json").get("instanceId")==args.token:break
-        if outreach_future is not None and outreach_future.done():
-          try: state["outreach"] = outreach_future.result()
-          except Exception: state["outreach"] = {"status":"failed","reason":"check-configuration","sent":0,"failures":1}
-          outreach_future = None
-          next_outreach = time.monotonic()+runtime.settings["outreach"]["pollSeconds"]
-        if outreach_future is None and runtime.settings["outreach"]["enabled"] and time.monotonic() >= next_outreach:
-          from ms_trevize.bootstrap import run_outreach
-          outreach_future = executor.submit(run_outreach,args.settings)
-        if future is not None and future.done():
-          try:state["lastCollection"]=future.result()
-          except CollectionFailure as error:
-            state["lastCollection"]={"status":"failed","error":"collection-failed","phase":error.phase}
-          except Exception:
-            state["lastCollection"]={"status":"failed","error":"collection-failed-check-configuration","phase":"batch-processing"}
-          future=None
-          hours=runtime.settings["schedule"]["intervalHours"]
-          schedule.finish(time.monotonic())
-          state.update(state="scheduled",nextCollectionAt=(datetime.now(timezone.utc)+timedelta(hours=hours)).isoformat())
-        enabled=runtime.settings["execution"]["enabled"]
-        if future is None and enabled and schedule.due(time.monotonic()):
-          future=executor.submit(compose(args.settings).handle)
-          state.update(state="collecting",nextCollectionAt=None)
-        if not enabled:state["state"]="waiting-configuration"
+        completed = specialists.tick()
+        if "prospecting" in completed:
+          state["lastCollection"] = completed["prospecting"]
+          state["nextCollectionAt"] = specialists.states["prospecting"]["nextAt"]
+        state["specialists"] = specialists.states
+        state["outreach"] = {name:details.get("lastResult") for name,details in specialists.states.items() if name != "prospecting"}
+        state["state"] = "collecting" if specialists.states["prospecting"]["state"] == "running" else "scheduled"
+        if not settings["execution"]["enabled"] and not settings["outreach"]["enabled"]: state["state"]="waiting-configuration"
         if time.monotonic()>=heartbeat:
           state["heartbeatAt"]=now();atomic_json(runtime.state/"status.json",state);heartbeat=time.monotonic()+2
         time.sleep(.2)
