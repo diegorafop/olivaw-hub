@@ -104,18 +104,32 @@ class CampaignTests(unittest.TestCase):
     self.assertNotIn('SECRET',json.dumps(self.service.decisions()))
 
   def test_ai_only_selects_approved_question_and_cannot_execute_tools(self):
-    decision = {'classification':'qualify','questionId':'need','summary':'Entender a operação.'}
+    decision = {'classification':'qualify','questionId':'need','summary':'Entender a operação.','reply':'Qual parte da rotina vocês gostariam de facilitar?','interestSignal':'neutral','interestEvidence':''}
     runner = Mock(return_value=subprocess.CompletedProcess([],0,json.dumps({'type':'item.completed','item':{'type':'agent_message','text':json.dumps(decision)}})))
     advisor = ReplyAdvisor({'enabled':True,'timeoutSeconds':30},runner)
     result = advisor.analyze({'body':'Quero entender como funciona.','bodyAvailable':True},{'business':'Empresa'},set())
     self.assertEqual('need',result['questionId'])
     self.assertIn('shell_tool',runner.call_args.args[0])
     self.assertIn('read-only',runner.call_args.args[0])
-    self.assertNotIn('reply',result)
+    self.assertTrue(result['requiresReview'])
+    self.assertIn('rotina',result['reply'])
     self.assertIn('necessidade',QUESTIONS[result['questionId']])
     self.assertEqual('handoff',advisor.analyze({'body':'Oi','bodyAvailable':True},{}, {'need'})['classification'])
     runner.return_value = subprocess.CompletedProcess([],0,json.dumps({'type':'item.completed','item':{'type':'command_execution'}}))
     with self.assertRaises(ValueError): advisor.analyze({'body':'Oi','bodyAvailable':True},{},set())
+
+  def test_free_contextual_reply_cannot_be_sent_by_an_older_campaign_approval(self):
+    initial = self.service.prepare(fixtures.LEAD,'contact@example.test','Contato','Texto aprovado',True)
+    self.service.send(initial['id'],True)
+    self.gmail.messages['reply1'] = remote_message('reply1')
+    self.advisor.analyze.return_value = {'classification':'qualify','questionId':'need','summary':'Contexto.',
+      'reply':'Qual serviço querem destacar primeiro?','requiresReview':True}
+    campaign = self.campaign(True)
+    before = len(self.gmail.sent)
+    result = campaign.run()
+    self.assertEqual(before,len(self.gmail.sent))
+    self.assertEqual(1,result['drafts'])
+    self.assertEqual('Qual serviço querem destacar primeiro?',self.service.decisions()[0]['reply'])
 
   def test_quote_footer_is_not_mistaken_for_a_new_refusal(self):
     self.assertIsNone(classify(current_text('Quero conhecer.\n> unsubscribe\n> Não tenho interesse')))
@@ -127,3 +141,62 @@ class CampaignTests(unittest.TestCase):
       runtime.return_value.settings = {'outreach':{'enabled':False}}
       self.assertEqual('outreach-disabled',run_outreach('unused')['reason'])
       api.assert_not_called()
+
+  def test_resume_requires_approval_and_preserves_handoff_audit_when_reprocessing(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.advisor.analyze.side_effect = ValueError('startup warning')
+    self.gmail.messages['reply1'] = remote_message('reply1')
+    self.service.sync()
+    with self.assertRaises(ValueError): self.service.resume(fixtures.LEAD,'Corrigido o classificador.')
+    self.advisor.analyze.side_effect = None
+    self.service.resume(fixtures.LEAD,'Operador autorizou nova classificação após correção.',True)
+    self.service.sync(); self.service.sync()
+    self.assertIn('handoff',[entry['kind'] for entry in self.crm.events])
+    self.assertIn('resumed',[entry['kind'] for entry in self.crm.events])
+    self.assertEqual('qualify',self.service.decisions()[0]['classification'])
+    self.assertEqual(2,self.advisor.analyze.call_count)
+    self.assertEqual(1,len(self.gmail.sent))
+
+  def test_resume_cannot_override_refusal(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.service.record(self.store.get(first['id']),'suppressed',{'id':'refusal1','threadId':'thread1','from':'contact@example.test','subject':'Parceria Olivaw','body':'Não tenho interesse.'})
+    with self.assertRaises(ValueError): self.service.resume(fixtures.LEAD,'Quero insistir.',True)
+    self.assertEqual(1,len(self.gmail.sent))
+
+  def test_resume_after_human_intervention_ignores_only_previously_acknowledged_human_messages(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.gmail.messages['human1'] = remote_message('human1','olivaw@example.test',labels=['SENT'])
+    self.service.sync()
+    self.service.resume(fixtures.LEAD,'Retomada autorizada pelo operador.',True)
+    self.gmail.messages['reply1'] = remote_message('reply1')
+    result = self.service.sync()
+    self.assertEqual('received',result['items'][0]['status'])
+    self.gmail.messages['human2'] = remote_message('human2','olivaw@example.test',labels=['SENT'])
+    self.service.sync()
+    self.assertEqual('human-takeover',self.crm.events[-1]['kind'])
+
+  def test_resume_retry_does_not_queue_message_twice(self):
+    first = self.prepare(); self.service.send(first['id'],True)
+    self.advisor.analyze.side_effect = ValueError('startup warning')
+    self.gmail.messages['reply1'] = remote_message('reply1'); self.service.sync()
+    self.advisor.analyze.side_effect = None
+    self.service.resume(fixtures.LEAD,'Revisado pelo operador.',True); self.service.sync()
+    self.service.resume(fixtures.LEAD,'Revisado pelo operador.',True); self.service.sync()
+    self.assertEqual(2,self.advisor.analyze.call_count)
+    self.assertEqual(1,sum(entry['kind']=='resumed' for entry in self.crm.events))
+
+  def test_resume_requires_reconciliation_of_uncertain_sends(self):
+    first = self.prepare()
+    self.gmail.timeout = True
+    self.service.send(first['id'],True)
+    with self.assertRaises(ValueError): self.service.resume(fixtures.LEAD,'Quero retomar.',True)
+    self.assertFalse(any(entry['kind']=='resumed' for entry in self.crm.events))
+
+  def test_silence_never_triggers_a_second_initial_or_reminder(self):
+    campaign = self.campaign(True)
+    campaign.run(); campaign.run()
+    self.assertEqual(1,len(self.gmail.sent))
+    self.assertEqual([],self.service.decisions())
+    with self.assertRaises(ValueError):
+      self.service.prepare('00000000-0000-0000-0000-000000000002','contact@example.test','Outra abordagem','Novo texto',True)
+    self.assertEqual(1,len(self.gmail.sent))

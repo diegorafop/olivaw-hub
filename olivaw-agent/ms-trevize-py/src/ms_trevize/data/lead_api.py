@@ -60,6 +60,8 @@ class LeadApi:
       self.request("/leads/00000000-0000-0000-0000-000000000000/qualification",method="OPTIONS")
     except ApiError as error:
       if error.status == 405 and "PUT" in error.allow:
+        if self.request("/leads?pageSize=1").get("commercialResearchVersion") != 1:
+          raise ValueError("Publique a API comercial v1.1.3 antes da coleta.")
         return
       raise ValueError("Publique a API com a operação de qualificação antes de coletar.") from None
 
@@ -90,9 +92,13 @@ class LeadApi:
     verified=self.request("/leads/"+identity)
     saved=verified.get("snapshot",{}).get("qualification")
     if not saved:raise ValueError("Qualificação não confirmada.")
-    for field in ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus"):
+    for field in ("publicEmails","contactPageUrl","contactFormUrl","contactFormStatus","commercialObservation","restrictedAreaUrl"):
       if field in qualification and saved.get(field) != qualification[field]:
         raise ValueError("Dados de contato não confirmados; verificar versão da API antes de repetir.")
+    if qualification.get("websiteAssessment"):
+      for key in ("metrics","basis","strategy"):
+        if (saved.get("websiteAssessment") or {}).get(key) != qualification["websiteAssessment"].get(key):
+          raise ValueError("Diagnóstico não confirmado; publique a API comercial antes de coletar novamente.")
     if qualification.get("contactCheckedAt"):
       snapshot = verified["snapshot"]
       self.request("/leads/"+identity+"/contact-discovery",{

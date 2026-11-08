@@ -36,3 +36,9 @@ Os testes E2E simulam a API futura e validam login, mobile e orçamento local. O
 Para execução simultânea com o site do Olivaw, use `npm start -- --port 4201`. No Docker local, use `FRONTEND_PORT=8083` para evitar disputar a porta 8081. Os hosts e valores de publicação são propostas técnicas e não representam domínio já aprovado pelo cliente.
 
 O [índice da documentação do cliente](../docs/clients/ltmj/README.md) reúne o briefing inicial e o histórico de conversas/decisões, atualizado a cada nova informação relevante.
+
+### Atualização da página e fotos de eventos
+
+A autenticação usa `sessionStorage` na mesma aba até o vencimento original. Sair ou receber HTTP 401 remove a sessão salva. Sem renovação automática; armazenamento bloqueado mantém apenas a sessão em memória. Dados em edição e arquivos selecionados não sobrevivem ao recarregamento.
+
+Fotos aceitam JPEG, PNG e WebP, até 10 MB por arquivo. O formulário identifica a foto acima do limite e explica HTTP 413. Se os dados do evento forem salvos e o upload falhar, mantém o ID do rascunho e as fotos pendentes para tentar novamente sem duplicar o evento. Falhas já ocorridas precisam ser confirmadas com o arquivo e a resposta da API.

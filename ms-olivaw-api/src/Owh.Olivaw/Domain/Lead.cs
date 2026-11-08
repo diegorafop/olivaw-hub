@@ -29,6 +29,16 @@ public sealed class Lead : Entity
         return LeadChange.Create(this, previous, note, actor, actorName, now);
     }
 
+    public LeadChange Delete(Guid actor, string actorName, DateTime now)
+    {
+        if (DeletedAt.HasValue) throw new InvalidOperationException("Lead já excluído.");
+        var change = UpdateFollowUp("discontinued", "Cadastro excluído pelo operador; histórico preservado.", actor, actorName, now);
+        DeletedAt = now;
+        UpdatedAt = now;
+        ActorUserId = actor;
+        return change;
+    }
+
     private Lead() { }
 
     public static Lead Create(Guid externalId, string writeKeyHash, long revision, string snapshot, DateTime now)

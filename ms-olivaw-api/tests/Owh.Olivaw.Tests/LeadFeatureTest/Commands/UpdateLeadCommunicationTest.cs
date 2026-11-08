@@ -41,6 +41,54 @@ public class UpdateLeadCommunicationTest
             }
         }
     };
+    [Theory]
+    [InlineData("neutral", "unassessed")]
+    [InlineData("negative", "cold")]
+    [InlineData("positive", "warm")]
+    [InlineData("ready", "hot")]
+    public async Task Handle_should_persist_interest_from_evidenced_reply_without_heating_on_send(string signal, string expected)
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared",'a'),CancellationToken.None);
+        await handler.Handle(Request("sending",'d'),CancellationToken.None);
+        await handler.Handle(Request("sent",'e',"gmail1","thread1"),CancellationToken.None);
+        using (var sent = JsonDocument.Parse(_lead.Snapshot)) Assert.False(sent.RootElement.TryGetProperty("engagement",out _));
+        var request = Request("reply-draft",'f',"reply1","thread1");
+        request.Payload.Event.InterestSignal = signal;
+        request.Payload.Event.InterestEvidence = "Relato registrado do cliente.";
+        Assert.True(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+        await handler.Handle(request,CancellationToken.None);
+        using var snapshot = JsonDocument.Parse(_lead.Snapshot);
+        Assert.Equal(expected,snapshot.RootElement.GetProperty("engagement").GetProperty("level").GetString());
+        Assert.Equal("reply1",snapshot.RootElement.GetProperty("engagement").GetProperty("messageId").GetString());
+        Assert.Equal("Relato registrado do cliente.",snapshot.RootElement.GetProperty("engagement").GetProperty("reason").GetString());
+    }
+    [Fact]
+    public void Validator_should_refuse_interest_without_evidence_or_attached_to_an_outbound_event()
+    {
+        var request = Request("sent",'a',"gmail1","thread1");
+        request.Payload.Event.InterestSignal = "ready";
+        Assert.False(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+        request.Payload.Event.InterestEvidence = "Observação";
+        Assert.False(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+        request.Payload.Event.Kind = "handoff";
+        Assert.True(new UpdateLeadCommunicationValidator().Validate(request.Payload).IsValid);
+    }
+    [Fact]
+    public async Task Handle_should_never_reheat_a_suppressed_lead()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared",'a'),CancellationToken.None);
+        await handler.Handle(Request("sending",'d'),CancellationToken.None);
+        await handler.Handle(Request("sent",'e',"gmail1","thread1"),CancellationToken.None);
+        await handler.Handle(Request("suppressed",'f',"reply1","thread1"),CancellationToken.None);
+        var request = Request("handoff",'1',"reply2","thread1");
+        request.Payload.Event.InterestSignal = "ready";
+        request.Payload.Event.InterestEvidence = "Não deve remover bloqueio.";
+        await handler.Handle(request,CancellationToken.None);
+        using var snapshot = JsonDocument.Parse(_lead.Snapshot);
+        Assert.Equal("closed",snapshot.RootElement.GetProperty("engagement").GetProperty("level").GetString());
+    }
     [Fact]
     public async Task Handle_should_reserve_send_record_history_and_deduplicate_stale_retries()
     {
@@ -179,6 +227,57 @@ public class UpdateLeadCommunicationTest
         await handler.Handle(Request(kind, '1', "reply1", "thread1"), CancellationToken.None);
         var reply = Request("prepared", '2',threadId:"thread1",replyMessageId:"reply1"); reply.Payload.Event.IntentId = new string('2',64);
         await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(reply, CancellationToken.None));
+    }
+    [Fact]
+    public async Task Handle_should_resume_handoff_explicitly_without_deleting_history()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("received", 'd', "reply1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("handoff", 'e', "reply1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("resumed", 'f', "reply1", "thread1"), CancellationToken.None);
+        var reply = Request("prepared", '1', threadId:"thread1", replyMessageId:"reply1"); reply.Payload.Event.IntentId = new string('1',64);
+        await handler.Handle(reply, CancellationToken.None);
+        using var snapshot = JsonDocument.Parse(_lead.Snapshot);
+        Assert.Equal(7,snapshot.RootElement.GetProperty("communications").GetArrayLength());
+        Assert.Equal("handoff",snapshot.RootElement.GetProperty("communications")[4].GetProperty("kind").GetString());
+    }
+    [Fact]
+    public async Task Handle_should_reject_resume_without_a_pause()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(Request("resumed", 'd', "sent1", "thread1"), CancellationToken.None));
+    }
+    [Fact]
+    public async Task Handle_should_never_resume_a_suppressed_recipient()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("handoff", 'd', "reply1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("suppressed", 'e', "reply1", "thread1"), CancellationToken.None);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(Request("resumed", 'f', "reply1", "thread1"), CancellationToken.None));
+    }
+    [Fact]
+    public async Task Handle_should_reject_resume_when_an_outgoing_response_is_uncertain()
+    {
+        var handler = Handler();
+        await handler.Handle(Request("prepared", 'a'), CancellationToken.None);
+        await handler.Handle(Request("sending", 'b'), CancellationToken.None);
+        await handler.Handle(Request("sent", 'c', "sent1", "thread1"), CancellationToken.None);
+        await handler.Handle(Request("received", 'd', "reply1", "thread1"), CancellationToken.None);
+        var reply = Request("prepared", 'e', threadId:"thread1", replyMessageId:"reply1"); reply.Payload.Event.IntentId = new string('e',64);
+        await handler.Handle(reply,CancellationToken.None);
+        var sending = Request("sending", 'f', threadId:"thread1", replyMessageId:"reply1"); sending.Payload.Event.IntentId = new string('e',64);
+        await handler.Handle(sending,CancellationToken.None);
+        await handler.Handle(Request("handoff", '1', "reply2", "thread1"),CancellationToken.None);
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(Request("resumed", '2', "reply2", "thread1"),CancellationToken.None));
     }
     [Fact]
     public void Validator_should_enforce_bounded_safe_events_actor_and_revisions()

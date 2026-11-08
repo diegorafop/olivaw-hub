@@ -35,6 +35,9 @@ public sealed class LeadReadItem
     public string WebsiteUrl { get; set; } = string.Empty;
     public string Segment { get; set; } = string.Empty;
     public string Whatsapp { get; set; } = string.Empty;
+    public string Temperature { get; set; } = "unassessed";
+    public string TemperatureReason { get; set; } = string.Empty;
+    public string TemperatureUpdatedAt { get; set; } = string.Empty;
     public string FollowUpStatus { get; set; } = "new";
 }
 public sealed class LeadReadPage

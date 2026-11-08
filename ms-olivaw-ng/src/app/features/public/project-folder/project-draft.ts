@@ -17,6 +17,7 @@ export interface JourneyEvent {
   at: string;
 }
 export interface LeadSnapshot {
+  engagement?: import('../../admin/leads/lead-temperature').LeadEngagement;
   qualification?: import('../../admin/leads/lead-qualification-model').LeadQualification;
   qualificationUpdatedAt?: string;
   qualificationUpdatedBy?: string;

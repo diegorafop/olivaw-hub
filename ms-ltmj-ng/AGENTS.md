@@ -4,7 +4,7 @@
 
 Preserve componentes standalone, TypeScript/templates estritos e carregamento por funcionalidade. `core` contém infraestrutura, `shared` contém blocos sem regras de negócio e `features` contém funcionalidades. Conteúdo e composição da LTMJ ficam nas funcionalidades deste cliente.
 
-O par padrão é `ms-ltmj-ng` / `ms-ltmj-api`, com serviços, imagens, builds e publicações independentes. A URL absoluta da API fica em `public/config.json`; o navegador chama a API diretamente. Não adicione proxy Angular/Nginx nem prefixo `/api` para juntar os serviços. Use os contratos existentes de identidade; mantenha o estado compartilhado `autenticacao` em SignalStore. Refresh token e persistência de sessão não fazem parte da etapa inicial. Guards e apresentação por permissão não substituem autorização na API.
+O par padrão é `ms-ltmj-ng` / `ms-ltmj-api`, com serviços, imagens, builds e publicações independentes. A URL absoluta da API fica em `public/config.json`; o navegador chama a API diretamente. Não adicione proxy Angular/Nginx nem prefixo `/api` para juntar os serviços. Use os contratos existentes de identidade; mantenha o estado compartilhado `autenticacao` em SignalStore. Por solicitação do mantenedor em 08/11/2026, a sessão usa sessionStorage para sobreviver à atualização na mesma aba, até o vencimento original. Não adicionar refresh token ou persistência em localStorage. Guards e apresentação por permissão não substituem autorização na API.
 
 A raiz pública é prerenderizada; administração e login usam CSR. Não use APIs do navegador no prerender sem verificar a plataforma. Nginx serve o resultado estático; alterar isso para SSR requer revisar Docker e publicação.
 

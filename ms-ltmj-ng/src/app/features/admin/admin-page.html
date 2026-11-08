@@ -96,6 +96,12 @@
             </figure>
           }
         </div>
+        @if (error()) {
+          <p role="alert" class="rounded-xl border border-outline p-4">{{ error() }}</p>
+        }
+        @if (message()) {
+          <p role="status" class="rounded-xl border border-outline p-4">{{ message() }}</p>
+        }
         <div class="flex flex-wrap gap-3">
           <button mat-flat-button type="submit" [disabled]="pending()">
             {{ pending() ? 'Salvando…' : 'Salvar evento' }}

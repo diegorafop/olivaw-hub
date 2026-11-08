@@ -511,6 +511,8 @@ A lista administrativa projeta `phone`, `websiteUrl` e `segment` do bloco de qua
 
 ### Descoberta de contatos e ciclo de atendimento — issue031
 
+Na v1.1.2, `resumed` registra retomada explícita com justificativa, referenciando uma mensagem de encaminhamento/intervenção ativa. Exige `leads.manage`, remetente conhecido, etapa elegível e ausência de recusa ou envio a reconciliar. O histórico anterior é preservado; pausas posteriores à retomada continuam bloqueando. A consulta gerencial considera a última retomada para disponibilidade, mantendo as contagens históricas. Sem migrations. A publicação desta versão é necessária antes de usar `leads resume`; o comando não envia mensagens.
+
 Correção de transporte JSON: o MVC usa Newtonsoft, enquanto `Communications` e `ContactDiscovery` do contrato usam `JsonElement`. O conversor local `SystemTextJsonElementConverter` preserva o conteúdo JSON bruto nas respostas e entradas, evitando objetos `valueKind` no lugar dos eventos. O teste HTTP de leads cobre gravação seguida de releitura. Não há mudança de schema ou migration; é necessário publicar a API para corrigir respostas já existentes. Ver [diagnóstico do teste Gmail](../docs/features/in-progress/trevize-gmail-null-history.md).
 
 `PUT /leads/{id}/contact-discovery` exige `leads.manage`, revisão do snapshot e de acompanhamento. Recebe `contacts` com os campos públicos e `researchCompleted`. Mescla somente canais, preservando campos humanos e desconhecidos da qualificação. Promove e-mail principal vazio somente se inequívoco. Pesquisa concluída sem e-mail gera uma única nota `sem email`, avançando apenas Novo contato para Em conversa. Inconclusivo não gera essa nota. `contactDiscovery` é metadado de leitura administrativa e é preservado/rejeitado na escrita pública, como `communications`.
@@ -518,3 +520,11 @@ Correção de transporte JSON: o MVC usa Newtonsoft, enquanto `Communications` e
 Comunicação aceita também `cancelled`, `suppressed`, `handoff` e `reply-draft`. Cancelamento exige preparação sem reserva/tentativa; permite versão nova sem reaproveitar a intenção cancelada. Supressão, encaminhamento e intervenção humana bloqueiam reservas futuras. `questionId` identifica pergunta do roteiro fixo. `GET /leads/communication-summary` agrega as últimas 500 fichas com `inspected`, `truncated`, data e contagens, sem alegar total global ou estado local do worker. O frontend apresenta esses limites.
 
 Tudo usa snapshot/histórico existentes, sem migrations. Envios continuam desabilitados no agente e no transporte. Validação: suíte .NET local, testes Python simulados e E2E da interface; ver [GMAIL.md](../olivaw-agent/ms-trevize-py/GMAIL.md).
+
+### Diagnóstico comercial e interesse (v1.1.3)
+
+`qualification.websiteAssessment` é opcional e contém cinco dimensões (`modernity`, `content`, `ui`, `ux`, `management`), cada uma com nota inteira opcional 0–10, evidência, URL e confiança. `null` representa desconhecido. `basis` identifica HTML, revisão manual, conversa ou simulação; `commercialObservation` guarda um detalhe público revisável e `restrictedAreaUrl` apenas um indício de área restrita. Mantêm-se revisão otimista e autorização `leads.manage`. Sem migration.
+
+Eventos classificados podem carregar `interestSignal` e `interestEvidence`; somente `reply-draft` e `handoff` aceitam esses campos. A API deriva `snapshot.engagement`, com nível, motivo, data e mensagem de origem. Envio não aquece lead, e supressão não pode ser revertida pelo sinal. Campos ausentes preservam fingerprints de eventos anteriores. A lista projeta `temperature`, `temperatureReason` e `temperatureUpdatedAt` para PostgreSQL e SQL Server, sem corpos ou snapshots completos. `commercialResearchVersion: 1` anuncia o contrato compatível.
+
+Atualizar API e frontend da feature antes de usar diagnóstico/termômetro; agente permanece com envio desativado. Ver [operação do Trevize](../olivaw-agent/ms-trevize-py/GMAIL.md#pesquisa-comercial-e-conversa-contextualizada).

@@ -60,3 +60,14 @@ class LifecycleTests(unittest.TestCase):
     self.path.write_text(json.dumps(settings))
     with self.assertRaises(ValueError):LocalRuntime(self.path)
     self.assertFalse(self.runtime.state.exists())
+
+  def test_configuration_validates_model_and_effort_before_any_start(self):
+    settings = json.loads(self.path.read_text())
+    self.assertEqual('gpt-6-luna',settings['ai']['model'])
+    self.assertEqual('high',settings['ai']['reasoningEffort'])
+    for field,value in [('model',''),('model',False),('reasoningEffort','invalid'),('reasoningEffort',True)]:
+      with self.subTest(field=field,value=value):
+        candidate = json.loads(json.dumps(settings)); candidate['ai'][field] = value
+        self.path.write_text(json.dumps(candidate))
+        with self.assertRaises(ValueError): LocalRuntime(self.path)
+    self.assertFalse(self.runtime.state.exists())

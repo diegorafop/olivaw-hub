@@ -213,3 +213,29 @@ class WorkflowTests(unittest.TestCase):
     self.gmail.messages['human'] = remote_message('human','olivaw@example.test',labels=['SENT'])
     with self.assertRaises(ValueError): self.service.send(reply['id'],True)
     self.assertEqual(1,len(self.gmail.sent))
+
+  def test_retired_lead_preserves_transport_journal_without_reading_or_contacting_it(self):
+    prepared=self.prepare();self.service.send(prepared['id'],True)
+    before=len(self.store.intents());sent=len(self.gmail.sent)
+    self.store.retire_lead(LEAD,'Encerrado pelo operador.')
+    self.gmail.thread=Mock(side_effect=AssertionError('Não ler conversa retirada.'))
+    result=self.service.sync()
+    self.assertEqual([],result['items'])
+    self.assertEqual(before,len(self.store.intents()))
+    self.assertEqual(sent,len(self.gmail.sent))
+    with self.assertRaises(ValueError): self.service.eligible(self.crm.data,'contact@example.test')
+
+  def test_google_recipient_bounce_is_annotated_and_contact_marked_invalid_once(self):
+    initial=self.prepare();self.service.send(initial['id'],True)
+    intent=self.store.get(initial['id'])
+    failure={'id':'bounce1','threadId':intent['threadId'],'from':'mailer-daemon@googlemail.com','autoSubmitted':'auto-replied',
+      'body':'Final-Recipient: rfc822; contact@example.test\nStatus: 5.1.2\nNXDOMAIN'}
+    self.assertTrue(self.service.delivery_failure(intent,failure))
+    revision=self.crm.data['snapshot']['revision']
+    self.assertIn('email-invalid',self.crm.data['snapshot']['qualification']['tags'])
+    self.assertEqual('handoff',self.crm.events[-1]['kind'])
+    self.assertIn('NXDOMAIN',self.crm.events[-1]['bodyPreview'])
+    self.assertTrue(self.service.delivery_failure(intent,failure))
+    self.assertEqual(revision,self.crm.data['snapshot']['revision'])
+    failure['body']='Final-Recipient: rfc822; contact@example.test\nStatus: 5.7.1'
+    self.assertFalse(self.service.delivery_failure(intent,failure))

@@ -25,6 +25,7 @@ public class ReadLeadByIdTest
     {
         var request = LeadFeatureFakerBuilder.Create();
         if (whatsapp) { request.Payload.Email = ""; request.Payload.Whatsapp = "11987654321"; }
+        request.Payload.Engagement = JsonSerializer.SerializeToElement(new { level = "warm", reason = "Necessidade relatada." });
         var snapshot = JsonSerializer.Serialize(request.Payload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var lead = Lead.Create(request.ExternalId, new string('a', 64), 1, snapshot, DateTime.UtcNow);
         var repository = new Mock<IRepository<Lead>>();
@@ -40,6 +41,7 @@ public class ReadLeadByIdTest
         Assert.Equal(request.ExternalId, response.ExternalId);
         Assert.False(response.ContentUnavailable);
         Assert.NotNull(response.Snapshot);
+        Assert.Equal("warm",response.Snapshot.Engagement!.Value.GetProperty("level").GetString());
         Assert.Equal(request.Payload.Whatsapp, response.Snapshot.Whatsapp);
         var json = JsonSerializer.Serialize(response);
         Assert.DoesNotContain("WriteKey", json);

@@ -8,6 +8,7 @@ export OLIVAW_API_URL="${OLIVAW_API_URL:-https://api.olivaw.com.br}"
 export DEVOPS_API_URL="${DEVOPS_API_URL:-https://api.devops.olivaw.com.br}"
 exec python3 - "$@" <<'PYTHON'
 import argparse
+import http.client
 import json
 import os
 import re
@@ -15,6 +16,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import uuid
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -24,7 +26,15 @@ parser.add_argument("environment", nargs="?", choices=["dev", "qas", "rls", "stg
 parser.add_argument("branch", nargs="?", help="Branch já publicada no GitHub")
 parser.add_argument("--no-wait", action="store_true", help="Retorna após obter o ID do job")
 parser.add_argument("--cleanup", action="store_true", help="Solicita limpeza de disco no EC2")
+parser.add_argument("--job", help="Retoma somente o acompanhamento de um job existente, sem solicitar outro")
 args = parser.parse_args()
+if args.job:
+    try:
+        args.job = str(uuid.UUID(args.job))
+    except ValueError:
+        parser.error("Informe um UUID válido em --job.")
+    if args.no_wait or args.environment or args.branch:
+        parser.error("--job não recebe ambiente, branch ou --no-wait.")
 if args.cleanup:
     if any((args.service, args.environment, args.branch)):
         parser.error("A limpeza não recebe serviço, ambiente ou branch.")
@@ -33,18 +43,21 @@ if args.cleanup:
     credential_service = "ms-devops-api"
     print("Destino: EC2 Olivaw | operação: limpeza de disco", flush=True)
 else:
-    if not all((args.service, args.environment, args.branch)):
+    if not args.service or (not args.job and not all((args.environment, args.branch))):
         parser.error("Informe serviço, ambiente e branch.")
     job_path = "/deployments"
     if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.service):
         parser.error("Informe somente o nome da pasta, como ms-novo-servico-api ou lisierp.")
     credential_service = args.service
     folder = f"olivaw/{args.service}" if args.service.startswith("ms-") else args.service
-    if (len(args.branch) > 200 or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._/-]*", args.branch)
+    if not args.job and (len(args.branch) > 200 or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._/-]*", args.branch)
             or ".." in args.branch or args.branch == "HEAD"
             or any(not part or part.startswith(".") or part.endswith(".lock") for part in args.branch.split("/"))):
         parser.error("Branch inválida.")
-    print(f"Destino: {folder} | ambiente: {args.environment} | branch: {args.branch}", flush=True)
+    if args.job:
+        print(f"Retomando acompanhamento: {args.job} | serviço: {args.service}", flush=True)
+    else:
+        print(f"Destino: {folder} | ambiente: {args.environment} | branch: {args.branch}", flush=True)
 base = os.environ["DEVOPS_API_URL"].rstrip("/")
 repo_root = Path(os.environ["OLIVAW_REPO_ROOT"]).resolve()
 external_services_file = Path(os.environ.get(
@@ -120,9 +133,12 @@ def request(path, payload=None, token=None, endpoint=None):
         headers["Authorization"] = f"Bearer {token}"
     call = urllib.request.Request((endpoint or base) + path, data=data, headers=headers)
     try:
-        # Sem retries automáticos: repetir POST pode criar outro job.
+        # Esta função não repete chamadas. Somente o acompanhamento repete GETs seguros.
         with urllib.request.urlopen(call, timeout=30) as response:
-            return json.load(response)
+            raw = response.read(2097153)
+            if len(raw) > 2097152:
+                raise ValueError("Resposta excede o limite do cliente.")
+            return json.loads(raw)
     except urllib.error.HTTPError as error:
         messages = []
         try:
@@ -147,44 +163,67 @@ def request(path, payload=None, token=None, endpoint=None):
                 detail = detail.replace(secret, "[oculto]")
         detail = "".join(character for character in detail if character.isprintable())[:2000]
         raise ApiFailure(error.code, path, detail) from None
-    except (urllib.error.URLError, TimeoutError, ValueError):
+    except (urllib.error.URLError, TimeoutError, ValueError, OSError, http.client.HTTPException):
         raise RuntimeError(f"Falha de comunicação ou resposta inválida em {path}. Se o POST já foi enviado, confira o job antes de repetir.") from None
 
-try:
-    credentials = read_olivaw_credentials(credential_service)
+def authenticate():
     login = request("/identity/authentication/login", credentials, endpoint=auth_base)
+    if not isinstance(login, dict):
+        raise RuntimeError("Login não retornou uma resposta válida.")
     token = login.get("accessToken")
     if not token:
         raise RuntimeError("Login não retornou accessToken.")
-    payload = {} if args.cleanup else {"folder": folder, "branch": args.branch, "environment": args.environment}
-    job = request(job_path, payload, token)
-    job_id = job.get("id")
-    if not job_id:
-        raise RuntimeError("Deploy não retornou o ID do job. Confira o servidor antes de reenviar.")
-    print(f"Job solicitado: {job_id}", flush=True)
-    print(f"Consulta: {base}{job_path}/{job_id}", flush=True)
-    if args.no_wait:
-        sys.exit(0)
+    return token
+
+def interrupted(job_id, reason):
+    print(f"Não foi possível concluir o acompanhamento do job {job_id}: {reason}", flush=True)
+    print(f"O job pode continuar no executor. Acompanhe pelo ID: {base}{job_path}/{job_id}", flush=True)
+    command = "--cleanup" if args.cleanup else args.service
+    print(f"Retome sem criar outro job: bash scripts/deployment/deploy.sh {command} --job {job_id}", flush=True)
+    print("Não envie outro deploy para este mesmo trabalho.", flush=True)
+    return 2
+
+def watch_job(job_id, token):
     deadline = time.monotonic() + 1800
     previous = None
     previous_log = ""
     started = time.monotonic()
     heartbeat = started
+    failures = 0
+    refreshed = False
+    transient = {408, 425, 429, 500, 502, 503, 504}
     while time.monotonic() < deadline:
         try:
             status = request(f"{job_path}/{job_id}", token=token)
+            if (not isinstance(status, dict) or status.get("status") not in {"queued", "running", "succeeded", "failed"}
+                    or status.get("id", job_id) != job_id):
+                raise RuntimeError("Resposta de acompanhamento inválida.")
         except ApiFailure as error:
-            print(f"O job {job_id} foi aceito, mas a consulta do status retornou HTTP {error.status_code}.", flush=True)
-            print(f"O job pode continuar no executor. Acompanhe pelo ID: {base}{job_path}/{job_id}", flush=True)
+            if error.status_code == 401 and not refreshed:
+                try:
+                    token = authenticate()
+                except RuntimeError:
+                    return interrupted(job_id, "não foi possível renovar a autenticação")
+                refreshed = True
+                print("Autenticação renovada; consultando o mesmo job, sem reenviar a implantação.", flush=True)
+                continue
             if error.status_code == 403:
                 print("Confira a permissão devops.deploy:<pasta> e se o executor da EC2 retorna a pasta do job.", flush=True)
-            print("Não envie outro deploy para este mesmo trabalho.", flush=True)
-            sys.exit(2)
-        except RuntimeError as error:
-            print(f"O job {job_id} foi aceito, mas não consegui consultar o status: {error}", flush=True)
-            print(f"O job pode continuar no executor. Acompanhe pelo ID: {base}{job_path}/{job_id}", flush=True)
-            print("Não envie outro deploy para este mesmo trabalho.", flush=True)
-            sys.exit(2)
+            if error.status_code not in transient:
+                return interrupted(job_id, f"HTTP {error.status_code}")
+            failures += 1
+        except RuntimeError:
+            failures += 1
+        else:
+            failures = 0
+            refreshed = False
+        if failures:
+            if failures >= 6:
+                return interrupted(job_id, "seis falhas consecutivas ao consultar o status")
+            delay = min(15, 3 * 2 ** (failures - 1), max(0, deadline - time.monotonic()))
+            print(f"Falha temporária ao consultar o job {job_id} ({failures}/6). Nova consulta em {int(delay)}s; nenhuma implantação será reenviada.", flush=True)
+            time.sleep(delay)
+            continue
         state = status.get("status")
         log = status.get("log", "")
         if isinstance(log, str) and log != previous_log:
@@ -200,13 +239,30 @@ try:
             previous = state
         if state == "succeeded":
             print("Job concluído pelo executor.")
-            sys.exit(0)
+            return 0
         if state == "failed":
             raise RuntimeError(f"Job {job_id} falhou. Consulte o log pelo endpoint acima.")
         if state not in {"queued", "running"}:
             raise RuntimeError(f"Estado inesperado no job {job_id}.")
         time.sleep(3)
-    raise RuntimeError(f"Tempo de acompanhamento esgotado. O job {job_id} pode continuar no servidor.")
+    return interrupted(job_id, "tempo de acompanhamento esgotado")
+
+try:
+    credentials = read_olivaw_credentials(credential_service)
+    token = authenticate()
+    if args.job:
+        job_id = args.job
+    else:
+        payload = {} if args.cleanup else {"folder": folder, "branch": args.branch, "environment": args.environment}
+        job = request(job_path, payload, token)
+        if not isinstance(job, dict) or not job.get("id"):
+            raise RuntimeError("Deploy não retornou o ID do job. Confira o servidor antes de reenviar.")
+        job_id = job["id"]
+        print(f"Job solicitado: {job_id}", flush=True)
+    print(f"Consulta: {base}{job_path}/{job_id}", flush=True)
+    if args.no_wait:
+        sys.exit(0)
+    sys.exit(watch_job(job_id, token))
 except RuntimeError as error:
     sys.exit(str(error))
 PYTHON

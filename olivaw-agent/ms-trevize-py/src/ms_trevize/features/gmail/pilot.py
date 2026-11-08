@@ -30,7 +30,7 @@ class GmailPilot:
     config = self.store.config()
     content = {"sender":config["sender"],"body":body}
     if question_id:
-      if question_id not in ("need", "current-system", "deadline", "contact-person"):
+      if question_id not in ("need", "current-system", "deadline", "contact-person", "purpose", "contact-origin"):
         raise ValueError("Pergunta fora do roteiro autorizado.")
       content["questionId"] = question_id
     if lead_id:
@@ -99,9 +99,18 @@ class GmailPilot:
 
   def _confirm(self, intent, message_id):
     view = message_view(self.api.message(message_id))
-    if "SENT" not in view["labels"] or view["messageId"] != intent["mimeId"] or mailbox(view["from"]) != intent["content"]["sender"] or mailbox(view["to"]) != intent["content"]["to"]:
+    if view["id"] != message_id or "SENT" not in view["labels"] or mailbox(view["from"]) != intent["content"]["sender"] or mailbox(view["to"]) != intent["content"]["to"] or view["subject"] != intent["content"]["subject"]:
       raise ValueError("Não foi possível confirmar a mensagem específica em Enviados.")
-    intent.update(state="sent", gmailMessageId=view["id"], threadId=view["threadId"], confirmedAt=now())
+    if view["messageId"].strip() != intent["mimeId"]:
+      # O Gmail pode substituir Message-ID. Só aceitar o ID exato da resposta do send,
+      # já persistido antes da confirmação, e exigir o mesmo conteúdo integral.
+      if message_id != intent.get("gmailMessageId") or view["threadId"] != intent.get("threadId"):
+        raise ValueError("Message-ID diverge e não há confirmação pelo ID retornado no envio.")
+      full = message_view(self.api.message(message_id, full=True), True, body_limit=40000)
+      expected = intent["content"]["body"].replace("\r\n","\n").replace("\r","\n").rstrip("\n")
+      if full["id"] != view["id"] or full["bodyTruncated"] or not full["bodyAvailable"] or full["body"].rstrip("\n") != expected:
+        raise ValueError("Conteúdo da mensagem retornada pelo Gmail não coincide com a intenção.")
+    intent.update(state="sent", gmailMessageId=view["id"], threadId=view["threadId"], gmailMimeId=view["messageId"].strip(), confirmedAt=now())
     self.store.save(intent)
     return {"id":intent["id"],"state":"sent","gmailMessageId":view["id"],"threadId":view["threadId"],
       "message":"Presença em Enviados confirmada; entrega e leitura pelo destinatário não comprovadas."}
@@ -112,12 +121,14 @@ class GmailPilot:
       if intent["state"] == "prepared":
         return {"id":identity,"state":"prepared","message":"Nenhum envio foi iniciado."}
       self.profile()
+      if intent.get("gmailMessageId"):
+        return self._confirm(intent,intent["gmailMessageId"])
       matches = self.api.find_sent(intent["mimeId"])
       if len(matches) != 1:
         return {"id":identity,"state":intent["state"],"message":"Mensagem não localizada ou ambígua; manter para revisão, sem reenviar."}
       return self._confirm(intent, matches[0]["id"])
 
-  def replies(self, acknowledge=True):
+  def replies(self, acknowledge=True, ignored_human_ids=(), excluded_lead_ids=()):
     """Consulta somente fios conhecidos; não altera lido/não lido e não envia respostas."""
     with self.store.lock():
       self.profile()
@@ -125,7 +136,7 @@ class GmailPilot:
       from ms_trevize.data.gmail_store import private_json
       state = private_json(path) if path.exists() else {"seen":[]}
       seen = set(state["seen"])
-      intents = [i for i in self.store.intents() if i["state"] == "sent"]
+      intents = [i for i in self.store.intents() if i["state"] == "sent" and i["content"].get("leadId") not in excluded_lead_ids]
       own_ids = {i["gmailMessageId"] for i in intents}
       threads = {}
       for intent in intents:
@@ -148,6 +159,7 @@ class GmailPilot:
             continue
           view = message_view(message, True)
           if "SENT" in view["labels"]:
+            if view["id"] in ignored_human_ids: continue
             human |= view["id"] not in own_ids
             if view["id"] not in own_ids:
               takeovers.append({**view,"leadIds":sorted({i["content"]["leadId"] for i in contacts if i["content"].get("leadId")})})
@@ -164,7 +176,7 @@ class GmailPilot:
           for view in collected:
             view["disposition"] = "human-takeover"
         incoming.extend(collected)
-      if len(seen) > 1000:
+      if len(seen) > (100000 if self.store.config().get("mode") == "commercial" else 1000):
         raise ValueError("Limite de histórico do piloto atingido; não descartar IDs para repetir processamento.")
       # Conteúdo fica somente na saída explícita; estado guarda IDs, não corpos da caixa.
       if acknowledge:
@@ -179,5 +191,5 @@ class GmailPilot:
       path = self.store.root / "received.json"
       state = private_json(path) if path.exists() else {"seen":[]}
       seen = set(state["seen"]) | set(identities)
-      if len(seen) > 1000: raise ValueError("Limite de mensagens recebidas atingido.")
+      if len(seen) > (100000 if self.store.config().get("mode") == "commercial" else 1000): raise ValueError("Limite de mensagens recebidas atingido.")
       atomic_json(path, {"seen":sorted(seen)})

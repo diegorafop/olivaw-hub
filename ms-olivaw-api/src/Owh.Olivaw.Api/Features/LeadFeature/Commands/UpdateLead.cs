@@ -38,6 +38,7 @@ public sealed class UpdateLeadHandler(IRepository<Lead> repository) : IRequestHa
         if (lead != null)
         {
             var previous = JsonSerializer.Deserialize<UpdateLeadCommand>(lead.Snapshot, JsonOptions);
+            request.Payload.Engagement = previous?.Engagement;
             request.Payload.ContactDiscovery = previous?.ContactDiscovery;
             request.Payload.Communications = previous?.Communications;
             request.Payload.Acquisition = previous?.Acquisition;
@@ -46,6 +47,7 @@ public sealed class UpdateLeadHandler(IRepository<Lead> repository) : IRequestHa
             request.Payload.QualificationUpdatedAt = previous?.QualificationUpdatedAt;
             request.Payload.QualificationUpdatedBy = previous?.QualificationUpdatedBy;
         }
+        else request.Payload.Engagement = null;
         var snapshot = JsonSerializer.Serialize(request.Payload, JsonOptions);
         var snapshotValidator = new InlineValidator<string>();
         snapshotValidator.RuleFor(item => item).MaximumLength(32000).OverridePropertyName("Snapshot");

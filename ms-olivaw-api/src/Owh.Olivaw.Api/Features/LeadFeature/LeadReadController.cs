@@ -17,6 +17,19 @@ namespace Owh.Olivaw.Api.Features.LeadFeature;
 [HttpLogging(HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath | HttpLoggingFields.ResponseStatusCode)]
 public sealed class LeadReadController(IMediator mediator) : ControllerBase
 {
+    [HttpDelete("{externalId:guid}")]
+    public async Task<IActionResult> Delete(Guid externalId, [FromBody] DeleteLeadCommand request,
+        [FromServices] CurrentActor actor, CancellationToken cancellationToken)
+    {
+        var name = User.FindFirst("name")?.Value ?? "Operação Olivaw";
+        if (name.Length > 120) name = name[..120];
+        var result = await mediator.Send(new DeleteLeadMediatorCommand
+        {
+            ExternalId = externalId, Payload = request, ActorUserId = actor.Id, ActorName = name
+        }, cancellationToken);
+        if (result.Conflict) return Conflict(new { detail = "O lead mudou. Recarregue antes de excluir." });
+        return Ok(result);
+    }
     [HttpPost]
     [RequestSizeLimit(65536)]
     public async Task<IActionResult> Create([FromBody] CreateLeadCommand request, [FromServices] CurrentActor actor, CancellationToken cancellationToken)

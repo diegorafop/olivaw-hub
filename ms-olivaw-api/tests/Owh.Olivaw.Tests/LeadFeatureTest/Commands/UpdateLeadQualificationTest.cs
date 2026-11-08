@@ -30,6 +30,41 @@ public class UpdateLeadQualificationTest
         return repository;
     }
     [Fact]
+    public void Validator_should_accept_unknown_scores_and_require_all_five_evidenced_dimensions()
+    {
+        var assessment = new LeadWebsiteAssessment { AssessedAt = DateTimeOffset.Parse("2026-11-08T10:00:00Z"), Basis = "simulation", Strategy = "ui" };
+        foreach (var dimension in new[] { "modernity", "content", "ui", "ux", "management" })
+            assessment.Metrics[dimension] = new() { Evidence = "Não avaliado." };
+        assessment.Metrics["ui"] = new() { Score = 5, Evidence = "Simulação: consistência visual pode evoluir.", Confidence = "provisional" };
+        var payload = Request().Payload;
+        payload.Qualification.WebsiteAssessment = assessment;
+        var validator = new UpdateLeadQualificationValidator();
+        Assert.True(validator.Validate(payload).IsValid);
+        assessment.Metrics["management"].Score = 0;
+        Assert.False(validator.Validate(payload).IsValid); // desconhecido não vira nota zero.
+        assessment.Metrics["management"].Score = null;
+        assessment.Metrics["ui"].Score = 11;
+        Assert.False(validator.Validate(payload).IsValid);
+        assessment.Metrics["ui"].Score = 5;
+        assessment.Metrics["ui"].Evidence = "";
+        Assert.False(validator.Validate(payload).IsValid);
+        assessment.Metrics.Remove("management");
+        Assert.False(validator.Validate(payload).IsValid);
+    }
+    [Fact]
+    public async Task Handle_should_roundtrip_assessment_without_changing_stage_or_existing_data()
+    {
+        var request = Request();
+        request.Payload.Qualification.WebsiteAssessment = new() { AssessedAt = DateTimeOffset.UtcNow, Basis = "simulation", Strategy = "ui" };
+        request.Payload.Qualification.WebsiteAssessment.Metrics["ui"] = new() { Score = 5, Evidence = "Simulação", Confidence = "provisional" };
+        var lead = Lead.Create(request.ExternalId, new string('a',64),1,"{\"revision\":1,\"requirements\":\"Preservar\"}",DateTime.UtcNow);
+        await new UpdateLeadQualificationHandler(Repository(lead,CancellationToken.None).Object).Handle(request,CancellationToken.None);
+        using var data = JsonDocument.Parse(lead.Snapshot);
+        Assert.Equal(5,data.RootElement.GetProperty("qualification").GetProperty("websiteAssessment").GetProperty("metrics").GetProperty("ui").GetProperty("score").GetInt32());
+        Assert.Equal("Preservar",data.RootElement.GetProperty("requirements").GetString());
+        Assert.Equal("new",lead.FollowUpStatus);
+    }
+    [Fact]
     public async Task Handle_should_preserve_original_proposal_unknown_fields_and_record_actor_and_date()
     {
         using var cancellation = new CancellationTokenSource();

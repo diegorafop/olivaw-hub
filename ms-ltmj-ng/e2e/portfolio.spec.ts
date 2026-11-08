@@ -13,6 +13,8 @@ test('equipe cadastra fotos, edita, publica e exclui pelo celular', async ({ pag
   };
   let exists = false;
   let uploaded = false;
+  let uploadAttempts = 0;
+  let creations = 0;
   await page.route('**/identity/authentication/**', (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/login'))
@@ -33,6 +35,13 @@ test('equipe cadastra fotos, edita, publica e exclui pelo celular', async ({ pag
     if (request.method() === 'GET')
       return route.fulfill({ json: { items: exists ? [stored] : [] } });
     if (request.method() === 'POST' && request.url().endsWith('/photos')) {
+      uploadAttempts++;
+      if (uploadAttempts === 1)
+        return route.fulfill({
+          status: 413,
+          contentType: 'text/html',
+          body: '<h1>Payload Too Large</h1>',
+        });
       expect(request.headers()['content-type']).toContain('multipart/form-data; boundary=');
       const payload = request.postDataBuffer()!.toString('latin1');
       expect(payload).toContain('churrasco01.jpeg');
@@ -45,6 +54,7 @@ test('equipe cadastra fotos, edita, publica e exclui pelo celular', async ({ pag
       return route.fulfill({ json: { count: 2 } });
     }
     if (request.method() === 'POST') {
+      creations++;
       stored = { ...stored, ...request.postDataJSON() };
       exists = true;
       return route.fulfill({ json: { id: stored.id } });
@@ -59,6 +69,8 @@ test('equipe cadastra fotos, edita, publica e exclui pelo celular', async ({ pag
   await page.getByLabel('Senha', { exact: true }).fill('teste-local');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Meu portfólio' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Meu portfólio' })).toBeVisible();
   await page.getByLabel('Título', { exact: true }).fill('Churrasco de teste');
   await page.getByLabel('Descrição', { exact: true }).fill('Evento cadastrado pelo celular.');
   await page.getByRole('combobox', { name: 'Categoria', exact: true }).click();
@@ -71,6 +83,13 @@ test('equipe cadastra fotos, edita, publica e exclui pelo celular', async ({ pag
     ]);
   await expect(page.getByText('2 novas fotos selecionadas')).toBeVisible();
   await page.getByRole('button', { name: 'Salvar evento', exact: true }).click();
+  await expect(page.getByRole('alert').first()).toContainText('grandes demais');
+  await expect(page.getByText('2 novas fotos selecionadas')).toBeVisible();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Os dados do evento foram salvos' }).first(),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Salvar evento', exact: true }).click();
+  expect(creations).toBe(1);
   const card = page.locator('article');
   await expect(card).toContainText('2 fotos · Oculto');
   await expect(page.locator('input[formcontrolname=title]')).not.toHaveClass(/ng-touched/);

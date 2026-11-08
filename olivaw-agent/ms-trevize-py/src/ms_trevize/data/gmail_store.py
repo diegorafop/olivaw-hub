@@ -19,8 +19,8 @@ def private_json(path):
   descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
   with os.fdopen(descriptor, "r", encoding="utf-8") as source:
     info = os.fstat(source.fileno())
-    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077 or info.st_size > 131072:
-      raise ValueError("Arquivo Gmail deve pertencer ao operador, ter até 128 KB e permissão 0600.")
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077 or info.st_size > (4194304 if path.name in ("received.json","approvals.json","retired-leads.json") else 131072):
+      raise ValueError("Arquivo Gmail deve pertencer ao operador, respeitar o limite privado do tipo de arquivo e ter permissão 0600.")
     value = json.load(source)
   if not isinstance(value, dict):
     raise ValueError("Arquivo Gmail inválido.")
@@ -67,8 +67,10 @@ class GmailStore:
   def config(self):
     config = private_json(self.root / "config.json")
     address(config["sender"])
-    if config.get("version") != 1 or config.get("dailyLimit") != 5 or not isinstance(config.get("testRecipients"), list) or not 1 <= len(config["testRecipients"]) <= 5:
+    if config.get("version") != 1 or config.get("dailyLimit") != (500 if config.get("mode") == "commercial" else 5) or not isinstance(config.get("testRecipients"), list) or not 1 <= len(config["testRecipients"]) <= 5:
       raise ValueError("Configuração do piloto Gmail inválida.")
+    if config.get("mode", "controlled") not in ("controlled","commercial"): raise ValueError("Modo Gmail inválido.")
+    if config.get("mode") == "commercial" and not config.get("policyApprovedAt"): raise ValueError("Política comercial requer autorização registrada.")
     for item in config["testRecipients"]:
       address(item)
     if type(config.get("sendingEnabled", False)) is not bool: raise ValueError("Chave de envio inválida.")
@@ -79,8 +81,9 @@ class GmailStore:
       return {"status":"setup-required","configured":False,"authorized":False,"autoSend":False}
     config = self.config()
     return {"status":"configured","configured":True,"authorized":(self.root / "token.json").is_file(),
-      "sender":config["sender"],"testRecipients":config["testRecipients"],"dailyLimit":5,"autoSend":False,
+      "sender":config["sender"],"testRecipients":config["testRecipients"],"dailyLimit":config["dailyLimit"],"mode":config.get("mode","controlled"),"autoSend":False,
       "sendingEnabled":config.get("sendingEnabled",False),
+      "automaticPolicyEnabled":config.get("mode") == "commercial",
       "message":"Token presente não comprova autorização válida; use profile para verificar."}
 
   def intent_path(self, identity):
@@ -104,12 +107,29 @@ class GmailStore:
       approvals = private_json(path) if path.exists() else {}
       if any(identity != lead_id and email == recipient for identity,email in approvals.items()):
         raise ValueError("Destinatário já aprovado para outro lead; revisar duplicidade.")
-      if lead_id not in approvals and len(approvals) >= 5:
+      limit = 10000 if self.config().get("mode") == "commercial" else 5
+      if lead_id not in approvals and len(approvals) >= limit:
         raise ValueError("Piloto comercial limitado a cinco leads aprovados.")
       if lead_id in approvals and approvals[lead_id] != recipient:
         raise ValueError("Lead já aprovado para outro destinatário; revisar manualmente.")
       approvals[lead_id] = recipient
       atomic_json(path, approvals)
+
+  def retired_leads(self):
+    path = self.root/"retired-leads.json"
+    return set(private_json(path)) if path.exists() else set()
+
+  def retire_lead(self, identity, note):
+    from uuid import UUID
+    from ms_trevize.data.local_runtime import now
+    identity = str(UUID(identity))
+    if not isinstance(note,str) or not note.strip() or len(note)>300: raise ValueError("Informe o motivo do encerramento.")
+    with self.lock():
+      path = self.root/"retired-leads.json"
+      records = private_json(path) if path.exists() else {}
+      if identity not in records:
+        records[identity] = {"at":now(),"reason":note}
+        atomic_json(path,records)
 
   def allowed(self, recipient, lead_id=None):
     config = self.config()
@@ -119,7 +139,8 @@ class GmailStore:
 
   def intents(self):
     files = sorted(self.root.glob("[0-9a-f]" * 64 + ".json"))
-    if len(files) > 500:
+    limit = 50000 if (self.root/"config.json").exists() and self.config().get("mode") == "commercial" else 500
+    if len(files) > limit:
       raise ValueError("Piloto atingiu o limite de 500 intenções; não remover histórico para reenviar.")
     return [private_json(path) for path in files]
 
@@ -133,7 +154,8 @@ class GmailStore:
       if current["content"] != content:
         raise ValueError("Chave já utilizada com outro conteúdo; intenção original preservada.")
       return current
-    if len(self.intents()) >= 500:
+    limit = 50000 if (self.root/"config.json").exists() and self.config().get("mode") == "commercial" else 500
+    if len(self.intents()) >= limit:
       raise ValueError("Limite do piloto atingido.")
     from ms_trevize.data.local_runtime import now
     intent = {"id":identity,"key":key,"state":"prepared","createdAt":now(),"content":content,

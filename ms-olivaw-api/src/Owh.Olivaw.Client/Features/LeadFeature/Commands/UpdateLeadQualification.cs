@@ -7,6 +7,9 @@ public sealed class UpdateLeadQualificationCommand
 }
 public sealed class LeadQualification
 {
+    public LeadWebsiteAssessment? WebsiteAssessment { get; set; }
+    public string CommercialObservation { get; set; } = string.Empty;
+    public string RestrictedAreaUrl { get; set; } = string.Empty;
     public int SchemaVersion { get; set; } = 1;
     public string Segment { get; set; } = string.Empty;
     public string Region { get; set; } = string.Empty;
@@ -41,4 +44,20 @@ public sealed class UpdateLeadQualificationResponse
     public bool Conflict { get; set; }
     public long Revision { get; set; }
     public DateTime UpdatedAt { get; set; }
+}
+
+public sealed class LeadWebsiteAssessment
+{
+    public int SchemaVersion { get; set; } = 1;
+    public DateTimeOffset AssessedAt { get; set; }
+    public string Basis { get; set; } = "html";
+    public string Strategy { get; set; } = "discovery";
+    public Dictionary<string, LeadWebsiteMetric> Metrics { get; set; } = new();
+}
+public sealed class LeadWebsiteMetric
+{
+    public int? Score { get; set; }
+    public string Evidence { get; set; } = string.Empty;
+    public string SourceUrl { get; set; } = string.Empty;
+    public string Confidence { get; set; } = "unknown";
 }

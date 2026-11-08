@@ -37,6 +37,12 @@ def load_settings(path):
     raise ValueError("Identidade do agente obrigatória.")
   if not isinstance(settings["localState"].get("directory"), str) or not settings["localState"]["directory"]:
     raise ValueError("Diretório de estado obrigatório.")
+  model = settings["ai"].get("model")
+  if model is not None and (not isinstance(model, str) or not model.strip() or len(model) > 100):
+    raise ValueError("Modelo IA inválido.")
+  effort = settings["ai"].get("reasoningEffort")
+  if effort is not None and effort not in ("low", "medium", "high", "xhigh", "max"):
+    raise ValueError("Esforço de raciocínio IA inválido.")
   if settings["execution"]["enabled"]:
     for section in ("ssh", "audit", "reportApi"):
       if not isinstance(settings.get(section), dict):

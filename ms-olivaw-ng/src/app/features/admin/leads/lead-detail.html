@@ -5,7 +5,9 @@
   <h2>{{ draft?.business || draft?.project?.title || 'Contato recebido' }}</h2>
   <p>Registrado em {{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
 </header>
+
 @if (preview()) {
+  <app-lead-temperature [engagement]="lead().snapshot?.engagement" [detail]="true" />
   <p>
     <a
       class="open-record"
