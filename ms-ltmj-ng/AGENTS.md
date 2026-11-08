@@ -4,7 +4,7 @@
 
 Preserve componentes standalone, TypeScript/templates estritos e carregamento por funcionalidade. `core` contém infraestrutura, `shared` contém blocos sem regras de negócio e `features` contém funcionalidades. Conteúdo e composição da LTMJ ficam nas funcionalidades deste cliente.
 
-O par padrão é `ms-ltmj-ng` / `ms-ltmj-api`, com serviços, imagens, builds e publicações independentes. A URL absoluta da API fica em `public/config.json`; o navegador chama a API diretamente. Não adicione proxy Angular/Nginx nem prefixo `/api` para juntar os serviços. Use os contratos existentes de identidade; mantenha o estado compartilhado `autenticacao` em SignalStore. Refresh token e persistência de sessão não fazem parte da etapa inicial. Guards e apresentação por permissão não substituem autorização na API.
+O par padrão é `ms-ltmj-ng` / `ms-ltmj-api`, com serviços, imagens, builds e publicações independentes. A URL absoluta da API fica em `public/config.json`; o navegador chama a API diretamente. Não adicione proxy Angular/Nginx nem prefixo `/api` para juntar os serviços. Use os contratos existentes de identidade; mantenha o estado compartilhado `autenticacao` em SignalStore. Por solicitação do mantenedor em 08/11/2026, a sessão usa sessionStorage para sobreviver à atualização na mesma aba, até o vencimento original. Não adicionar refresh token ou persistência em localStorage. Guards e apresentação por permissão não substituem autorização na API.
 
 A raiz pública é prerenderizada; administração e login usam CSR. Não use APIs do navegador no prerender sem verificar a plataforma. Nginx serve o resultado estático; alterar isso para SSR requer revisar Docker e publicação.
 
@@ -22,10 +22,12 @@ Não publique imagens, implante, faça finish ou push como efeito da validação
 
 ## Conversas e decisões do cliente
 
-A cada nova informação relevante fornecida sobre a LTMJ, acrescente uma entrada datada em `docs/historico.md`, indicando origem, estado de confirmação, impacto e pendências. Preserve `docs/briefing-inicial.md` como registro inicial e atualize `docs/briefing-e-mvp.md` quando houver mudança de plano. Não apresente propostas do Olivaw como aprovação do cliente. A API usa esse mesmo histórico como referência. Não registre dados pessoais desnecessários, senhas ou dados de convidados nesses documentos.
+A cada nova informação relevante fornecida sobre a LTMJ, acrescente uma entrada datada em `../docs/clients/ltmj/historico.md`, indicando origem, estado de confirmação, impacto e pendências. Preserve `../docs/clients/ltmj/briefing-inicial.md` como registro inicial e atualize `../docs/clients/ltmj/briefing-e-mvp.md` quando houver mudança de plano. Não apresente propostas do Olivaw como aprovação do cliente. A API usa esse mesmo histórico como referência. Não registre dados pessoais desnecessários, senhas ou dados de convidados nesses documentos.
 
 ## Atualização de dependências
 
 Preserve compatibilidade entre Angular, CLI, Material/CDK, TypeScript e Node. Angular 22.2 requer TypeScript 6.0.x; não instalar TypeScript 7 apenas por ser a versão latest. Os tipos do Node acompanham o runtime 24 usado pelo projeto. Atualize também o lockfile e valide build, lint, testes unitários e E2E.
 
-O `overrides.vite` fixa o patch 8.3.5 para corrigir avisos da versão 8.3.2 exigida pelo Angular Build 22.2.3. Reavalie o override em futuras atualizações e remova quando a cadeia oficial incorporar uma versão corrigida equivalente; não mantenha um pin antigo sem consultar auditoria e compatibilidade.
+Angular Build 22.2.5 já depende de Vite 8.3.5, que incorpora as correções anteriormente aplicadas pelo override. Não manter override redundante; reavaliar a cadeia e a auditoria ao atualizar o build.
+
+- O override `minimatch@^10.2.0` para `11.0.1` corrige GHSA-g3hv-75wg-m249 na cadeia de lint. Node 24 é compatível; validar lint/build/testes e remover o override quando os consumidores incorporarem a correção. Não aplicar downgrade automático sugerido pelo audit.

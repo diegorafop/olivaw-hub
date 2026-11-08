@@ -21,6 +21,43 @@ public class LeadFollowUpControllerTest
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    public async Task Create_should_forward_authenticated_actor_and_translate_duplicate(bool conflict)
+    {
+        using var cancellation = new CancellationTokenSource();
+        var actorId = Guid.NewGuid();
+        var context = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", actorId.ToString())], "test")) };
+        var actor = new CurrentActor(new HttpContextAccessor { HttpContext = context });
+        var payload = new Client.Features.LeadFeature.Commands.CreateLeadCommand { ExternalId = Guid.NewGuid() };
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(item => item.Send(It.Is<CreateLeadMediatorCommand>(request => request.Payload == payload && request.ActorUserId == actorId), cancellation.Token))
+            .ReturnsAsync(new Client.Features.LeadFeature.Commands.CreateLeadResponse { ExternalId = payload.ExternalId, Conflict = conflict });
+        var result = await new LeadReadController(mediator.Object).Create(payload, actor, cancellation.Token);
+        if (conflict) Assert.IsType<ConflictObjectResult>(result);
+        else Assert.Equal($"/leads/{payload.ExternalId}", Assert.IsType<CreatedResult>(result).Location);
+        mediator.VerifyAll();
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UpdateProposal_should_forward_actor_revision_and_token(bool conflict)
+    {
+        using var cancellation = new CancellationTokenSource();
+        var actorId = Guid.NewGuid(); var leadId = Guid.NewGuid();
+        var context = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", actorId.ToString())], "test")) };
+        var actor = new CurrentActor(new HttpContextAccessor { HttpContext = context });
+        var payload = new Client.Features.LeadFeature.Commands.UpdateLeadProposalCommand { Revision = 4 };
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(item => item.Send(It.Is<UpdateLeadProposalMediatorCommand>(request => request.Payload == payload && request.ActorUserId == actorId && request.ExternalId == leadId), cancellation.Token))
+            .ReturnsAsync(new Client.Features.LeadFeature.Commands.UpdateLeadProposalResponse { Revision = 5, Conflict = conflict });
+        var result = await new LeadReadController(mediator.Object).UpdateProposal(leadId, payload, actor, cancellation.Token);
+        if (conflict) Assert.IsType<ConflictObjectResult>(result);
+        else Assert.Equal(5, Assert.IsType<Client.Features.LeadFeature.Commands.UpdateLeadProposalResponse>(Assert.IsType<OkObjectResult>(result).Value).Revision);
+        mediator.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task Update_should_use_authenticated_actor_and_translate_conflict(bool conflict)
     {
         var lead = LeadFollowUpFakerBuilder.Lead();
@@ -38,6 +75,45 @@ public class LeadFollowUpControllerTest
         var result = await controller.UpdateFollowUp(command.ExternalId, command.Payload, actor, cancellation.Token);
         if (conflict) Assert.IsType<ConflictObjectResult>(result);
         else Assert.Equal(1, Assert.IsType<Client.Features.LeadFeature.Commands.UpdateLeadFollowUpResponse>(Assert.IsType<OkObjectResult>(result).Value).Revision);
+        mediator.VerifyAll();
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UpdateQualification_should_forward_authenticated_actor_name_token_and_conflict(bool conflict)
+    {
+        using var cancellation = new CancellationTokenSource();
+        var actorId = Guid.NewGuid(); var id = Guid.NewGuid();
+        var context = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", actorId.ToString()), new Claim("name", "Operador")], "test")) };
+        var actor = new CurrentActor(new HttpContextAccessor { HttpContext = context });
+        var payload = new Client.Features.LeadFeature.Commands.UpdateLeadQualificationCommand { Revision = 4 };
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(item => item.Send(It.Is<UpdateLeadQualificationMediatorCommand>(request => request.ExternalId == id && request.Payload == payload && request.ActorUserId == actorId && request.ActorName == "Operador"), cancellation.Token))
+            .ReturnsAsync(new Client.Features.LeadFeature.Commands.UpdateLeadQualificationResponse { Revision = 5, Conflict = conflict });
+        var controller = new LeadReadController(mediator.Object) { ControllerContext = new ControllerContext { HttpContext = context } };
+        var result = await controller.UpdateQualification(id, payload, actor, cancellation.Token);
+        if (conflict) Assert.IsType<ConflictObjectResult>(result);
+        else Assert.Equal(5, Assert.IsType<Client.Features.LeadFeature.Commands.UpdateLeadQualificationResponse>(Assert.IsType<OkObjectResult>(result).Value).Revision);
+        mediator.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UpdateCommunication_should_forward_actor_token_and_translate_conflict(bool conflict)
+    {
+        using var cancellation = new CancellationTokenSource();
+        var actorId = Guid.NewGuid(); var id = Guid.NewGuid();
+        var context = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", actorId.ToString()), new Claim("name", "Operador")], "test")) };
+        var actor = new CurrentActor(new HttpContextAccessor { HttpContext = context });
+        var payload = new Client.Features.LeadFeature.Commands.UpdateLeadCommunicationCommand { Revision = 4 };
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(item => item.Send(It.Is<UpdateLeadCommunicationMediatorCommand>(request => request.ExternalId == id && request.Payload == payload && request.ActorUserId == actorId && request.ActorName == "Operador"), cancellation.Token))
+            .ReturnsAsync(new Client.Features.LeadFeature.Commands.UpdateLeadCommunicationResponse { Revision = 5, Conflict = conflict });
+        var controller = new LeadReadController(mediator.Object) { ControllerContext = new ControllerContext { HttpContext = context } };
+        var result = await controller.UpdateCommunication(id, payload, actor, cancellation.Token);
+        if (conflict) Assert.IsType<ConflictObjectResult>(result);
+        else Assert.Equal(5, Assert.IsType<Client.Features.LeadFeature.Commands.UpdateLeadCommunicationResponse>(Assert.IsType<OkObjectResult>(result).Value).Revision);
         mediator.VerifyAll();
     }
     [Fact]

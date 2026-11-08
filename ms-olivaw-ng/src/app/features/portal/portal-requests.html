@@ -1,4 +1,37 @@
 <section aria-label="Solicitações do cliente">
+  <nav aria-label="Caminho dos chamados">
+    <a
+      [routerLink]="[]"
+      [queryParams]="{ section: 'overview', request: null, customer: customer() }"
+      queryParamsHandling="merge"
+      >Início</a
+    >
+    /
+    @if (detailId() || creating()) {
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ section: 'requests', request: null, customer: customer() }"
+        queryParamsHandling="merge"
+        >Solicitações</a
+      >
+      /
+      <strong aria-current="page">{{
+        creating() ? 'Novo pedido' : selected()?.protocol || 'Detalhes'
+      }}</strong>
+    } @else {
+      <strong aria-current="page">Solicitações</strong>
+    }
+  </nav>
+  @if (!detailId() && !creating()) {
+    <a
+      class="primary"
+      [routerLink]="[]"
+      [queryParams]="{ request: 'new', section: 'requests', customer: customer() }"
+      queryParamsHandling="merge"
+      >Novo pedido</a
+    >
+  }
+
   <h3>Problemas, dúvidas e melhorias</h3>
   <p>
     Conte o que precisa com suas palavras. A equipe avalia escopo, capacidade, preço e prazo antes
@@ -10,7 +43,7 @@
   @if (success()) {
     <p role="status">{{ success() }}</p>
   }
-  @if (canRequest() || preview()) {
+  @if (creating() && (canRequest() || preview())) {
     <form [formGroup]="form" (ngSubmit)="send()" aria-label="Novo pedido do cliente" class="editor">
       <section class="surface">
         <div class="fields">
@@ -68,35 +101,46 @@
         </button>
       </section>
     </form>
-  } @else {
+  } @else if (creating()) {
     <p>Seu acesso permite consultar. Solicite à equipe permissão para abrir pedidos.</p>
   }
-  <section class="surface">
-    <h3>Acompanhar solicitações</h3>
-    @if (loading()) {
-      <p role="status">Carregando pedidos…</p>
-    }
-    @for (request of requests(); track request.externalId) {
-      <article>
-        <h4>{{ request.protocol }} · {{ request.title }}</h4>
-        <p>
-          {{ states[request.status] || request.status }} ·
-          {{ request.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-        </p>
-        <p>{{ request.publicSummary || 'A equipe atualizará o acompanhamento por aqui.' }}</p>
-        @if (request.serviceLabel) {
-          <p>Sistema: {{ request.serviceLabel }}</p>
-        }
-        <button type="button" [disabled]="sending()" (click)="open(request)">Abrir conversa</button>
-      </article>
-    } @empty {
-      <p>Nenhuma solicitação neste recorte.</p>
-    }
-    <button type="button" (click)="load()">Pedidos recentes</button>
-    @if (nextRequest(); as cursor) {
-      <button type="button" (click)="load(cursor)">Pedidos anteriores</button>
-    }
-  </section>
+  @if (!detailId() && !creating()) {
+    <section class="surface">
+      <h3>Acompanhar solicitações</h3>
+      @if (loading()) {
+        <p role="status">Carregando pedidos…</p>
+      }
+      @for (request of requests(); track request.externalId) {
+        <article>
+          <h4>{{ request.protocol }} · {{ request.title }}</h4>
+          <p>
+            {{ states[request.status] || request.status }} ·
+            {{ request.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p>{{ request.publicSummary || 'A equipe atualizará o acompanhamento por aqui.' }}</p>
+          @if (request.serviceLabel) {
+            <p>Sistema: {{ request.serviceLabel }}</p>
+          }
+          <a
+            [routerLink]="[]"
+            [queryParams]="{
+              request: request.externalId,
+              section: 'requests',
+              customer: customer(),
+            }"
+            queryParamsHandling="merge"
+            >Abrir conversa</a
+          >
+        </article>
+      } @empty {
+        <p>Nenhuma solicitação neste recorte.</p>
+      }
+      <button type="button" (click)="load()">Pedidos recentes</button>
+      @if (nextRequest(); as cursor) {
+        <button type="button" (click)="load(cursor)">Pedidos anteriores</button>
+      }
+    </section>
+  }
   @if (selected(); as request) {
     <section class="surface">
       <h3>Conversa · {{ request.protocol }}</h3>
@@ -112,7 +156,7 @@
       @if (nextMessage(); as cursor) {
         <button type="button" (click)="loadMessages(cursor)">Mensagens anteriores</button>
       }
-      @if (canRequest() || preview()) {
+      @if (creating() && (canRequest() || preview())) {
         <form [formGroup]="reply" (ngSubmit)="sendReply()" aria-label="Responder atendimento">
           <label
             >Sua mensagem<textarea

@@ -1,0 +1,13 @@
+@use '@angular/material' as mat;
+$primary: mat.$orange-palette;
+$tertiary: mat.$yellow-palette;
+$font: 'Arial', sans-serif;
+
+:root {
+  --cv-yellow: #ffcb45;
+  --cv-ink: #252824;
+  --cv-muted: #5d635a;
+  --cv-paper: #f7f7f2;
+  --cv-line: #dce0d5;
+  --cv-green: #35483c;
+}

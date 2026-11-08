@@ -5,6 +5,8 @@ namespace Owh.Olivaw.Domain;
 
 public sealed class CustomerPlan : Entity
 {
+    public int? PlanVersionId { get; private set; }
+    public PlanVersion? PlanVersion { get; private set; }
     public int CustomerId { get; private set; }
     public Customer Customer { get; private set; } = null!;
     public string Name { get; private set; } = string.Empty;
@@ -16,6 +18,12 @@ public sealed class CustomerPlan : Entity
     public string ActorName { get; private set; } = string.Empty;
     public DateTime StartsAt { get; private set; }
     private CustomerPlan() { }
+    public static CustomerPlan Assign(Customer customer, PlanVersion version, decimal? price, DateTime startsAt, string approval, Guid actor, string actorName, DateTime now)
+    {
+        if(startsAt.Day!=1 || startsAt.TimeOfDay!=TimeSpan.Zero || startsAt < version.EffectiveAt) throw new ArgumentException("Competência anterior à versão ou não mensal.");
+        var entity=Create(customer,char.ToUpperInvariant(version.PlanKey[0])+version.PlanKey.Substring(1),price ?? version.MonthlyPrice,version.MemoryLimitMiB/1024m,version.StorageLimitGiB,version.Conditions,approval,startsAt,actor,actorName,now);
+        entity.PlanVersion=version;entity.PlanVersionId=version.Id;return entity;
+    }
     public static CustomerPlan Create(Customer customer, string name, decimal monthlyPrice, decimal? memory, decimal? storage, string conditions, string approval, DateTime startsAt, Guid actor, string actorName, DateTime now)
     {
         if (customer == null) throw new ArgumentNullException(nameof(customer));

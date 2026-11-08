@@ -140,15 +140,21 @@ export class AdminPage {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
     this.error.set('');
-    if (
-      files.some(
-        (file) =>
-          !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
-          file.size === 0 ||
-          file.size > 10 * 1024 * 1024,
-      )
-    ) {
-      this.error.set('Escolha fotos JPEG, PNG ou WebP de até 10 MB cada.');
+    const oversized = files.find((file) => file.size > 10 * 1024 * 1024);
+    if (oversized) {
+      this.error.set(
+        `A foto “${oversized.name}” é muito grande (${(oversized.size / 1024 / 1024).toFixed(1)} MB). O limite é 10 MB por foto. Reduza o tamanho e selecione novamente.`,
+      );
+      input.value = '';
+      return;
+    }
+    const invalid = files.find(
+      (file) => !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size === 0,
+    );
+    if (invalid) {
+      this.error.set(
+        `Não foi possível usar a foto “${invalid.name}”. Escolha uma imagem JPEG, PNG ou WebP válida. Fotos HEIC precisam ser convertidas antes do envio.`,
+      );
       input.value = '';
       return;
     }
@@ -182,10 +188,17 @@ export class AdminPage {
       // Rascunho já existe se um upload falhar; repetir não duplica o evento.
       while (this.selectedPhotos().length) {
         const batch = this.selectedPhotos().slice(0, 10);
-        await this.api.upload(
-          id,
-          batch.map((photo) => photo.file),
-        );
+        try {
+          await this.api.upload(
+            id,
+            batch.map((photo) => photo.file),
+          );
+        } catch (error) {
+          this.message.set(
+            'Os dados do evento foram salvos, mas há fotos que não foram enviadas. Elas continuam selecionadas. Tente salvar novamente sem cadastrar outro evento.',
+          );
+          throw error;
+        }
         for (const photo of batch) URL.revokeObjectURL(photo.preview);
         this.selectedPhotos.update((current) => current.slice(batch.length));
       }

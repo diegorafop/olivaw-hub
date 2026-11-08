@@ -21,9 +21,16 @@ public static class WebApplicationBuilderFacadeExtensions
             policy.RequireAuthenticatedUser().RequireClaim("root", "true")));
         builder.Services.AddAuthorization(options => options.AddPolicy("leads.manage", policy =>
             policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement("leads.manage"))));
+        builder.Services.AddAuthorization(options => options.AddPolicy("security.reports.write", policy =>
+            policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement("security.reports.write"))));
+        builder.Services.AddAuthorization(options => options.AddPolicy("security.remediations.execute", policy =>
+            policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement("security.remediations.execute"))));
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddPolicy("security-report-write", context => RateLimitPartition.GetFixedWindowLimiter(
+                context.User.FindFirst("sub")?.Value ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 12, Window = TimeSpan.FromHours(1), QueueLimit = 0 }));
             options.AddPolicy("lead-write", context => RateLimitPartition.GetFixedWindowLimiter(
                 context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions
                 {
@@ -34,8 +41,16 @@ public static class WebApplicationBuilderFacadeExtensions
         });
         builder.Services.AddHttpClient<Owh.Olivaw.Api.Services.PublicHealthProbe>(client => client.Timeout = TimeSpan.FromSeconds(5))
             .ConfigurePrimaryHttpMessageHandler(Owh.Olivaw.Api.Services.PublicHealthProbe.CreateHandler);
+        var scheduled=builder.Configuration.GetSection("Monitoring:Schedule").Get<Owh.Olivaw.Api.Services.ScheduledHealthOptions>() ?? new();
+        scheduled.Validate();
+        builder.Services.AddSingleton(scheduled);
+        builder.Services.AddSingleton<Owh.Olivaw.Api.Services.HealthCollectionStatus>();
+        builder.Services.AddScoped<Owh.Olivaw.Api.Services.ScheduledHealthCycle>();
+        builder.Services.AddHostedService<Owh.Olivaw.Api.Services.ScheduledHealthCollector>();
         builder.Services.AddCorsDefaultPolicyCore();
         builder.AddControllerCore();
+        builder.Services.Configure<Microsoft.AspNetCore.Mvc.MvcNewtonsoftJsonOptions>(options =>
+            options.SerializerSettings.Converters.Add(new Owh.Olivaw.Api.Extensions.Serializations.SystemTextJsonElementConverter()));
         builder.AddSwagger();
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TemplateValidationBehavior<,>));

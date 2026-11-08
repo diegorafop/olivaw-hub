@@ -11,8 +11,16 @@ const item = {
   email: '',
   whatsapp: '11987654321',
   followUpStatus: 'new',
+  temperature: 'hot',
+  temperatureReason: 'Pediu uma proposta de site.',
+  temperatureUpdatedAt: '2026-11-08T10:00:00Z',
 };
 const snapshot = {
+  engagement: {
+    level: 'hot',
+    reason: 'Pediu uma proposta de site.',
+    updatedAt: '2026-11-08T10:00:00Z',
+  },
   schemaVersion: 1,
   revision: 1,
   startedAt: createdAt,
@@ -166,7 +174,7 @@ for (const mobile of [false, true]) {
     await page.setViewportSize({ width: mobile ? 390 : 1440, height: 1000 });
     const reads = await setup(page);
     await expect(
-      page.getByRole('heading', { name: 'Ideias que chegaram à Olivaw.' }),
+      page.getByRole('heading', { name: 'Oportunidades para construir com a Olivaw.' }),
     ).toBeVisible();
     await page.getByRole('link', { name: 'Ver leads' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Leads' })).toBeVisible();
@@ -180,12 +188,16 @@ for (const mobile of [false, true]) {
     const detail = page.getByRole('complementary', { name: 'Detalhes do lead' });
     await expect(detail.getByRole('heading', { name: 'Pastelaria Aurora' })).toBeVisible();
     await expect(detail.getByText('Quero organizar pedidos e entregas.')).toBeVisible();
-    await expect(detail.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute(
+    await expect(detail.getByLabel('Nota interna')).toHaveCount(0);
+    await expect(detail.getByLabel('Etapa', { exact: true })).toHaveCount(0);
+    await detail.getByRole('link', { name: 'Abrir ficha completa' }).click();
+    await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}/details$`));
+    await expect(page.getByRole('link', { name: /WhatsApp ·/ })).toHaveAttribute(
       'href',
       'https://wa.me/5511987654321',
     );
-    await expect(detail.getByText('Categorias', { exact: true })).toBeVisible();
-    await expect(detail.getByText('Detalhes do produto', { exact: true })).toBeHidden();
+    await expect(page.getByText('Categorias', { exact: true })).toBeVisible();
+    await page.getByRole('link', { name: 'Voltar ao resumo' }).click();
     await page.screenshot({
       path: testInfo.outputPath(`leads-${mobile ? 'mobile' : 'desktop'}.png`),
       fullPage: true,
@@ -235,19 +247,19 @@ for (const mobile of [false, true]) {
   }) => {
     await page.setViewportSize({ width: mobile ? 390 : 1440, height: 1000 });
     await setup(page);
-    await page.goto(`/admin/leads/${id}`);
-    const detail = page.getByRole('complementary', { name: 'Detalhes do lead' });
+    await page.goto(`/admin/leads/${id}/details`);
+    const detail = page.locator('#follow-up');
     await detail.getByLabel('Etapa', { exact: true }).selectOption('development');
     await detail.getByLabel('Nota interna').fill('Cliente enviou as fotos.');
     await detail.getByRole('button', { name: 'Salvar acompanhamento' }).click();
     await expect(detail.getByText('Cliente enviou as fotos.', { exact: true })).toBeVisible();
     await expect(detail.getByText('Novo contato → Em desenvolvimento')).toBeVisible();
-    await expect(detail.getByText('Quero organizar pedidos e entregas.')).toBeVisible();
+    await expect(page.getByText('Quero organizar pedidos e entregas.')).toBeVisible();
     // Recarregamento com cache desabilitado equivale ao novo bootstrap de Ctrl+F5.
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
     await page.reload();
-    await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}$`));
+    await expect(page).toHaveURL(new RegExp(`/admin/leads/${id}/details$`));
     await expect(detail.getByText('Cliente enviou as fotos.', { exact: true })).toBeVisible();
     await expect(detail.getByLabel('Etapa', { exact: true })).toHaveValue('development');
     await detail.getByLabel('Etapa', { exact: true }).selectOption('new');
@@ -264,8 +276,8 @@ for (const mobile of [false, true]) {
 }
 test('conflito conserva a nota e impede sobrescrever sem recarregar', async ({ page }) => {
   await setup(page, { conflict: true });
-  await page.goto(`/admin/leads/${id}`);
-  const detail = page.getByRole('complementary', { name: 'Detalhes do lead' });
+  await page.goto(`/admin/leads/${id}/details`);
+  const detail = page.locator('#follow-up');
   await detail.getByLabel('Nota interna').fill('Minha anotação');
   await detail.getByRole('button', { name: 'Salvar acompanhamento' }).click();
   await expect(detail.getByRole('alert')).toContainText('Outra pessoa atualizou');
@@ -278,8 +290,18 @@ test('administrador com permissão acessa leads sem ganhar acesso a clientes', a
   await expect(
     page.getByRole('navigation').getByRole('link', { name: 'Clientes', exact: true }),
   ).toHaveCount(0);
-  await page.goto(`/admin/leads/${id}`);
+  await page.goto(`/admin/leads/${id}/details`);
   await expect(page.getByRole('heading', { name: 'Acompanhamento', exact: true })).toBeVisible();
   await page.goto('/admin/customers');
   await expect(page).toHaveURL(/\/acesso-negado$/);
+});
+
+test('exibe termômetro na lista e o motivo ao abrir o lead', async ({ page }) => {
+  await setup(page);
+  await page.goto('/admin/leads');
+  await expect(
+    page.getByRole('link', { name: /Pastelaria Aurora/ }).getByText('Quente', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: /Pastelaria Aurora/ }).click();
+  await expect(page.getByText('Pediu uma proposta de site.', { exact: true })).toBeVisible();
 });

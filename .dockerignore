@@ -19,3 +19,10 @@
 docs/secrets
 
 **/*.pem
+
+**/*.key
+**/id_rsa
+**/id_ed25519
+**/ms-infrastructure-app/state
+**/ms-infrastructure-app/backups
+**/ms-infrastructure-app/audit-output

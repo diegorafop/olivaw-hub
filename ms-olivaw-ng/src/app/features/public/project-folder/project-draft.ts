@@ -17,10 +17,16 @@ export interface JourneyEvent {
   at: string;
 }
 export interface LeadSnapshot {
+  engagement?: import('../../admin/leads/lead-temperature').LeadEngagement;
+  qualification?: import('../../admin/leads/lead-qualification-model').LeadQualification;
+  qualificationUpdatedAt?: string;
+  qualificationUpdatedBy?: string;
+  acquisition?: import('../../admin/leads/lead-proposal-model').LeadAcquisition;
+  proposal?: import('../../admin/leads/lead-proposal-model').LeadProposal;
   schemaVersion: 1;
   revision: number;
   startedAt: string;
-  entry: 'studio' | 'discovery';
+  entry: 'studio' | 'discovery' | 'prospecting' | 'manual';
   stage: 'exploring' | 'project' | 'submitted';
   project: ProjectSeed | null;
   excluded: readonly string[];
@@ -82,7 +88,7 @@ export class ProjectDraft {
       this.document.defaultView?.removeEventListener('pagehide', flush);
     });
   }
-  enter(source: LeadSnapshot['entry']): void {
+  enter(source: 'studio' | 'discovery'): void {
     if (!this.browser || this.id) return;
     const crypto = this.document.defaultView?.crypto;
     if (!crypto) return;

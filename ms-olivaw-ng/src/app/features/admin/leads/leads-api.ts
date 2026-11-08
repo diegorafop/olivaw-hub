@@ -4,6 +4,8 @@ import { timeout } from 'rxjs';
 import { RuntimeConfig } from '../../../core/config/runtime-config';
 import { LOCAL_ERROR, SKIP_LOADING } from '../../../core/http/http-context';
 import type { LeadSnapshot } from '../../public/project-folder/project-draft';
+import type { LeadQualification } from './lead-qualification-model';
+import type { LeadCreateData, LeadProposal } from './lead-proposal-model';
 export interface LeadItem {
   externalId: string;
   createdAt: string;
@@ -13,6 +15,12 @@ export interface LeadItem {
   entry: string;
   email: string;
   whatsapp: string;
+  phone?: string;
+  websiteUrl?: string;
+  segment?: string;
+  temperature?: string;
+  temperatureReason?: string;
+  temperatureUpdatedAt?: string;
   followUpStatus: string;
 }
 export interface LeadPage {
@@ -66,6 +74,42 @@ export class LeadsApi {
   private readonly config = inject(RuntimeConfig);
   private context() {
     return new HttpContext().set(LOCAL_ERROR, true).set(SKIP_LOADING, true);
+  }
+  create(payload: LeadCreateData) {
+    return this.http
+      .post<{ externalId: string }>(this.config.endpoint('leads'), payload, {
+        context: this.context(),
+      })
+      .pipe(timeout(15000));
+  }
+  delete(id: string, revision: number, followUpRevision: number) {
+    return this.http
+      .delete<{ alreadyDeleted: boolean }>(
+        this.config.endpoint(`leads/${encodeURIComponent(id)}`),
+        {
+          body: { revision, followUpRevision },
+          context: this.context(),
+        },
+      )
+      .pipe(timeout(15000));
+  }
+  updateProposal(id: string, revision: number, proposal: LeadProposal) {
+    return this.http
+      .put<{ revision: number }>(
+        this.config.endpoint(`leads/${encodeURIComponent(id)}/proposal`),
+        { revision, proposal },
+        { context: this.context() },
+      )
+      .pipe(timeout(15000));
+  }
+  updateQualification(id: string, revision: number, qualification: LeadQualification) {
+    return this.http
+      .put<{ revision: number; updatedAt: string }>(
+        this.config.endpoint(`leads/${encodeURIComponent(id)}/qualification`),
+        { revision, qualification },
+        { context: this.context() },
+      )
+      .pipe(timeout(15000));
   }
   list(filters: LeadFilters) {
     let params = new HttpParams().set('page', filters.page).set('pageSize', 20);

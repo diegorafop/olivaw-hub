@@ -62,6 +62,7 @@ public class LeadReadIntegrationTest
         reader.Setup(item => item.ReadSummaryAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>())).ReturnsAsync(new LeadReadSummary { Total = 2, Recent = 1 });
         builder.Services.AddSingleton(reader.Object);
         var request = LeadFeatureFakerBuilder.Create();
+        request.Payload.Acquisition = new() { Initiative = "outbound", Origin = "Teste HTTP" };
         var lead = Lead.Create(request.ExternalId, new string('a', 64), 1, JsonSerializer.Serialize(request.Payload, new JsonSerializerOptions(JsonSerializerDefaults.Web)), DateTime.UtcNow);
         var repository = new Mock<IRepository<Lead>>();
         repository.Setup(item => item.GetFirstOrDefaultAsync(It.IsAny<Expression<Func<Lead, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<Lead, object>>[]>())).Returns<Expression<Func<Lead, bool>>, CancellationToken, Expression<Func<Lead, object>>[]>((filter, _, _) => Task.FromResult(filter.Compile()(lead) ? lead : null!));
@@ -84,8 +85,75 @@ public class LeadReadIntegrationTest
             Assert.DoesNotContain("actorUserId", body);
             if (expected == 200) Assert.True(response.Headers.CacheControl?.NoStore);
         }
-        using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = 0, status = "analysis", note = "Nota" });
+        using var create = await client.PostAsJsonAsync("/leads", new
+        {
+            externalId = Guid.NewGuid(), initiative = "outbound", origin = "99Freelas",
+            title = "Comentários", requirements = "Integrar recursos", sourceUrl = "", externalReference = "795293"
+        });
+        Assert.Equal((HttpStatusCode)(expected == 200 ? 201 : expected), create.StatusCode);
+        using var proposal = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/proposal", new
+        {
+            revision = 1, proposal = new
+            {
+                title = "Comentários", rows = new[] { new { description = "Diagnóstico", role = "Analista", solution = "analysis", hours = 4, hourlyRate = 100 } }
+            }
+        });
+        Assert.Equal((HttpStatusCode)expected, proposal.StatusCode);
+        if (expected == 200)
+        {
+            using var proposalRetry = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/proposal", new
+            {
+                revision = 1, proposal = new { title = "Comentários", rows = new[] { new { description = "Diagnóstico", role = "Analista", solution = "analysis", hours = 4, hourlyRate = 100 } } }
+            });
+            Assert.Equal(HttpStatusCode.Conflict, proposalRetry.StatusCode);
+        }
+        using var qualification = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/qualification", new
+        {
+            revision = 2, qualification = new { segment = "Eventos", approach = "Olá, gostaríamos de conversar.", approachStatus = "draft" }
+        });
+        Assert.Equal((HttpStatusCode)expected, qualification.StatusCode);
+        if (expected == 200)
+        {
+            using var staleQualification = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/qualification", new { revision = 2, qualification = new { segment = "Desatualizado" } });
+            Assert.Equal(HttpStatusCode.Conflict, staleQualification.StatusCode);
+        }
+        using var discovery = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/contact-discovery", new { revision = 3, contacts = new { contactFormStatus = "invalid" } });
+        var discoveryExpected = expected;
+        if (expected == 200) discoveryExpected = 400;
+        Assert.Equal((HttpStatusCode)discoveryExpected, discovery.StatusCode);
+        using var communication = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/communications", new { revision = 3, followUpRevision = 0, @event = new { kind = "invalid" } });
+        var communicationExpected = expected;
+        if (expected == 200) communicationExpected = 400;
+        Assert.Equal((HttpStatusCode)communicationExpected, communication.StatusCode);
+        if (expected == 200)
+        {
+            using var prepared = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/communications", new
+            {
+                revision = lead.Revision, followUpRevision = lead.FollowUpRevision,
+                @event = new { eventId = new string('a',64), kind = "prepared", intentId = new string('b',64), contentHash = new string('c',64), email = request.Payload.Email, subject = "Teste", bodyPreview = "Texto aprovado" }
+            });
+            Assert.Equal(HttpStatusCode.OK,prepared.StatusCode);
+            using var readback = await client.GetAsync($"/leads/{request.ExternalId}");
+            var content = await readback.Content.ReadFromJsonAsync<JsonElement>();
+            var records = content.GetProperty("snapshot").GetProperty("communications");
+            Assert.Equal(JsonValueKind.Array,records.ValueKind);
+            Assert.Equal(new string('a',64),records[0].GetProperty("eventId").GetString());
+        }
+        using var update = await client.PutAsJsonAsync($"/leads/{request.ExternalId}/follow-up", new { revision = lead.FollowUpRevision, status = "analysis", note = "Nota" });
         Assert.Equal((HttpStatusCode)expected, update.StatusCode);
+        using var deleteRequest = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Delete,$"/leads/{request.ExternalId}")
+        {
+            Content = JsonContent.Create(new { revision = lead.Revision, followUpRevision = lead.FollowUpRevision })
+        };
+        using var deletion = await client.SendAsync(deleteRequest);
+        Assert.Equal((HttpStatusCode)expected,deletion.StatusCode);
+        if (expected == 200)
+        {
+            Assert.NotNull(lead.DeletedAt);
+            using var hidden = await client.GetAsync($"/leads/{request.ExternalId}");
+            Assert.False(hidden.IsSuccessStatusCode);
+        }
+
         if (expected != 200)
         {
             reader.Verify(item => item.ReadAsync(It.IsAny<LeadReadFilter>(), It.IsAny<CancellationToken>()), Times.Never);

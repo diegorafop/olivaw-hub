@@ -70,3 +70,7 @@ Texto original recebido, sem correções de escrita ou resumo.
 - Confira os quatro blocos, critérios em bullets, preservação do registro original e links locais após reorganizações.
 - O índice principal deve corresponder aos documentos de funcionalidades concluídas, sem listar o backlog.
 - Alterações apenas documentais não exigem builds, testes de aplicação, acesso a bancos ou publicação.
+
+## Limite do hub
+
+Esta pasta documenta somente funcionalidades da infraestrutura, site e API Olivaw, agents, identidade e componentes compartilhados do hub. Features específicas de clientes ficam em `../clients/<cliente>/features/`, com o mesmo formato e estados. Briefings, brainstorms e acervo ficam junto ao cliente. Exemplos de clientes em funcionalidades administrativas do hub podem permanecer aqui.

@@ -156,3 +156,71 @@ npm run e2e -- e2e/admin-inventory.spec.ts e2e/admin-services.spec.ts e2e/admin-
 ```
 
 Validação: 33 testes unitários, 31 E2E administrativos (9 de inventário), lint/build e screenshots desktop/mobile revisadas. HTTP simulado, sem dados reais. O build mantém quatro avisos de orçamento preexistentes: três arquivos públicos e a lista de leads; o inventário não introduziu avisos. API e frontend precisam de nova publicação para expor os fluxos concluídos. A única migration `Issue020` existente cobre o modelo; não foi gerada outra nesta conclusão.
+
+## Home, navegação do Portal e despesas — issue026
+
+- `/portal` continua como prévia visual interna protegida por root, com dados ilustrativos. Plano é o primeiro card; o segundo mostra um resumo das franquias. A média ilustrativa de espaço e melhorias está explicada em `/portal/indicador`. Não é uma métrica de capacidade ou desempenho.
+- `/portal/chamados`, `/portal/chamados/novo`, `/portal/chamados/:itemId`, `/portal/melhorias`, `/portal/melhorias/:itemId`, `/portal/plano`, `/portal/indicador` e `/portal/tecnico` são páginas com links e breadcrumb, sem modais. A simulação de pedido não faz POST e dura apenas na sessão em memória.
+- A Home real de `/meu-negocio` e a prévia autorizada de `/admin/portal-preview` consultam os novos endpoints de Home. As seções e detalhes de pedidos usam links com `section`, `customer` e `request` na URL, respeitando a autoridade existente do cliente. A migração definitiva do endereço e identidade visual para `/portal` permanece separada da prévia interna.
+- `/admin/expenses`: lançamentos e gráficos com filtros de data, agrupamento por dia/mês/ano e cliente. Custos compartilhados sem rateio permanecem separados do total individual. Valores USD usam cotação manual explícita; não misturar com despesas em BRL sem conversão.
+- `/admin/plans/catalog`: proposta Bronze, Prata/Silver, Ouro e Diamante, com cálculo local de viabilidade. As hipóteses não alteram contratos nem gravam despesas.
+- Saúde, Incidentes e Consumo ficam ocultos na Configuração; suas rotas protegidas e dados são preservados para reavaliação.
+
+A migration PostgreSQL `20261026102348_Issue026` foi gerada e revisada. Ela será aplicada automaticamente no startup da API quando o mantenedor publicar. A publicação ainda não foi executada nesta entrega. O estudo comercial está em `docs/features/discovery/planos-bronze-prata-ouro-diamante.md`.
+
+Validação de navegação e responsividade:
+
+```bash
+npm run build
+npm run lint
+npm run e2e -- e2e/admin-expenses.spec.ts e2e/portal-home-preview.spec.ts e2e/portal.spec.ts e2e/admin-configuration.spec.ts
+```
+
+## Financeiro
+
+A área financeira fica na navegação lateral, somente para root:
+
+- `/admin/finance`: indicadores, histórico, categorias, clientes e acesso a lançamentos. Filtros `period=day|week|month|year`, `date=YYYY-MM-DD` e `customer=<guid>|shared` ficam na URL. Semana começa na segunda-feira; intervalos são de calendário UTC.
+- `/admin/expenses`: lista e lançamento de despesas, fora da Configuração. O menu Financeiro permanece ativo e o breadcrumb segue Visão geral → Financeiro → Despesas. Links do dashboard carregam `from/to/groupBy/customer`; a listagem preserva esses filtros e a paginação ao voltar/avançar.
+- Gráficos usam custos brutos e créditos separadamente para não esconder custos cobertos por benefícios. Custos por cliente não fazem rateio automático dos compartilhados. Nenhuma receita ou lucro é inferido.
+
+A API precisa da ampliação aditiva de `GET /expenses` para os grupos e o filtro de compartilhadas. Não há migration nova nesta evolução. Backend e frontend ainda precisam ser publicados pelo mantenedor; nenhuma publicação é feita pela validação local.
+
+```bash
+npm run test -- --include=src/app/features/admin/finance/finance-period.spec.ts
+npm run e2e -- e2e/admin-finance.spec.ts e2e/admin-expenses.spec.ts e2e/admin-configuration.spec.ts
+```
+
+O Financeiro abre no mês atual; lançamentos de setembro/2026 são consultados com `/admin/finance?period=month&date=2026-09-30`. O estado vazio oferece navegação para o período anterior. Por decisão do mantenedor, benefícios Free Tier não entram como despesas nem abatem gastos: os clientes de consulta enviam `includeCredits=false`; a API precisa da correção correspondente. Créditos já existentes ficam preservados para auditoria da fatura, fora da listagem padrão.
+
+### Catálogo e portal (incrementos locais)
+
+`/admin/plans` tem quatro cards fixos; detalhes em `/admin/plans/bronze`, `/prata`, `/ouro` e `/diamante`. Preço vigente vem da API; proposta de Bronze R$49 não vira contrato por abrir a página. Custo estimado depende de estudo completo. `/admin/plans/simulator` mantém os cenários anteriores; `/admin/plans/catalog` redireciona para o catálogo. Publicar versão e atribuir condição mensal são ações explícitas root, com aprovação e histórico preservado.
+
+Faturas AWS ficam em `/admin/invoices`, acessíveis pelo Financeiro, com criação e detalhes navegáveis. Campos desconhecidos do JSON são preservados. Cadastro documental não cria despesas.
+
+Portal real: `/portal`, login `/portal/entrar`. Os endereços `/meu-negocio` continuam como atalhos, preservando parâmetros e convites. Prévia estática interna: `/admin/portal-home-preview`, root. Autoridades administrativas e de clientes permanecem independentes; a mudança de endereço não concede acesso.
+
+O detalhe do plano agora inclui a composição simplificada completa de custos. Bases anuais são mensalizadas; fontes e denominadores ficam preservados no estudo. Custos desconhecidos não viram zero. Salvar estudo preenche o vínculo da próxima versão, sem aprovar preço nem alterar contrato. O estudo vigente pode ser usado como base de outro cenário. Margem e despesas comerciais entram no denominador do preço sugerido; operação e reserva entram no custo. O simulador anterior preserva a mesma regra e o campo de despesas comerciais.
+
+Validação local do fechamento: build, lint e 22 testes E2E de planos e fluxos alterados passaram. Os avisos SCSS restantes são anteriores a esta entrega. Não há commit, push ou deploy; preços do catálogo só existem após aprovação e publicação explícitas pela operação.
+
+## Prospecção e orçamento de Leads
+
+Em Leads, **Cadastrar lead** aceita prospecção ativa ou contato recebido, com importação JSON para revisão antes de salvar. A ficha abre `/admin/leads/:id/proposal`, com horas por profissional, opcionais, reserva, comparação avulso/continuidade e apresentação HTML autônoma. O download não publica a proposta. Importar um JSON não persiste nem envia nada automaticamente.
+
+[Roteiro de cadastro preparado](../docs/99freelas/795293/cadastro-apos-publicacao.md). Verificações: `npm run build`, `npm run lint`, `npm test` e `npm run e2e -- e2e/admin-lead-proposal.spec.ts e2e/admin-leads.spec.ts`.
+
+### Planos públicos e pontos de melhoria
+
+`/planos` e `/planos/bronze|prata|ouro|diamante` são públicos e pré-renderizados, com breadcrumb e metadados próprios. O interesse segue para `/projeto?plano=<id>`. Conteúdo compartilhado em `plan-offerings.ts`: franquias 1/4/12/36 sem acúmulo; Prata 5 GB e duas contas administrativas do site. As condições sugeridas para novas versões não modificam contratos existentes. Saldo automático e compra de pacotes são evolução futura.
+
+Validação: `npm run build`, `npm run lint` e `npm run e2e -- e2e/public-plans.spec.ts e2e/project-folder.spec.ts e2e/admin-expenses.spec.ts`. Ver [feature](../docs/features/done/planos-publicos-oferta-e-pontos-de-melhoria.md).
+
+### Ficha e qualificação de Leads
+
+`/admin/leads/:id` mantém a lista e resumo lateral somente leitura; **Abrir ficha completa** navega para `/admin/leads/:id/details`, preservando filtros. Na ficha ficam qualificação, fontes, contatos, fatos, positivos, oportunidades, perguntas, rascunho de abordagem, nota/etapa e histórico. A proposta continua em `/admin/leads/:id/proposal`. Breadcrumb de proposta retorna à ficha completa.
+
+A sugestão local usa os campos preenchidos; o Trevize pode fornecer outra sugestão pela API. Preparar, copiar, revisar ou salvar não envia contato nem muda etapa automaticamente. Escritas usam revisão otimista; conflitos mantêm campos e exigem conferência. Rascunhos de qualificação e nota interna não se apagam ao salvar um ao outro.
+
+Validação: `npm run build`, `npm run lint`, `npm test` e `npm run e2e -- e2e/lead-record.spec.ts e2e/admin-leads.spec.ts e2e/admin-lead-proposal.spec.ts`.

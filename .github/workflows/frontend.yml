@@ -5,12 +5,14 @@ on:
       - "ms-limpo-ng/**"
       - "ms-olivaw-ng/**"
       - "ms-ltmj-ng/**"
+      - "ms-cavalcante-ng/**"
       - ".github/workflows/frontend.yml"
   pull_request:
     paths:
       - "ms-limpo-ng/**"
       - "ms-olivaw-ng/**"
       - "ms-ltmj-ng/**"
+      - "ms-cavalcante-ng/**"
       - ".github/workflows/frontend.yml"
   workflow_dispatch:
 permissions:
@@ -22,7 +24,7 @@ jobs:
   validar:
     strategy:
       matrix:
-        project: [ms-limpo-ng, ms-olivaw-ng, ms-ltmj-ng]
+        project: [ms-limpo-ng, ms-olivaw-ng, ms-ltmj-ng, ms-cavalcante-ng]
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -1,0 +1,203 @@
+<div class="home-top">
+  <article class="home-card home-plan">
+    <small>SEU PLANO</small>
+    <h2>{{ plan()?.name || 'Vamos combinar seu plano' }}</h2>
+    @if (plan()?.storageLimitGiB; as limit) {
+      <p>{{ limit | number: '1.0-3' }} GiB de armazenamento</p>
+    } @else {
+      <p>Os limites aparecem aqui depois da definição do seu plano.</p>
+    }
+    <a
+      [routerLink]="[]"
+      [queryParams]="{ section: 'plan', request: null, customer: customer() }"
+      queryParamsHandling="merge"
+      >Conhecer meu plano ↗</a
+    >
+  </article>
+  <article class="home-card usage-card">
+    <div class="ring" [style.--usage]="ring()">
+      <div>
+        <strong>{{
+          data()?.storagePercent === null || !data()
+            ? '—'
+            : (data()!.storagePercent | number: '1.0-1') + '%'
+        }}</strong
+        ><small>do armazenamento</small>
+      </div>
+    </div>
+    <div>
+      <small>SEU PLANO, NUM OLHAR</small>
+      <h2>
+        {{
+          data()?.storagePercent === null || !data()
+            ? 'Aguardando dados confiáveis.'
+            : 'Seu espaço, acompanhado.'
+        }}
+      </h2>
+      <p>Exibimos apenas recursos com limite contratado e leitura disponível.</p>
+      @if (data()?.observedAt; as date) {
+        <small>Última leitura: {{ date | date: 'dd/MM/yyyy' : 'UTC' }}</small>
+      }
+      <p class="note">
+        O indicador atual representa armazenamento; melhorias não são somadas sem uma franquia
+        contratada.
+      </p>
+    </div>
+  </article>
+</div>
+<div class="home-heading">
+  <div>
+    <h2>Seu site ao longo do tempo</h2>
+    <p>
+      Dias UTC encerrados · {{ data()?.from | date: 'dd/MM/yyyy' : 'UTC' }} até
+      {{ data()?.to | date: 'dd/MM/yyyy' : 'UTC' }} (fim exclusivo)
+    </p>
+  </div>
+  <div class="periods" role="group" aria-label="Período do histórico">
+    @for (item of periods; track item[0]) {
+      <button [attr.aria-pressed]="period() === item[0]" (click)="period.set(item[0])">
+        {{ item[1] }}
+      </button>
+    }
+  </div>
+</div>
+@if (loading()) {
+  <p role="status">Consultando seu acompanhamento…</p>
+}
+@if (error()) {
+  <p role="alert">{{ error() }}</p>
+}
+<div class="home-grid">
+  @for (kind of ['storageUsedMiB', 'pageViews']; track kind) {
+    <article class="home-card">
+      <h3>{{ kind === 'storageUsedMiB' ? 'Espaço ocupado' : 'Acessos ao site' }}</h3>
+      <p>
+        {{
+          kind === 'storageUsedMiB'
+            ? 'Arquivos e banco de dados · MiB'
+            : 'Visualizações de páginas; não visitantes únicos'
+        }}
+      </p>
+      @if (has($any(kind))) {
+        <svg
+          viewBox="0 0 600 190"
+          role="img"
+          [attr.aria-label]="
+            kind === 'storageUsedMiB'
+              ? 'Histórico do espaço ocupado. Valores na tabela abaixo.'
+              : 'Histórico de visualizações. Valores na tabela abaixo.'
+          "
+        >
+          <path
+            [attr.d]="path($any(kind))"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            vector-effect="non-scaling-stroke"
+          />
+          @for (point of points($any(kind)); track point.date) {
+            @if (point.value !== null) {
+              <circle [attr.cx]="x(point.index)" [attr.cy]="y(point.value, $any(kind))" r="2" />
+            }
+          }
+        </svg>
+      } @else {
+        <div class="empty">
+          —
+          <p>Ainda não há leituras para este período.</p>
+        </div>
+      }
+      @if (kind === 'pageViews' && data()?.pageViews !== null && data()) {
+        <strong>{{ data()!.pageViews | number }} visualizações observadas</strong>
+        <p class="note">
+          {{ data()!.observedDays }} de {{ data()!.expectedDays }} dias com dados; total dos dias
+          disponíveis.
+        </p>
+      }
+    </article>
+  }
+</div>
+@if (data(); as d) {
+  <details class="home-card">
+    <summary>Consultar valores do histórico</summary>
+    <div class="history-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Dia UTC</th>
+            <th>Espaço (MiB)</th>
+            <th>Visualizações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (point of d.series; track point.date) {
+            <tr>
+              <td>{{ point.date | date: 'dd/MM/yyyy' : 'UTC' }}</td>
+              <td>
+                {{
+                  point.storageUsedMiB === null
+                    ? 'Sem leitura'
+                    : (point.storageUsedMiB | number: '1.0-3')
+                }}
+              </td>
+              <td>{{ point.pageViews === null ? 'Sem leitura' : (point.pageViews | number) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </details>
+}
+<div class="home-grid">
+  <article class="home-card">
+    <div class="home-heading">
+      <h3>Seus chamados</h3>
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ section: 'requests', request: null, customer: customer() }"
+        queryParamsHandling="merge"
+        >Ver chamados ↗</a
+      >
+    </div>
+    <div class="counts">
+      <div>
+        <strong>{{ data()?.openRequests ?? '—' }}</strong
+        ><small>em aberto</small>
+      </div>
+      <div>
+        <strong>{{ data()?.waitingRequests ?? '—' }}</strong
+        ><small>aguarda você</small>
+      </div>
+      <div>
+        <strong>{{ data()?.completedRequests ?? '—' }}</strong
+        ><small>atendidos</small>
+      </div>
+    </div>
+    <p class="note">Aguardando sua resposta faz parte dos chamados em aberto.</p>
+  </article>
+  <article class="home-card">
+    <div class="home-heading">
+      <h3>Suas melhorias</h3>
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ section: 'requests', request: null, customer: customer() }"
+        queryParamsHandling="merge"
+        >Acompanhar ↗</a
+      >
+    </div>
+    <div class="counts">
+      <div>
+        <strong>{{ data()?.workingImprovements ?? '—' }}</strong
+        ><small>em andamento</small>
+      </div>
+      <div>
+        <strong>{{ data()?.queuedImprovements ?? '—' }}</strong
+        ><small>em espera</small>
+      </div>
+      <div>
+        <strong>{{ data()?.completedImprovements ?? '—' }}</strong
+        ><small>entregues</small>
+      </div>
+    </div>
+  </article>
+</div>

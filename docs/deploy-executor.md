@@ -142,6 +142,17 @@ Cada serviço deve ter `docker/.env.<ambiente>`, `docker/docker-compose.yml` e `
 
 Para solicitar sem acompanhar, acrescente `--no-wait`. O script usa Bash e Python 3, não exige curl/jq e nunca imprime senha ou token. Ele lê `deployment/olivaw-credentials.env` na pasta do serviço; deploys administrativos usam a conta root guardada nas respectivas pastas. A lista de repositórios independentes fica em `scripts/deployment/external-services.json`; `OLIVAW_LISIERP_SERVICE_DIR` permite substituir localmente o caminho temporário da Lisierp.
 
+Para retomar um job já aceito, use `--job` com o mesmo UUID, sem ambiente/branch:
+
+```bash
+bash scripts/deployment/deploy.sh ms-olivaw-api --job UUID_DO_JOB
+bash scripts/deployment/deploy.sh --cleanup --job UUID_DO_JOB
+```
+
+Nesse modo o cliente autentica e consulta o status; não envia outro POST de deploy ou limpeza. Um ID inválido é rejeitado antes da autenticação. Não combinar `--job` com `--no-wait`.
+
+O acompanhamento repete somente consultas GET após falhas de rede, timeout, JSON inválido ou HTTP 408/425/429/5xx transitórios (500, 502, 503, 504). Usa espera progressiva de 3 a 15 segundos e interrompe após seis falhas consecutivas; uma consulta válida reinicia esse contador. HTTP 401 permite renovar a autenticação uma vez antes de nova resposta válida; 403 e outros erros permanentes não são repetidos. O limite total de acompanhamento continua em 30 minutos. A interrupção retorna código 2 e mostra o comando de retomada, sem afirmar que o job falhou no executor. Nenhum POST de criação é repetido automaticamente.
+
 A branch deve estar publicada com todos os arquivos de implantação. Se uma senha for alterada no Olivaw, atualize o arquivo versionado da conta correspondente; o bootstrap não redefine usuários existentes. O cliente não faz logout automaticamente, então o JWT segue válido até expirar. Ao implantar o próprio DevOps, o worker continua na VM; a consulta de status pode ser interrompida temporariamente pelo reinício da API. Nesse caso, consulte o ID do job antes de enviar outro deploy.
 
 ## Primeiro deploy de um serviço e compatibilidade com lisierp
@@ -241,3 +252,17 @@ docker logs --tail 100 -f ms-olivaw-api-prd
 ```
 
 Esses são comandos operacionais, não etapas de validação local. O startup da imagem atualizada aplica migrations pendentes; na recuperação da issue 020, a `Issue020` cobre o modelo de serviços/inventário. Não suprimir a proteção de modelo pendente. Depois que a API voltar, o cliente HTTP de deploy pode ser usado novamente.
+
+## Checkout bloqueado por arquivos ou permissões
+
+O executor não descarta alterações automaticamente. Se um branch não rastrear uma pasta que outro utiliza, arquivos deixados no checkout podem bloquear a próxima troca. Diretórios de código precisam ser graváveis pelo usuário executor; não executar Git ou copiar código como root no checkout compartilhado. Não aplicar chown recursivo a dados, certificados ou volumes para resolver um problema de Git.
+
+Em 01/11/2026, cinco cópias idênticas ao branch remoto ficaram nas pastas root `ms-infrastructure-app/scripts` e `tests`. Backup fora do checkout, verificação de conteúdo e correção somente dessas duas pastas liberaram o checkout. Alterações exclusivas exigem revisão; nunca usar `git clean -fd` ou reset destrutivo como recuperação automática.
+
+A versão atual do script classifica stderr do Git sem expor seu texto bruto; captura até 32 KiB e drena o restante. Depois de publicar os fontes e atualizar o checkout da VM, instalar a versão revisada como já descrito:
+
+```bash
+sudo install -o root -g root -m 0644 scripts/deployment/deploy.py /opt/olivaw/deploy.py
+```
+
+Essa instalação é separada do deploy dos containers e deve ocorrer sem job ativo. A investigação de 01/11 não alterou a cópia instalada nem iniciou deploy.

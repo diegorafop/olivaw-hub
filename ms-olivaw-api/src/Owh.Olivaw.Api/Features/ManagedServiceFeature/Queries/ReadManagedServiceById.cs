@@ -24,12 +24,12 @@ public sealed class ReadManagedServiceByIdHandler(IRepository<ManagedService> re
         return new()
         {
             ExternalId = service.ExternalId, TechnicalId = service.TechnicalId, Name = service.Name, Revision = service.Revision,
-            Type = service.Type, Scope = service.Scope, Status = service.Status, Owner = service.Owner, Description = service.Description,
+            Type = ManagedService.NormalizeType(service.Type), Scope = service.Scope, Status = service.Status, Owner = service.Owner, Description = service.Description,
             Customers = current.Select(MapLink).ToList(), PreviousCustomers = previous.Select(MapLink).ToList(),
             Changes = history.Select(item => new ManagedServiceChangeItem
             {
                 Revision = item.Revision, ActorName = item.ActorName, CreatedAt = item.CreatedAt,
-                PreviousStatus = item.PreviousStatus, Status = item.Status, Name = item.Name, Type = item.Type,
+                PreviousStatus = item.PreviousStatus, Status = item.Status, Name = item.Name, Type = ManagedService.NormalizeType(item.Type),
                 Scope = item.Scope, Description = item.Description, Owner = item.Owner
             }).ToList()
         };

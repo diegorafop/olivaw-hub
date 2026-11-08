@@ -1,0 +1,55 @@
+@if (empty()) {
+  <div class="empty-chart">
+    <span>—</span><strong>O histórico vai aparecer aqui</strong>
+    <p>Ainda não há leituras para este período.</p>
+  </div>
+} @else {
+  <div class="chart" [class.blue]="kind() === 'accesses'">
+    <div class="axis-y" aria-hidden="true">
+      @for (tick of ticks(); track $index) {
+        <span>{{ format(tick) }}</span>
+      }
+    </div>
+    <div class="plot">
+      <svg
+        viewBox="0 0 600 180"
+        preserveAspectRatio="none"
+        role="img"
+        tabindex="0"
+        [attr.aria-label]="
+          kind() === 'storage'
+            ? 'Armazenamento em MB. Use as setas para explorar os valores.'
+            : 'Acessos ao site. Use as setas para explorar os valores.'
+        "
+        (pointermove)="preview($event)"
+        (keydown)="navigate($event)"
+      >
+        @for (tick of [16, 57, 98, 139, 180]; track tick) {
+          <line x1="0" [attr.y1]="tick" x2="600" [attr.y2]="tick" class="grid-line" />
+        }
+        <path [attr.d]="area()" class="area" />
+        @if (limit() !== null) {
+          <line x1="0" y1="16" x2="600" y2="16" class="limit-line" />
+        }
+        <path [attr.d]="line()" class="data-line" />
+        <line [attr.x1]="x()" y1="16" [attr.x2]="x()" y2="180" class="cursor-line" />
+        <circle [attr.cx]="x()" [attr.cy]="y()" r="4" class="point" />
+      </svg>
+      <div class="axis-x" aria-hidden="true">
+        @for (label of labels(); track $index) {
+          <span>{{ label }}</span>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="chart-foot">
+    <span class="readout" aria-live="polite"
+      >{{ point().label }} <b>{{ format(point().value) }}</b></span
+    >
+    @if (limit() !== null) {
+      <span class="limit-label"><i></i> Limite do plano: {{ format(limit()!) }}</span>
+    } @else {
+      <span>Visualizações de páginas</span>
+    }
+  </div>
+}

@@ -15,6 +15,7 @@ public sealed class ReadLeadByFilterQuery
 }
 public sealed class ReadLeadByFilterResponse
 {
+    public int CommercialResearchVersion { get; set; } = 1;
     public int Page { get; set; }
     public int PageSize { get; set; }
     public long Total { get; set; }
@@ -30,6 +31,12 @@ public sealed class LeadListItem
     public string Title { get; set; } = string.Empty;
     public string Entry { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+    public string WebsiteUrl { get; set; } = string.Empty;
+    public string Segment { get; set; } = string.Empty;
     public string Whatsapp { get; set; } = string.Empty;
+    public string Temperature { get; set; } = "unassessed";
+    public string TemperatureReason { get; set; } = string.Empty;
+    public string TemperatureUpdatedAt { get; set; } = string.Empty;
     public string FollowUpStatus { get; set; } = "new";
 }

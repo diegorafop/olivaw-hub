@@ -1,0 +1,25 @@
+# Proposta para copiar no 99Freelas
+
+Olá! Sou engenheiro e arquiteto de software, com 17 anos de experiência, e represento a Olivaw.
+
+Podemos desenvolver seu sistema de agendamento utilizando nossa estrutura em ASP.NET Core e Angular, com interface moderna e responsiva para computadores e celulares.
+
+Entregaremos uma área para os clientes consultarem procedimentos, valores e duração, escolherem o profissional ou o primeiro disponível, visualizarem horários e realizarem seus agendamentos. Também terão acesso ao histórico, aos próximos atendimentos e às opções de cancelamento e remarcação conforme as regras da clínica.
+
+A clínica receberá um painel administrativo para manter o sistema atualizado com autonomia. Nele, os responsáveis poderão cadastrar e alterar categorias, procedimentos, descrições, preços e duração, além de gerenciar profissionais, especialidades, horários de trabalho, folgas e bloqueios da agenda.
+
+O painel terá visão diária, semanal e mensal dos agendamentos, controle de status — confirmado, concluído, cancelado e ausência — e ficha básica do cliente com observações de atendimento e acesso restrito conforme o perfil do usuário.
+
+Incluímos no planejamento confirmações e lembretes por e-mail. A integração com WhatsApp poderá compor a entrega após alinharmos o provedor, as condições da conta e os custos de mensagens. O login inicial pode ser por e-mail; acesso por redes sociais será definido no levantamento.
+
+Nossa proposta é começar pelo alinhamento das regras de agenda e pela apresentação das telas. Depois, avançamos com desenvolvimento, demonstrações por etapa, testes, homologação e orientação de uso. Para o escopo inicial, estimamos de 6 a 8 semanas, após confirmação dos requisitos e liberação dos materiais e acessos necessários.
+
+Precisamos confirmar quantidade de profissionais e unidades, regras de antecedência, intervalos entre procedimentos e eventual uso compartilhado de salas ou equipamentos. Esses pontos influenciam o orçamento e o funcionamento da agenda.
+
+Além do desenvolvimento, oferecemos a infraestrutura em nuvem AWS administrada pela Olivaw, mediante custo mensal. A proposta mensal contemplará hospedagem, banco de dados, backups e cuidados de operação, com capacidade e limites definidos. O valor de implantação será apresentado separadamente da mensalidade.
+
+Podemos apresentar nosso portfólio de sites e sistemas e conversar sobre a melhor primeira entrega para sua clínica. Somos a Olivaw: tecnologia com simplicidade e comunicação direta. Se tiver dúvidas ou quiser ajustar o escopo, vamos conversar pelo 99Freelas!
+
+---
+
+Texto comercial: 2550 caracteres, incluindo espaços e quebras de linha. Rascunho para revisão; não enviado ao anunciante. Não afirma experiência específica anterior com clínicas ou sistemas de agendamento.

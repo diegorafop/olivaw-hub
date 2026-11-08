@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Owh.Olivaw.Api.Features.ExpenseFeature.Commands;
+using Owh.Olivaw.Api.Features.ExpenseFeature.Queries;
+using Owh.Olivaw.Client.Features.ExpenseFeature.Queries;
+using System;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,10 +72,12 @@ public sealed class OperationsAuthorizationTest
         mediator.Setup(item => item.Send(It.IsAny<CreateCustomerPlanMediatorCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(new CreateCustomerPlanResult());
         mediator.Setup(item => item.Send(It.IsAny<ReadPlanStudyByFilterMediatorQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ReadPlanStudyByFilterResponse());
         mediator.Setup(item => item.Send(It.IsAny<CreatePlanStudyMediatorCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(new CreatePlanStudyResult());
+        mediator.Setup(x=>x.Send(It.IsAny<ReadExpenseByFilterMediatorQuery>(),It.IsAny<CancellationToken>())).ReturnsAsync(new ReadExpenseByFilterResponse());
+        mediator.Setup(x=>x.Send(It.IsAny<CreateExpenseMediatorCommand>(),It.IsAny<CancellationToken>())).ReturnsAsync(new CreateExpenseResult());
         builder.Services.AddSingleton(mediator.Object);
         await using var app = builder.Build(); app.UseSetups(); await app.StartAsync();
         using var client = app.GetTestClient(); if (actor.Length > 0) client.DefaultRequestHeaders.Add("X-Test-Actor", actor);
-        foreach (var route in new[] { "/health-readings", "/usage-readings", "/care-evidence", "/incidents", "/support-requests", "/plans/costs", "/plans/conditions", "/plans/studies" })
+        foreach (var route in new[] { "/expenses", "/health-readings", "/usage-readings", "/care-evidence", "/incidents", "/support-requests", "/plans/costs", "/plans/conditions", "/plans/studies" })
         {
             using var read = await client.GetAsync(route); Assert.Equal((HttpStatusCode)expected, read.StatusCode);
             if (expected == 200) Assert.True(read.Headers.CacheControl?.NoStore);

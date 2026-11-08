@@ -18,6 +18,33 @@ namespace Owh.Olivaw.Tests.LeadFeatureTest.Commands;
 public class UpdateLeadTest
 {
     [Fact]
+    public async Task Handle_should_preserve_internal_proposal_on_public_resubmission()
+    {
+        var request = LeadFeatureFakerBuilder.Create();
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.WriteKey)));
+        var previous = System.Text.Json.JsonSerializer.Serialize(request.Payload, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(previous)!;
+        node["qualification"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadQualification { Facts = "Fato interno" });
+        node["qualificationUpdatedBy"] = "Operador";
+        node["engagement"] = System.Text.Json.Nodes.JsonNode.Parse("{\"level\":\"warm\"}");
+        node["communications"] = System.Text.Json.Nodes.JsonNode.Parse("[{\"eventId\":\"preservado\"}]");
+        node["proposal"] = System.Text.Json.JsonSerializer.SerializeToNode(new Client.Features.LeadFeature.Commands.LeadProposal { Title = "Proposta interna" }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        var lead = Lead.Create(request.ExternalId, hash, 1, node.ToJsonString(), DateTime.UtcNow);
+        var repository = new Mock<IRepository<Lead>>();
+        repository.Setup(item => item.GetFirstOrDefaultAsync(It.IsAny<Expression<Func<Lead, bool>>>(), It.IsAny<CancellationToken>(), It.IsAny<Expression<Func<Lead, object>>[]>())).ReturnsAsync(lead);
+        request.Payload.Revision = 2; request.Payload.Requirements = "Novo pedido público";
+        var result = await new UpdateLeadHandler(repository.Object).Handle(request, CancellationToken.None);
+        Assert.Equal(LeadWriteOutcome.Saved, result.Outcome);
+        using var saved = System.Text.Json.JsonDocument.Parse(lead.Snapshot);
+        Assert.Equal("Proposta interna", saved.RootElement.GetProperty("proposal").GetProperty("title").GetString());
+        Assert.Equal("Novo pedido público", saved.RootElement.GetProperty("requirements").GetString());
+        Assert.Equal("warm", saved.RootElement.GetProperty("engagement").GetProperty("level").GetString());
+        Assert.Equal("Fato interno", saved.RootElement.GetProperty("qualification").GetProperty("facts").GetString());
+        Assert.Equal("Operador", saved.RootElement.GetProperty("qualificationUpdatedBy").GetString());
+        Assert.Equal("preservado", saved.RootElement.GetProperty("communications")[0].GetProperty("eventId").GetString());
+    }
+
+    [Fact]
     public async Task Handle_should_create_snapshot_and_propagate_cancellation()
     {
         var request = LeadFeatureFakerBuilder.Create();
@@ -143,6 +170,21 @@ public class UpdateLeadTest
         request.Payload.Whatsapp = whatsapp;
         Assert.Equal(expected, new UpdateLeadMediatorValidator().Validate(request).IsValid);
     }
+    [Fact]
+    public void Validator_should_reject_public_qualification_or_forged_audit_fields()
+    {
+        var request = LeadFeatureFakerBuilder.Create();
+        request.Payload.Qualification = new() { Approach = "Texto interno" };
+        request.Payload.QualificationUpdatedAt = DateTime.UtcNow;
+        request.Payload.QualificationUpdatedBy = "Autor forjado";
+        request.Payload.Communications = System.Text.Json.JsonSerializer.SerializeToElement(new[] { new { kind = "sent" } });
+        var result = new UpdateLeadValidator().TestValidate(request.Payload);
+        result.ShouldHaveValidationErrorFor(item => item.Qualification);
+        result.ShouldHaveValidationErrorFor(item => item.QualificationUpdatedAt);
+        result.ShouldHaveValidationErrorFor(item => item.QualificationUpdatedBy);
+        result.ShouldHaveValidationErrorFor(item => item.Communications);
+    }
+
     [Fact]
     public void Snapshot_should_preserve_legacy_serialization_when_whatsapp_is_absent()
     {

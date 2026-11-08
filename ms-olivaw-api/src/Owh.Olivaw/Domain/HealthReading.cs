@@ -3,6 +3,8 @@ using Owh.OlivawCore.Domain;
 namespace Owh.Olivaw.Domain;
 public sealed class HealthReading : Entity
 {
+    public bool IsScheduled { get; private set; }
+    public void MarkScheduled() => IsScheduled = true;
     public int InventoryResourceId { get; private set; }
     public InventoryResource InventoryResource { get; private set; } = null!;
     public Guid SampleKey { get; private set; }

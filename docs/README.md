@@ -1,5 +1,16 @@
 # Documentação do Olivaw
 
+- [Trevize — Gmail API e conversa inicial](features/discovery/trevize-enriquecimento-email-e-abordagem-gmail.md): enriquecimento, leitura e resposta por Gmail API escolhida; validação prevista para 04/11/2026, sem implementação ou envio.
+- [Segurança JWT — Portal e DevOps](features/discovery/seguranca-jwt-portal-e-devops.md): isolamento de roles, audiences e autorização cruzada; requisito em discovery, ainda não implementado.
+- [Estudo dos painéis Olivaw](features/discovery/portal-olivaw-identidade-e-navegacao.md): público, nome, endereços e distinção entre operação interna e portal do cliente; sem alteração de código.
+
+- [Clientes](clients/README.md): documentação e funcionalidades específicas de Cavalcante e LTMJ.
+
+- [Agentes Python — Baley e relatórios por API](features/done/agentes-python-baley-e-relatorios.md): coleta, interpretação, agendamento, relatórios por API e interface Agents implementados; publicação pelo mantenedor pendente.
+
+- [Segurança e infraestrutura — Auditoria inicial](features/discovery/seguranca-e-infraestrutura.md): achados do servidor e rotas anônimas, contenção de chave SSH e plano de correções.
+- [Infraestrutura compartilhada](../ms-infrastructure-app/README.md): Compose de PostgreSQL, RabbitMQ, Traefik e Redis opcional, volumes e reconstrução de VM.
+
 - [Operação interna — Entregas 05 a 10](operacao-interna.md): Configuração em cards, estudos de planos, registros operacionais e pendências de integração.
 
 - [Serviços e clientes — Base implementada](features/done/04a-cadastro-de-servicos.md): cadastro e vínculos com empresas validados localmente; schema coberto pela `Issue020`.
@@ -15,11 +26,11 @@
 
 - [Apresentação da Olivaw](approach/apresentacao-olivaw.md): versões resumida, média e completa, com adaptações para cada conversa.
 - [Abordagem — Rodrigo / Impressão](approach/rodrigo-impressao.md): sequência de conversa, catálogo e possíveis etapas para o negócio de impressão.
-- [Abordagem — Cavalcanti Terraplanagem](approach/cavalcanti-terraplanagem.md): divulgação da frota, locações e organização interna por etapas.
+- [Abordagem — Cavalcanti Terraplanagem](clients/cavalcante/brainstorm/abordagem-inicial.md): divulgação da frota, locações e organização interna por etapas.
 - [Abordagem — Andrea / Vendas](approach/andrea-vendas.md): conversa sobre gestão comercial, necessidades pontuais e indicações para a Olivaw.
 - [Protocolo de descoberta do cliente](protocolo-descoberta-cliente.md): questionário, análise de negócio e evolução por MVP.
 - [Protótipo navegável do briefing](prototipos/briefing-cliente.html): fluxo local com exemplo LTMJ e exportação de resumo.
-- [Briefing e MVP da LTMJ](../ms-ltmj-ng/docs/briefing-e-mvp.md): dados confirmados, redes consultadas, pendências e fases.
+- [Briefing e MVP da LTMJ](clients/ltmj/briefing-e-mvp.md): dados confirmados, redes consultadas, pendências e fases.
 - [Executor de deploy via SSH](deploy-executor.md): API assíncrona, script na VM, instalação e testes.
 - [Configuração AWS, DuckDNS e Traefik](cloud.md): ambientes, credenciais locais, redes e comandos de validação/subida.
 - [Renomeação para Olivaw](renomeacao-olivaw.md): escopo local, transição operacional e domínio pendente.
@@ -43,3 +54,15 @@ Comece pelo guia de desenvolvimento para entender como os componentes se relacio
 - [Compra e validação do domínio](registrobr/validacao-dominio.md).
 
 - [Migração dos serviços para o domínio próprio](registrobr/migracao-servicos.md): DNS, Traefik, banco e scripts de deploy.
+
+- [Baley e safety-docker — Base concluída](features/done/baley-lifecycle-e-safety-docker.md): start/stop/status, update revisável e cópia da skill instalada no Codex.
+
+- [Cavalcante — estudo e protótipo](clients/cavalcante/README.md): inventário do site, cores, funcionalidades propostas, guia do Nicolas e publicação em cavalcante.olivaw.com.br.
+
+- [Estudo comercial dos planos](features/discovery/planos-bronze-prata-ouro-diamante.md): Bronze, Prata/Silver, Ouro e Diamante, domínio, franquias e viabilidade.
+- [Home, chamados e despesas](features/done/portal-home-chamados-despesas.md): implementação local validada, com Issue026; publicação pendente.
+- [Reavaliar cards operacionais](features/discovery/reavaliar-cards-saude-incidentes-consumo.md): Saúde, Incidentes e Consumo ocultos na Configuração.
+
+- [Faturas AWS e dados originais](features/discovery/faturas-aws-detalhes-e-dados-originais.md): proposta de resumo em colunas, RawData JSON e evidência recebida; nova estrutura ainda não implementada.
+
+- [Dashboard Financeiro](features/done/dashboard-financeiro.md): área própria de gastos com filtros e navegação para Despesas; validada localmente, publicação pendente.

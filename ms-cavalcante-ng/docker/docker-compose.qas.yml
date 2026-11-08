@@ -1,0 +1,17 @@
+name: ms-cavalcante-ng-qas
+services:
+  ms-cavalcante-ng:
+    container_name: ms-cavalcante-ng-qas
+    image: ${FRONTEND_IMAGE:-ms-cavalcante-ng:qas}
+    environment:
+      API_URL: ${API_URL:-https://api.cavalcante-qas.olivaw.com.br}
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-cavalcante-ng-qas.rule: Host(`${PUBLIC_HOST:-cavalcante-qas.olivaw.com.br}`)
+      traefik.http.routers.ms-cavalcante-ng-qas.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-cavalcante-ng-qas.tls: 'true'
+      traefik.http.routers.ms-cavalcante-ng-qas.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-cavalcante-ng-qas.service: ms-cavalcante-ng-qas
+      traefik.http.services.ms-cavalcante-ng-qas.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-cavalcante-ng-qas.loadbalancer.server.scheme: http

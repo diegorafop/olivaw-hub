@@ -20,3 +20,35 @@ Este índice lista somente features em `done/`: desenvolvimento implementado e v
 - [12 — Dashboard Meu negócio](done/painel-olivaw/12-dashboard-do-cliente.md).
 - [13 — Solicitações e conversas do cliente](done/painel-olivaw/13-solicitacoes-do-cliente.md).
 - [18 — Histórico de entregas](done/painel-olivaw/18-historico-de-entregas.md).
+- [Infraestrutura compartilhada — Compose e migração preservando volumes](done/infraestrutura-compartilhada.md): instalada e verificada na VM em 24/10/2026.
+- [Baley — Lifecycle local e skill safety-docker](done/baley-lifecycle-e-safety-docker.md): base do agente e agrupador validados; coleta/IA e API ainda pendentes.
+- [Baley — Pesquisa de fontes e aprendizado somente leitura](done/baley-update-fontes-e-aprendizado.md): source/discovery/learn para revisão manual.
+
+- [Baley — Auditoria agendada, relatórios por API e interface Agents](done/agentes-python-baley-e-relatorios.md): implementação local validada, migration PostgreSQL incluída; publicação pelo mantenedor pendente.
+- [Baley — Auditoria do host e filtros de segurança](done/baley-host-e-filtros-de-seguranca.md): regras de host, tags e contagens por gravidade, filtros e detalhes expansíveis; revisão visual aguardando publicação do mantenedor.
+
+- [Baley — Correções aprovadas e saúde da infraestrutura](done/baley-correcao-aprovada-e-saude.md): aprovações individuais/em lote, catálogo limitado de correções, gates de saúde, recuperação e migration PostgreSQL; publicação pelo mantenedor pendente.
+
+- [Home do Portal, chamados e despesas internas](done/portal-home-chamados-despesas.md): navegação por links, indicadores, despesas e migration PostgreSQL Issue026; publicação pelo mantenedor.
+
+- [Financeiro — dashboard e navegação de despesas](done/dashboard-financeiro.md): indicadores, categorias, clientes e filtros temporais; publicação pendente.
+
+- [Despesas sem abatimento de benefícios Free Tier](done/despesas-sem-abatimento-free-tier.md): custos por padrão e preservação da auditoria; publicação da correção pendente.
+
+- [Catálogo de planos, composição de custos e versões mensais](done/planos-versoes-mensais-e-custeio.md) — desenvolvimento local validado; publicação pelo mantenedor pendente.
+- [Clientes na landing page — LTMJ e Cavalcante](done/clientes-da-landing-page.md) — validado localmente; publicação pendente.
+
+- [Prospecção ativa e orçamentos vinculados a Leads](done/leads-prospeccao-e-orcamentos.md) — cadastro manual, propostas detalhadas e HTML compartilhável; publicação e cadastro do caso 795293 pendentes.
+
+- [Planos públicos, oferta de criação e pontos de melhoria](done/planos-publicos-oferta-e-pontos-de-melhoria.md) — catálogo e condições comerciais; publicação pendente.
+
+- [Leads — Ficha completa, qualificação e abordagem de parceria](done/leads-ficha-qualificacao-e-abordagem.md) — painel de consulta, ficha e API protegida; publicação pendente.
+- [Trevize — Coleta agendada e qualificação de Leads](done/trevize-coleta-agendada-de-leads.md) — início manual, até 20 candidatos de eventos em Curitiba por ciclo de 24h; publicar API antes de iniciar.
+
+- [Manutenção de pacotes e diagnóstico de falhas de deploy](done/manutencao-pacotes-e-diagnostico-deploy.md) — dependências compatíveis atualizadas, licenciamento preservado e checkout da VM liberado; publicação dos fontes/executor pendente.
+
+- [Dashboards gerenciais de Trevize e Baley](done/dashboards-gerenciais-dos-agentes.md) — captação e segurança com indicadores, gráficos e navegação própria; limites da amostra e de atribuição explícitos; publicação pendente.
+
+- [Trevize — Pesquisa e conversa comercial contextualizada](done/trevize-inteligencia-comercial.md) — diagnóstico interno, rascunhos e termômetro; API v1.1.3 confirmada e resposta controlada enviada; frontend e próximos aceites pelo mantenedor.
+
+- [Departamento comercial paralelo e modelos dos agents](done/trevize-departamento-comercial-paralelo.md) — três especialistas, ritmo persistente e modelos fixados; início manual pelo mantenedor, alterações sem commit.

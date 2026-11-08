@@ -27,7 +27,7 @@ public sealed class ReadLeadByFilterHandler(IRepositoryLead repository) : IReque
             Items = result.Items.Select(item => new LeadListItem
             {
                 ExternalId = item.ExternalId, CreatedAt = item.CreatedAt, UpdatedAt = item.UpdatedAt,
-                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus
+                Business = item.Business, Title = item.Title, Entry = item.Entry, Email = item.Email, Phone = item.Phone, WebsiteUrl = item.WebsiteUrl, Segment = item.Segment, Whatsapp = item.Whatsapp, FollowUpStatus = item.FollowUpStatus, Temperature = item.Temperature, TemperatureReason = item.TemperatureReason, TemperatureUpdatedAt = item.TemperatureUpdatedAt
             }).ToList()
         };
     }
@@ -40,7 +40,7 @@ public sealed class ReadLeadByFilterValidator : AbstractValidator<ReadLeadByFilt
         RuleFor(item => item.PageSize).InclusiveBetween(1, 100);
         RuleFor(item => item.FollowUpStatus).Must(value => string.IsNullOrEmpty(value) || Owh.Olivaw.Domain.Lead.IsFollowUpStatus(value));
         RuleFor(item => item.Search).MaximumLength(100);
-        RuleFor(item => item.Entry).Must(value => value is null or "" or "studio" or "discovery");
+        RuleFor(item => item.Entry).Must(value => value is null or "" or "studio" or "discovery" or "prospecting" or "manual");
         RuleFor(item => item.Until).GreaterThan(item => item.From)
             .When(item => item.From.HasValue && item.Until.HasValue);
     }

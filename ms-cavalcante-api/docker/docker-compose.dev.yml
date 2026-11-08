@@ -1,0 +1,17 @@
+name: ms-cavalcante-api-dev
+services:
+  ms-cavalcante-api:
+    container_name: ms-cavalcante-api-dev
+    image: ms-cavalcante-api:dev
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik-net}
+      traefik.http.routers.ms-cavalcante-api-dev.rule: Host(`${PUBLIC_HOST:-api.cavalcante-dev.olivaw.com.br}`)
+      traefik.http.routers.ms-cavalcante-api-dev.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.ms-cavalcante-api-dev.tls: 'true'
+      traefik.http.routers.ms-cavalcante-api-dev.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-myresolver}
+      traefik.http.routers.ms-cavalcante-api-dev.service: ms-cavalcante-api-dev
+      traefik.http.services.ms-cavalcante-api-dev.loadbalancer.server.port: '8080'
+      traefik.http.services.ms-cavalcante-api-dev.loadbalancer.server.scheme: http

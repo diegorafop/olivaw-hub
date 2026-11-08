@@ -1,0 +1,121 @@
+{
+  "title": "Avaliação e evolução de gestão de projetos e produção com IA",
+  "status": "draft",
+  "platform": "Aplicação atual ainda não inspecionada. Destino preferencial: estrutura Olivaw com ASP.NET Core e Angular; banco e identidade independentes para o serviço.",
+  "requirementsAnalysis": "Obras, etapas, responsáveis, cronograma/dependências, interface com fábrica, horas e custos por fase, painel de reuniões e IA assistiva. Diagnóstico antes de decidir o que preservar ou reconstruir.",
+  "technicalApproach": "Etapa 1: diagnóstico e plano. Etapa 2: núcleo de gestão e permissões. Etapa 3: horas, custos e painel. Etapa 4: alertas, resumos e consultas por ferramentas restritas; avaliar baseline de prazo/horas com dados históricos. Manter cálculos determinísticos e não permitir SQL arbitrário pelo modelo. Etapas 2–4 dependem de acesso, diagnóstico e novo aceite.",
+  "assumptions": "Uma empresa, um fluxo inicial até o executivo, uma base de origem exportável, uma integração com um provedor de IA, português e web responsiva. Sem CAD/BIM, cálculo estrutural, MES, estoque, máquinas, apontamento automático de fábrica, ERP externo, anexos técnicos volumosos ou migração de dados inconsistentes ilimitada. Sem modelo preditivo treinado sob medida; etapa 4 avalia baseline e qualidade dos dados. Volume, campos, usuários e formulários serão fechados no diagnóstico.",
+  "externalCosts": "Infraestrutura AWS administrada pela Olivaw mediante mensalidade separada, a dimensionar: hospedagem, banco, backups, operação e limites de suporte. APIs de IA por consumo com teto acordado e contabilização transparente. Domínio, licenças, notificações externas e excedentes precisam de composição própria. Nenhum uso ilimitado ou mensalidade aprovado.",
+  "deadline": "Diagnóstico: 7–10 dias corridos. Núcleo: 28–35 dias; horas/custos: 14–21 dias; IA: 21–28 dias. Global: 90–105 dias corridos após acessos e aceites, considerando 22–27 h/semana e ciclos de revisão. Prazos das etapas 2–4 condicionados ao diagnóstico; esperas do cliente/terceiros podem ampliar calendário.",
+  "terms": "Simulação interna em BRL: 200 h a R$ 100/h e reserva de 20%, total R$ 24.000. Etapas: 1 R$ 2.400; 2 R$ 9.600; 3 R$ 4.800; 4 R$ 7.200. Contratar inicialmente a etapa 1; as demais são estimativas e exigem confirmação/reestimativa e aceite antes de execução. Pagamento, validade, critérios de aceite e garantia de correções a definir. NDA antes de acesso; dados sigilosos só enviados à IA após autorização e definição do tratamento. Sem publicação de código/dados em portfólio sem autorização.",
+  "continuity": "Implantação avulsa possível com documentação e transferência operacional. Oferta Olivaw: infraestrutura AWS administrada mensalmente, incluindo recursos, banco, backups e operação conforme limites. Manutenção, atualização de pacotes, disponibilidade e suporte terão escopo definido. Mensalidade, permanência, cancelamento, desconto e distribuição da implementação em mensalidades ainda não negociados.",
+  "reservePercent": 20,
+  "discountPercent": 0,
+  "installments": 1,
+  "rows": [
+    {
+      "description": "1. Inspeção de arquitetura, banco, segurança e acessos",
+      "role": "Arquiteto / analista",
+      "solution": "analysis",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "1. Mapeamento de fluxos, diagnóstico e plano de evolução",
+      "role": "Arquiteto / analista",
+      "solution": "analysis",
+      "hours": 8,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "2. Estrutura Olivaw, identidade independente e permissões",
+      "role": "Programador / DevOps",
+      "solution": "integration",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "2. Obras, fases, responsáveis e fluxo até o executivo",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 28,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "2. Prazos, dependências e interface com a fábrica",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 20,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "2. Testes, ensaio de importação e homologação do núcleo",
+      "role": "QA / programador",
+      "solution": "validation",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "3. Horas e custos históricos por obra e fase",
+      "role": "Programador full stack",
+      "solution": "custom",
+      "hours": 20,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "3. Painel de reunião e indicadores",
+      "role": "Programador frontend",
+      "solution": "custom",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "3. Reconciliação de cálculos e homologação",
+      "role": "QA / analista",
+      "solution": "validation",
+      "hours": 8,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "4. Alertas por regras e resumo gerencial",
+      "role": "Programador de integrações",
+      "solution": "integration",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "4. Perguntas em linguagem natural com consultas autorizadas",
+      "role": "Programador backend",
+      "solution": "custom",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "4. Avaliação histórica e baseline de estimativas",
+      "role": "Analista de dados",
+      "solution": "analysis",
+      "hours": 12,
+      "hourlyRate": 100,
+      "optional": false
+    },
+    {
+      "description": "4. Avaliação da IA, documentação e entrega",
+      "role": "QA / DevOps",
+      "solution": "validation",
+      "hours": 16,
+      "hourlyRate": 100,
+      "optional": false
+    }
+  ]
+}

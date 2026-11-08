@@ -149,6 +149,15 @@ for (const mobile of [false, true]) {
     await expect(page.getByText('Nenhum serviço neste recorte.')).toBeVisible();
     await page.getByRole('link', { name: 'Cadastrar serviço', exact: true }).click();
     await page.getByLabel('Nome de apresentação').fill('Aplicação compartilhada');
+    await expect(page.getByRole('combobox', { name: 'Categoria', exact: true })).toHaveValue(
+      'unknown',
+    );
+    await expect(
+      page
+        .getByRole('combobox', { name: 'Categoria', exact: true })
+        .getByRole('option', { name: 'Todos', exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole('combobox', { name: 'Categoria', exact: true }).selectOption('dotnet');
     await page.getByLabel('Identificador técnico').fill('ms-example-api');
     await page.getByRole('button', { name: 'Cadastrar serviço', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('ao menos um cliente');
@@ -202,4 +211,51 @@ test('ficha do cliente prepara cadastro de serviço sem persistir automaticament
     page.getByRole('button', { name: 'Retirar Empresa Aurora', exact: true }),
   ).toBeVisible();
   expect(writes).toHaveLength(0);
+});
+
+test('cards de serviços mostram cadastro e acomodam conteúdo no celular', async ({ page }) => {
+  await setup(page);
+  await page.route('https://api.olivaw.com.br/services?**', (route) =>
+    route.fulfill({
+      json: {
+        page: 1,
+        pageSize: 20,
+        total: 2,
+        items: [
+          {
+            externalId: id,
+            technicalId: 'ms-example-api',
+            name: 'API de atendimento',
+            type: 'dotnet',
+            status: 'active',
+            scope: 'customer',
+            customerCount: 2,
+            createdAt: '2026-10-22T12:00:00Z',
+          },
+          {
+            externalId: 'service-2',
+            technicalId: 'ms-infra',
+            name: 'Infraestrutura interna',
+            type: 'unknown',
+            status: 'planned',
+            scope: 'internal',
+            customerCount: 0,
+          },
+        ],
+      },
+    }),
+  );
+  await page.goto('/admin/services');
+  const cards = page.locator('.service-card');
+  await expect(cards).toHaveCount(2);
+  await expect(cards.first()).toContainText('22/10/2026');
+  await expect(cards.first()).toContainText('2 clientes vinculados');
+  await expect(cards.first()).toContainText('Dotnet');
+  await expect(cards.nth(1)).toContainText('Não informado');
+  await page.screenshot({ path: 'test-results/service-cards-desktop.png', fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'test-results/service-cards-mobile.png', fullPage: true });
+  await cards.first().click();
+  await expect(page).toHaveURL(new RegExp('/admin/services/' + id));
 });

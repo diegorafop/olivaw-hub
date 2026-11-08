@@ -1,0 +1,58 @@
+{
+  "annualBrl": 40,
+  "meaning": "Apropriação por competência; não fluxo de caixa. Sem domínio ou cliente específico informado.",
+  "entries": [
+    {
+      "externalId": "317688be-0774-4c46-9257-7906d3c6eea6",
+      "competence": "2026-10",
+      "amountBrl": 3.33
+    }
+  ],
+  "status": "october-registered-future-installments-blocked-by-published-api",
+  "pendingEntries": [
+    {
+      "competence": "2026-11",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2026-12",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-01",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-02",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-03",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-04",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-05",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-06",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-07",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-08",
+      "amountBrl": 3.33
+    },
+    {
+      "competence": "2027-09",
+      "amountBrl": 3.37
+    }
+  ]
+}

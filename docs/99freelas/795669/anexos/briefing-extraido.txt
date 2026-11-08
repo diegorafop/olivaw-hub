@@ -1,0 +1,238 @@
+DESENVOLVIMENTO DE PLATAFORMA DIGITAL COMPLETA — CLUB DO REAL
+
+
+Categoria: Desenvolvimento Web / Programação Full Stack
+Tipo de projeto: Desenvolvimento de sistema web do zero
+Modelo de contratação: Por etapas, com entregas e pagamentos vinculados à
+aprovação.
+
+1. Sobre o projeto
+
+Estou desenvolvendo o Club do Real, um produto digital voltado à educação
+financeira, economia inteligente, identificação de desperdícios e geração de
+renda.
+A proposta é oferecer uma plataforma interativa, acessível e intuitiva, na qual os
+usuários possam organizar suas finanças, identificar oportunidades de economia,
+utilizar ferramentas financeiras e acompanhar sua evolução.
+O projeto está em fase inicial. Já possuo o planejamento estratégico e um briefing
+técnico e funcional estruturado. Procuro um desenvolvedor Full Stack capaz de
+transformar essa estrutura em uma plataforma funcional, profissional e escalável.
+
+Slogan: Cada real importa. Cada escolha transforma.
+
+2. Funcionalidades desejadas
+
+Área do usuário
+
+   •   Cadastro, login e recuperação de senha.
+
+   •   Área individual com painel principal.
+
+   •   Histórico e acompanhamento de resultados.
+
+   •   Interface responsiva para celulares, tablets e computadores.
+
+Diagnóstico financeiro
+
+   •   Cadastro de renda e despesas.
+
+   •   Identificação de gastos fixos e variáveis.
+
+   •   Cálculo do saldo financeiro.
+
+   •   Percentual de renda comprometida.
+
+   •   Identificação de pontos de atenção e oportunidades de economia.
+
+Detector de desperdícios
+
+   •   Identificação de despesas recorrentes desnecessárias.
+   •   Análise de gastos com alimentação, transporte, assinaturas, serviços e
+       consumo doméstico.
+
+   •   Estimativa de economia mensal e anual.
+
+   •   Acompanhamento da economia efetivamente realizada.
+
+Guia da Economia Inteligente
+
+Área de conteúdo com orientações práticas sobre organização financeira,
+compras, alimentação, consumo consciente, redução de despesas e
+planejamento.
+
+30 oportunidades de geração de renda
+
+Apresentação de oportunidades de renda complementar, com informações sobre
+investimento inicial, materiais necessários, dificuldade, execução e
+possibilidades de crescimento.
+
+Desafio de 30 dias
+
+   •   Tarefas diárias.
+
+   •   Marcação de atividades concluídas.
+
+   •   Barra de progresso.
+
+   •   Salvamento automático da evolução.
+
+Calculadoras financeiras
+
+   •   Simulador de economia mensal e anual.
+
+   •   Calculadora de juros e parcelamentos.
+
+   •   Comparador de compras.
+
+   •   Simulador de despesas domésticas.
+
+   •   Simulador de custos e precificação para atividades de renda extra.
+
+Painel de evolução
+
+   •   Economia potencial versus economia realizada.
+
+   •   Evolução das despesas.
+
+   •   Metas financeiras.
+
+   •   Histórico de resultados.
+
+   •   Progresso nos desafios.
+
+Painel administrativo
+   •   Gestão de usuários.
+
+   •   Gestão de conteúdos e ferramentas.
+
+   •   Administração de desafios.
+
+   •   Relatórios de utilização.
+
+   •   Controle de acessos.
+
+   •   Indicadores de desempenho da plataforma.
+
+3. Integração comercial
+
+Pretendo utilizar a Kiwify como plataforma de comercialização.
+Será necessário implementar:
+
+   •   Integração com a Kiwify.
+
+   •   Confirmação de pagamentos por webhook.
+
+   •   Liberação automática de acesso após confirmação.
+
+   •   Bloqueio ou ajuste de acesso em caso de reembolso, cancelamento ou
+       contestação, conforme os eventos disponíveis.
+
+   •   Estrutura que permita futuramente trabalhar com novos planos e
+       assinaturas.
+
+4. Tecnologia e arquitetura
+
+Estou aberto a recomendações técnicas, desde que sejam justificadas e
+adequadas ao projeto.
+Tenho interesse em tecnologias como:
+
+   •   React ou Next.js.
+
+   •   Node.js.
+
+   •   PostgreSQL.
+
+   •   Supabase ou solução equivalente.
+
+   •   APIs e integrações externas.
+
+A plataforma deverá ter estrutura organizada, segura, documentada e preparada
+para futuras expansões.
+
+5. Propriedade e entrega
+
+Este ponto é fundamental para a contratação:
+
+   •   O código-fonte deverá ser integralmente entregue.
+   •   O repositório deverá ficar sob controle do contratante.
+
+   •   O domínio e a infraestrutura deverão estar em contas de propriedade do
+       contratante.
+
+   •   O banco de dados deverá ser acessível e administrável.
+
+   •   Deverá haver documentação técnica.
+
+   •   Deverão ser entregues as credenciais e instruções de administração.
+
+   •   Bibliotecas e serviços de terceiros deverão ser identificados, respeitando
+       suas licenças.
+
+   •   A plataforma deverá ser entregue testada e funcionando.
+
+Também desejo estabelecer uma garantia mínima de 90 dias para correção de
+erros de desenvolvimento após a entrega final.
+
+6. Forma de contratação
+
+Pretendo dividir o desenvolvimento em etapas, com apresentação e aprovação de
+cada entrega.
+Solicito que o profissional apresente:
+
+   1. Proposta técnica de desenvolvimento.
+
+   2. Arquitetura recomendada.
+
+   3. Cronograma por etapa.
+
+   4. Orçamento discriminado por funcionalidade.
+
+   5. Custos recorrentes de hospedagem, banco de dados e serviços.
+
+   6. Portfólio com projetos semelhantes.
+
+   7. Condições de suporte e manutenção.
+
+Peço também que apresente duas possibilidades:
+
+Proposta A — MVP: versão inicial comercializável, com as funcionalidades
+essenciais para lançar e validar o produto.
+
+Proposta B — Plataforma completa: implementação de todos os módulos e
+funcionalidades descritos neste anúncio.
+
+7. Perfil profissional procurado
+
+Busco um profissional Full Stack com experiência comprovada em:
+
+   •   Sistemas web completos.
+   •   Plataformas digitais e SaaS.
+
+   •   Banco de dados.
+
+   •   Painéis administrativos.
+
+   •   Integração de pagamentos.
+
+   •   APIs e webhooks.
+
+   •   Desenvolvimento de ferramentas interativas e calculadoras.
+
+   •   Segurança e boas práticas de proteção de dados.
+
+É indispensável apresentar projetos reais já desenvolvidos.
+
+8. Objetivo final
+
+Não procuro apenas a criação de um site ou uma página de vendas.
+Quero desenvolver um produto digital próprio, com identidade, ferramentas,
+funcionalidades, administração independente e capacidade de crescimento.
+Busco um profissional que consiga participar tecnicamente da construção dessa
+solução, desde a arquitetura até a entrega final.
+
+Aguardo propostas técnicas e comerciais detalhadas.
+
+
+
+                                         Proprietário: Joelisson Andrade Barreto
+

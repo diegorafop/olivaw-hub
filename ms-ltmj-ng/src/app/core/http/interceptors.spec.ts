@@ -66,5 +66,6 @@ describe('Interceptors', () => {
       .expectOne('http://localhost:5137/a')
       .flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(TestBed.inject(AutenticacaoStore).autenticacao()).toBeNull();
+    expect(sessionStorage.getItem('ltmj.session')).toBeNull();
   });
 });

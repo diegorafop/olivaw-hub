@@ -11,7 +11,11 @@
     </div>
   </div>
   <div class="plans-caption">
-    <strong>Um plano para cada momento.</strong>
+    <strong>Você traz a ideia. A Olivaw cuida de colocar para rodar.</strong>
+    <p>
+      Implementação, administração da infraestrutura e da nuvem, backups dos dados e uso eficiente
+      dos recursos, com escopo e condições definidos na proposta.
+    </p>
   </div>
   <div class="plan-grid energy-track">
     <span class="energy-line" aria-hidden="true"><i>→</i></span>
@@ -24,11 +28,25 @@
         <p class="plan-note">{{ plan.note }}</p>
         <h3>{{ plan.name }}</h3>
         <p>{{ plan.text }}</p>
+        <p>
+          {{
+            plan.monthlyPrice === null
+              ? 'Mensalidade sob proposta'
+              : 'A partir de ' + (plan.monthlyPrice | currency: 'BRL') + '/mês'
+          }}
+        </p>
+        <p class="small">{{ allowanceLabel(plan.id) }}</p>
         <ul>
           @for (feature of plan.features; track feature) {
             <li><span aria-hidden="true">✓</span>{{ feature }}</li>
           }
         </ul>
+        @if (plan.creationOffer) {
+          <p class="small">{{ plan.creationOffer }}</p>
+        }
+        <p>
+          <a [routerLink]="['/planos', plan.id]">Detalhes e condições do {{ plan.name }} →</a>
+        </p>
         <button
           type="button"
           [attr.aria-pressed]="draft.plan() === plan.name"
@@ -44,7 +62,10 @@
     }
   </div>
   <p class="small plan-disclaimer">
-    Capacidades, valores, frequência dos backups, atendimento e franquias de alterações serão
-    definidos na proposta. Indicar interesse ajuda a conversa; não seleciona nem contrata um plano.
+    Limites, serviços e condições finais são registrados na proposta. Oferta de criação e
+    implantação: Bronze Essencial; Prata Essencial ou Intermediário; assinatura com mais de 12
+    meses. Pequenas melhorias podem usar os pontos mensais após análise e aprovação. Pedidos acima
+    da franquia e serviços externos têm orçamento separado. Indicar interesse ajuda a conversa; não
+    seleciona nem contrata um plano.
   </p>
 </div>

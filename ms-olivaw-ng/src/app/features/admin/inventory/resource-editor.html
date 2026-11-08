@@ -3,7 +3,7 @@
     <div>
       <p class="eyebrow">OLIVAW / INVENTÁRIO</p>
       <h1>{{ id ? 'Ficha do recurso' : 'Novo recurso' }}</h1>
-      <p>Cadastre cada ativo uma vez e vincule seus consumidores.</p>
+      <p>Cadastre o servidor uma vez. As implantações indicam quais serviços executam nele.</p>
     </div>
     <a routerLink="/admin/resources">Voltar aos recursos</a>
   </header>
@@ -30,6 +30,13 @@
           /></label>
           <label
             >Tipo<select formControlName="type" (change)="changeTypeDetails()">
+              @if (data(); as current) {
+                @if (current.type !== 'compute') {
+                  <option [value]="current.type">
+                    {{ types[current.type] || current.type }} (cadastro anterior)
+                  </option>
+                }
+              }
               @for (option of typeOptions; track option[0]) {
                 <option [value]="option[0]">{{ option[1] }}</option>
               }
@@ -37,28 +44,47 @@
           >
           <label
             >Escopo<select formControlName="scope">
-              <option value="platform">Plataforma Olivaw</option>
-              <option value="customer">Atendimento a clientes</option>
+              <option value="shared">Compartilhado</option>
+              <option value="individual">Individual</option>
+              @if (data(); as current) {
+                @if (current.scope !== 'shared' && current.scope !== 'individual') {
+                  <option [value]="current.scope">
+                    {{ scopes[current.scope] || current.scope }}
+                  </option>
+                }
+              }
             </select></label
           >
+          <p class="help wide">
+            Compartilhado: atende vários serviços ou clientes. Individual: dedicado a um único uso.
+            Não é necessário escolher um cliente aqui.
+          </p>
           <label class="wide"
             >Finalidade<textarea formControlName="purpose" rows="3" maxlength="1000"></textarea>
           </label>
         </div>
         <h3>Identidade no provedor</h3>
         <p class="help">
-          Preencha apenas identificadores conhecidos. Após identificada, a identidade do ativo fica
-          preservada.
+          Informe o fornecedor e o código do servidor nesse fornecedor (na AWS, o ID da instância
+          EC2). Não é o IP nem uma senha. Preencha apenas identificadores conhecidos; após
+          identificada, essa identidade fica preservada.
         </p>
         <div class="fields">
-          <label>Provedor<input formControlName="provider" maxlength="80" /></label
+          <label
+            >Provedor<input
+              formControlName="provider"
+              maxlength="80"
+              placeholder="Ex.: AWS" /></label
           ><label
             >Referência da conta / contrato<input
               formControlName="accountReference"
               maxlength="120" /></label
           ><label>Região / localização<input formControlName="region" maxlength="80" /></label
           ><label
-            >Identificador no provedor<input formControlName="providerResourceId" maxlength="180"
+            >Identificador no provedor<input
+              formControlName="providerResourceId"
+              maxlength="180"
+              placeholder="Ex.: i-0123456789abcdef0"
           /></label>
         </div>
       </section>

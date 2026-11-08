@@ -60,6 +60,6 @@ Gerado por `bash ms-limpo-api/scripts/new-microservice.sh ltmj ./ms-ltmj-api ltm
 
 Banco por ambiente: `ltmj_dev/qas/rls/stg/prd`; schema `ms_ltmj`. Os dotenv reais estão versionados conforme o padrão atual do Olivaw. As chaves JWT foram geradas exclusivamente para este cliente e ambiente. Migrations pendentes e bootstrap do root rodam automaticamente no startup; RabbitMQ permanece desabilitado por enquanto. As credenciais de infraestrutura do template são mantidas para o servidor compartilhado; bancos, permissões e usuário exclusivo precisam ser preparados antes da publicação.
 
-O gerador não cria bancos. A migration inicial foi recriada para uma base vazia; veja [migrations](docs/migrations.md). Não foi aplicada alteração em dados. O plano de evolução está em [briefing e MVP](../ms-ltmj-ng/docs/briefing-e-mvp.md); a preparação da API está em [infraestrutura](docs/preparacao.md).
+O gerador não cria bancos. A migration inicial foi recriada para uma base vazia; veja [migrations](../docs/clients/ltmj/api/migrations.md). Não foi aplicada alteração em dados. O plano de evolução está em [briefing e MVP](../docs/clients/ltmj/briefing-e-mvp.md); a preparação da API está em [infraestrutura](../docs/clients/ltmj/api/preparacao.md).
 
 A identidade deste cliente é isolada do Olivaw: tabelas e contratos em inglês, secret e emissor próprios. A conta técnica `ltmj` no Olivaw é independente da conta da equipe.

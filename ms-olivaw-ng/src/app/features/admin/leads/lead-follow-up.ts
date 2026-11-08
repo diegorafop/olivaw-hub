@@ -24,6 +24,7 @@ import { LEAD_STATUSES } from './lead-status';
 })
 export class LeadFollowUp {
   readonly lead = input.required<LeadDetailData>();
+  readonly readOnly = input(false);
   readonly saved = output<void>();
   readonly reload = output<void>();
   readonly statuses = LEAD_STATUSES;
@@ -56,9 +57,13 @@ export class LeadFollowUp {
     ),
     { initialValue: { data: null as LeadHistory | null, loading: true, error: false } },
   );
+  private loadedKey = '';
   constructor() {
     effect(() => {
       const lead = this.lead();
+      const key = `${lead.externalId}:${lead.followUpRevision ?? 0}`;
+      if (key === this.loadedKey) return;
+      this.loadedKey = key;
       this.form.reset({ status: lead.followUpStatus ?? 'new', note: '' });
       this.before.set(null);
       this.error.set('');
@@ -69,7 +74,7 @@ export class LeadFollowUp {
     this.historyRefresh.update((value) => value + 1);
   }
   save(): void {
-    if (!this.canSave()) return;
+    if (this.readOnly() || !this.canSave()) return;
     const value = this.form.getRawValue();
     const note = value.note.trim();
     this.error.set('');

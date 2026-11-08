@@ -1,0 +1,88 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11513.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{67C5D2FD-C357-4F81-83DD-D28F76B29563}"
+	ProjectSection(SolutionItems) = preProject
+		src\.editorconfig = src\.editorconfig
+		.gitignore = .gitignore
+		AGENTS.md = AGENTS.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Cavalcante.Api", "src\Owh.Cavalcante.Api\Owh.Cavalcante.Api.csproj", "{0535773F-7039-4213-B708-A324CB33544D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Cavalcante", "src\Owh.Cavalcante\Owh.Cavalcante.csproj", "{68500B31-0626-4AE2-9524-24EE49A5C4F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Cavalcante.Tests", "tests\Owh.Cavalcante.Tests\Owh.Cavalcante.Tests.csproj", "{9B82D0E3-46A2-484E-ADAF-9EBF47359DA2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{34717490-B991-4716-A807-CCF341AB3A62}"
+	ProjectSection(SolutionItems) = preProject
+		docker\.dockerignore = docker\.dockerignore
+		docker\.env.example = docker\.env.example
+		docker\docker-compose.dev.yml = docker\docker-compose.dev.yml
+		docker\docker-compose.override.yml = docker\docker-compose.override.yml
+		docker\docker-compose.prd.yml = docker\docker-compose.prd.yml
+		docker\docker-compose.qas.yml = docker\docker-compose.qas.yml
+		docker\docker-compose.rls.yml = docker\docker-compose.rls.yml
+		docker\docker-compose.stg.yml = docker\docker-compose.stg.yml
+		docker\docker-compose.yml = docker\docker-compose.yml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Cavalcante.Dados", "src\Owh.Cavalcante.Dados\Owh.Cavalcante.Dados.csproj", "{E97EFBE0-4647-463C-91B1-B1FCF597A250}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Cavalcante.Dados.PostgreSql", "src\Owh.Cavalcante.Dados.PostgreSql\Owh.Cavalcante.Dados.PostgreSql.csproj", "{F9DF54C7-B6D2-4B3D-BF8B-26DDB203A2B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Cavalcante.Dados.SqlServer", "src\Owh.Cavalcante.Dados.SqlServer\Owh.Cavalcante.Dados.SqlServer.csproj", "{9A4FC907-AB40-4CB0-A40E-2680AFF23B99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owh.Cavalcante.Dados.Oracle", "src\Owh.Cavalcante.Dados.Oracle\Owh.Cavalcante.Dados.Oracle.csproj", "{BEC683C2-17A2-4D83-80D9-C1B8C9ED389A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owh.Cavalcante.Client", "src\Owh.Cavalcante.Client\Owh.Cavalcante.Client.csproj", "{6741A696-6B71-4424-BA51-A0AA6722EE51}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0535773F-7039-4213-B708-A324CB33544D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0535773F-7039-4213-B708-A324CB33544D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0535773F-7039-4213-B708-A324CB33544D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0535773F-7039-4213-B708-A324CB33544D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68500B31-0626-4AE2-9524-24EE49A5C4F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68500B31-0626-4AE2-9524-24EE49A5C4F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68500B31-0626-4AE2-9524-24EE49A5C4F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68500B31-0626-4AE2-9524-24EE49A5C4F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B82D0E3-46A2-484E-ADAF-9EBF47359DA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B82D0E3-46A2-484E-ADAF-9EBF47359DA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B82D0E3-46A2-484E-ADAF-9EBF47359DA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B82D0E3-46A2-484E-ADAF-9EBF47359DA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E97EFBE0-4647-463C-91B1-B1FCF597A250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E97EFBE0-4647-463C-91B1-B1FCF597A250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E97EFBE0-4647-463C-91B1-B1FCF597A250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E97EFBE0-4647-463C-91B1-B1FCF597A250}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9DF54C7-B6D2-4B3D-BF8B-26DDB203A2B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9DF54C7-B6D2-4B3D-BF8B-26DDB203A2B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9DF54C7-B6D2-4B3D-BF8B-26DDB203A2B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9DF54C7-B6D2-4B3D-BF8B-26DDB203A2B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A4FC907-AB40-4CB0-A40E-2680AFF23B99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A4FC907-AB40-4CB0-A40E-2680AFF23B99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A4FC907-AB40-4CB0-A40E-2680AFF23B99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A4FC907-AB40-4CB0-A40E-2680AFF23B99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEC683C2-17A2-4D83-80D9-C1B8C9ED389A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEC683C2-17A2-4D83-80D9-C1B8C9ED389A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEC683C2-17A2-4D83-80D9-C1B8C9ED389A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEC683C2-17A2-4D83-80D9-C1B8C9ED389A}.Release|Any CPU.Build.0 = Release|Any CPU
+	{6741A696-6B71-4424-BA51-A0AA6722EE51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+	{6741A696-6B71-4424-BA51-A0AA6722EE51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	{6741A696-6B71-4424-BA51-A0AA6722EE51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	{6741A696-6B71-4424-BA51-A0AA6722EE51}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {762F6976-83B9-4FD5-84AA-D5F83BF9C9C6}
+	EndGlobalSection
+EndGlobal

@@ -191,6 +191,8 @@ Validação: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.
 
 ## Serviços e vínculos com clientes
 
+A listagem `GET /services` também retorna `createdAt` por serviço, para mostrar a data de cadastro nos cards administrativos. Esse campo não representa a data de implantação e utiliza a auditoria existente, sem migration adicional.
+
 Base 04a implementada na issue 018, ainda sem migration nem publicação. Cadastro manual de aplicações lógicas, distinto de recursos e de provisionamento. Root interno pode executar:
 
 - `POST /services`: payload com `technicalId`, `name`, `type`, `description`, `owner`, `scope`, `status` e `customerExternalIds` (até 100 GUIDs públicos). Retorna HTTP 201 com `externalId` e `revision`.
@@ -341,3 +343,188 @@ A base PostgreSQL está pronta para gerar/publicar uma nova imagem a partir dest
 Para habilitar login do cliente, configure `PortalIdentity:Issuer`, `PortalIdentity:Audience`, `PortalIdentity:SigningKey` (segredo próprio com ao menos 32 bytes) e `PortalIdentity:TokenMinutes` (1 a 120). Emissor, audiência e chave devem diferir da administração interna. O portal usa `ConnectionStrings:PortalIdentity` quando informado, ou `ConnectionStrings:DbContext`; o schema deve estar disponível para os dois contextos. Sem configuração válida de identidade, o login retorna 503; os módulos administrativos continuam disponíveis. Convites são entregues manualmente pela operação; não há envio automático de e-mail.
 
 O pacote não inicia outro serviço permanente, agendador ou coletor na VM. Sem `Monitoring:AllowedUrls`, a verificação HTTP permanece bloqueada. Financeiro, IA, automações e aceite comercial formal continuam no planejamento; veja o [índice das entregas](../docs/features/index.md) e o [guia de operação](../docs/operacao-interna.md). Consulte também os [comandos de migrations do Core](../ms-olivaw-core-api/README.md#migrations-dos-microservices-consumidores).
+
+## Relatórios de segurança do Baley
+
+- `POST /security-reports`: conta autenticada com `security.reports.write`, corpo `{ "rawData": "<JSON do relatório>" }`. Retorna 201 na primeira entrega e 200 em reenvio idêntico do mesmo autor. Limite HTTP de 1 MiB e RawData de 262.144 caracteres; envelope JSON até profundidade 32. Limite de 12 escritas por hora por identidade. Corpo e autenticação ficam fora do HTTP logging.
+- `GET /security-reports?beforeId=0&hostId=<opcional>`: somente root, blocos de 20 com `nextBeforeId`, mais recentes primeiro.
+- `GET /security-reports/{externalId}`: somente root, resposta `{ "item": ... }`, 404 para ID ausente.
+
+`SecurityReport : Entity` fica no domínio. Tabela `securityreport`, GUID público, autor autenticado e datas herdados; colunas estáveis `RunId`, `AgentId`, `HostId`, `SchemaVersion`, `StartedAt`, `CompletedAt`, `ExecutionStatus` e `RawData` string. Índice único por agente/RunId impede duplicação; repetição com outro autor/conteúdo é rejeitada. Campos adicionais do objeto `result` são preservados sem mudar o schema relacional. Não há rota de escrita anônima, exclusão automática ou acesso do agente ao banco.
+
+O envelope 1.0 exige `runId` GUID não vazio, `agentId=baley`, `hostId`, timestamps UTC ordenados, `executionStatus` completed/partial/failed e objeto `result`. Metadados são extraídos do JSON pelo servidor; o cliente não escolhe o autor. A conta `baley-agent` não é root e tem somente `security.reports.write`. Consulte a [operação do Baley](../olivaw-agent/ms-baley-py/README.md) e a [feature concluída localmente](../docs/features/done/agentes-python-baley-e-relatorios.md).
+
+Somente PostgreSQL está autorizado nesta entrega. A migration `20261025121719_Issue025` cria somente `securityreport` e seus índices, preservando tabelas e dados existentes. No deploy, o startup aplica migrations pendentes automaticamente; geração e revisão locais não aplicam alterações em bancos reais. SQL Server fica para uma entrega futura.
+
+Comandos reproduzíveis da issue025 (migration já gerada; não repetir `add`):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+dotnet ef migrations add Issue025 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue020Panel Issue025 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue025.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+Não executamos `database update`; o deploy do mantenedor aplicará a migration pelo startup.
+
+## Correções aprovadas do Baley
+
+Fluxo implementado com a migration PostgreSQL `20261025220842_Issue025Remediation`. `Issue025` publicada permanece inalterada. A feature de [correção aprovada](../docs/features/done/baley-correcao-aprovada-e-saude.md) registra checks e pendência de publicação.
+
+- `GET /security-remediations?reportExternalId=<guid>`: root consulta estado e plano de cada verificação, sem revelar reserva de execução.
+- `POST /security-remediations`: root autoriza `{ "reportExternalId": "...", "findingIndex": 0 }`; índice corresponde ao array original e imutável. Relatório antigo ou procedimento não disponível exige intervenção.
+- `POST /security-remediations/batch`: root envia `{ "reportExternalId": "..." }`; autoriza pendentes do relatório inteiro e preserva registros existentes. Salva a coleção em uma unidade de persistência; restrição única impede duplicações concorrentes. Retorna contagens autorizadas, encaminhadas e já tratadas.
+- `GET /security-remediations/queue?hostId=<id>`: `security.remediations.execute`, somente tarefas do próprio autor técnico e host solicitado, aprovadas e não expiradas.
+- `PUT /security-remediations/{externalId}`: mesma permissão, identidade do executor, reserva e estado corretos. Ações fixas claim/validating/resolved/intervention, nunca comandos. Reserva de dez minutos e autorização de 24 horas. Resolvido exige fase de validação e evidências de saúde antes/depois, duas amostras e achado ausente. Reserva expirada não permite sucesso; intervenção ainda pode registrar a execução interrompida.
+
+`SecurityRemediation : Entity` referencia o relatório sem alterar RawData, registra aprovador, executor, índice do achado, host, plano/resultado JSON, mensagem, prazo e revisão. Índice exclusivo da chave de host ativa impede correções simultâneas por processos diferentes. Execução interrompida pode exigir revisão manual antes de liberar esse host; nunca liberar e repetir a mutação automaticamente.
+
+## Categorias de serviços
+
+O campo continua `type` no contrato para preservar os consumidores; o rótulo administrativo é **Categoria**. Novos valores aceitos: unknown, dotnet, angular, postgres, rabbitmq e redis. Categoria e situação são obrigatórias no cadastro; “Todos” existe apenas nos filtros. A UI inicia categoria unknown. Valores legados não confirmam uma tecnologia e são apresentados/filtrados como unknown, sem reescrever históricos existentes. Situações mantêm códigos planned/onboarding/active/closed, exibidos como Em análise/Em implantação/Em operação/Encerrado.
+
+- `PUT /security-remediations/{externalId}/review`: root registra revisão de uma execução incerta após o prazo expirar, com `confirmedStopped=true` e nota de pelo menos 20 caracteres. Libera somente a reserva do host; o achado continua em intervenção. Não executar enquanto o processo remoto ainda puder estar em andamento.
+
+Migration já gerada, **não repetir add**. Comandos reproduzíveis, sem iniciar o host ou conectar a banco real:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release --no-restore -m:1
+dotnet ef migrations add Issue025Remediation --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue025 Issue025Remediation --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue025-remediation.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+O startup aplicará a nova tabela durante o deploy; não foi executado database update ou redeploy nesta entrega. O modelo do PortalIdentity foi conferido sem alterações pendentes. Somente PostgreSQL contemplado.
+
+### Escopo dos servidores no inventário
+
+Novos recursos usam `shared` (Compartilhado, padrão) ou `individual` (Individual), sem exigir vínculo a cliente. Os códigos anteriores `platform` e `customer` continuam aceitos para preservar cadastros; não são convertidos automaticamente, pois não indicam compartilhamento. A UI oferece apenas Servidor (`compute`) para novos cadastros; tipos anteriores continuam legíveis e editáveis. Provedor identifica o fornecedor (ex.: AWS); `providerResourceId` identifica a instância no fornecedor (ex.: ID EC2). Nenhuma migration é necessária para esses valores.
+
+## Home do Portal e despesas internas — issue026
+
+Implementação local validada, sem publicação. A migration PostgreSQL `20261026102348_Issue026` foi gerada mediante autorização e revisada: cria somente `expense` e `portalusagesample`, sete índices e duas FKs RESTRICT para clientes. Não altera objetos existentes. Será aplicada automaticamente no startup após publicação pelo mantenedor. Nenhum `database update` foi executado. SQL Server e outros provedores não receberam migrations.
+
+| Operação | Autorização | Finalidade |
+| --- | --- | --- |
+| `GET /expenses` | `olivaw.root` | Custos, créditos, total líquido e histórico em BRL |
+| `POST /expenses` | `olivaw.root` | Lançamento idempotente por `entryKey` |
+| `POST /portal-usage-samples` | `olivaw.root` | Amostra diária consolidada e explicitamente atribuída a um cliente |
+| `GET /portal/home` | `portal.member` + vínculo à empresa | Resumo e histórico do próprio cliente |
+| `GET /portal-preview/home` | `olivaw.root` | Consulta interna sem impersonação do cliente |
+| `GET /portal/requests?customerExternalId=…&requestExternalId=…` | `portal.member` + vínculo | Detalhe de solicitação por link, inclusive fora da primeira página |
+
+Despesas: `from` inclusivo e `to` exclusivo em dias UTC, intervalo máximo 366 dias, `groupBy=day|month|year`, `customerExternalId` opcional, `page/pageSize` para os lançamentos. As séries e totais usam todo o período, não apenas a página. A consulta recusa mais de 5.000 lançamentos em vez de exibir total parcial. Valores USD exigem `exchangeRateToBrl` informado; BRL exige taxa 1. Taxa e valor convertido ficam registrados no lançamento. Crédito tem valor positivo e `kind=credit`; o líquido pode ser negativo. Despesas compartilhadas sem cliente aparecem em `unallocatedBrl`, separadas dos totais individuais. Não há importação AWS, câmbio automático ou rateio presumido. Este primeiro recorte oferece criação e consulta; correção/estorno de lançamentos é uma evolução própria, sem exclusão física de histórico.
+
+Home: `period=day|week|month|year` corresponde ao último dia UTC encerrado, últimos 7/30 dias ou último ano, sempre com pontos diários. Uma amostra por cliente/dia, com `sampleKey` único, `storageUsedMiB`, `pageViews` e fonte obrigatória. Ausência é `null`; zero é uma leitura válida. Armazenamento usa MiB/GiB, sem confundir com MB/GB decimais. Visualizações são contagens diárias consolidadas, não pessoas únicas, requisições brutas ou valores acumulados repetidos. Nenhum coletor automático foi implementado nesta etapa; até haver ingestão, a Home exibe ausência de leituras. Uma amostra da VM compartilhada não pode alimentar o consumo de um cliente.
+
+Totais de chamados distinguem problemas/dúvidas de melhorias e respeitam estados terminais existentes. O detalhe mantém a condição de empresa na consulta. Abertura, idempotência, conversa, histórico e transições continuam nos endpoints existentes de Portal/Atendimento. O corpo das mensagens preserva o texto fornecido. Custos internos e fontes das amostras não são expostos no DTO da Home.
+
+Comandos de validação, a partir da raiz:
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Api/Owh.Olivaw.Api.csproj -m:1 --no-restore
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj --no-build --no-restore
+```
+
+Comandos reproduzíveis da Issue026 (já gerada; não repetir `add`):
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+dotnet ef migrations add Issue026 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+# Recompilar o provedor após gerar os arquivos, antes de revisar o SQL.
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+dotnet ef migrations script Issue025Remediation Issue026 --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue026.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+```
+
+Validações locais: 416 testes da API, build do provedor/API, revisão do SQL e compatibilidade de modelo PostgreSQL. Não houve conexão a bancos reais durante a geração ou validação.
+
+### Dashboard Financeiro — agregados de despesas
+
+`GET /expenses` também retorna `byCategory` e `byCustomer`, calculados com todos os registros do recorte antes da paginação de `items`. Cada grupo informa custo bruto, créditos, líquido e quantidade. Custos compartilhados têm chave `shared`; `unallocatedOnly=true` filtra somente esses lançamentos e não pode ser combinado com `customerExternalId`. `unallocatedBrl` continua informando o líquido compartilhado de todo o período, separadamente do total individual.
+
+A ampliação é aditiva e não altera o modelo persistido: nenhuma migration nova é necessária. A autorização permanece `olivaw.root`. Não é cálculo de receita, lucro, saldo bancário ou pagamento confirmado. A série temporal segue a data gerencial registrada no lançamento; não distribui automaticamente uma fatura mensal por dias de consumo.
+
+### Gastos sem abatimento dos créditos Free Tier
+
+Por decisão do mantenedor, `GET /expenses` retorna **somente custos por padrão**, antes de totais, série, agregados e paginação. Os créditos históricos não são apagados: a consulta administrativa explícita `includeCredits=true` recupera a composição completa para auditoria. Não tratar o líquido da fatura após benefícios como custo da infraestrutura. Essa alteração de consulta não exige migration.
+
+### Incrementos locais da issue026 (ainda não publicados)
+
+- `GET/POST /aws-invoices` e `GET /aws-invoices/{id}`: root, metadados estáveis e `RawData` string JSON extensível; custos não são duplicados pelo cadastro documental. Vínculos com despesas existentes pertencem à mesma competência.
+- `GET/POST /plans/versions`: quatro chaves de catálogo, versões imutáveis, valores em BRL e estudo de custos opcional. `POST /plans/assignments` vincula cliente/versão a partir de uma competência, com aprovação e mensalidade negociada opcional; condições antigas permanecem intactas. Nenhum deploy, quota Docker ou reajuste automático.
+- Despesas conhecidas podem ter competência até doze meses à frente; apropriação de domínio anual não representa doze pagamentos. O filtro de despesas considera custos por padrão; créditos permanecem em evidências.
+- Coleta periódica opcional: `Monitoring:Schedule:Enabled=false` por padrão, `IntervalMinutes=15`, `RetentionDays=30`, `ActorUserId` obrigatório ao habilitar e `ResourceExternalIds` explícitos (até 32). URLs precisam coincidir com `Monitoring:AllowedUrls`; HTTPS público, sem redirects, timeout limitado. `GET /health-readings/collector` é root e mostra a execução desde o startup; reinício não inventa um histórico. Retenção remove no máximo 500 amostras antigas por ciclo, somente da fonte automática configurada. Falha de fonte não é ambiente seguro e coleta não abre incidente automaticamente.
+
+As novas entidades estão na migration PostgreSQL complementar descrita abaixo, preservando a `Issue026` já publicada. O startup aplica migrations pendentes; não houve atualização de banco nesta execução. SQL Server não recebe migration.
+
+### Fechamento local de Planos — Issue026PlansAndFinance
+
+Migration PostgreSQL complementar: `20261030222928_Issue026PlansAndFinance`. A `Issue026` anterior permanece intacta. Cria sete tabelas de catálogo/faturas/controle financeiro e seis colunas aditivas em estudos, condições e leituras de saúde. Mantém dados existentes, FKs RESTRICT e índices únicos. Upgrade sem remoção de tabelas ou colunas. Schema da autoridade PortalIdentity permanece separado e sem mudanças.
+
+```bash
+dotnet build ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql -c Release -m:1 --no-restore
+# Já gerada: não repetir add.
+dotnet ef migrations add Issue026PlansAndFinance --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet ef migrations script Issue026 Issue026PlansAndFinance --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build --output /tmp/olivaw-issue026-plans-finance.sql
+dotnet ef migrations has-pending-model-changes --project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --startup-project ms-olivaw-api/src/Owh.Olivaw.Dados.PostgreSql --context WriteDbContext --configuration Release --no-build
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests -c Release -m:1 --no-restore
+```
+
+`POST /plans/cost-sheets` salva oito bases BRL e o estudo atomicamente, com chave de reenvio e digest. `CostSheetData` preserva as entradas originais em JSON string, inclusive valores anuais e denominadores de rateio. Campos desconhecidos podem ser preservados em evoluções futuras sem reformatar estudos antigos. Custos normalizados, trabalho, reserva, margem e despesas comerciais compõem o preço sugerido. A soma de margem e despesas comerciais deve ser inferior a 100%. A publicação do plano continua explícita e não aplica quotas Docker.
+
+Validação local: 446 testes da API passaram, incluindo compatibilidade entre modelo e migration; nenhuma conexão a banco real ou `database update`. SQL Server não recebeu migration. Build do provedor sem avisos; ferramenta EF 10.0.12 avisa diferença para runtime 10.0.13, sem alteração de dependências. Após publicação pelo mantenedor, o startup aplicará a migration automaticamente; backup e revisão do pacote antecedem a publicação. Não executar `Down` em produção como atalho: estruturas novas podem conter dados.
+
+## Prospecção e propostas de Leads
+
+`POST /leads` cadastra oportunidades manuais com `leads.manage`, UUID fornecido para detectar repetição e contatos opcionais. Origem e iniciativa são preservadas no snapshot. `PUT /leads/{externalId}/proposal` salva o orçamento com revisão otimista; 409 exige recarregar. Envios anônimos não podem definir condições comerciais. Sem alteração de schema ou migration.
+
+Validação local: `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` a partir da raiz. [Roteiro de cadastro](../docs/99freelas/795293/cadastro-apos-publicacao.md).
+
+### Comunicação Gmail do Trevize
+
+`PUT /leads/{externalId}/communications` exige `leads.manage` e recebe `UpdateLeadCommunicationCommand`: `revision`, `followUpRevision` e `event`. O evento contém chave idempotente, intenção, hash do conteúdo aprovado, e-mail, assunto, trecho do corpo e IDs Gmail/thread. Tipos: `prepared`, `sending`, `sent`, `received`, `review-required` e `human-takeover`. IDs e textos têm limites no validator.
+
+O handler registra metadados em `snapshot.communications` e uma nota em `LeadChange`, com a mesma unidade de persistência. Eventos repetidos idênticos retornam `repeated=true`, mesmo com revisão antiga, sem criar outra nota. Repetir uma chave com outro conteúdo é inválido. Conflitos de revisão ou concorrência retornam 409. Um evento `sending` repetido nunca autoriza outro envio. Preparação inicial duplicada ou envio sem preparação anterior são bloqueados. Reservas exigem lead outbound em Novo contato/Em conversa, destinatário conhecido e ausência de bloqueio/assunção humana.
+
+Somente `sent`/`received` avançam Novo contato para Em conversa. Não regride outras etapas. Corpo limitado a trecho de 1.500 caracteres no histórico, sem anexos; metadados limitados a 40 eventos e ao snapshot total de 32 KB. A leitura administrativa inclui `communications`; a escrita pública exige esse campo nulo e preserva o valor já existente.
+
+Sem migration ou deploy nesta entrega. Contratos no cliente, com testes de autorização, controller, handler, idempotência, concorrência e preservação na jornada pública. O backend não acessa o Gmail: o agente faz transporte oficial e verifica as confirmações. Consulte o [roteiro de teste e OAuth](../olivaw-agent/ms-trevize-py/GMAIL.md) e a [feature](../docs/features/in-progress/trevize-gmail-acompanhamento.md).
+
+### Qualificação e abordagem de Leads
+
+O contrato de qualificação também recebe `publicEmails` (até cinco pares `email`/`sourceUrl`), `contactPageUrl`, `contactFormUrl`, `contactFormStatus` (`not-checked`, `found`, `not-detected` ou `inconclusive`) e `contactCheckedAt` (data UTC da leitura). São evidências públicas no snapshot JSON existente, sem migration. O status `found` exige URL de formulário e toda verificação realizada exige data. Endereços e fontes são validados; a edição da ficha preserva os campos. Publicar este contrato antes de atualizar o coletor. A coleta não envia mensagens nem formulários. Ver [descoberta de contatos](../docs/features/in-progress/trevize-descoberta-contatos.md).
+
+Validação local desta ampliação:
+
+```bash
+dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore --filter FullyQualifiedName~UpdateLeadQualificationTest
+```
+
+`PUT /leads/{externalId}/qualification` exige a política `leads.manage` (root ou permissão administrativa) e recebe `{ "revision": 1, "qualification": { "schemaVersion": 1, "segment": "Eventos", "region": "Curitiba", "approachStatus": "draft" } }`. Demais campos opcionais possuem defaults vazios. Guarda perfil, fontes, presença digital, telefone/WhatsApp confirmado, tags, fatos, positivos, observações, perguntas e abordagem. Estados do texto: `draft` ou `reviewed`; não representa envio.
+
+Atualiza somente o bloco interno do snapshot, preservando jornada, proposta e campos desconhecidos na raiz. Autor/data são obtidos do contexto autenticado; revisão desatualizada ou concorrência gera 409. Snapshot completo mantém teto de 32.000 caracteres. URLs aceitam apenas HTTP(S) sem credenciais; a API não navega nos links recebidos. O endpoint público rejeita qualificação e autoria na entrada e preserva os dados internos ao reenvio legítimo da jornada.
+
+Sem mudança de schema ou migration. Contratos no projeto cliente em `Features/LeadFeature/Commands/UpdateLeadQualification.cs`. Validar por `dotnet test ms-olivaw-api/tests/Owh.Olivaw.Tests/Owh.Olivaw.Tests.csproj -m:1 --no-restore` e `dotnet pack ms-olivaw-api/src/Owh.Olivaw.Client/Owh.Olivaw.Client.csproj -c Release -m:1 --no-restore`. Backend precisa ser publicado antes de iniciar o Trevize; não foi feito deploy nesta entrega.
+
+A lista administrativa projeta `phone`, `websiteUrl` e `segment` do bloco de qualificação; a busca inclui esses campos. WhatsApp original tem precedência, com fallback para o número confirmado da qualificação. As projeções existentes de PostgreSQL/SQL Server foram mantidas, sem adicionar colunas persistidas.
+
+### Descoberta de contatos e ciclo de atendimento — issue031
+
+Na v1.1.2, `resumed` registra retomada explícita com justificativa, referenciando uma mensagem de encaminhamento/intervenção ativa. Exige `leads.manage`, remetente conhecido, etapa elegível e ausência de recusa ou envio a reconciliar. O histórico anterior é preservado; pausas posteriores à retomada continuam bloqueando. A consulta gerencial considera a última retomada para disponibilidade, mantendo as contagens históricas. Sem migrations. A publicação desta versão é necessária antes de usar `leads resume`; o comando não envia mensagens.
+
+Correção de transporte JSON: o MVC usa Newtonsoft, enquanto `Communications` e `ContactDiscovery` do contrato usam `JsonElement`. O conversor local `SystemTextJsonElementConverter` preserva o conteúdo JSON bruto nas respostas e entradas, evitando objetos `valueKind` no lugar dos eventos. O teste HTTP de leads cobre gravação seguida de releitura. Não há mudança de schema ou migration; é necessário publicar a API para corrigir respostas já existentes. Ver [diagnóstico do teste Gmail](../docs/features/in-progress/trevize-gmail-null-history.md).
+
+`PUT /leads/{id}/contact-discovery` exige `leads.manage`, revisão do snapshot e de acompanhamento. Recebe `contacts` com os campos públicos e `researchCompleted`. Mescla somente canais, preservando campos humanos e desconhecidos da qualificação. Promove e-mail principal vazio somente se inequívoco. Pesquisa concluída sem e-mail gera uma única nota `sem email`, avançando apenas Novo contato para Em conversa. Inconclusivo não gera essa nota. `contactDiscovery` é metadado de leitura administrativa e é preservado/rejeitado na escrita pública, como `communications`.
+
+Comunicação aceita também `cancelled`, `suppressed`, `handoff` e `reply-draft`. Cancelamento exige preparação sem reserva/tentativa; permite versão nova sem reaproveitar a intenção cancelada. Supressão, encaminhamento e intervenção humana bloqueiam reservas futuras. `questionId` identifica pergunta do roteiro fixo. `GET /leads/communication-summary` agrega as últimas 500 fichas com `inspected`, `truncated`, data e contagens, sem alegar total global ou estado local do worker. O frontend apresenta esses limites.
+
+Tudo usa snapshot/histórico existentes, sem migrations. Envios continuam desabilitados no agente e no transporte. Validação: suíte .NET local, testes Python simulados e E2E da interface; ver [GMAIL.md](../olivaw-agent/ms-trevize-py/GMAIL.md).
+
+### Diagnóstico comercial e interesse (v1.1.3)
+
+`qualification.websiteAssessment` é opcional e contém cinco dimensões (`modernity`, `content`, `ui`, `ux`, `management`), cada uma com nota inteira opcional 0–10, evidência, URL e confiança. `null` representa desconhecido. `basis` identifica HTML, revisão manual, conversa ou simulação; `commercialObservation` guarda um detalhe público revisável e `restrictedAreaUrl` apenas um indício de área restrita. Mantêm-se revisão otimista e autorização `leads.manage`. Sem migration.
+
+Eventos classificados podem carregar `interestSignal` e `interestEvidence`; somente `reply-draft` e `handoff` aceitam esses campos. A API deriva `snapshot.engagement`, com nível, motivo, data e mensagem de origem. Envio não aquece lead, e supressão não pode ser revertida pelo sinal. Campos ausentes preservam fingerprints de eventos anteriores. A lista projeta `temperature`, `temperatureReason` e `temperatureUpdatedAt` para PostgreSQL e SQL Server, sem corpos ou snapshots completos. `commercialResearchVersion: 1` anuncia o contrato compatível.
+
+Atualizar API e frontend da feature antes de usar diagnóstico/termômetro; agente permanece com envio desativado. Ver [operação do Trevize](../olivaw-agent/ms-trevize-py/GMAIL.md#pesquisa-comercial-e-conversa-contextualizada).

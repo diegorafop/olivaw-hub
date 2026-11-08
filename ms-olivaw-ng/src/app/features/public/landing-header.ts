@@ -22,7 +22,8 @@ import { RouterLink } from '@angular/router';
       </a>
       <nav aria-label="Navegação principal" class="hidden items-center gap-8 text-sm lg:flex">
         <a href="#solucoes">Soluções</a><a href="#clientes">Clientes</a
-        ><a href="#como-funciona">Como funciona</a><a href="#sobre">Sobre nós</a>
+        ><a routerLink="/planos">Planos</a><a href="#como-funciona">Como funciona</a
+        ><a href="#sobre">Sobre nós</a>
         <a href="#contato" class="nav-cta">Contato <span aria-hidden="true">↗</span></a>
       </nav>
       <button
@@ -43,6 +44,7 @@ import { RouterLink } from '@angular/router';
       >
         <a href="#solucoes" (click)="open.set(false)">Soluções</a
         ><a href="#clientes" (click)="open.set(false)">Clientes</a
+        ><a routerLink="/planos" (click)="open.set(false)">Planos</a
         ><a href="#como-funciona" (click)="open.set(false)">Como funciona</a>
         <a href="#sobre" (click)="open.set(false)">Sobre nós</a
         ><a href="#contato" (click)="open.set(false)">Contato</a>

@@ -6,6 +6,18 @@ using Xunit;
 namespace Owh.Olivaw.Tests.InventoryFeatureTest;
 public sealed class InventoryDomainTest
 {
+    [Theory]
+    [InlineData("shared", true)]
+    [InlineData("individual", true)]
+    [InlineData("platform", true)]
+    [InlineData("customer", true)]
+    [InlineData("all", false)]
+    [InlineData("", false)]
+    public void Resource_scope_should_accept_sharing_and_preserve_legacy_records(string scope, bool expected)
+    {
+        Assert.Equal(expected, InventoryResourceData.IsScope(scope));
+        Assert.Equal("shared", new InventoryResourceData().Scope);
+    }
     [Fact]
     public void Reachability_should_deduplicate_diamonds_and_stop_dependency_cycles()
     {

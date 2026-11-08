@@ -13,7 +13,7 @@ public sealed class UpdateInventoryResourceCommand
     public string Owner { get; set; } = string.Empty;
     public string Payer { get; set; } = string.Empty;
     public string Operator { get; set; } = string.Empty;
-    public string Scope { get; set; } = "platform";
+    public string Scope { get; set; } = "shared";
     public string Status { get; set; } = "reported";
     public string Source { get; set; } = string.Empty;
     public string Monitoring { get; set; } = "none";

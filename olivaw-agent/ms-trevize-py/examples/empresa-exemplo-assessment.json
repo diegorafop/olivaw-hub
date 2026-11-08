@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "basis": "simulation",
+  "strategy": "ui",
+  "metrics": {
+    "modernity": {
+      "score": null,
+      "evidence": "Não avaliado neste cenário fictício; confirmar em revisão ou conversa.",
+      "sourceUrl": "",
+      "confidence": "unknown"
+    },
+    "content": {
+      "score": null,
+      "evidence": "Não avaliado neste cenário fictício; confirmar em revisão ou conversa.",
+      "sourceUrl": "",
+      "confidence": "unknown"
+    },
+    "ui": {
+      "score": 5,
+      "evidence": "Simulação: revisar consistência entre cores, contraste e componentes para fortalecer a identidade visual.",
+      "sourceUrl": "",
+      "confidence": "provisional"
+    },
+    "ux": {
+      "score": 5,
+      "evidence": "Simulação: há oportunidade de simplificar a navegação e o caminho até o contato.",
+      "sourceUrl": "",
+      "confidence": "provisional"
+    },
+    "management": {
+      "score": null,
+      "evidence": "Não avaliado neste cenário fictício; confirmar em revisão ou conversa.",
+      "sourceUrl": "",
+      "confidence": "unknown"
+    }
+  }
+}

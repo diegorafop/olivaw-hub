@@ -7,7 +7,8 @@
     "olivaw/ms-olivaw-ng",
     "olivaw/ms-ltmj-ng",
     "olivaw/ms-ltmj-api",
-    "olivaw/ms-olivaw-api"
+    "olivaw/ms-olivaw-api",
+    "olivaw/ms-cavalcante-ng"
   ],
   "stepTimeoutSeconds": 1200,
   "sshOverrideFolders": [

@@ -1,0 +1,254 @@
+Amazon AWS Serviços Brasil Ltda. charges by service  Info
+Collapse all
+Total active services
+9
+Total pre-tax service charges in USD
+USD 0.00
+
+    1
+
+Description
+Usage Quantity
+Amount in USD
+Description
+Usage Quantity
+Amount in USD
+Data Transfer
+USD 0.00
+US East (N. Virginia)
+USD 0.00
+AWS Data Transfer USE1-APN1-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Tokyo)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APN1-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Tokyo)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APN2-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Seoul)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APN2-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Seoul)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APS1-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Singapore)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APS1-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Singapore)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APS2-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Sydney)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APS2-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Sydney)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APS3-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from Asia Pacific (Mumbai)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-APS3-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to Asia Pacific (Mumbai)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-CAN1-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from Canada (Central)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-CAN1-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to Canada (Central)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUC1-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from EU (Germany)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUC1-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to EU (Germany)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUN1-AWS-In-Bytes
+USD 0.00
+USD 0.0 per GB for EUN1-AWS-In-Bytes in EU (Stockholm)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUN1-AWS-Out-Bytes
+USD 0.00
+USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUW2-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from EU (London)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUW2-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to EU (London)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUW3-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from EU (Paris)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-EUW3-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to EU (Paris)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-USE2-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from US East (Ohio)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-USE2-AWS-Out-Bytes
+USD 0.00
+$0.01 per GB - US East (Northern Virginia) data transfer to US East (Ohio)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-USW1-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from US West (Northern California)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-USW1-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to US West (Northern California)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-USW2-AWS-In-Bytes
+USD 0.00
+$0.00 per GB - US East (Northern Virginia) data transfer from US West (Oregon)
+0 GB
+USD 0.00
+AWS Data Transfer USE1-USW2-AWS-Out-Bytes
+USD 0.00
+$0.02 per GB - US East (Northern Virginia) data transfer to US West (Oregon)
+0 GB
+USD 0.00
+Bandwidth
+USD 0.00
+$0.000 per GB - data transfer in per month
+1.674 GB
+USD 0.00
+$0.000 per GB - data transfer out under the monthly global free tier
+0.064 GB
+USD 0.00
+$0.000 per GB - regional data transfer under the monthly global free tier
+0.003 GB
+USD 0.00
+Elastic Compute Cloud
+USD 0.00
+No Region
+(USD 3.29)
+(USD 3.29)
+AWS Free Tier
+Credit
+(USD 3.29)
+US East (N. Virginia)
+USD 3.29
+Amazon Elastic Compute Cloud running Linux/UNIX
+USD 2.49
+$0.0104 per On Demand Linux t3.micro Instance Hour
+239.093 Hrs
+USD 2.49
+EBS
+USD 0.80
+$0.00 for 87 Mbps per t3.micro instance-hour (or partial hour)
+239.796 Hrs
+USD 0.00
+$0.08 per GB-month of General Purpose (gp3) provisioned storage - US East (N. Virginia)
+10 GB-Mo
+USD 0.80
+Glue
+USD 0.00
+US East (N. Virginia)
+USD 0.00
+AWS Glue Request
+USD 0.00
+$0 for AWS Glue Data Catalog requests under the free tier
+20 Request
+USD 0.00
+Key Management Service
+USD 0.00
+US East (N. Virginia)
+USD 0.00
+AWS Key Management Service us-east-1-KMS-Requests
+USD 0.00
+$0.00 per request - Monthly Global Free Tier for KMS requests
+3 Requests
+USD 0.00
+Secrets Manager
+USD 0.00
+US East (N. Virginia)
+USD 0.00
+AWS Secrets Manager USE1-AWSSecretsManagerAPIRequest
+USD 0.00
+$0.05 per 10000 API Requests
+3 API Requests
+USD 0.00
+Simple Notification Service
+USD 0.00
+US East (N. Virginia)
+USD 0.00
+Amazon Simple Notification Service Requests-Tier1
+USD 0.00
+First 1,000,000 Amazon SNS API Requests per month are free
+3 Requests
+USD 0.00
+Simple Queue Service
+USD 0.00
+US East (N. Virginia)
+USD 0.00
+Amazon Simple Queue Service Requests-RBP
+USD 0.00
+First 1,000,000 Amazon SQS Requests per month are free
+3 Requests
+USD 0.00
+Simple Storage Service
+USD 0.00
+US East (N. Virginia)
+USD 0.00
+Amazon Simple Storage Service Requests-Tier1
+USD 0.00
+$0.005 per 1,000 PUT, COPY, POST, or LIST requests
+18 Requests
+USD 0.00
+Virtual Private Cloud
+USD 0.00
+No Region
+(USD 1.20)
+(USD 1.20)
+AWS Free Tier
+Credit
+(USD 1.20)
+US East (N. Virginia)
+USD 1.20
+Amazon Virtual Private Cloud Public IPv4 Addresses
+USD 1.20
+$0.005 per In-use public IPv4 address per hour
+239.098 Hrs
+USD 1.20
+Total tax
+USD 0.00

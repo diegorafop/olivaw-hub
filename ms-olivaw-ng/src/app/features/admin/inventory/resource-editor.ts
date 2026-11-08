@@ -9,6 +9,8 @@ import { InventoryLinks } from './inventory-links';
 import {
   InventoryApi,
   resourceTypes,
+  resourceCreationTypes,
+  resourceScopes,
   resourceStatuses,
   inventoryError,
   type ResourceDetail,
@@ -33,7 +35,9 @@ export class ResourceEditor {
   readonly conflict = signal(false);
   readonly error = signal('');
   readonly success = signal('');
-  readonly typeOptions = Object.entries(resourceTypes);
+  readonly typeOptions = Object.entries(resourceCreationTypes);
+  readonly types = resourceTypes;
+  readonly scopes = resourceScopes;
   readonly statusOptions = Object.entries(resourceStatuses);
   readonly statuses = resourceStatuses;
   readonly form = new FormGroup({
@@ -65,7 +69,7 @@ export class ResourceEditor {
     owner: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(120)] }),
     payer: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(120)] }),
     operator: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(120)] }),
-    scope: new FormControl('platform', {
+    scope: new FormControl('shared', {
       nonNullable: true,
       validators: [Validators.maxLength(20)],
     }),
